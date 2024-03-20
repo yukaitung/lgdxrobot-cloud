@@ -1,0 +1,7 @@
+a.nav-link.dropdown-toggle.show::after {
+  transform: rotate(-45deg);
+}
+
+a.nav-link.dropdown-toggle::after {
+  transform: rotate(-135deg) translateY(-2px);
+}

@@ -1,0 +1,92 @@
+﻿<aside class="navbar navbar-vertical navbar-expand-lg">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
+            aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <h1 class="navbar-brand navbar-brand-autodark sidebar-logo sidebar-item">
+            <a href="">
+                <img src="/img/logo.png" height="32" alt="LGDXRobot2" class="navbar-brand-image">
+            </a>
+        </h1>
+        <div class="nav-item sidebar-item">
+            <a href="https://gitlab.com/yukaitung/lgdxrobot2-blazortemplate" class="btn" target="_blank"
+                rel="noreferrer" style="padding: 3px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M21 14l-9 7l-9 -7l3 -11l3 7h6l3 -7z" />
+                </svg>
+            </a>
+        </div>
+        <div class="collapse navbar-collapse" id="sidebar-menu">
+            <ul class="navbar-nav pt-lg-3">
+                <NavItem href="" Match="NavLinkMatch.All">
+                    Home
+                </NavItem>
+                <NavDropdown title="Logistic" href="">
+                    <div class="dropdown-menu-column">
+                        <NavLink class="dropdown-item" href="">
+                            Map
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            Tasks Queue
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            Saved Tasks
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            Saved Waypoints
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            Flow Setting
+                        </NavLink>
+                    </div>
+                </NavDropdown>
+                <NavDropdown title="Robot" href="">
+                    <div class="dropdown-menu-column">
+                        <NavLink class="dropdown-item" href="">
+                            Network
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            Nodes Parameters
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            Nodes Composition
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            Profiles Editor
+                        </NavLink>
+                    </div>
+                </NavDropdown>
+                <NavDropdown title="Audit" href="">
+                    <div class="dropdown-menu-column">
+                        <NavLink class="dropdown-item" href="">
+                            Report
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            Log
+                        </NavLink>
+                    </div>
+                </NavDropdown>
+                <NavDropdown title="Setting" href="">
+                    <div class="dropdown-menu-column">
+                        <NavLink class="dropdown-item" href="">
+                            Users
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            Notifications
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            Certificates
+                        </NavLink>
+                        <NavLink class="dropdown-item" href="">
+                            API Keys
+                        </NavLink>
+                    </div>
+                </NavDropdown>
+            </ul>
+        </div>
+    </div>
+</aside>
