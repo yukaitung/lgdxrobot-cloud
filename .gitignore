@@ -483,4 +483,8 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
+# Js Library
 */wwwroot/lib
+
+# Secret file
+secrets.json

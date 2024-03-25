@@ -1,11 +1,20 @@
-var builder = WebApplication.CreateBuilder(args);
+using LGDXRobot2Cloud.API.DbContexts;
+using Microsoft.EntityFrameworkCore;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("secrets.json", true, true);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<LgdxContext>(
+    dbContextOptions => dbContextOptions
+        .UseMySql(ServerVersion.AutoDetect(builder.Configuration["MySQLConnectionString"]))
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors()
+);
 
 var app = builder.Build();
 
