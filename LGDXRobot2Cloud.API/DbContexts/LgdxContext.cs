@@ -22,6 +22,7 @@ namespace LGDXRobot2Cloud.API.DbContexts
 
     // Setting
     public DbSet<ApiKey> ApiKeys { get; set; }
-    
+
+    public LgdxContext(DbContextOptions<LgdxContext> options) : base(options) { }
   }
 }
