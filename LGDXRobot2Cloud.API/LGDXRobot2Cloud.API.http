@@ -1,0 +1,6 @@
+@LGDXRobot2Cloud.API_HostAddress = http://localhost:5162
+
+GET {{LGDXRobot2Cloud.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
