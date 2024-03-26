@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.API.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LGDXRobot2Cloud.API.Migrations
 {
     [DbContext(typeof(LgdxContext))]
-    partial class LgdxContextModelSnapshot : ModelSnapshot
+    [Migration("20240326214233_taskWaypointJoin")]
+    partial class taskWaypointJoin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,51 +24,6 @@ namespace LGDXRobot2Cloud.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
-            modelBuilder.Entity("FlowEndTrigger", b =>
-                {
-                    b.Property<int>("EndTriggersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FlowsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("EndTriggersId", "FlowsId");
-
-                    b.HasIndex("FlowsId");
-
-                    b.ToTable("FlowEndTrigger");
-                });
-
-            modelBuilder.Entity("FlowProgress", b =>
-                {
-                    b.Property<int>("FlowsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProgressesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("FlowsId", "ProgressesId");
-
-                    b.HasIndex("ProgressesId");
-
-                    b.ToTable("FlowProgress");
-                });
-
-            modelBuilder.Entity("FlowStartTrigger", b =>
-                {
-                    b.Property<int>("EndTriggersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FlowsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("EndTriggersId", "FlowsId");
-
-                    b.HasIndex("FlowsId");
-
-                    b.ToTable("FlowStartTrigger");
-                });
 
             modelBuilder.Entity("LGDXRobot2Cloud.API.Entities.ApiKey", b =>
                 {
@@ -226,6 +184,9 @@ namespace LGDXRobot2Cloud.API.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("FlowId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -239,72 +200,74 @@ namespace LGDXRobot2Cloud.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FlowId");
+
                     b.ToTable("Progresses");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            CreateAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8430),
+                            CreateAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6090),
                             Name = "Waiting",
                             System = true,
-                            UpdatedAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8430)
+                            UpdatedAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6090)
                         },
                         new
                         {
                             Id = 2,
-                            CreateAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440),
+                            CreateAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100),
                             Name = "Starting",
                             System = true,
-                            UpdatedAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440)
+                            UpdatedAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100)
                         },
                         new
                         {
                             Id = 3,
-                            CreateAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440),
+                            CreateAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100),
                             Name = "Loading",
                             System = true,
-                            UpdatedAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440)
+                            UpdatedAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100)
                         },
                         new
                         {
                             Id = 4,
-                            CreateAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440),
+                            CreateAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100),
                             Name = "Moving",
                             System = true,
-                            UpdatedAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440)
+                            UpdatedAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100)
                         },
                         new
                         {
                             Id = 5,
-                            CreateAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440),
+                            CreateAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100),
                             Name = "Unloading",
                             System = true,
-                            UpdatedAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440)
+                            UpdatedAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100)
                         },
                         new
                         {
                             Id = 6,
-                            CreateAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440),
+                            CreateAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100),
                             Name = "Completing",
                             System = true,
-                            UpdatedAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440)
+                            UpdatedAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100)
                         },
                         new
                         {
                             Id = 7,
-                            CreateAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440),
+                            CreateAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100),
                             Name = "Completed",
                             System = true,
-                            UpdatedAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8440)
+                            UpdatedAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100)
                         },
                         new
                         {
                             Id = 8,
-                            CreateAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8450),
+                            CreateAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100),
                             Name = "Aborted",
                             System = true,
-                            UpdatedAt = new DateTime(2024, 3, 26, 21, 54, 51, 546, DateTimeKind.Utc).AddTicks(8450)
+                            UpdatedAt = new DateTime(2024, 3, 26, 21, 42, 32, 811, DateTimeKind.Utc).AddTicks(6100)
                         });
                 });
 
@@ -429,6 +392,12 @@ namespace LGDXRobot2Cloud.API.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("FlowId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("FlowId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -447,6 +416,10 @@ namespace LGDXRobot2Cloud.API.Migrations
                     b.HasIndex("ApiKeyId");
 
                     b.HasIndex("ApiKeyLocationId");
+
+                    b.HasIndex("FlowId");
+
+                    b.HasIndex("FlowId1");
 
                     b.ToTable("Triggers");
                 });
@@ -499,51 +472,6 @@ namespace LGDXRobot2Cloud.API.Migrations
                     b.ToTable("TaskWaypoint");
                 });
 
-            modelBuilder.Entity("FlowEndTrigger", b =>
-                {
-                    b.HasOne("LGDXRobot2Cloud.API.Entities.Trigger", null)
-                        .WithMany()
-                        .HasForeignKey("EndTriggersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LGDXRobot2Cloud.API.Entities.Flow", null)
-                        .WithMany()
-                        .HasForeignKey("FlowsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FlowProgress", b =>
-                {
-                    b.HasOne("LGDXRobot2Cloud.API.Entities.Flow", null)
-                        .WithMany()
-                        .HasForeignKey("FlowsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LGDXRobot2Cloud.API.Entities.Progress", null)
-                        .WithMany()
-                        .HasForeignKey("ProgressesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FlowStartTrigger", b =>
-                {
-                    b.HasOne("LGDXRobot2Cloud.API.Entities.Trigger", null)
-                        .WithMany()
-                        .HasForeignKey("EndTriggersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LGDXRobot2Cloud.API.Entities.Flow", null)
-                        .WithMany()
-                        .HasForeignKey("FlowsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("LGDXRobot2Cloud.API.Entities.Flow", b =>
                 {
                     b.HasOne("LGDXRobot2Cloud.API.Entities.SystemComponent", "ProceedCondition")
@@ -560,6 +488,13 @@ namespace LGDXRobot2Cloud.API.Migrations
                     b.HasOne("LGDXRobot2Cloud.API.Entities.NodesComposition", null)
                         .WithMany("Nodes")
                         .HasForeignKey("NodesCompositionId");
+                });
+
+            modelBuilder.Entity("LGDXRobot2Cloud.API.Entities.Progress", b =>
+                {
+                    b.HasOne("LGDXRobot2Cloud.API.Entities.Flow", null)
+                        .WithMany("Progresses")
+                        .HasForeignKey("FlowId");
                 });
 
             modelBuilder.Entity("LGDXRobot2Cloud.API.Entities.Robot", b =>
@@ -598,6 +533,14 @@ namespace LGDXRobot2Cloud.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("LGDXRobot2Cloud.API.Entities.Flow", null)
+                        .WithMany("EndTriggers")
+                        .HasForeignKey("FlowId");
+
+                    b.HasOne("LGDXRobot2Cloud.API.Entities.Flow", null)
+                        .WithMany("StartTriggers")
+                        .HasForeignKey("FlowId1");
+
                     b.Navigation("ApiKey");
 
                     b.Navigation("ApiKeyLocation");
@@ -616,6 +559,15 @@ namespace LGDXRobot2Cloud.API.Migrations
                         .HasForeignKey("WaypointsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("LGDXRobot2Cloud.API.Entities.Flow", b =>
+                {
+                    b.Navigation("EndTriggers");
+
+                    b.Navigation("Progresses");
+
+                    b.Navigation("StartTriggers");
                 });
 
             modelBuilder.Entity("LGDXRobot2Cloud.API.Entities.NodesComposition", b =>

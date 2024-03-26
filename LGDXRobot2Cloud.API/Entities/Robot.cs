@@ -23,7 +23,7 @@ namespace LGDXRobot2Cloud.API.Entities
     public int NodesCompositionId { get; set; }
 
     [Required]
-    public DateTime CreateAt { get; } = DateTime.UtcNow;
+    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

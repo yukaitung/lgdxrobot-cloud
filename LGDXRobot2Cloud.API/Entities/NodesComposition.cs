@@ -17,7 +17,7 @@ namespace LGDXRobot2Cloud.API.Entities
     public ICollection<Node> Nodes { get; set; } = new List<Node>();
 
     [Required]
-    public DateTime CreateAt { get; } = DateTime.UtcNow;
+    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

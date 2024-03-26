@@ -14,12 +14,14 @@ namespace LGDXRobot2Cloud.API.Entities
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    public bool System { get; }
+    public bool System { get; set; }
 
     [Required]
-    public DateTime CreateAt { get; } = DateTime.UtcNow;
+    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    public ICollection<Flow> Flows { get; set; } = new List<Flow>();
   }
 }

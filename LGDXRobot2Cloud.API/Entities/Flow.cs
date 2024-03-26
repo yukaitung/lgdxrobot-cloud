@@ -17,10 +17,10 @@ namespace LGDXRobot2Cloud.API.Entities
     public ICollection<Progress> Progresses { get; set; } = new List<Progress>();
 
     [Required]
-    [ForeignKey("SignalEmitterId")]
-    public SignalEmitter ProceedCondition { get; set; } = new SignalEmitter();
+    [ForeignKey("SystemComponentId")]
+    public SystemComponent ProceedCondition { get; set; } = new SystemComponent();
 
-    public int SignalEmitterId { get; set; }
+    public int SystemComponentId { get; set; }
   
     [Required]
     public ICollection<Trigger> StartTriggers { get; set; } = new List<Trigger>();
@@ -29,7 +29,7 @@ namespace LGDXRobot2Cloud.API.Entities
     public ICollection<Trigger> EndTriggers { get; set; } = new List<Trigger>();
 
     [Required]
-    public DateTime CreateAt { get; } = DateTime.UtcNow;
+    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
