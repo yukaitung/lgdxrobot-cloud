@@ -5,6 +5,8 @@ namespace LGDXRobot2Cloud.API.Repositories
   public interface IWaypointRepository
   {
     Task<IEnumerable<Waypoint>> GetWaypointsAsync();
+    Task<Waypoint?> GetWaypointAsync(int waypointId);
+    Task<bool> WaypointExistsAsync(int waypointId);
     Task AddWaypointAsync(Waypoint waypoint);
     Task<bool> SaveChangesAsync();
   }

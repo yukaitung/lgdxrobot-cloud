@@ -1,3 +1,4 @@
+using AutoMapper;
 using LGDXRobot2Cloud.API.Entities;
 using LGDXRobot2Cloud.API.Models;
 using LGDXRobot2Cloud.API.Repositories;
@@ -10,31 +11,41 @@ namespace LGDXRobot2Cloud.API.Controllers
   public class NavigationController : ControllerBase
   {
     private readonly IWaypointRepository _waypointRepository;
+    private readonly IMapper _mapper;
 
-    public NavigationController(IWaypointRepository waypointRepository)
+    public NavigationController(IWaypointRepository waypointRepository,
+      IMapper mapper)
     {
       _waypointRepository = waypointRepository ?? throw new ArgumentNullException(nameof(waypointRepository));
+      _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     [HttpGet("waypoints")]
     public async Task<ActionResult<IEnumerable<WaypointDto>>> GetWaypoints()
     {
       var waypoints = await _waypointRepository.GetWaypointsAsync();
-      return Ok(waypoints);
+      return Ok(_mapper.Map<IEnumerable<WaypointDto>>(waypoints));
+    }
+
+    [HttpGet("waypoints/{id}", Name = "GetWaypoint")]
+    public async Task<ActionResult<WaypointDto>> GetWaypoint(int id)
+    {
+      if(!await _waypointRepository.WaypointExistsAsync(id))
+        return NotFound();
+      var waypoint = await _waypointRepository.GetWaypointAsync(id);
+      if(waypoint == null)
+        return NotFound();
+      return Ok(_mapper.Map<WaypointDto>(waypoint));
     }
 
     [HttpPost("waypoints")]
     public async Task<ActionResult> CreateWaypoint(WaypointCreateDto waypoint)
     {
-      Waypoint w = new Waypoint{
-        Name = waypoint.Name,
-        X = waypoint.X,
-        Y = waypoint.Y,
-        W = waypoint.W
-      };
-      await _waypointRepository.AddWaypointAsync(w);
+      var addWaypoint = _mapper.Map<Waypoint>(waypoint);
+      await _waypointRepository.AddWaypointAsync(addWaypoint);
       await _waypointRepository.SaveChangesAsync();
-      return NoContent();
+      var returnWaypoint = _mapper.Map<WaypointDto>(addWaypoint);
+      return CreatedAtRoute("GetWaypoint", new {id = returnWaypoint.Id}, returnWaypoint);
     }
   }
 }

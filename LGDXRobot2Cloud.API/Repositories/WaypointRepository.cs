@@ -18,6 +18,16 @@ namespace LGDXRobot2Cloud.API.Repositories
       return await _context.Waypoints.OrderBy(w => w.Id).ToListAsync();
     }
 
+    public async Task<Waypoint?> GetWaypointAsync(int waypointId)
+    {
+      return await _context.Waypoints.Where(w => w.Id == waypointId).FirstOrDefaultAsync();
+    }
+
+    public async Task<bool> WaypointExistsAsync(int waypointId)
+    {
+      return await _context.Waypoints.AnyAsync(w => w.Id == waypointId);
+    }
+
     public async Task AddWaypointAsync(Waypoint waypoint)
     {
       await _context.Waypoints.AddAsync(waypoint);

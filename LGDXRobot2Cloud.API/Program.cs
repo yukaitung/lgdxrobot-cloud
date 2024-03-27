@@ -21,6 +21,8 @@ builder.Services.AddDbContext<LgdxContext>(
 
 builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

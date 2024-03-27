@@ -11,6 +11,16 @@ XXX
 
 This software is developed with dotnet.
 
+## LGDXRobot2Cloud.API
+
+Dependency
+
+* dotnet EF
+  * Microsoft.EntityFrameworkCore
+  * Microsoft.EntityFrameworkCore.Tools
+  * Pomelo.EntityFrameworkCore.MySql
+* AutoMapper
+
 ### Functionality
 
 # Getting started
