@@ -1,6 +1,6 @@
 using LGDXRobot2Cloud.API.DbContexts;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using LGDXRobot2Cloud.API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
@@ -11,7 +11,6 @@ builder.Services.AddSwaggerGen();
 
 var connectionString = builder.Configuration["MySQLConnectionString"];
 var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
-
 builder.Services.AddDbContext<LgdxContext>(
     dbContextOptions => dbContextOptions
         .UseMySql(connectionString, serverVersion)
@@ -19,6 +18,8 @@ builder.Services.AddDbContext<LgdxContext>(
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
 );
+
+builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();
 
 var app = builder.Build();
 

@@ -17,13 +17,13 @@ namespace LGDXRobot2Cloud.API.Entities
     [MaxLength(50)]
     public string Address { get; set; } = string.Empty;
 
-    [ForeignKey("NodesCompositionId")]
-    public NodesComposition NodesComposition { get; set; } = new NodesComposition();
+    [ForeignKey("NodesCollectionId")]
+    public NodesCollection NodesCollection { get; set; } = new NodesCollection();
 
-    public int NodesCompositionId { get; set; }
+    public int NodesCollectionId { get; set; }
 
     [Required]
-    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

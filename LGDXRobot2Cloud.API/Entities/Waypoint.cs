@@ -11,7 +11,7 @@ namespace LGDXRobot2Cloud.API.Entities
 
     [Required]
     [MaxLength(50)]
-    public string? Name { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
     
     [Required]
     public double X { get; set; }
@@ -23,12 +23,12 @@ namespace LGDXRobot2Cloud.API.Entities
     public double W { get; set; }
 
     [Required]
-    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    public ICollection<Task> Tasks { get; set; } = new List<Task>();
+    public ICollection<RobotTask> RobotTasks { get; set; } = new List<RobotTask>();
 
   }
 }

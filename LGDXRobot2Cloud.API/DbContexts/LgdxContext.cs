@@ -1,4 +1,5 @@
 using LGDXRobot2Cloud.API.Entities;
+using LGDXRobot2Cloud.API.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.DbContexts
@@ -10,13 +11,13 @@ namespace LGDXRobot2Cloud.API.DbContexts
     public DbSet<Flow> Flows { get; set; }
     public DbSet<Progress> Progresses { get; set; }
     public DbSet<SystemComponent> SystemComponents { get; set; }
-    public DbSet<Entities.Task> Tasks { get; set; }
+    public DbSet<RobotTask> RobotTasks { get; set; }
     public DbSet<Trigger> Triggers { get; set; }
     public DbSet<Waypoint> Waypoints { get; set; }
 
     // Robot
     public DbSet<Node> Nodes { get; set; }
-    public DbSet<NodesComposition> NodesCompositions { get; set; }
+    public DbSet<NodesCollection> NodesCollections { get; set; }
     
     public DbSet<Robot> Robots { get; set; }
 
@@ -27,10 +28,10 @@ namespace LGDXRobot2Cloud.API.DbContexts
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      // many Tasks have many Waypoints
-      modelBuilder.Entity<Entities.Task>()
+      // many RobotTasks have many Waypoints
+      modelBuilder.Entity<RobotTask>()
         .HasMany(e => e.Waypoints)
-        .WithMany(e => e.Tasks);
+        .WithMany(e => e.RobotTasks);
       // many Flows have many many Progress
       modelBuilder.Entity<Flow>()
         .HasMany(e => e.Progresses)
@@ -47,49 +48,49 @@ namespace LGDXRobot2Cloud.API.DbContexts
       modelBuilder.Entity<Progress>().HasData(
         new Progress
         {
-          Id = 1,
+          Id = (int)ProgressState.Waiting,
           Name = "Waiting",
           System = true
         },
         new Progress
         {
-          Id = 2,
+          Id = (int)ProgressState.Starting,
           Name = "Starting",
           System = true
         },
         new Progress
         {
-          Id = 3,
+          Id = (int)ProgressState.Loading,
           Name = "Loading",
           System = true
         },
         new Progress
         {
-          Id = 4,
+          Id = (int)ProgressState.Moving,
           Name = "Moving",
           System = true
         },
         new Progress
         {
-          Id = 5,
+          Id = (int)ProgressState.Unloading,
           Name = "Unloading",
           System = true
         },
         new Progress
         {
-          Id = 6,
+          Id = (int)ProgressState.Completing,
           Name = "Completing",
           System = true
         },
         new Progress
         {
-          Id = 7,
+          Id = (int)ProgressState.Completed,
           Name = "Completed",
           System = true
         },
         new Progress
         {
-          Id = 8,
+          Id = (int)ProgressState.Aborted,
           Name = "Aborted",
           System = true
         }
@@ -97,12 +98,12 @@ namespace LGDXRobot2Cloud.API.DbContexts
       modelBuilder.Entity<SystemComponent>().HasData(
         new SystemComponent
         {
-          Id = 1,
+          Id = (int)SystemComponentName.API,
           Name = "api",
         },
         new SystemComponent
         {
-          Id = 2,
+          Id = (int)SystemComponentName.Robot,
           Name = "robot",
         }
       );

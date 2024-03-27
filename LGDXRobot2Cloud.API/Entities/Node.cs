@@ -22,7 +22,7 @@ namespace LGDXRobot2Cloud.API.Entities
     public string Arguments { get; set; } = string.Empty;
 
     [Required]
-    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

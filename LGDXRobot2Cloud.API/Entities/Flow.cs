@@ -29,7 +29,7 @@ namespace LGDXRobot2Cloud.API.Entities
     public ICollection<Trigger> EndTriggers { get; set; } = new List<Trigger>();
 
     [Required]
-    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

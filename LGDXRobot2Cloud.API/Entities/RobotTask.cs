@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LGDXRobot2Cloud.API.Entities
 {
-  public class NodesComposition
+  public class RobotTask
   {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -12,14 +12,23 @@ namespace LGDXRobot2Cloud.API.Entities
     [Required]
     [MaxLength(50)]
     public string Name { get; set; } = string.Empty;
+    
+    [Required]
+    public ICollection<Waypoint> Waypoints { get; set; } = new List<Waypoint>();
 
     [Required]
-    public ICollection<Node> Nodes { get; set; } = new List<Node>();
+    public int Priority { get; set; }
 
     [Required]
-    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
+    [ForeignKey("FlowId")]
+    public Flow Flow { get; set; } = new Flow();
+
+    public int FlowId { get; set; }
+
+    [Required]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-  } 
+  }
 }
