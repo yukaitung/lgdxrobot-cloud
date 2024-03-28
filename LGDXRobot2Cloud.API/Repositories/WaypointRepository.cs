@@ -33,6 +33,11 @@ namespace LGDXRobot2Cloud.API.Repositories
       await _context.Waypoints.AddAsync(waypoint);
     }
 
+    public void DeleteWaypoint(Waypoint waypoint)
+    {
+      _context.Waypoints.Remove(waypoint);
+    }
+
     public async Task<bool> SaveChangesAsync()
     {
       return await _context.SaveChangesAsync() >= 0;

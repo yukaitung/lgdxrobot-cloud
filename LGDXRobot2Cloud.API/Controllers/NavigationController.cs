@@ -45,7 +45,30 @@ namespace LGDXRobot2Cloud.API.Controllers
       await _waypointRepository.AddWaypointAsync(addWaypoint);
       await _waypointRepository.SaveChangesAsync();
       var returnWaypoint = _mapper.Map<WaypointDto>(addWaypoint);
-      return CreatedAtRoute("GetWaypoint", new {id = returnWaypoint.Id}, returnWaypoint);
+      return CreatedAtRoute(nameof(GetWaypoint), new {id = returnWaypoint.Id}, returnWaypoint);
+    }
+
+    [HttpPut("waypoints/{id}")]
+    public async Task<ActionResult> UpdateWaypoint(int id, WaypointCreateDto waypoint)
+    {
+      var waypointEntity = await _waypointRepository.GetWaypointAsync(id);
+      if(waypointEntity == null)
+        return NotFound();
+      _mapper.Map(waypoint, waypointEntity);
+      waypointEntity.UpdatedAt = DateTime.UtcNow;
+      await _waypointRepository.SaveChangesAsync();
+      return NoContent(); 
+    }
+
+    [HttpDelete("waypoints/{id}")]
+    public async Task<ActionResult> DeleteWaypoint(int id)
+    {
+      var waypoint = await _waypointRepository.GetWaypointAsync(id);
+      if(waypoint == null)
+        return NotFound();
+      _waypointRepository.DeleteWaypoint(waypoint);
+      await _waypointRepository.SaveChangesAsync();
+      return NoContent();
     }
   }
 }
