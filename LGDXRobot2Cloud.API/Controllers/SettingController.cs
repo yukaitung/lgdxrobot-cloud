@@ -56,11 +56,11 @@ namespace LGDXRobot2Cloud.API.Controllers
     [HttpPut("secret/apikeys/{id}")]
     public async Task<ActionResult> UpdateApiKey(int id, ApiKeyCreateDto apiKey)
     {
-      var apiKetEntity = await _apiKeyRepository.GetApiKeyAsync(id);
-      if(apiKetEntity == null)
+      var apiKeyEntity = await _apiKeyRepository.GetApiKeyAsync(id);
+      if(apiKeyEntity == null)
         return NotFound();
-      _mapper.Map(apiKey, apiKetEntity);
-      apiKetEntity.UpdatedAt = DateTime.UtcNow;
+      _mapper.Map(apiKey, apiKeyEntity);
+      apiKeyEntity.UpdatedAt = DateTime.UtcNow;
       await _apiKeyRepository.SaveChangesAsync();
       return NoContent();
     }

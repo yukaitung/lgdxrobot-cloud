@@ -20,7 +20,9 @@ builder.Services.AddDbContext<LgdxContext>(
 );
 
 // Navigation Repositories
+builder.Services.AddScoped<IApiKeyLocationRepository, ApiKeyLocationRepository>();
 builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
+builder.Services.AddScoped<ITriggerRepository, TriggerRepository>();
 builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();
 
 // Setting Repositories

@@ -115,6 +115,18 @@ namespace LGDXRobot2Cloud.API.DbContexts
           Name = "robot",
         }
       );
+      modelBuilder.Entity<ApiKeyLocation>().HasData(
+        new ApiKeyLocation
+        {
+          Id = (int)ApiKeyLocationStr.Header,
+          Name = "header",
+        },
+        new SystemComponent
+        {
+          Id = (int)ApiKeyLocationStr.Body,
+          Name = "body",
+        }
+      );
       base.OnModelCreating(modelBuilder);
     }
   }
