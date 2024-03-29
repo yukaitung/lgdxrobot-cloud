@@ -1,6 +1,7 @@
 using LGDXRobot2Cloud.API.Entities;
 using LGDXRobot2Cloud.API.Utilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LGDXRobot2Cloud.API.DbContexts
 {
@@ -25,6 +26,13 @@ namespace LGDXRobot2Cloud.API.DbContexts
     public DbSet<ApiKey> ApiKeys { get; set; }
 
     public LgdxContext(DbContextOptions<LgdxContext> options) : base(options) { }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+      configurationBuilder
+        .Properties<DateTime>()
+        .HaveConversion(typeof(UtcValueConverter));
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -109,5 +117,10 @@ namespace LGDXRobot2Cloud.API.DbContexts
       );
       base.OnModelCreating(modelBuilder);
     }
+  }
+
+  class UtcValueConverter : ValueConverter<DateTime, DateTime>
+  {
+    public UtcValueConverter() : base(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc)) {}
   }
 }
