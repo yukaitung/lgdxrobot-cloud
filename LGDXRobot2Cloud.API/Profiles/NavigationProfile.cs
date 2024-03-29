@@ -6,6 +6,8 @@ namespace LGDXRobot2Cloud.API.Profiles
   {
     public NavigationProfile()
     {
+      CreateMap<Entities.Progress, Models.ProgressDto>();
+      CreateMap<Models.ProgressCreateDto, Entities.Progress>();
       CreateMap<Entities.Waypoint, Models.WaypointDto>();
       CreateMap<Models.WaypointCreateDto, Entities.Waypoint>();
     }

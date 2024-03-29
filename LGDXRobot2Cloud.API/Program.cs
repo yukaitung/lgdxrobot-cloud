@@ -20,6 +20,7 @@ builder.Services.AddDbContext<LgdxContext>(
 );
 
 builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();
+builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
