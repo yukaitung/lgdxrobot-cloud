@@ -10,5 +10,8 @@ namespace LGDXRobot2Cloud.API.Repositories
     Task AddTriggerAsync(Trigger trigger);
     void DeleteTrigger(Trigger trigger);
     Task<bool> SaveChangesAsync();
+
+    // Specific Functions
+    Task<Dictionary<int, Trigger>> GetTriggersInDictAsync(HashSet<int> triggerIds);
   }
 }

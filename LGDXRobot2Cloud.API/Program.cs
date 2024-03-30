@@ -21,7 +21,9 @@ builder.Services.AddDbContext<LgdxContext>(
 
 // Navigation Repositories
 builder.Services.AddScoped<IApiKeyLocationRepository, ApiKeyLocationRepository>();
+builder.Services.AddScoped<IFlowRepository, FlowRepository>();
 builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
+builder.Services.AddScoped<ISystemComponentRepository, SystemComponentRepository>();
 builder.Services.AddScoped<ITriggerRepository, TriggerRepository>();
 builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();
 

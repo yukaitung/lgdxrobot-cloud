@@ -24,7 +24,7 @@ namespace LGDXRobot2Cloud.API.Repositories
       }
       var itemCount = await query.CountAsync();
       var paginationMetadata = new PaginationMetadata(itemCount, pageSize, pageNumber);
-      var triggers = await query.OrderBy(a => a.Id)
+      var triggers = await query.OrderBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .Include(t => t.ApiKeyLocation)
@@ -54,6 +54,20 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<bool> SaveChangesAsync()
     {
       return await _context.SaveChangesAsync() >= 0;
+    }
+
+    public async Task<Dictionary<int, Trigger>> GetTriggersInDictAsync(HashSet<int> triggerIds)
+    {
+      var triggers = await _context.Triggers.Where(p => triggerIds.Contains(p.Id))
+        .Include(t => t.ApiKeyLocation)
+        .Include(t => t.ApiKey)
+        .ToListAsync();
+      var result = new Dictionary<int, Trigger>();
+      foreach(Trigger trigger in triggers)
+      {
+        result.Add(trigger.Id, trigger);
+      }
+      return result;
     }
   }
 }

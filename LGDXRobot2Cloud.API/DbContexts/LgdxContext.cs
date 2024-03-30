@@ -10,6 +10,7 @@ namespace LGDXRobot2Cloud.API.DbContexts
     // Navigation
     public DbSet<ApiKeyLocation> ApiKeyLocations { get; set; } // Used by Triggers
     public DbSet<Flow> Flows { get; set; }
+    public DbSet<FlowDetail> FlowDetails { get; set; }
     public DbSet<Progress> Progresses { get; set; }
     public DbSet<SystemComponent> SystemComponents { get; set; }
     public DbSet<RobotTask> RobotTasks { get; set; }

@@ -22,12 +22,12 @@ namespace LGDXRobot2Cloud.API.Entities
     [ForeignKey("StartTriggerId")]
     public Trigger? StartTrigger { get; set; }
 
-    public int StartTriggerId { get; set; }
+    public int? StartTriggerId { get; set; }
 
     [ForeignKey("EndTriggerId")]
     public Trigger? EndTrigger { get; set; }
 
-    public int EndTriggerId { get; set; }
+    public int? EndTriggerId { get; set; }
 
     [ForeignKey("FlowId")]
     public required Flow Flow { get; set; }

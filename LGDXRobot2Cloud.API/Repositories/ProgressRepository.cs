@@ -42,5 +42,16 @@ namespace LGDXRobot2Cloud.API.Repositories
     {
       return await _context.SaveChangesAsync() >= 0;
     }
+
+    public async Task<Dictionary<int, Progress>> GetProgressesInDictAsync(HashSet<int> progressIds)
+    {
+      var progresses = await _context.Progresses.Where(p => progressIds.Contains(p.Id)).ToListAsync();
+      var result = new Dictionary<int, Progress>();
+      foreach(Progress progress in progresses)
+      {
+        result.Add(progress.Id, progress);
+      }
+      return result;
+    }
   }
 }
