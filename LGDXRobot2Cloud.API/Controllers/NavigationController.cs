@@ -66,7 +66,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult> CreateFlow(FlowCreateDto flow)
     {
       var addFlow = _mapper.Map<Flow>(flow);
-      // Validate Proceed Condition
+      // Validate Proceed Condition, add ProceedConditions Entity
       var proceedConditions = await _systemComponentRepository.GetSystemComponentsInDictAsync();
       for (int i = 0; i < flow.FlowDetails.Count(); i++)
       {
@@ -117,13 +117,13 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpPut("flows/{id}")]
-    public async Task<ActionResult> UpdateFlow(int id, FlowCreateDto flow)
+    public async Task<ActionResult> UpdateFlow(int id, FlowEditDto flow)
     {
       var flowEntity = await _flowRepository.GetFlowAsync(id);
       if(flowEntity == null)
         return NotFound();
       _mapper.Map(flow, flowEntity);
-      // Validate Proceed Condition
+      // Validate Proceed Condition, add ProceedConditions Entity
       var proceedConditions = await _systemComponentRepository.GetSystemComponentsInDictAsync();
       for (int i = 0; i < flow.FlowDetails.Count(); i++)
       {

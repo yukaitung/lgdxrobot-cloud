@@ -35,7 +35,8 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<Flow?> GetFlowAsync(int flowId)
     {
       return await _context.Flows.Where(f => f.Id == flowId)
-        .Include(f => f.FlowDetails)
+        .Include(f => f.FlowDetails
+          .OrderBy(fd => fd.Order))
         .ThenInclude(fd => fd.Progress)
         .Include(f => f.FlowDetails)
         .ThenInclude(fd => fd.ProceedCondition)

@@ -2,13 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.API.Models
 {
-  public class FlowDetailCreateDto
+  public class FlowDetailEditDto
   {
-    [Required]
-    public int ProgressId { get; set; }
+    public int? Id { get; set; }
 
     [Required]
     public int Order { get; set; }
+    
+    [Required]
+    public int ProgressId { get; set; }
 
     [Required]
     public required string ProceedCondition { get; set; }

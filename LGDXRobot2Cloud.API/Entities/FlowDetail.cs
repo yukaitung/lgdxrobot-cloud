@@ -9,6 +9,8 @@ namespace LGDXRobot2Cloud.API.Entities
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
+    public int Order { get; set; }
+
     [ForeignKey("ProgressId")]
     public required Progress Progress { get; set; }
 
