@@ -10,16 +10,13 @@ namespace LGDXRobot2Cloud.API.Entities
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required]
     [MaxLength(50)]
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; set; }
 
-    [Required]
     [MaxLength(200)]
-    public string Url { get; set; } = string.Empty;
+    public required string Url { get; set; }
 
-    [Required]
-    public string Body { get; set; } = string.Empty;
+    public string? Body { get; set; }
 
     [ForeignKey("ApiKeyLocationId")]
     public ApiKeyLocation? ApiKeyLocation { get; set; }
@@ -34,11 +31,9 @@ namespace LGDXRobot2Cloud.API.Entities
 
     public int ApiKeyId { get; set; }
     
-    [Required]
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
-    [Required]
     [Precision(3)]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
   }

@@ -6,11 +6,11 @@ namespace LGDXRobot2Cloud.API.Models
   {
     [Required]
     [MaxLength(50)]
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = null!;
 
     [Required]
     [MaxLength(100)]
-    public string Key { get; set; } = string.Empty;
+    public string Key { get; set; } = null!;
 
     [Required]
     public bool isThirdParty { get; set; }

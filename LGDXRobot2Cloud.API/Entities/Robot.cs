@@ -10,24 +10,20 @@ namespace LGDXRobot2Cloud.API.Entities
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required]
     [MaxLength(50)]
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; set; }
 
-    [Required]
     [MaxLength(50)]
-    public string Address { get; set; } = string.Empty;
+    public required string Address { get; set; }
 
     [ForeignKey("NodesCollectionId")]
-    public NodesCollection NodesCollection { get; set; } = new NodesCollection();
+    public required NodesCollection NodesCollection { get; set; }
 
     public int NodesCollectionId { get; set; }
 
-    [Required]
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
-    [Required]
     [Precision(3)]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
   }

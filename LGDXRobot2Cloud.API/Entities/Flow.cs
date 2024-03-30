@@ -10,17 +10,14 @@ namespace LGDXRobot2Cloud.API.Entities
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required]
     [MaxLength(50)]
-    public string Name { get; set; } = null!;
+    public required string Name { get; set; }
 
     public ICollection<FlowDetail> FlowDetails { get; set; } = new List<FlowDetail>();
 
-    [Required]
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
-    [Required]
     [Precision(3)]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
   }

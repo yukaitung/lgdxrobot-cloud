@@ -9,15 +9,13 @@ namespace LGDXRobot2Cloud.API.Entities
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required]
     [ForeignKey("ProgressId")]
-    public Progress Progress { get; set; } = null!;
+    public required Progress Progress { get; set; }
 
     public int ProgressId { get; set; }
 
-    [Required]
     [ForeignKey("SystemComponentId")]
-    public SystemComponent ProceedCondition { get; set; } = null!;
+    public required SystemComponent ProceedCondition { get; set; }
 
     public int SystemComponentId { get; set; }
   
@@ -32,7 +30,7 @@ namespace LGDXRobot2Cloud.API.Entities
     public int EndTriggerId { get; set; }
 
     [ForeignKey("FlowId")]
-    public Flow Flow { get; set; } = null!;
+    public required Flow Flow { get; set; }
 
     public int FlowId { get; set; }
   }

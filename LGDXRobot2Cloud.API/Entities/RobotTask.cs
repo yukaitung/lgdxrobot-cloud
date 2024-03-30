@@ -10,27 +10,21 @@ namespace LGDXRobot2Cloud.API.Entities
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required]
     [MaxLength(50)]
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; set; }
     
-    [Required]
     public ICollection<Waypoint> Waypoints { get; set; } = new List<Waypoint>();
 
-    [Required]
     public int Priority { get; set; }
 
-    [Required]
     [ForeignKey("FlowId")]
-    public Flow Flow { get; set; } = new Flow();
+    public required Flow Flow { get; set; }
 
     public int FlowId { get; set; }
 
-    [Required]
     [Precision(6)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
-    [Required]
     [Precision(6)]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
   }
