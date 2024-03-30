@@ -41,7 +41,5 @@ namespace LGDXRobot2Cloud.API.Entities
     [Required]
     [Precision(3)]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-    public ICollection<Flow> Flows { get; set; } = new List<Flow>();
   }
 }

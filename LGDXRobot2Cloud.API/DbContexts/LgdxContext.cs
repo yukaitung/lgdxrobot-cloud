@@ -36,23 +36,16 @@ namespace LGDXRobot2Cloud.API.DbContexts
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      // many RobotTasks have many Waypoints
+      // Many RobotTasks have many Waypoints
       modelBuilder.Entity<RobotTask>()
         .HasMany(e => e.Waypoints)
         .WithMany(e => e.RobotTasks);
-      // many Flows have many many Progress
+      // One Flow has many FlowDetails
       modelBuilder.Entity<Flow>()
-        .HasMany(e => e.Progresses)
-        .WithMany(e => e.Flows);
-      // many Flows have many Trigger
-      modelBuilder.Entity<Flow>()
-        .HasMany(e => e.StartTriggers)
-        .WithMany(e => e.Flows)
-        .UsingEntity("FlowStartTrigger");
-      modelBuilder.Entity<Flow>()
-        .HasMany(e => e.EndTriggers)
-        .WithMany(e => e.Flows)
-        .UsingEntity("FlowEndTrigger");
+        .HasMany(e => e.FlowDetails)
+        .WithOne(e => e.Flow)
+        .HasForeignKey(e => e.FlowId)
+        .IsRequired();
       modelBuilder.Entity<Progress>().HasData(
         new Progress
         {

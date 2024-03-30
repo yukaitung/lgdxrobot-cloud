@@ -12,22 +12,9 @@ namespace LGDXRobot2Cloud.API.Entities
 
     [Required]
     [MaxLength(50)]
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = null!;
 
-    [Required]
-    public ICollection<Progress> Progresses { get; set; } = new List<Progress>();
-
-    [Required]
-    [ForeignKey("SystemComponentId")]
-    public SystemComponent ProceedCondition { get; set; } = new SystemComponent();
-
-    public int SystemComponentId { get; set; }
-  
-    [Required]
-    public ICollection<Trigger> StartTriggers { get; set; } = new List<Trigger>();
-
-    [Required]
-    public ICollection<Trigger> EndTriggers { get; set; } = new List<Trigger>();
+    public ICollection<FlowDetail> FlowDetails { get; set; } = new List<FlowDetail>();
 
     [Required]
     [Precision(3)]
