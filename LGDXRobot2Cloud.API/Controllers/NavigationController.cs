@@ -76,10 +76,10 @@ namespace LGDXRobot2Cloud.API.Controllers
         else
           return BadRequest($"The Proceed Condition: {temp} does not exist.");
       }
-      // Validate Progress & Trigger
+      // Validate Progress & Trigger, add Entity for both
       HashSet<int> progressIds = new HashSet<int>();
       HashSet<int> triggerIds = new HashSet<int>();
-      foreach (FlowDetail detail in addFlow.FlowDetails)
+      foreach (var detail in addFlow.FlowDetails)
       {
         progressIds.Add(detail.ProgressId);
         if (detail.StartTriggerId != null)
@@ -89,7 +89,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       }
       var progresses = await _progressRepository.GetProgressesInDictAsync(progressIds);
       var triggers = await _triggerRepository.GetTriggersInDictAsync(triggerIds);
-      foreach (FlowDetail detail in addFlow.FlowDetails)
+      foreach (var detail in addFlow.FlowDetails)
       {
         if (progresses.ContainsKey(detail.ProgressId))
           detail.Progress = progresses[detail.ProgressId];
@@ -122,6 +122,17 @@ namespace LGDXRobot2Cloud.API.Controllers
       var flowEntity = await _flowRepository.GetFlowAsync(id);
       if(flowEntity == null)
         return NotFound();
+      // Ensure the input flow does not include Detail ID for other flow
+      HashSet<int> detailIds = new HashSet<int>();
+      foreach(var detail in flowEntity.FlowDetails)
+      {
+        detailIds.Add(detail.Id);
+      }
+      foreach(var detailDto in flow.FlowDetails)
+      {
+        if(detailDto.Id != null && !detailIds.Contains((int)detailDto.Id))
+          return BadRequest($"The Flow Detail ID: {(int)detailDto.Id} is belongs to other Flow.");
+      }
       _mapper.Map(flow, flowEntity);
       // Validate Proceed Condition, add ProceedConditions Entity
       var proceedConditions = await _systemComponentRepository.GetSystemComponentsInDictAsync();
@@ -133,10 +144,10 @@ namespace LGDXRobot2Cloud.API.Controllers
         else
           return BadRequest($"The Proceed Condition: {temp} does not exist.");
       }
-      // Validate Progress & Trigger
+      // Validate Progress & Trigger, add Entity for both
       HashSet<int> progressIds = new HashSet<int>();
       HashSet<int> triggerIds = new HashSet<int>();
-      foreach (FlowDetail detail in flowEntity.FlowDetails)
+      foreach (var detail in flowEntity.FlowDetails)
       {
         progressIds.Add(detail.ProgressId);
         if (detail.StartTriggerId != null)
@@ -146,7 +157,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       }
       var progresses = await _progressRepository.GetProgressesInDictAsync(progressIds);
       var triggers = await _triggerRepository.GetTriggersInDictAsync(triggerIds);
-      foreach (FlowDetail detail in flowEntity.FlowDetails)
+      foreach (var detail in flowEntity.FlowDetails)
       {
         if (progresses.ContainsKey(detail.ProgressId))
           detail.Progress = progresses[detail.ProgressId];
