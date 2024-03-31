@@ -11,7 +11,7 @@ namespace LGDXRobot2Cloud.API.Entities
     public int Id { get; set; }
 
     [MaxLength(50)]
-    public required string Name { get; set; }
+    public string? Name { get; set; }
     
     public ICollection<Waypoint> Waypoints { get; set; } = new List<Waypoint>();
 
@@ -21,6 +21,11 @@ namespace LGDXRobot2Cloud.API.Entities
     public required Flow Flow { get; set; }
 
     public int FlowId { get; set; }
+
+    [ForeignKey("CurrentProgressId")]
+    public required Progress CurrentProgress { get; set; }
+
+    public int CurrentProgressId { get; set; }
 
     [Precision(6)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

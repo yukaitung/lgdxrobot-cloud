@@ -42,5 +42,10 @@ namespace LGDXRobot2Cloud.API.Repositories
     {
       return await _context.SaveChangesAsync() >= 0;
     }
+
+    public async Task<Dictionary<int, Waypoint>> GetWaypointsDictFromListAsync(IEnumerable<int> waypointIds)
+    {
+      return await _context.Waypoints.Where(w => waypointIds.Contains(w.Id)).ToDictionaryAsync(w => w.Id, w => w);
+    }
   }
 }

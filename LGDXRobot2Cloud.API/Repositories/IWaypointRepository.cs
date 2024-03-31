@@ -10,5 +10,8 @@ namespace LGDXRobot2Cloud.API.Repositories
     Task AddWaypointAsync(Waypoint waypoint);
     void DeleteWaypoint(Waypoint waypoint);
     Task<bool> SaveChangesAsync();
+
+     // Specific Functions
+    Task<Dictionary<int, Waypoint>> GetWaypointsDictFromListAsync(IEnumerable<int> waypointIds);
   }
 }
