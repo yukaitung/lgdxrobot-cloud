@@ -28,8 +28,11 @@ namespace LGDXRobot2Cloud.API.Profiles
       // Tasks
       CreateMap<Entities.RobotTask, Models.RobotTaskListDto>();
       CreateMap<Entities.RobotTask, Models.RobotTaskDto>();
-      CreateMap<Models.RobotTaskCreateDto, Entities.RobotTask>()
-        .ForMember(e => e.Waypoints, m => m.Ignore());
+      CreateMap<Models.RobotTaskCreateDto, Entities.RobotTask>();
+      CreateMap<Models.RobotTaskUpdateDto, Entities.RobotTask>();
+      CreateMap<Entities.RobotTaskWaypointDetail, Models.RobotTaskWaypointDetailDto>();
+      CreateMap<Models.RobotTaskWaypointDetailCreateDto, Entities.RobotTaskWaypointDetail>();
+      CreateMap<Models.RobotTaskWaypointDetailUpdateDto, Entities.RobotTaskWaypointDetail>();
       // Trigger
       CreateMap<Entities.Trigger, Models.TriggerDto>()
         .ForMember(dto => dto.ApiKeyLocation,

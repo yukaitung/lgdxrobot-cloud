@@ -37,10 +37,12 @@ namespace LGDXRobot2Cloud.API.DbContexts
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      // Many RobotTasks have many Waypoints
+      // One RobotTask has many RobotTaskDetails
       modelBuilder.Entity<RobotTask>()
         .HasMany(e => e.Waypoints)
-        .WithMany(e => e.RobotTasks);
+        .WithOne(e => e.RobotTask)
+        .HasForeignKey(e => e.RobotTaskId)
+        .IsRequired();
       // One Flow has many FlowDetails
       modelBuilder.Entity<Flow>()
         .HasMany(e => e.FlowDetails)

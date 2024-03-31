@@ -24,8 +24,5 @@ namespace LGDXRobot2Cloud.API.Entities
     
     [Precision(3)]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-    public ICollection<RobotTask> RobotTasks { get; set; } = new List<RobotTask>();
-
   }
 }

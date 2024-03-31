@@ -48,6 +48,8 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<RobotTask?> GetRobotTaskAsync(int robotTaskId)
     {
       return await _context.RobotTasks.Where(t => t.Id == robotTaskId)
+        .Include(t => t.Waypoints)
+        .ThenInclude(td => td.Waypoint)
         .Include(t => t.Flow)
         .Include(t => t.CurrentProgress)
         .FirstOrDefaultAsync();

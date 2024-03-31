@@ -13,7 +13,7 @@ namespace LGDXRobot2Cloud.API.Entities
     [MaxLength(50)]
     public string? Name { get; set; }
     
-    public ICollection<Waypoint> Waypoints { get; set; } = new List<Waypoint>();
+    public ICollection<RobotTaskWaypointDetail> Waypoints { get; set; } = new List<RobotTaskWaypointDetail>();
 
     public int Priority { get; set; }
 
