@@ -21,9 +21,8 @@ namespace LGDXRobot2Cloud.API.Repositories
       if (!string.IsNullOrWhiteSpace(name))
       {
         name = name.Trim();
-        query = query.Where(t => t.Name == name);
+        query = query.Where(t => t.Name != null ? t.Name.Contains(name) : false);
       }
-      query.Where(t => t.Name == name);
       var predicate = PredicateBuilder.False<RobotTask>();
       if (showWaiting)
         predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Waiting);
@@ -33,7 +32,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Completed);
       if (showAborted)
         predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Aborted);
-      query.Where(predicate);
+      query = query.Where(predicate);
       var itemCount = await query.CountAsync();
       var paginationMetadata = new PaginationMetadata(itemCount, pageSize, pageNumber);
       var robotTasks = await query.OrderByDescending(t => t.Priority)
