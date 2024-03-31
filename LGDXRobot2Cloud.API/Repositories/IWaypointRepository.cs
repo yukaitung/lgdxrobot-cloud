@@ -1,10 +1,11 @@
 using LGDXRobot2Cloud.API.Entities;
+using LGDXRobot2Cloud.API.Services;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
   public interface IWaypointRepository
   {
-    Task<IEnumerable<Waypoint>> GetWaypointsAsync();
+    Task<(IEnumerable<Waypoint>, PaginationMetadata)> GetWaypointsAsync(string? name, int pageNumber, int pageSize);
     Task<Waypoint?> GetWaypointAsync(int waypointId);
     Task<bool> WaypointExistsAsync(int waypointId);
     Task AddWaypointAsync(Waypoint waypoint);

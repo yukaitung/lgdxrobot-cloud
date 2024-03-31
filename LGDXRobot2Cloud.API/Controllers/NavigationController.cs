@@ -199,9 +199,11 @@ namespace LGDXRobot2Cloud.API.Controllers
     ** Progress
     */
     [HttpGet("progresses")]
-    public async Task<ActionResult<IEnumerable<ProgressDto>>> GetProgresses()
+    public async Task<ActionResult<IEnumerable<ProgressDto>>> GetProgresses(string? name, int pageNumber = 1, int pageSize = 10)
     {
-      var progresses = await _progressRepository.GetProgressesAsync();
+      pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
+      var (progresses, paginationMetadata) = await _progressRepository.GetProgressesAsync(name, pageNumber, pageSize);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
       return Ok(_mapper.Map<IEnumerable<ProgressDto>>(progresses));
     }
 
@@ -439,9 +441,11 @@ namespace LGDXRobot2Cloud.API.Controllers
     ** Waypoint
     */
     [HttpGet("waypoints")]
-    public async Task<ActionResult<IEnumerable<WaypointDto>>> GetWaypoints()
+    public async Task<ActionResult<IEnumerable<WaypointDto>>> GetWaypoints(string? name, int pageNumber = 1, int pageSize = 10)
     {
-      var waypoints = await _waypointRepository.GetWaypointsAsync();
+      pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
+      var (waypoints, paginationMetadata) = await _waypointRepository.GetWaypointsAsync(name, pageNumber, pageSize);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
       return Ok(_mapper.Map<IEnumerable<WaypointDto>>(waypoints));
     }
 

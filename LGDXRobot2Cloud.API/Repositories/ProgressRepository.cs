@@ -1,5 +1,6 @@
 using LGDXRobot2Cloud.API.DbContexts;
 using LGDXRobot2Cloud.API.Entities;
+using LGDXRobot2Cloud.API.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
@@ -13,9 +14,21 @@ namespace LGDXRobot2Cloud.API.Repositories
       _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public async Task<IEnumerable<Progress>> GetProgressesAsync()
+    public async Task<(IEnumerable<Progress>, PaginationMetadata)> GetProgressesAsync(string? name, int pageNumber, int pageSize)
     {
-      return await _context.Progresses.OrderBy(p => p.Id).ToListAsync();
+      var query = _context.Progresses as IQueryable<Progress>;
+      if(!string.IsNullOrWhiteSpace(name))
+      {
+        name = name.Trim();
+        query = query.Where(t => t.Name.Contains(name));
+      }
+      var itemCount = await query.CountAsync();
+      var paginationMetadata = new PaginationMetadata(itemCount, pageSize, pageNumber);
+      var progresses = await query.OrderBy(a => a.Id)
+        .Skip(pageSize * (pageNumber - 1))
+        .Take(pageSize)
+        .ToListAsync();
+      return (progresses, paginationMetadata);
     }
     
     public async Task<Progress?> GetProgressAsync(int progressId)

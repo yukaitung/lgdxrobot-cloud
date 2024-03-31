@@ -1,10 +1,11 @@
 using LGDXRobot2Cloud.API.Entities;
+using LGDXRobot2Cloud.API.Services;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
   public interface IProgressRepository
   {
-    Task<IEnumerable<Progress>> GetProgressesAsync();
+    Task<(IEnumerable<Progress>, PaginationMetadata)> GetProgressesAsync(string? name, int pageNumber, int pageSize);
     Task<Progress?> GetProgressAsync(int progressId);
     Task<bool> ProgressExistsAsync(int progressId);
     Task AddProgressAsync(Progress progress);

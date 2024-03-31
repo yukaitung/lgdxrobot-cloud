@@ -1,5 +1,6 @@
 using LGDXRobot2Cloud.API.DbContexts;
 using LGDXRobot2Cloud.API.Entities;
+using LGDXRobot2Cloud.API.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
@@ -13,9 +14,21 @@ namespace LGDXRobot2Cloud.API.Repositories
       _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public async Task<IEnumerable<Waypoint>> GetWaypointsAsync()
+    public async Task<(IEnumerable<Waypoint>, PaginationMetadata)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
     {
-      return await _context.Waypoints.OrderBy(w => w.Id).ToListAsync();
+      var query = _context.Waypoints as IQueryable<Waypoint>;
+      if(!string.IsNullOrWhiteSpace(name))
+      {
+        name = name.Trim();
+        query = query.Where(t => t.Name.Contains(name));
+      }
+      var itemCount = await query.CountAsync();
+      var paginationMetadata = new PaginationMetadata(itemCount, pageSize, pageNumber);
+      var waypoints = await query.OrderBy(a => a.Id)
+        .Skip(pageSize * (pageNumber - 1))
+        .Take(pageSize)
+        .ToListAsync();
+      return (waypoints, paginationMetadata);
     }
 
     public async Task<Waypoint?> GetWaypointAsync(int waypointId)
