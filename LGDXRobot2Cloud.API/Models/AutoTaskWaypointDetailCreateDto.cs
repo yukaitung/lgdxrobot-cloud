@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.API.Models
 {
-  public class RobotTaskWaypointDetailCreateDto
+  public class AutoTaskWaypointDetailCreateDto
   {
     [Required]
     public required int WaypointId { get; set; }

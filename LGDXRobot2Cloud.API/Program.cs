@@ -23,7 +23,7 @@ builder.Services.AddDbContext<LgdxContext>(
 builder.Services.AddScoped<IApiKeyLocationRepository, ApiKeyLocationRepository>();
 builder.Services.AddScoped<IFlowRepository, FlowRepository>();
 builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
-builder.Services.AddScoped<IRobotTaskRepository, RobotTaskRepository>();
+builder.Services.AddScoped<IAutoTaskRepository, AutoTaskRepository>();
 builder.Services.AddScoped<ISystemComponentRepository, SystemComponentRepository>();
 builder.Services.AddScoped<ITriggerRepository, TriggerRepository>();
 builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();

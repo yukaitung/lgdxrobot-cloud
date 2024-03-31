@@ -1,10 +1,10 @@
 namespace LGDXRobot2Cloud.API.Models
 {
-  public class RobotTaskDto
+  public class AutoTaskDto
   {
     public int Id { get; set; }
     public string? Name { get; set; }
-    public IEnumerable<RobotTaskWaypointDetailDto> Waypoints { get; set; } = new List<RobotTaskWaypointDetailDto>();
+    public IEnumerable<AutoTaskWaypointDetailDto> Waypoints { get; set; } = new List<AutoTaskWaypointDetailDto>();
     public int Priority { get; set; }
     public required FlowListDto Flow { get; set; }
     public required ProgressDto CurrentProgress { get; set; }

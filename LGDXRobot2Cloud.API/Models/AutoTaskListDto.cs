@@ -1,6 +1,6 @@
 namespace LGDXRobot2Cloud.API.Models
 {
-  public class RobotTaskListDto
+  public class AutoTaskListDto
   {
     public int Id { get; set; }
     public string? Name { get; set; }

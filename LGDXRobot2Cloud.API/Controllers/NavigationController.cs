@@ -16,7 +16,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     private readonly IApiKeyRepository _apiKeyRepository;
     private readonly IFlowRepository _flowRepository;
     private readonly IProgressRepository _progressRepository;
-    private readonly IRobotTaskRepository _robotTaskRepository;
+    private readonly IAutoTaskRepository _autoTaskRepository;
     private readonly ISystemComponentRepository _systemComponentRepository;
     private readonly ITriggerRepository _triggerRepository;
     private readonly IWaypointRepository _waypointRepository;
@@ -27,7 +27,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       IApiKeyRepository apiKeyRepository,
       IFlowRepository flowRepository,
       IProgressRepository progressRepository,
-      IRobotTaskRepository robotTaskRepository,
+      IAutoTaskRepository autoTaskRepository,
       ISystemComponentRepository systemComponentRepository,
       ITriggerRepository triggerRepository,
       IWaypointRepository waypointRepository,
@@ -37,7 +37,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
       _flowRepository = flowRepository ?? throw new ArgumentNullException(nameof(flowRepository));
       _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
-      _robotTaskRepository = robotTaskRepository ?? throw new ArgumentNullException(nameof(robotTaskRepository));
+      _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
       _systemComponentRepository = systemComponentRepository ?? throw new ArgumentNullException(nameof(systemComponentRepository));
       _triggerRepository = triggerRepository ?? throw new ArgumentNullException(nameof(triggerRepository));
       _waypointRepository = waypointRepository ?? throw new ArgumentNullException(nameof(waypointRepository));
@@ -257,28 +257,28 @@ namespace LGDXRobot2Cloud.API.Controllers
     ** Task
     */
     [HttpGet("tasks")]
-    public async Task<ActionResult<IEnumerable<RobotTaskListDto>>> GetTasks(string? name, bool showWaiting = true, bool showProcessing = true, 
+    public async Task<ActionResult<IEnumerable<AutoTaskListDto>>> GetTasks(string? name, bool showWaiting = true, bool showProcessing = true, 
       bool showCompleted = true, bool showAborted = true, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (tasks, paginationMetadata) = await _robotTaskRepository.GetRobotTasksAsync(name, showWaiting, showProcessing, showCompleted, showAborted, pageNumber, pageSize);
+      var (tasks, paginationMetadata) = await _autoTaskRepository.GetAutoTasksAsync(name, showWaiting, showProcessing, showCompleted, showAborted, pageNumber, pageSize);
       Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
-      return Ok(_mapper.Map<IEnumerable<RobotTaskListDto>>(tasks));
+      return Ok(_mapper.Map<IEnumerable<AutoTaskListDto>>(tasks));
     }
 
     [HttpGet("tasks/{id}", Name = "GetTask")]
-    public async Task<ActionResult<RobotTaskDto>> GetTask(int id)
+    public async Task<ActionResult<AutoTaskDto>> GetTask(int id)
     {
-      var task = await _robotTaskRepository.GetRobotTaskAsync(id);
+      var task = await _autoTaskRepository.GetAutoTaskAsync(id);
       if (task == null)
         return NotFound();
-      return Ok(_mapper.Map<RobotTaskDto>(task));
+      return Ok(_mapper.Map<AutoTaskDto>(task));
     }
 
     [HttpPost("tasks")]
-    public async Task<ActionResult> CreateTask(RobotTaskCreateDto taskDto)
+    public async Task<ActionResult> CreateTask(AutoTaskCreateDto taskDto)
     {
-      var taskEntity = _mapper.Map<RobotTask>(taskDto);
+      var taskEntity = _mapper.Map<AutoTask>(taskDto);
       // Validating the Waypoint ID
       HashSet<int> waypointIds = new HashSet<int>();
       foreach(var waypoint in taskDto.Waypoints)
@@ -301,16 +301,16 @@ namespace LGDXRobot2Cloud.API.Controllers
       if (currentProgress == null)
         return BadRequest();
       taskEntity.CurrentProgress = currentProgress;
-      await _robotTaskRepository.AddRobotTaskAsync(taskEntity);
-      await _robotTaskRepository.SaveChangesAsync();
-      var returnTask = _mapper.Map<RobotTaskDto>(taskEntity);
+      await _autoTaskRepository.AddAutoTaskAsync(taskEntity);
+      await _autoTaskRepository.SaveChangesAsync();
+      var returnTask = _mapper.Map<AutoTaskDto>(taskEntity);
       return CreatedAtAction(nameof(GetTask), new {id = returnTask.Id}, returnTask);
     }
 
     [HttpPut("tasks/{id}")]
-    public async Task<ActionResult> UpdateTask(int id, RobotTaskUpdateDto taskDto)
+    public async Task<ActionResult> UpdateTask(int id, AutoTaskUpdateDto taskDto)
     {
-      var taskEntity = await _robotTaskRepository.GetRobotTaskAsync(id);
+      var taskEntity = await _autoTaskRepository.GetAutoTaskAsync(id);
       if (taskEntity == null)
         return NotFound();
       if (taskEntity.CurrentProgressId != (int)ProgressState.Waiting)
@@ -348,20 +348,20 @@ namespace LGDXRobot2Cloud.API.Controllers
         return BadRequest();
       taskEntity.CurrentProgress = currentProgress;
       taskEntity.UpdatedAt = DateTime.UtcNow;
-      await _robotTaskRepository.SaveChangesAsync();
+      await _autoTaskRepository.SaveChangesAsync();
       return NoContent();
     }
 
     [HttpDelete("tasks/{id}")]
     public async Task<ActionResult> DeleteTask(int id)
     {
-      var task = await _robotTaskRepository.GetRobotTaskAsync(id);
+      var task = await _autoTaskRepository.GetAutoTaskAsync(id);
       if (task == null)
         return NotFound();
       if (task.CurrentProgressId != (int)ProgressState.Waiting)
         return BadRequest("Cannot delete the task not in Waiting status.");
-      _robotTaskRepository.DeleteRobotTask(task);
-      await _robotTaskRepository.SaveChangesAsync();
+      _autoTaskRepository.DeleteAutoTask(task);
+      await _autoTaskRepository.SaveChangesAsync();
       return NoContent();
     }
 

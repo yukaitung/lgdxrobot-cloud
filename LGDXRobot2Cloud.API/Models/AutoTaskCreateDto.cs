@@ -3,10 +3,10 @@ using LGDXRobot2Cloud.API.Utilities;
 
 namespace LGDXRobot2Cloud.API.Models
 {
-  public class RobotTaskCreateDto
+  public class AutoTaskCreateDto
   {
     public string? Name { get; set; }
-    public IEnumerable<RobotTaskWaypointDetailCreateDto> Waypoints { get; set; } = new List<RobotTaskWaypointDetailCreateDto>();
+    public IEnumerable<AutoTaskWaypointDetailCreateDto> Waypoints { get; set; } = new List<AutoTaskWaypointDetailCreateDto>();
     public int Priority { get; set; }
 
     [Required]

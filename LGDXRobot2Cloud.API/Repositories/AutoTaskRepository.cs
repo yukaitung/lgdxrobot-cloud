@@ -6,24 +6,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-  public class RobotTaskRepository : IRobotTaskRepository
+  public class AutoTaskRepository : IAutoTaskRepository
   {
     private readonly LgdxContext _context;
 
-    public RobotTaskRepository(LgdxContext context)
+    public AutoTaskRepository(LgdxContext context)
     {
       _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public async Task<(IEnumerable<RobotTask>, PaginationMetadata)> GetRobotTasksAsync(string? name, bool showWaiting, bool showProcessing, bool showCompleted, bool showAborted, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<AutoTask>, PaginationMetadata)> GetAutoTasksAsync(string? name, bool showWaiting, bool showProcessing, bool showCompleted, bool showAborted, int pageNumber, int pageSize)
     {
-      var query = _context.RobotTasks as IQueryable<RobotTask>;
+      var query = _context.AutoTasks as IQueryable<AutoTask>;
       if (!string.IsNullOrWhiteSpace(name))
       {
         name = name.Trim();
         query = query.Where(t => t.Name != null ? t.Name.Contains(name) : false);
       }
-      var predicate = PredicateBuilder.False<RobotTask>();
+      var predicate = PredicateBuilder.False<AutoTask>();
       if (showWaiting)
         predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Waiting);
       if (showProcessing)
@@ -35,18 +35,18 @@ namespace LGDXRobot2Cloud.API.Repositories
       query = query.Where(predicate);
       var itemCount = await query.CountAsync();
       var paginationMetadata = new PaginationMetadata(itemCount, pageSize, pageNumber);
-      var robotTasks = await query.OrderByDescending(t => t.Priority)
+      var autoTasks = await query.OrderByDescending(t => t.Priority)
         .OrderBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .Include(t => t.CurrentProgress)
         .ToListAsync();
-      return (robotTasks, paginationMetadata);
+      return (autoTasks, paginationMetadata);
     }
 
-    public async Task<RobotTask?> GetRobotTaskAsync(int robotTaskId)
+    public async Task<AutoTask?> GetAutoTaskAsync(int autoTaskId)
     {
-      return await _context.RobotTasks.Where(t => t.Id == robotTaskId)
+      return await _context.AutoTasks.Where(t => t.Id == autoTaskId)
         .Include(t => t.Waypoints)
         .ThenInclude(td => td.Waypoint)
         .Include(t => t.Flow)
@@ -54,14 +54,14 @@ namespace LGDXRobot2Cloud.API.Repositories
         .FirstOrDefaultAsync();
     }
 
-    public async Task AddRobotTaskAsync(RobotTask robotTask)
+    public async Task AddAutoTaskAsync(AutoTask autoTask)
     {
-      await _context.RobotTasks.AddAsync(robotTask);
+      await _context.AutoTasks.AddAsync(autoTask);
     }
 
-    public void DeleteRobotTask(RobotTask robotTask)
+    public void DeleteAutoTask(AutoTask autoTask)
     {
-      _context.RobotTasks.Remove(robotTask);
+      _context.AutoTasks.Remove(autoTask);
     }
 
     public async Task<bool> SaveChangesAsync()

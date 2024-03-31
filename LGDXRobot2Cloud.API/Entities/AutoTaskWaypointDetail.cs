@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LGDXRobot2Cloud.API.Entities
 {
-  public class RobotTaskWaypointDetail
+  public class AutoTaskWaypointDetail
   {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -16,9 +16,9 @@ namespace LGDXRobot2Cloud.API.Entities
 
     public int WaypointId { get; set; }
 
-    [ForeignKey("RobotTaskId")]
-    public required RobotTask RobotTask { get; set; }
+    [ForeignKey("AutoTaskId")]
+    public required AutoTask AutoTask { get; set; }
 
-    public int RobotTaskId { get; set; }
+    public int AutoTaskId { get; set; }
   }
 }

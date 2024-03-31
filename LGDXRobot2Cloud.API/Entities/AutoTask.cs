@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Entities
 {
-  public class RobotTask
+  public class AutoTask
   {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -13,7 +13,7 @@ namespace LGDXRobot2Cloud.API.Entities
     [MaxLength(50)]
     public string? Name { get; set; }
     
-    public ICollection<RobotTaskWaypointDetail> Waypoints { get; set; } = new List<RobotTaskWaypointDetail>();
+    public ICollection<AutoTaskWaypointDetail> Waypoints { get; set; } = new List<AutoTaskWaypointDetail>();
 
     public int Priority { get; set; }
 

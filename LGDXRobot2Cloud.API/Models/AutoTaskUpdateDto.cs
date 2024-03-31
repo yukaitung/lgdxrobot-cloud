@@ -2,10 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.API.Models
 {
-  public class RobotTaskUpdateDto
+  public class AutoTaskUpdateDto
   {
     public string? Name { get; set; }
-    public IEnumerable<RobotTaskWaypointDetailUpdateDto> Waypoints { get; set; } = new List<RobotTaskWaypointDetailUpdateDto>();
+    public IEnumerable<AutoTaskWaypointDetailUpdateDto> Waypoints { get; set; } = new List<AutoTaskWaypointDetailUpdateDto>();
     public int Priority { get; set; }
    
    [Required]

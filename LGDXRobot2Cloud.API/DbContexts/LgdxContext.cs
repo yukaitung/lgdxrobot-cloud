@@ -13,7 +13,7 @@ namespace LGDXRobot2Cloud.API.DbContexts
     public DbSet<FlowDetail> FlowDetails { get; set; }
     public DbSet<Progress> Progresses { get; set; }
     public DbSet<SystemComponent> SystemComponents { get; set; }
-    public DbSet<RobotTask> RobotTasks { get; set; }
+    public DbSet<AutoTask> AutoTasks { get; set; }
     public DbSet<Trigger> Triggers { get; set; }
     public DbSet<Waypoint> Waypoints { get; set; }
 
@@ -40,11 +40,11 @@ namespace LGDXRobot2Cloud.API.DbContexts
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      // One RobotTask has many RobotTaskDetails
-      modelBuilder.Entity<RobotTask>()
+      // One AutoTask has many AutoTaskDetails
+      modelBuilder.Entity<AutoTask>()
         .HasMany(e => e.Waypoints)
-        .WithOne(e => e.RobotTask)
-        .HasForeignKey(e => e.RobotTaskId)
+        .WithOne(e => e.AutoTask)
+        .HasForeignKey(e => e.AutoTaskId)
         .IsRequired();
       // One Flow has many FlowDetails
       modelBuilder.Entity<Flow>()

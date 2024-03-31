@@ -1,6 +1,6 @@
 namespace LGDXRobot2Cloud.API.Models
 {
-  public class RobotTaskWaypointDetailDto
+  public class AutoTaskWaypointDetailDto
   {
     public int? Id { get; set; }
     public int Order { get; set; }
