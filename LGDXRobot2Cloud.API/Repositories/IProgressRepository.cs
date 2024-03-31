@@ -12,6 +12,6 @@ namespace LGDXRobot2Cloud.API.Repositories
     Task<bool> SaveChangesAsync();
 
     // Specific Functions
-    Task<Dictionary<int, Progress>> GetProgressesInDictAsync(HashSet<int> progressIds);
+    Task<Dictionary<int, Progress>> GetProgressesDictFromListAsync(IEnumerable<int> progressIds);
   }
 }

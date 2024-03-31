@@ -5,10 +5,10 @@ namespace LGDXRobot2Cloud.API.Models
   public class FlowDetailCreateDto
   {
     [Required]
-    public int ProgressId { get; set; }
+    public int Order { get; set; }
 
     [Required]
-    public int Order { get; set; }
+    public int ProgressId { get; set; }
 
     [Required]
     public required string ProceedCondition { get; set; }

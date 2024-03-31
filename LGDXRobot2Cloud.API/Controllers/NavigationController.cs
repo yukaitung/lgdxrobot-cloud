@@ -67,23 +67,23 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpPost("flows")]
-    public async Task<ActionResult> CreateFlow(FlowCreateDto flow)
+    public async Task<ActionResult> CreateFlow(FlowCreateDto flowDto)
     {
-      var addFlow = _mapper.Map<Flow>(flow);
+      var flowEntity = _mapper.Map<Flow>(flowDto);
       // Validate Proceed Condition, add ProceedConditions Entity
-      var proceedConditions = await _systemComponentRepository.GetSystemComponentsInDictAsync();
-      for (int i = 0; i < flow.FlowDetails.Count(); i++)
+      var proceedConditions = await _systemComponentRepository.GetSystemComponentsDictAsync();
+      for (int i = 0; i < flowDto.FlowDetails.Count(); i++)
       {
-        string temp = flow.FlowDetails.ElementAt(i).ProceedCondition;
+        string temp = flowDto.FlowDetails.ElementAt(i).ProceedCondition;
         if (proceedConditions.ContainsKey(temp))
-          addFlow.FlowDetails.ElementAt(i).ProceedCondition = proceedConditions[temp];
+          flowEntity.FlowDetails.ElementAt(i).ProceedCondition = proceedConditions[temp];
         else
-          return BadRequest($"The Proceed Condition: {temp} does not exist.");
+          return BadRequest($"The Proceed Condition {temp} is invalid.");
       }
       // Validate Progress & Trigger, add Entity for both
       HashSet<int> progressIds = new HashSet<int>();
       HashSet<int> triggerIds = new HashSet<int>();
-      foreach (var detail in addFlow.FlowDetails)
+      foreach (var detail in flowEntity.FlowDetails)
       {
         progressIds.Add(detail.ProgressId);
         if (detail.StartTriggerId != null)
@@ -91,22 +91,22 @@ namespace LGDXRobot2Cloud.API.Controllers
         if (detail.EndTriggerId != null)
           triggerIds.Add((int)detail.EndTriggerId);
       }
-      var progresses = await _progressRepository.GetProgressesInDictAsync(progressIds);
-      var triggers = await _triggerRepository.GetTriggersInDictAsync(triggerIds);
-      foreach (var detail in addFlow.FlowDetails)
+      var progresses = await _progressRepository.GetProgressesDictFromListAsync(progressIds);
+      var triggers = await _triggerRepository.GetTriggersDictFromListAsync(triggerIds);
+      foreach (var detail in flowEntity.FlowDetails)
       {
         if (progresses.ContainsKey(detail.ProgressId))
           detail.Progress = progresses[detail.ProgressId];
         else
-          return BadRequest($"The Progress Id: {detail.ProgressId} does not exist.");
-        if (detail.StartTriggerId != null)
+          return BadRequest($"The Progress Id: {detail.ProgressId} is invalid.");
+        if (detail.StartTriggerId != null) // The detail has StartTriggerId
         {
           if (triggers.ContainsKey((int)detail.StartTriggerId))
             detail.StartTrigger = triggers[(int)detail.StartTriggerId];
           else
-            return BadRequest($"The Start Trigger Id: {detail.StartTriggerId} does not exist.");
+            return BadRequest($"The Start Trigger Id: {detail.StartTriggerId} is invalid.");
         }
-        if (detail.EndTriggerId != null)
+        if (detail.EndTriggerId != null) // The detail has EndTriggerId
         {
           if (triggers.ContainsKey((int)detail.EndTriggerId))
             detail.EndTrigger = triggers[(int)detail.EndTriggerId];
@@ -114,14 +114,14 @@ namespace LGDXRobot2Cloud.API.Controllers
             return BadRequest($"The Start Trigger Id: {detail.EndTriggerId} does not exist.");
         }
       }
-      await _flowRepository.AddFlowAsync(addFlow);
+      await _flowRepository.AddFlowAsync(flowEntity);
       await _flowRepository.SaveChangesAsync();
-      var returnFlow = _mapper.Map<FlowDto>(addFlow);
+      var returnFlow = _mapper.Map<FlowDto>(flowEntity);
       return CreatedAtAction(nameof(GetFlow), new { id = returnFlow.Id }, returnFlow);
     }
 
     [HttpPut("flows/{id}")]
-    public async Task<ActionResult> UpdateFlow(int id, FlowEditDto flow)
+    public async Task<ActionResult> UpdateFlow(int id, FlowUpdateDto flowDto)
     {
       var flowEntity = await _flowRepository.GetFlowAsync(id);
       if(flowEntity == null)
@@ -132,17 +132,17 @@ namespace LGDXRobot2Cloud.API.Controllers
       {
         detailIds.Add(detail.Id);
       }
-      foreach(var detailDto in flow.FlowDetails)
+      foreach(var detailDto in flowDto.FlowDetails)
       {
         if(detailDto.Id != null && !detailIds.Contains((int)detailDto.Id))
           return BadRequest($"The Flow Detail ID: {(int)detailDto.Id} is belongs to other Flow.");
       }
-      _mapper.Map(flow, flowEntity);
+      _mapper.Map(flowDto, flowEntity);
       // Validate Proceed Condition, add ProceedConditions Entity
-      var proceedConditions = await _systemComponentRepository.GetSystemComponentsInDictAsync();
-      for (int i = 0; i < flow.FlowDetails.Count(); i++)
+      var proceedConditions = await _systemComponentRepository.GetSystemComponentsDictAsync();
+      for (int i = 0; i < flowDto.FlowDetails.Count(); i++)
       {
-        string temp = flow.FlowDetails.ElementAt(i).ProceedCondition;
+        string temp = flowDto.FlowDetails.ElementAt(i).ProceedCondition;
         if (proceedConditions.ContainsKey(temp))
           flowEntity.FlowDetails.ElementAt(i).ProceedCondition = proceedConditions[temp];
         else
@@ -159,22 +159,22 @@ namespace LGDXRobot2Cloud.API.Controllers
         if (detail.EndTriggerId != null)
           triggerIds.Add((int)detail.EndTriggerId);
       }
-      var progresses = await _progressRepository.GetProgressesInDictAsync(progressIds);
-      var triggers = await _triggerRepository.GetTriggersInDictAsync(triggerIds);
+      var progresses = await _progressRepository.GetProgressesDictFromListAsync(progressIds);
+      var triggers = await _triggerRepository.GetTriggersDictFromListAsync(triggerIds);
       foreach (var detail in flowEntity.FlowDetails)
       {
         if (progresses.ContainsKey(detail.ProgressId))
           detail.Progress = progresses[detail.ProgressId];
         else
           return BadRequest($"The Progress Id: {detail.ProgressId} does not exist.");
-        if (detail.StartTriggerId != null)
+        if (detail.StartTriggerId != null) // The detail has StartTriggerId
         {
           if (triggers.ContainsKey((int)detail.StartTriggerId))
             detail.StartTrigger = triggers[(int)detail.StartTriggerId];
           else
             return BadRequest($"The Start Trigger Id: {detail.StartTriggerId} does not exist.");
         }
-        if (detail.EndTriggerId != null)
+        if (detail.EndTriggerId != null) // The detail has EndTriggerId
         {
           if (triggers.ContainsKey((int)detail.EndTriggerId))
             detail.EndTrigger = triggers[(int)detail.EndTriggerId];
@@ -218,24 +218,24 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpPost("progresses")]
-    public async Task<ActionResult> CreateProgress(ProgressCreateDto progress)
+    public async Task<ActionResult> CreateProgress(ProgressCreateDto progressDto)
     {
-      var addProgress = _mapper.Map<Progress>(progress);
-      await _progressRepository.AddProgressAsync(addProgress);
+      var progressEntity = _mapper.Map<Progress>(progressDto);
+      await _progressRepository.AddProgressAsync(progressEntity);
       await _progressRepository.SaveChangesAsync();
-      var returnProgress = _mapper.Map<ProgressDto>(addProgress);
+      var returnProgress = _mapper.Map<ProgressDto>(progressEntity);
       return CreatedAtRoute(nameof(GetProgress), new { id = returnProgress.Id }, returnProgress);
     }
 
     [HttpPut("progresses/{id}")]
-    public async Task<ActionResult> UpdateProgress(int id, ProgressCreateDto progress)
+    public async Task<ActionResult> UpdateProgress(int id, ProgressCreateDto progressDto)
     {
       var progressEntity = await _progressRepository.GetProgressAsync(id);
       if (progressEntity == null)
         return NotFound();
       if (progressEntity.System)
         return BadRequest("Cannot update system defined progress.");
-      _mapper.Map(progress, progressEntity);
+      _mapper.Map(progressDto, progressEntity);
       progressEntity.UpdatedAt = DateTime.UtcNow;
       await _progressRepository.SaveChangesAsync();
       return NoContent();
@@ -372,38 +372,38 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpPost("triggers")]
-    public async Task<ActionResult> CreateTrigger(TriggerCreateDto trigger)
+    public async Task<ActionResult> CreateTrigger(TriggerCreateDto triggerDto)
     {
-      var addTrigger = _mapper.Map<Trigger>(trigger);
-      var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(trigger.ApiKeyLocationStr);
+      var triggerEntity = _mapper.Map<Trigger>(triggerDto);
+      var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyLocationStr);
       if (apiKeyLocation == null)
         return BadRequest("The API key location is invalid.");
-      addTrigger.ApiKeyLocationId = apiKeyLocation.Id;
-      var apiKey = await _apiKeyRepository.GetApiKeyAsync(trigger.ApiKeyId);
+      triggerEntity.ApiKeyLocationId = apiKeyLocation.Id;
+      var apiKey = await _apiKeyRepository.GetApiKeyAsync(triggerDto.ApiKeyId);
       if (apiKey == null)
-        return BadRequest("The API key is invalid.");
+        return BadRequest($"The API Key Id {triggerDto.ApiKeyId} is invalid.");
       if (!apiKey.isThirdParty)
         return BadRequest("Only accept third party API key.");
-      await _triggerRepository.AddTriggerAsync(addTrigger);
+      await _triggerRepository.AddTriggerAsync(triggerEntity);
       await _triggerRepository.SaveChangesAsync();
-      var returnTrigger = _mapper.Map<TriggerDto>(addTrigger);
+      var returnTrigger = _mapper.Map<TriggerDto>(triggerEntity);
       return CreatedAtAction(nameof(GetTrigger), new { id = returnTrigger.Id }, returnTrigger);
     }
 
     [HttpPut("triggers/{id}")]
-    public async Task<ActionResult> UpdateTrigger(int id, TriggerCreateDto trigger)
+    public async Task<ActionResult> UpdateTrigger(int id, TriggerCreateDto triggerDto)
     {
       var triggerEntity = await _triggerRepository.GetTriggerAsync(id);
       if (triggerEntity == null)
         return NotFound();
-      _mapper.Map(trigger, triggerEntity);
-      var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(trigger.ApiKeyLocationStr);
+      _mapper.Map(triggerDto, triggerEntity);
+      var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyLocationStr);
       if (apiKeyLocation == null)
         return BadRequest("The API key location is invalid.");
       triggerEntity.ApiKeyLocationId = apiKeyLocation.Id;
-      var apiKey = await _apiKeyRepository.GetApiKeyAsync(trigger.ApiKeyId);
+      var apiKey = await _apiKeyRepository.GetApiKeyAsync(triggerDto.ApiKeyId);
       if (apiKey == null)
-        return BadRequest("The API key is invalid.");
+        return BadRequest($"The API Key Id {triggerDto.ApiKeyId} is invalid.");
       if (!apiKey.isThirdParty)
         return BadRequest("Only accept third party API key.");
       triggerEntity.UpdatedAt = DateTime.UtcNow;
@@ -442,22 +442,22 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpPost("waypoints")]
-    public async Task<ActionResult> CreateWaypoint(WaypointCreateDto waypoint)
+    public async Task<ActionResult> CreateWaypoint(WaypointCreateDto waypointDto)
     {
-      var addWaypoint = _mapper.Map<Waypoint>(waypoint);
-      await _waypointRepository.AddWaypointAsync(addWaypoint);
+      var waypointEntity = _mapper.Map<Waypoint>(waypointDto);
+      await _waypointRepository.AddWaypointAsync(waypointEntity);
       await _waypointRepository.SaveChangesAsync();
-      var returnWaypoint = _mapper.Map<WaypointDto>(addWaypoint);
+      var returnWaypoint = _mapper.Map<WaypointDto>(waypointEntity);
       return CreatedAtRoute(nameof(GetWaypoint), new { id = returnWaypoint.Id }, returnWaypoint);
     }
 
     [HttpPut("waypoints/{id}")]
-    public async Task<ActionResult> UpdateWaypoint(int id, WaypointCreateDto waypoint)
+    public async Task<ActionResult> UpdateWaypoint(int id, WaypointCreateDto waypointDto)
     {
       var waypointEntity = await _waypointRepository.GetWaypointAsync(id);
       if (waypointEntity == null)
         return NotFound();
-      _mapper.Map(waypoint, waypointEntity);
+      _mapper.Map(waypointDto, waypointEntity);
       waypointEntity.UpdatedAt = DateTime.UtcNow;
       await _waypointRepository.SaveChangesAsync();
       return NoContent();

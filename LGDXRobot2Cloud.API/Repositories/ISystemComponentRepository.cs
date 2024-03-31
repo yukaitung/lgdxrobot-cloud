@@ -6,6 +6,6 @@ namespace LGDXRobot2Cloud.API.Repositories
   public interface ISystemComponentRepository
   {
     // Specific Functions
-    Task<Dictionary<string, SystemComponent>> GetSystemComponentsInDictAsync();
+    Task<Dictionary<string, SystemComponent>> GetSystemComponentsDictAsync();
   }
 }

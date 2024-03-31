@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.API.Models
 {
-  public class FlowDetailEditDto
+  public class FlowDetailUpdateDto
   {
     public int? Id { get; set; }
 

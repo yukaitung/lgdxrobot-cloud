@@ -56,18 +56,12 @@ namespace LGDXRobot2Cloud.API.Repositories
       return await _context.SaveChangesAsync() >= 0;
     }
 
-    public async Task<Dictionary<int, Trigger>> GetTriggersInDictAsync(HashSet<int> triggerIds)
+    public async Task<Dictionary<int, Trigger>> GetTriggersDictFromListAsync(IEnumerable<int> triggerIds)
     {
-      var triggers = await _context.Triggers.Where(p => triggerIds.Contains(p.Id))
+      return await _context.Triggers.Where(p => triggerIds.Contains(p.Id))
         .Include(t => t.ApiKeyLocation)
         .Include(t => t.ApiKey)
-        .ToListAsync();
-      var result = new Dictionary<int, Trigger>();
-      foreach(Trigger trigger in triggers)
-      {
-        result.Add(trigger.Id, trigger);
-      }
-      return result;
+        .ToDictionaryAsync(t => t.Id, t => t);
     }
   }
 }

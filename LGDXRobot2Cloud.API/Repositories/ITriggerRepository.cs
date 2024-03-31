@@ -12,6 +12,6 @@ namespace LGDXRobot2Cloud.API.Repositories
     Task<bool> SaveChangesAsync();
 
     // Specific Functions
-    Task<Dictionary<int, Trigger>> GetTriggersInDictAsync(HashSet<int> triggerIds);
+    Task<Dictionary<int, Trigger>> GetTriggersDictFromListAsync(IEnumerable<int> triggerIds);
   }
 }

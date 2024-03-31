@@ -38,28 +38,28 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult<ApiKeyDto>> GetApiKey(int id)
     {
       var apiKey = await _apiKeyRepository.GetApiKeyAsync(id);
-      if(apiKey == null)
+      if (apiKey == null)
         return NotFound();
       return Ok(_mapper.Map<ApiKeyDto>(apiKey));
     }
 
     [HttpPost("secret/apikeys")]
-    public async Task<ActionResult> CreateApiKey(ApiKeyCreateDto apiKey)
+    public async Task<ActionResult> CreateApiKey(ApiKeyCreateDto apiKeyDto)
     {
-      var addApiKey = _mapper.Map<ApiKey>(apiKey);
-      await _apiKeyRepository.AddApiKeyAsync(addApiKey);
+      var apiKeyEntity = _mapper.Map<ApiKey>(apiKeyDto);
+      await _apiKeyRepository.AddApiKeyAsync(apiKeyEntity);
       await _apiKeyRepository.SaveChangesAsync();
-      var returnApiKey = _mapper.Map<ApiKeyDto>(addApiKey);
-      return CreatedAtRoute(nameof(GetApiKey), new {id = returnApiKey.Id}, returnApiKey);
+      var returnApiKey = _mapper.Map<ApiKeyDto>(apiKeyEntity);
+      return CreatedAtRoute(nameof(GetApiKey), new { id = returnApiKey.Id }, returnApiKey);
     }
 
     [HttpPut("secret/apikeys/{id}")]
-    public async Task<ActionResult> UpdateApiKey(int id, ApiKeyCreateDto apiKey)
+    public async Task<ActionResult> UpdateApiKey(int id, ApiKeyCreateDto apiKeyDto)
     {
       var apiKeyEntity = await _apiKeyRepository.GetApiKeyAsync(id);
-      if(apiKeyEntity == null)
+      if (apiKeyEntity == null)
         return NotFound();
-      _mapper.Map(apiKey, apiKeyEntity);
+      _mapper.Map(apiKeyDto, apiKeyEntity);
       apiKeyEntity.UpdatedAt = DateTime.UtcNow;
       await _apiKeyRepository.SaveChangesAsync();
       return NoContent();
@@ -69,7 +69,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult> DeleteApiKey(int id)
     {
       var apiKey = await _apiKeyRepository.GetApiKeyAsync(id);
-      if(apiKey == null)
+      if (apiKey == null)
         return NotFound();
       _apiKeyRepository.DeleteApiKey(apiKey);
       await _apiKeyRepository.SaveChangesAsync();

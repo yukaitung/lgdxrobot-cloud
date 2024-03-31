@@ -17,10 +17,10 @@ namespace LGDXRobot2Cloud.API.Profiles
         .ConvertUsing<FlowDetailCreateDtoToFlowDetail>();
       CreateMap<Models.FlowDetailCreateDto, Entities.FlowDetail>()
         .ForMember(e => e.ProceedCondition, m => m.Ignore());
-      CreateMap<Models.FlowEditDto, Entities.Flow>();
-      CreateMap<IEnumerable<Models.FlowDetailEditDto>, ICollection<Entities.FlowDetail>>()
-        .ConvertUsing<FlowDetailEditDtoToFlowDetail>();
-      CreateMap<Models.FlowDetailEditDto, Entities.FlowDetail>()
+      CreateMap<Models.FlowUpdateDto, Entities.Flow>();
+      CreateMap<IEnumerable<Models.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>()
+        .ConvertUsing<FlowDetailUpdateDtoToFlowDetail>();
+      CreateMap<Models.FlowDetailUpdateDto, Entities.FlowDetail>()
         .ForMember(e => e.ProceedCondition, m => m.Ignore());
       // Progress
       CreateMap<Entities.Progress, Models.ProgressDto>();
@@ -54,12 +54,12 @@ namespace LGDXRobot2Cloud.API.Profiles
     }
   }
 
-  public class FlowDetailEditDtoToFlowDetail : ITypeConverter<IEnumerable<Models.FlowDetailEditDto>, ICollection<Entities.FlowDetail>>
+  public class FlowDetailUpdateDtoToFlowDetail : ITypeConverter<IEnumerable<Models.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>
   {
-    public ICollection<Entities.FlowDetail> Convert(IEnumerable<Models.FlowDetailEditDto> src, ICollection<Entities.FlowDetail> dest, ResolutionContext context)
+    public ICollection<Entities.FlowDetail> Convert(IEnumerable<Models.FlowDetailUpdateDto> src, ICollection<Entities.FlowDetail> dest, ResolutionContext context)
     {
       ICollection<Entities.FlowDetail> result = new List<Entities.FlowDetail>();
-      foreach(Models.FlowDetailEditDto e in src)
+      foreach(Models.FlowDetailUpdateDto e in src)
       {
         result.Add(context.Mapper.Map<Entities.FlowDetail>(e));
       }
