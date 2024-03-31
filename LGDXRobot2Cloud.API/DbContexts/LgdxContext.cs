@@ -8,12 +8,12 @@ namespace LGDXRobot2Cloud.API.DbContexts
   public class LgdxContext : DbContext
   {
     // Navigation
+    public DbSet<AutoTask> AutoTasks { get; set; }
     public DbSet<ApiKeyLocation> ApiKeyLocations { get; set; } // Used by Triggers
     public DbSet<Flow> Flows { get; set; }
     public DbSet<FlowDetail> FlowDetails { get; set; }
     public DbSet<Progress> Progresses { get; set; }
     public DbSet<SystemComponent> SystemComponents { get; set; }
-    public DbSet<AutoTask> AutoTasks { get; set; }
     public DbSet<Trigger> Triggers { get; set; }
     public DbSet<Waypoint> Waypoints { get; set; }
 
@@ -61,9 +61,17 @@ namespace LGDXRobot2Cloud.API.DbContexts
       modelBuilder.Entity<Progress>().HasData(
         new Progress
         {
+          Id = (int)ProgressState.Saved,
+          Name = "Saved",
+          System = true,
+          Reserved = true
+        },
+        new Progress
+        {
           Id = (int)ProgressState.Waiting,
           Name = "Waiting",
-          System = true
+          System = true,
+          Reserved = true
         },
         new Progress
         {
@@ -99,13 +107,15 @@ namespace LGDXRobot2Cloud.API.DbContexts
         {
           Id = (int)ProgressState.Completed,
           Name = "Completed",
-          System = true
+          System = true,
+          Reserved = true
         },
         new Progress
         {
           Id = (int)ProgressState.Aborted,
           Name = "Aborted",
-          System = true
+          System = true,
+          Reserved = true
         }
       );
       modelBuilder.Entity<SystemComponent>().HasData(

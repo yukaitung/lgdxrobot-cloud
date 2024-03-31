@@ -15,7 +15,7 @@ namespace LGDXRobot2Cloud.API.Repositories
       _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public async Task<(IEnumerable<AutoTask>, PaginationMetadata)> GetAutoTasksAsync(string? name, bool showWaiting, bool showProcessing, bool showCompleted, bool showAborted, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<AutoTask>, PaginationMetadata)> GetAutoTasksAsync(string? name, bool showSaved, bool showWaiting, bool showProcessing, bool showCompleted, bool showAborted, int pageNumber, int pageSize)
     {
       var query = _context.AutoTasks as IQueryable<AutoTask>;
       if (!string.IsNullOrWhiteSpace(name))
@@ -24,6 +24,8 @@ namespace LGDXRobot2Cloud.API.Repositories
         query = query.Where(t => t.Name != null ? t.Name.Contains(name) : false);
       }
       var predicate = PredicateBuilder.False<AutoTask>();
+      if (showSaved)
+        predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Saved);
       if (showWaiting)
         predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Waiting);
       if (showProcessing)

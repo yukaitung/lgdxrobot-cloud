@@ -11,6 +11,6 @@ namespace LGDXRobot2Cloud.API.Models
 
     [Required]
     public required int FlowId { get; set; }
-    public readonly int CurrentProgressId = (int)ProgressState.Waiting;
+    public bool Saved { get; set; } = false;
   }
 }

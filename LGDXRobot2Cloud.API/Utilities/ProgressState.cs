@@ -2,13 +2,14 @@ namespace LGDXRobot2Cloud.API.Utilities
 {
   public enum ProgressState
   {
-    Waiting = 1,
-    Starting = 2,
-    Loading = 3,
-    Moving = 4,
-    Unloading = 5,
-    Completing = 6,
-    Completed = 7,
-    Aborted = 8
+    Saved = 1,
+    Waiting = 2,
+    Starting = 3,
+    Loading = 4,
+    Moving = 5,
+    Unloading = 6,
+    Completing = 7,
+    Completed = 8,
+    Aborted = 9
   }
 }

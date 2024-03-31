@@ -15,6 +15,8 @@ namespace LGDXRobot2Cloud.API.Entities
 
     public bool System { get; set; }
 
+    public bool Reserved { get; set; }
+
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     

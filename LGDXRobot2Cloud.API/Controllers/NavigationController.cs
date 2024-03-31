@@ -257,11 +257,11 @@ namespace LGDXRobot2Cloud.API.Controllers
     ** Task
     */
     [HttpGet("tasks")]
-    public async Task<ActionResult<IEnumerable<AutoTaskListDto>>> GetTasks(string? name, bool showWaiting = true, bool showProcessing = true, 
+    public async Task<ActionResult<IEnumerable<AutoTaskListDto>>> GetTasks(string? name, bool showSaved, bool showWaiting = true, bool showProcessing = true, 
       bool showCompleted = true, bool showAborted = true, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (tasks, paginationMetadata) = await _autoTaskRepository.GetAutoTasksAsync(name, showWaiting, showProcessing, showCompleted, showAborted, pageNumber, pageSize);
+      var (tasks, paginationMetadata) = await _autoTaskRepository.GetAutoTasksAsync(name, showSaved, showWaiting, showProcessing, showCompleted, showAborted, pageNumber, pageSize);
       Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
       return Ok(_mapper.Map<IEnumerable<AutoTaskListDto>>(tasks));
     }
@@ -297,10 +297,12 @@ namespace LGDXRobot2Cloud.API.Controllers
         return BadRequest($"The Flow ID {taskEntity.FlowId} is invalid.");
       taskEntity.Flow = flow;
       // Add Progress to Entity
-      var currentProgress = await _progressRepository.GetProgressAsync((int)ProgressState.Waiting);
+      var currentProgress = taskDto.Saved ? 
+        await _progressRepository.GetProgressAsync((int)ProgressState.Saved) : await _progressRepository.GetProgressAsync((int)ProgressState.Waiting);
       if (currentProgress == null)
         return BadRequest();
       taskEntity.CurrentProgress = currentProgress;
+      taskEntity.CurrentProgressId = currentProgress.Id;
       await _autoTaskRepository.AddAutoTaskAsync(taskEntity);
       await _autoTaskRepository.SaveChangesAsync();
       var returnTask = _mapper.Map<AutoTaskDto>(taskEntity);
@@ -313,8 +315,8 @@ namespace LGDXRobot2Cloud.API.Controllers
       var taskEntity = await _autoTaskRepository.GetAutoTaskAsync(id);
       if (taskEntity == null)
         return NotFound();
-      if (taskEntity.CurrentProgressId != (int)ProgressState.Waiting)
-        return BadRequest($"Cannot change the task not in Waiting status.");
+      if (taskEntity.CurrentProgressId != (int)ProgressState.Waiting || taskEntity.CurrentProgressId != (int)ProgressState.Saved)
+        return BadRequest($"Cannot change the task not in Waiting / Saved status.");
       // Ensure the input task does not include Detail ID from other task
       HashSet<int> detailIds = new HashSet<int>();
       foreach(var waypoint in taskEntity.Waypoints)
