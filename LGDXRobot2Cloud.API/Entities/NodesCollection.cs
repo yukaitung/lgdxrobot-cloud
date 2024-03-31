@@ -13,7 +13,7 @@ namespace LGDXRobot2Cloud.API.Entities
     [MaxLength(50)]
     public required string Name { get; set; }
 
-    public ICollection<Node> Nodes { get; set; } = new List<Node>();
+    public ICollection<NodesCollectionDetail> Nodes { get; set; } = new List<NodesCollectionDetail>();
 
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

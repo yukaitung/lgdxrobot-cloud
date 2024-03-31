@@ -20,8 +20,11 @@ namespace LGDXRobot2Cloud.API.DbContexts
     // Robot
     public DbSet<Node> Nodes { get; set; }
     public DbSet<NodesCollection> NodesCollections { get; set; }
+    public DbSet<NodesCollectionDetail> NodesCollectionsDetails { get; set; }
     
     public DbSet<Robot> Robots { get; set; }
+
+    public DbSet<RobotSystemInfo> RobotSystemInfos { get; set; }
 
     // Setting
     public DbSet<ApiKey> ApiKeys { get; set; }
@@ -48,6 +51,12 @@ namespace LGDXRobot2Cloud.API.DbContexts
         .HasMany(e => e.FlowDetails)
         .WithOne(e => e.Flow)
         .HasForeignKey(e => e.FlowId)
+        .IsRequired();
+      // One NodesCollection Has many NodesCollectionDetails
+      modelBuilder.Entity<NodesCollection>()
+        .HasMany(e => e.Nodes)
+        .WithOne(e => e.NodesCollection)
+        .HasForeignKey(e => e.NodesCollectionId)
         .IsRequired();
       modelBuilder.Entity<Progress>().HasData(
         new Progress
