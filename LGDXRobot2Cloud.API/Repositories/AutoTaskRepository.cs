@@ -36,7 +36,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Aborted);
       query = query.Where(predicate);
       var itemCount = await query.CountAsync();
-      var paginationMetadata = new PaginationMetadata(itemCount, pageSize, pageNumber);
+      var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
       var autoTasks = await query.OrderByDescending(t => t.Priority)
         .OrderBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))

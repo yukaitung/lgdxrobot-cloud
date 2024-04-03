@@ -7,7 +7,7 @@ namespace LGDXRobot2Cloud.API.Services
     public int PageSize { get; set; }
     public int CurrentPage { get; set; }
 
-    public PaginationMetadata(int itemCount, int pageSize, int currentPage)
+    public PaginationMetadata(int itemCount, int currentPage, int pageSize)
     {
       ItemCount = itemCount;
       PageSize = pageSize;

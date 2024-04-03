@@ -17,14 +17,19 @@ namespace LGDXRobot2Cloud.API.Entities
     public required string Address { get; set; }
 
     [ForeignKey("DefaultNodesCollectionId")]
-    public required NodesCollection DefaultNodesCollection { get; set; }
+    public NodesCollection? DefaultNodesCollection { get; set; }
 
-    public int DefaultNodesCollectionId { get; set; }
+    public int? DefaultNodesCollectionId { get; set; }
 
     [ForeignKey("RobotSystemInfoId")]
-    public required RobotSystemInfo RobotSystemInfo { get; set; }
+    public RobotSystemInfo? RobotSystemInfo { get; set; }
 
-    public int RobotSystemInfoId { get; set; }
+    public int? RobotSystemInfoId { get; set; }
+
+    [ForeignKey("AssignedTaskId")]
+    public AutoTask? AssignedTask { get; set; }
+
+    public int? AssignedTaskId { get; set; }
 
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

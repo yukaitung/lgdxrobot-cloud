@@ -23,7 +23,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         query = query.Where(f => f.Name.Contains(name));
       }
       var itemCount = await query.CountAsync();
-      var paginationMetadata = new PaginationMetadata(itemCount, pageSize, pageNumber);
+      var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
       // Does not include FlowDetails to reduce load
       var flows = await query.OrderBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))

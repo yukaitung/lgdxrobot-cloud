@@ -17,7 +17,7 @@ namespace LGDXRobot2Cloud.API.Entities
     public required string ProcessName { get; set; }
 
     [MaxLength(200)]
-    public required string Arguments { get; set; }
+    public string? Arguments { get; set; }
 
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

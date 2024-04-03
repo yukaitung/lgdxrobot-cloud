@@ -9,7 +9,12 @@ namespace LGDXRobot2Cloud.API.Entities
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
+    [ForeignKey("NodeId")]
     public required Node Node { get; set; }
+
+    public int NodeId { get; set; }
+
+    public bool AutoRestart { get; set; }
 
     [ForeignKey("NodesCollectionId")]
     public required NodesCollection NodesCollection { get; set; }

@@ -1,6 +1,7 @@
 using LGDXRobot2Cloud.API.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.API.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
@@ -27,6 +28,10 @@ builder.Services.AddScoped<IAutoTaskRepository, AutoTaskRepository>();
 builder.Services.AddScoped<ISystemComponentRepository, SystemComponentRepository>();
 builder.Services.AddScoped<ITriggerRepository, TriggerRepository>();
 builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();
+
+// Robot Repositories
+builder.Services.AddScoped<INodeRepository, NodeRepository>();
+builder.Services.AddScoped<IRobotRepository, RobotRepository>();
 
 // Setting Repositories
 builder.Services.AddScoped<IApiKeyRepository, ApiKeyRepository>();

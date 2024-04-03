@@ -22,6 +22,11 @@ namespace LGDXRobot2Cloud.API.Entities
 
     public int FlowId { get; set; }
 
+    [ForeignKey("AssignedRobotId")]
+    public Robot? AssignedRobot { get; set; }
+
+    public int? AssignedRobotId { get; set; }
+
     [ForeignKey("CurrentProgressId")]
     public required Progress CurrentProgress { get; set; }
 

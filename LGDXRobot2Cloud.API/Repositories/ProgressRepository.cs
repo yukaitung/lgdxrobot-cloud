@@ -17,13 +17,13 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<(IEnumerable<Progress>, PaginationMetadata)> GetProgressesAsync(string? name, int pageNumber, int pageSize)
     {
       var query = _context.Progresses as IQueryable<Progress>;
-      if(!string.IsNullOrWhiteSpace(name))
+      if (!string.IsNullOrWhiteSpace(name))
       {
         name = name.Trim();
         query = query.Where(t => t.Name.Contains(name));
       }
       var itemCount = await query.CountAsync();
-      var paginationMetadata = new PaginationMetadata(itemCount, pageSize, pageNumber);
+      var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
       var progresses = await query.OrderBy(a => a.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
