@@ -10,5 +10,8 @@ namespace LGDXRobot2Cloud.API.Repositories
     Task AddNodeAsync(Node node);
     void DeleteNode(Node node);
     Task<bool> SaveChangesAsync();
+
+    // Specific Functions
+    Task<Dictionary<int, Node>> GetNodesDictFromListAsync(IEnumerable<int> nodeIds);
   }
 }

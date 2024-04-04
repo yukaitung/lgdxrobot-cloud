@@ -23,7 +23,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         query = query.Where(n => n.Name.Contains(name));
       }
       var itemCount = await query.CountAsync();
-      var paginationMetadata = new PaginationMetadata(itemCount, pageSize, pageNumber);
+      var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
       var nodes = await query.OrderBy(n => n.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
@@ -49,6 +49,12 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<bool> SaveChangesAsync()
     {
       return await _context.SaveChangesAsync() >= 0;
+    }
+
+    public async Task<Dictionary<int, Node>> GetNodesDictFromListAsync(IEnumerable<int> nodeIds)
+    {
+      return await _context.Nodes.Where(n => nodeIds.Contains(n.Id))
+        .ToDictionaryAsync(n => n.Id, n => n);
     }
   }
 }

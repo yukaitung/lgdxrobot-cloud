@@ -31,6 +31,7 @@ builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();
 
 // Robot Repositories
 builder.Services.AddScoped<INodeRepository, NodeRepository>();
+builder.Services.AddScoped<INodesCollectionRepository, NodesCollectionRepository>();
 builder.Services.AddScoped<IRobotRepository, RobotRepository>();
 
 // Setting Repositories
