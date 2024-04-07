@@ -1,5 +1,5 @@
 using LGDXRobot2Cloud.API.DbContexts;
-using LGDXRobot2Cloud.API.Entities;
+using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.API.Services;
 using Microsoft.EntityFrameworkCore;
 

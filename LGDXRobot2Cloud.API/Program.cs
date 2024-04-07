@@ -1,7 +1,6 @@
 using LGDXRobot2Cloud.API.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using LGDXRobot2Cloud.API.Repositories;
-using LGDXRobot2Cloud.API.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);

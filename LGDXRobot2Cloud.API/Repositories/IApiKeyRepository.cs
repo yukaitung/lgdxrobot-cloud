@@ -1,4 +1,4 @@
-using LGDXRobot2Cloud.API.Entities;
+using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.API.Services;
 
 namespace LGDXRobot2Cloud.API.Repositories

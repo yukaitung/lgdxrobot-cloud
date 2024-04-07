@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace LGDXRobot2Cloud.API.Entities
+namespace LGDXRobot2Cloud.Shared.Entities
 {
-  public class Progress
+  public class Waypoint
   {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -12,10 +12,12 @@ namespace LGDXRobot2Cloud.API.Entities
 
     [MaxLength(50)]
     public required string Name { get; set; }
+    
+    public double X { get; set; }
 
-    public bool System { get; set; }
+    public double Y { get; set; }
 
-    public bool Reserved { get; set; }
+    public double W { get; set; }
 
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

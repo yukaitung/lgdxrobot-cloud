@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace LGDXRobot2Cloud.API.Entities
+namespace LGDXRobot2Cloud.Shared.Entities
 {
-  public class ApiKey
+  public class Progress
   {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -13,10 +13,9 @@ namespace LGDXRobot2Cloud.API.Entities
     [MaxLength(50)]
     public required string Name { get; set; }
 
-    [MaxLength(100)]
-    public required string Key { get; set; }
+    public bool System { get; set; }
 
-    public bool isThirdParty { get; set; }
+    public bool Reserved { get; set; }
 
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

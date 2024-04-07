@@ -1,6 +1,6 @@
 using System.Text.Json;
 using AutoMapper;
-using LGDXRobot2Cloud.API.Entities;
+using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.API.Models;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Utilities;

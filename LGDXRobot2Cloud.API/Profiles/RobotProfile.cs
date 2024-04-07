@@ -1,4 +1,5 @@
 using AutoMapper;
+using Entities = LGDXRobot2Cloud.Shared.Entities;
 
 namespace LGDXRobot2Cloud.API.Profiles
 {
