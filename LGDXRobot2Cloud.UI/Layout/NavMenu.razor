@@ -25,42 +25,36 @@
                 <NavItem href="" Match="NavLinkMatch.All">
                     Home
                 </NavItem>
-                <NavDropdown title="Logistic" href="">
+                <NavDropdown title="Navigation" href="navigation">
                     <div class="dropdown-menu-column">
-                        <NavLink class="dropdown-item" href="">
+                        <NavLink class="dropdown-item" href="navigation/map">
                             Map
                         </NavLink>
-                        <NavLink class="dropdown-item" href="">
-                            Tasks Queue
+                        <NavLink class="dropdown-item" href="navigation/tasks">
+                            Tasks
                         </NavLink>
-                        <NavLink class="dropdown-item" href="">
+                        <NavLink class="dropdown-item" href="navigation/savedTasks">
                             Saved Tasks
                         </NavLink>
-                        <NavLink class="dropdown-item" href="">
-                            Saved Waypoints
+                        <NavLink class="dropdown-item" href="navigation/waypoints">
+                            Waypoints
                         </NavLink>
-                        <NavLink class="dropdown-item" href="">
-                            Flow Setting
+                        <NavLink class="dropdown-item" href="navigation/flows">
+                            Flows
                         </NavLink>
                     </div>
                 </NavDropdown>
-                <NavDropdown title="Robot" href="">
+                <NavDropdown title="Robot" href="robots">
                     <div class="dropdown-menu-column">
-                        <NavLink class="dropdown-item" href="">
-                            Network
+                        <NavLink class="dropdown-item" href="robots">
+                            Robots
                         </NavLink>
-                        <NavLink class="dropdown-item" href="">
-                            Nodes Parameters
-                        </NavLink>
-                        <NavLink class="dropdown-item" href="">
-                            Nodes Composition
-                        </NavLink>
-                        <NavLink class="dropdown-item" href="">
-                            Profiles Editor
+                        <NavLink class="dropdown-item" href="robots/nodes">
+                            Nodes
                         </NavLink>
                     </div>
                 </NavDropdown>
-                <NavDropdown title="Audit" href="">
+                <!--<NavDropdown title="Audit" href="audit">
                     <div class="dropdown-menu-column">
                         <NavLink class="dropdown-item" href="">
                             Report
@@ -69,20 +63,17 @@
                             Log
                         </NavLink>
                     </div>
-                </NavDropdown>
-                <NavDropdown title="Setting" href="">
+                </NavDropdown>-->
+                <NavDropdown title="Setting" href="setting">
                     <div class="dropdown-menu-column">
-                        <NavLink class="dropdown-item" href="">
+                        <!--<NavLink class="dropdown-item" href="">
                             Users
                         </NavLink>
                         <NavLink class="dropdown-item" href="">
                             Notifications
-                        </NavLink>
-                        <NavLink class="dropdown-item" href="">
-                            Certificates
-                        </NavLink>
-                        <NavLink class="dropdown-item" href="">
-                            API Keys
+                        </NavLink>-->
+                        <NavLink class="dropdown-item" href="/setting/secrets">
+                            Secrets
                         </NavLink>
                     </div>
                 </NavDropdown>
