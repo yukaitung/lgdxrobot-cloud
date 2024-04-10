@@ -1,7 +1,7 @@
 using LGDXRobot2Cloud.API.DbContexts;
 using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.API.Services;
-using LGDXRobot2Cloud.API.Utilities;
+using LGDXRobot2Cloud.Shared.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories

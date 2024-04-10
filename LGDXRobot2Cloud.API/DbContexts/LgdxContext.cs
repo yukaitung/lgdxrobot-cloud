@@ -1,5 +1,5 @@
 using LGDXRobot2Cloud.Shared.Entities;
-using LGDXRobot2Cloud.API.Utilities;
+using LGDXRobot2Cloud.Shared.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 

@@ -1,9 +1,9 @@
 using System.Text.Json;
 using AutoMapper;
 using LGDXRobot2Cloud.Shared.Entities;
-using LGDXRobot2Cloud.API.Models;
+using LGDXRobot2Cloud.Shared.Models;
 using LGDXRobot2Cloud.API.Repositories;
-using LGDXRobot2Cloud.API.Utilities;
+using LGDXRobot2Cloud.Shared.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LGDXRobot2Cloud.API.Controllers

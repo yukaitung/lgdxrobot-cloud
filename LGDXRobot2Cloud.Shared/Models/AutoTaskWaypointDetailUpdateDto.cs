@@ -1,0 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace LGDXRobot2Cloud.Shared.Models
+{
+  public class AutoTaskWaypointDetailUpdateDto
+  {
+    public int? Id { get; set; }
+
+    [Required]
+    public required int Order { get; set; }
+
+    [Required]
+    public required int WaypointId { get; set; }
+  }
+}
