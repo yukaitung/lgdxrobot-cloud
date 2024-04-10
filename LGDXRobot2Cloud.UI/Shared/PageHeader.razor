@@ -1,18 +1,15 @@
 <div class="page-header d-print-none">
   <div class="container-xl">
-    <div class="row g-2 align-items-center">
-      <div class="col">
-        <h2 class="page-title">
-          @ChildContent
-        </h2>
-      </div>
-    </div>
+    @ChildContent
   </div>
 </div>
 
-<PageTitle>@ChildContent | LGDXRobot2 Cloud</PageTitle>
+<PageTitle>@Title | LGDXRobot2 Cloud</PageTitle>
 
 @code {
   [Parameter]
   public RenderFragment? ChildContent { get; set; }
+
+  [Parameter]
+  public string Title { get; set; } = string.Empty;
 }
