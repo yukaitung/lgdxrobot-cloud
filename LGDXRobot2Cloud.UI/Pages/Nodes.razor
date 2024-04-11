@@ -28,20 +28,20 @@
           <div class="text-secondary">
             Show
             <div class="mx-2 d-inline-block">
-              <input type="text" class="form-control form-control-sm" value="10" size="3" aria-label="Invoices count">
+              <input type="text" class="form-control form-control-sm" size="3" @bind="DataEntriesNumber"> 
             </div>
             entries
             <div class="ms-1 d-inline-block">
-              <button type="button" class="btn btn-primary btn-sm">Update</button>
+              <button type="button" class="btn btn-primary btn-sm" @onclick="ChangeShowingEntries">Update</button>
             </div>
           </div>
           <div class="ms-auto text-secondary">
             Search:
             <div class="ms-2 d-inline-block">
-              <input type="text" class="form-control form-control-sm" aria-label="Search invoice">
+              <input type="text" class="form-control form-control-sm" @bind="DataSearch">
             </div>
             <div class="ms-1 d-inline-block">
-              <button type="button" class="btn btn-primary btn-sm">Search</button>
+              <button type="button" class="btn btn-primary btn-sm" @onclick="SearchEntries">Search</button>
             </div>
           </div>
         </div>
@@ -62,20 +62,22 @@
           </thead>
           @if (NodesList != null)
           {
-            foreach (var node in NodesList)
-            {
-              <tr>
-                <td>@node.Id</td>
-                <td>@node.Name</td>
-                <td>@node.ProcessName</td>
-                <td>@node.Arguments</td>
-                <td>@node.CreatedAt</td>
-                <td>@node.UpdatedAt</td>
-                <td class="text-end">
-                  <a href="#">Edit</a>
-                </td>
-              </tr>
-            }
+            <tbody>
+              @foreach (var node in NodesList)
+              {
+                <tr>
+                  <td>@node.Id</td>
+                  <td>@node.Name</td>
+                  <td>@node.ProcessName</td>
+                  <td>@node.Arguments</td>
+                  <td>@node.CreatedAt</td>
+                  <td>@node.UpdatedAt</td>
+                  <td class="text-end">
+                    <a href="#">Edit</a>
+                  </td>
+                </tr>
+              }
+            </tbody>
           }
           <tbody>
           </tbody>
@@ -85,24 +87,40 @@
       @if (PaginationMetadata != null && NodesList != null)
       {
         <div class="card-footer d-flex align-items-center">
-          <p class="m-0 text-secondary">Showing <span>@((PaginationMetadata.CurrentPage - 1) * PaginationMetadata.PageSize
-            + 1)</span> to <span>@NodesList.Count</span> of <span>@PaginationMetadata.ItemCount</span> entries</p>
+          <p class="m-0 text-secondary">Showing 
+            <span>@((PaginationMetadata.CurrentPage - 1) * PaginationMetadata.PageSize + 1)</span> to 
+            <span>@((PaginationMetadata.CurrentPage - 1) * PaginationMetadata.PageSize + NodesList.Count)</span> of 
+            <span>@PaginationMetadata.ItemCount</span> entries
+          </p>
           <ul class="pagination m-0 ms-auto">
-            <li class="page-item @(PaginationMetadata.CurrentPage == 1 ? "disabled" : "")">
-              <a class="page-link">
+            <li class="page-item @(PaginationMetadata.CurrentPage == 1 ? "disabled" : "")"
+              @onclick="@(e => ChangePage(e, PaginationMetadata.CurrentPage - 1))">
+              <a class="page-link" href="" @onclick:preventDefault>
                 <ChevronLeft />
               </a>
             </li>
-            <li class="page-item @(PaginationMetadata.CurrentPage == 1 ? "active" : "")"><a class="page-link">1</a></li>
+            <li class="page-item @(PaginationMetadata.CurrentPage == 1 ? "active" : "")"
+              @onclick="@(e => ChangePage(e, 1))">
+              <a class="page-link" href="" @onclick:preventDefault>1</a>
+            </li>
             @for (int i = 2; i < PaginationMetadata.PageCount; i++)
             {
-              <li class="page-item @(PaginationMetadata.CurrentPage == i ? "active" : "")"><a class="page-link">@i</a></li>
+              var index = i;
+              <li class="page-item @(PaginationMetadata.CurrentPage == index ? "active" : "")"
+                @onclick="@(e => ChangePage(e, index))">
+                <a class="page-link" href="" @onclick:preventDefault>@index</a>
+              </li>
             }
-            <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "active" : "")">
-              <a class="page-link">@PaginationMetadata.PageCount</a>
-            </li>
-            <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "disabled" : "")">
-              <a class="page-link">
+            @if (PaginationMetadata.PageCount > 1)
+            {
+              <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "active" : "")"
+                @onclick="@(e => ChangePage(e, PaginationMetadata.PageCount))">
+                <a class="page-link" href="" @onclick:preventDefault>@PaginationMetadata.PageCount</a>
+              </li>
+            }
+            <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "disabled" : "")"
+              @onclick="@(e => ChangePage(e, PaginationMetadata.CurrentPage + 1))">
+              <a class="page-link" href="" @onclick:preventDefault>
                 <ChevronRight />
               </a>
             </li>
@@ -112,3 +130,4 @@
     </div>
   </div>
 </PageBody>
+
