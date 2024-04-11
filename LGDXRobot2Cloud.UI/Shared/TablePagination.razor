@@ -1,0 +1,39 @@
+<div class="card-footer d-flex align-items-center">
+  <p class="m-0 text-secondary">Showing
+    <span>@((PaginationMetadata.CurrentPage - 1) * PaginationMetadata.PageSize + 1)</span> to
+    <span>@((PaginationMetadata.CurrentPage - 1) * PaginationMetadata.PageSize + ItemCount)</span> of
+    <span>@PaginationMetadata.ItemCount</span> entries
+  </p>
+  <ul class="pagination m-0 ms-auto">
+    <li class="page-item @(PaginationMetadata.CurrentPage == 1 ? "disabled" : "")"
+      @onclick="@(e => ChangePage(e, PaginationMetadata.CurrentPage - 1))">
+      <a class="page-link" href="" @onclick:preventDefault>
+        <ChevronLeftIcon />
+      </a>
+    </li>
+    <li class="page-item @(PaginationMetadata.CurrentPage == 1 ? "active" : "")" @onclick="@(e => ChangePage(e, 1))">
+      <a class="page-link" href="" @onclick:preventDefault>1</a>
+    </li>
+    @for (int i = 2; i < PaginationMetadata.PageCount; i++)
+    {
+      var index = i;
+      <li class="page-item @(PaginationMetadata.CurrentPage == index ? "active" : "")"
+        @onclick="@(e => ChangePage(e, index))">
+        <a class="page-link" href="" @onclick:preventDefault>@index</a>
+      </li>
+    }
+    @if (PaginationMetadata.PageCount > 1)
+    {
+      <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "active" : "")"
+        @onclick="@(e => ChangePage(e, PaginationMetadata.PageCount))">
+        <a class="page-link" href="" @onclick:preventDefault>@PaginationMetadata.PageCount</a>
+      </li>
+    }
+    <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "disabled" : "")"
+      @onclick="@(e => ChangePage(e, PaginationMetadata.CurrentPage + 1))">
+      <a class="page-link" href="" @onclick:preventDefault>
+        <ChevronRightIcon />
+      </a>
+    </li>
+  </ul>
+</div>

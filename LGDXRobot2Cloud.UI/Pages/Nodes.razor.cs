@@ -15,7 +15,7 @@ namespace LGDXRobot2Cloud.UI.Pages
     private int DataEntriesNumber { get; set; } = 10;
     private string DataSearch { get; set; } = string.Empty;
 
-    private async Task ChangePage(MouseEventArgs e, int pageNum)
+    private async Task ChangePage(int pageNum)
     {
       if (pageNum > PaginationMetadata?.PageCount || pageNum < 1)
         return;

@@ -28,7 +28,7 @@
           <div class="text-secondary">
             Show
             <div class="mx-2 d-inline-block">
-              <input type="text" class="form-control form-control-sm" size="3" @bind="DataEntriesNumber"> 
+              <input type="text" class="form-control form-control-sm" size="3" @bind="DataEntriesNumber">
             </div>
             entries
             <div class="ms-1 d-inline-block">
@@ -46,8 +46,10 @@
           </div>
         </div>
       </div>
-      <!-- Data -->
-      <div class="table-responsive">
+      @if (PaginationMetadata != null && NodesList != null)
+      {
+        <!-- Data -->
+        <div class="table-responsive">
         <table class="table card-table table-vcenter text-nowrap datatable">
           <thead>
             <tr>
@@ -60,10 +62,8 @@
               <th><!-- Action --></th>
             </tr>
           </thead>
-          @if (NodesList != null)
-          {
-            <tbody>
-              @foreach (var node in NodesList)
+          <tbody>
+            @foreach (var node in NodesList)
               {
                 <tr>
                   <td>@node.Id</td>
@@ -78,56 +78,20 @@
                 </tr>
               }
             </tbody>
+          </table>
+          @if (NodesList.Count() == 0)
+          {
+            <TableEmpty />
           }
-          <tbody>
-          </tbody>
-        </table>
-      </div>
-      <!-- Footer -->
-      @if (PaginationMetadata != null && NodesList != null)
-      {
-        <div class="card-footer d-flex align-items-center">
-          <p class="m-0 text-secondary">Showing 
-            <span>@((PaginationMetadata.CurrentPage - 1) * PaginationMetadata.PageSize + 1)</span> to 
-            <span>@((PaginationMetadata.CurrentPage - 1) * PaginationMetadata.PageSize + NodesList.Count)</span> of 
-            <span>@PaginationMetadata.ItemCount</span> entries
-          </p>
-          <ul class="pagination m-0 ms-auto">
-            <li class="page-item @(PaginationMetadata.CurrentPage == 1 ? "disabled" : "")"
-              @onclick="@(e => ChangePage(e, PaginationMetadata.CurrentPage - 1))">
-              <a class="page-link" href="" @onclick:preventDefault>
-                <ChevronLeft />
-              </a>
-            </li>
-            <li class="page-item @(PaginationMetadata.CurrentPage == 1 ? "active" : "")"
-              @onclick="@(e => ChangePage(e, 1))">
-              <a class="page-link" href="" @onclick:preventDefault>1</a>
-            </li>
-            @for (int i = 2; i < PaginationMetadata.PageCount; i++)
-            {
-              var index = i;
-              <li class="page-item @(PaginationMetadata.CurrentPage == index ? "active" : "")"
-                @onclick="@(e => ChangePage(e, index))">
-                <a class="page-link" href="" @onclick:preventDefault>@index</a>
-              </li>
-            }
-            @if (PaginationMetadata.PageCount > 1)
-            {
-              <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "active" : "")"
-                @onclick="@(e => ChangePage(e, PaginationMetadata.PageCount))">
-                <a class="page-link" href="" @onclick:preventDefault>@PaginationMetadata.PageCount</a>
-              </li>
-            }
-            <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "disabled" : "")"
-              @onclick="@(e => ChangePage(e, PaginationMetadata.CurrentPage + 1))">
-              <a class="page-link" href="" @onclick:preventDefault>
-                <ChevronRight />
-              </a>
-            </li>
-          </ul>
         </div>
+        <!-- Footer -->
+        @if (NodesList.Count() > 0)
+        {
+          <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="NodesList.Count()"
+            OnPageChange="ChangePage" />
+        }
+
       }
     </div>
   </div>
 </PageBody>
-
