@@ -1,5 +1,5 @@
 using LGDXRobot2Cloud.Shared.Entities;
-using LGDXRobot2Cloud.API.Services;
+using LGDXRobot2Cloud.Shared.Services;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
