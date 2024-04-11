@@ -28,12 +28,9 @@
           <div class="text-secondary">
             Show
             <div class="mx-2 d-inline-block">
-              <input type="text" class="form-control form-control-sm" size="3" @bind="DataEntriesNumber">
+              <TableEntriesSelect OnChange="ChangeShowingEntries"/>
             </div>
             entries
-            <div class="ms-1 d-inline-block">
-              <button type="button" class="btn btn-primary btn-sm" @onclick="ChangeShowingEntries">Update</button>
-            </div>
           </div>
           <div class="ms-auto text-secondary">
             Search:
@@ -42,6 +39,9 @@
             </div>
             <div class="ms-1 d-inline-block">
               <button type="button" class="btn btn-primary btn-sm" @onclick="SearchEntries">Search</button>
+            </div>
+            <div class="ms-1 d-inline-block">
+              <button type="button" class="btn btn-primary btn-sm" @onclick="ClearSearch">Clear</button>
             </div>
           </div>
         </div>
