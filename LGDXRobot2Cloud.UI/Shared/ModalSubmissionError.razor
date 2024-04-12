@@ -1,0 +1,19 @@
+@if (Display)
+{
+  <div class="alert alert-danger" role="alert">
+    <div class="d-flex">
+      <div class="me-2">
+        <XIcon />
+      </div>
+      <div>
+        Something went wrong while submitting your data. Please try again later.
+      </div>
+    </div>
+  </div>
+}
+
+
+@code {
+  [Parameter]
+  public bool Display { get; set; }
+}

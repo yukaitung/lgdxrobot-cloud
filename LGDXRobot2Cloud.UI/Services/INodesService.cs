@@ -8,7 +8,7 @@ namespace LGDXRobot2Cloud.UI.Services
   {
     Task<(IEnumerable<Node>?, PaginationMetadata?)> GetNodesAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
     Task<Node?> GetNodeAsync(int nodeId);
-    Task AddNodeAsync(NodeCreateDto node);
+    Task<Node?> AddNodeAsync(NodeCreateDto node);
     Task UpdateNodeAsync(int nodeId, NodeCreateDto node);
     Task DeleteNodeAsync(int nodeId);
   }
