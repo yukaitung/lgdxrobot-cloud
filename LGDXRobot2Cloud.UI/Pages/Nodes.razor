@@ -27,22 +27,32 @@
       <div class="card-body border-bottom py-3">
         <div class="d-flex">
           <div class="text-secondary">
-            Show
-            <div class="mx-2 d-inline-block">
-              <TableEntriesSelect OnChange="ChangeShowingEntries" />
+            <div class="row g-2">
+              <div class="col">
+                Show
+              </div>
+              <div class="col-auto">
+                <TableEntriesSelect OnChange="ChangeShowingEntries" />
+              </div>
+              <div class="col-auto">
+                entries
+              </div>
             </div>
-            entries
           </div>
           <div class="ms-auto text-secondary">
-            Search:
-            <div class="ms-2 d-inline-block">
-              <input type="text" class="form-control form-control-sm" @bind="DataSearch">
-            </div>
-            <div class="ms-1 d-inline-block">
-              <button type="button" class="btn btn-primary btn-sm" @onclick="SearchEntries">Search</button>
-            </div>
-            <div class="ms-1 d-inline-block">
-              <button type="button" class="btn btn-primary btn-sm" @onclick="ClearSearch">Clear</button>
+            <div class="row g-2">
+              <div class="col">
+                Search:
+              </div>
+              <div class="col-auto">
+                <input type="text" class="form-control form-control-sm" @bind="DataSearch">
+              </div>
+              <div class="col-auto">
+                <button type="button" class="btn btn-primary btn-sm" @onclick="SearchEntries">Search</button>
+              </div>
+              <div class="col-auto">
+                <button type="button" class="btn btn-primary btn-sm" @onclick="ClearSearch">Clear</button>
+              </div>
             </div>
           </div>
         </div>
