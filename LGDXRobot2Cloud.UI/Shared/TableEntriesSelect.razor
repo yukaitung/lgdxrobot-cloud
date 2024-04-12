@@ -4,3 +4,14 @@
   <option value="50">50</option>
   <option value="100">100</option>
 </select>
+
+@code {
+  [Parameter]
+  public EventCallback<int> OnChange { get; set; }
+
+  private async Task ChangeSelect(ChangeEventArgs e)
+  {
+    var number = e.Value?.ToString() ?? "10";
+    await OnChange.InvokeAsync(int.Parse(number));
+  }
+}

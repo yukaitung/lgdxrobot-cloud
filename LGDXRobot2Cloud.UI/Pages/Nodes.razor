@@ -28,7 +28,7 @@
           <div class="text-secondary">
             Show
             <div class="mx-2 d-inline-block">
-              <TableEntriesSelect OnChange="ChangeShowingEntries"/>
+              <TableEntriesSelect OnChange="ChangeShowingEntries" />
             </div>
             entries
           </div>
@@ -46,10 +46,9 @@
           </div>
         </div>
       </div>
-      @if (PaginationMetadata != null && NodesList != null)
-      {
-        <!-- Data -->
-        <div class="table-responsive">
+
+      <!-- Data -->
+      <div class="table-responsive">
         <table class="table card-table table-vcenter text-nowrap datatable">
           <thead>
             <tr>
@@ -63,7 +62,9 @@
             </tr>
           </thead>
           <tbody>
-            @foreach (var node in NodesList)
+            @if (NodesList != null)
+            {
+              @foreach (var node in NodesList)
               {
                 <tr>
                   <td>@node.Id</td>
@@ -77,20 +78,23 @@
                   </td>
                 </tr>
               }
-            </tbody>
-          </table>
-          @if (NodesList.Count() == 0)
-          {
-            <TableEmpty />
-          }
-        </div>
-        <!-- Footer -->
-        @if (NodesList.Count() > 0)
+            }
+            else
+            {
+              <TableLoading Columns="7"/>
+            }
+          </tbody>
+        </table>
+        @if (NodesList != null && NodesList.Count() == 0)
         {
-          <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="NodesList.Count()"
-            OnPageChange="ChangePage" />
+          <TableEmpty />
         }
-
+      </div>
+      <!-- Footer -->
+      @if (PaginationMetadata != null && NodesList != null && NodesList.Count() > 0)
+      {
+        <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="NodesList.Count()"
+          OnPageChange="ChangePage" />
       }
     </div>
   </div>
