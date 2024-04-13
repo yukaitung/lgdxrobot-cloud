@@ -11,23 +11,20 @@
         <ChevronLeftIcon />
       </button>
     </li>
-    <li class="page-item @(PaginationMetadata.CurrentPage == 1 ? "active" : "")" @onclick="@(e => ChangePage(e, 1))">
-      <button class="page-link">1</button>
-    </li>
-    @for (int i = 2; i < PaginationMetadata.PageCount; i++)
+    @foreach (var index in _renderPage)
     {
-      var index = i;
-      <li class="page-item @(PaginationMetadata.CurrentPage == index ? "active" : "")"
-        @onclick="@(e => ChangePage(e, index))">
-        <button class="page-link">@index</button>
+      var i = index;
+      @if (i != 1 && i - 1 != _lastIndex) 
+      {
+        <li class="page-item">
+          <button class="page-link" disabled="true">...</button>
+        </li>
+      }
+      <li class="page-item @(PaginationMetadata.CurrentPage == i ? "active" : "")"
+        @onclick="@(e => ChangePage(e, i))">
+        <button class="page-link">@i</button>
       </li>
-    }
-    @if (PaginationMetadata.PageCount > 1)
-    {
-      <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "active" : "")"
-        @onclick="@(e => ChangePage(e, PaginationMetadata.PageCount))">
-        <button class="page-link">@PaginationMetadata.PageCount</button>
-      </li>
+      _lastIndex = i;
     }
     <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "disabled" : "")"
       @onclick="@(e => ChangePage(e, PaginationMetadata.CurrentPage + 1))">
