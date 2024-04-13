@@ -21,10 +21,17 @@ namespace LGDXRobot2Cloud.UI.Services
     {
       var url = name != null ? $"robot/nodes?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot/nodes?pageNumber={pageNumber}&pageSize={pageSize}";
       var response = await _httpClient.GetAsync(url);
-      var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
-      var nodes = await JsonSerializer.DeserializeAsync<IEnumerable<Node>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (nodes, paginationMetadata);
+      if (response.IsSuccessStatusCode)
+      {
+        var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+        var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
+        var nodes = await JsonSerializer.DeserializeAsync<IEnumerable<Node>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return (nodes, paginationMetadata);
+      }
+      else
+      {
+        return (null, null);
+      }
     }
 
     public async Task<Node?> GetNodeAsync(int nodeId)

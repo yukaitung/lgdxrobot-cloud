@@ -1,5 +1,6 @@
 @page "/robots/nodes"
 @using LGDXRobot2Cloud.UI.Components.Nodes
+@rendermode InteractiveServer
 
 <PageHeader Title="Nodes">
   <div class="row align-items-center">
@@ -40,19 +41,13 @@
             </div>
           </div>
           <div class="ms-auto text-secondary">
-            <div class="row g-2">
-              <div class="col">
-                Search:
-              </div>
-              <div class="col-auto">
-                <input type="text" class="form-control form-control-sm" @bind="DataSearch">
-              </div>
-              <div class="col-auto">
-                <button type="button" class="btn btn-primary btn-sm" @onclick="SearchEntries">Search</button>
-              </div>
-              <div class="col-auto">
-                <button type="button" class="btn btn-primary btn-sm" @onclick="ClearSearch">Clear</button>
-              </div>
+            Search: 
+          </div>
+          <div class="text-secondary">
+            <div class="input-group">
+              <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
+              <button type="button" class="btn btn-sm" @onclick="SearchEntries">Search</button> 
+              <button type="button" class="btn btn-sm" @onclick="ClearSearch">Clear</button>
             </div>
           </div>
         </div>
@@ -67,8 +62,8 @@
               <th>Name</th>
               <th>Process Name</th>
               <th class="w-100">Arguments</th>
-              <th>Creat Time</th>
-              <th>Update Time</th>
+              <th>Create Time</th>
+              <th>Last Update Time</th>
               <th><!-- Action --></th>
             </tr>
           </thead>
@@ -85,7 +80,7 @@
                   <td>@node.CreatedAt</td>
                   <td>@node.UpdatedAt</td>
                   <td class="text-end">
-                    <a href="#">Edit</a>
+                    <button class="page-link link-primary">Edit</button>
                   </td>
                 </tr>
               }
