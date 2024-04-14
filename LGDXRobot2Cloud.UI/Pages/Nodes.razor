@@ -19,7 +19,9 @@
 </PageHeader>
 
 <PageBody>
-  <NodeTable OnIdSelected="HandleItemSelect"/>
+  <ModalSubmitDone Display="_submitDone" Crud="_submitCrud" EntityName="Node" 
+    ItemId="_submitDoneId" ItemName="@_submitDoneItemName" OnClose="HandleSubmitDoneClose"/>
+  <NodeTable OnIdSelected="HandleItemSelect" />
 </PageBody>
 
-<NodeDetail Id="_nodeId" />
+<NodeDetail Id="_nodeId" OnSubmitDone="HandleSubmitDoneOpen" />

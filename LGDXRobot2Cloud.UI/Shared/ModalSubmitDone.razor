@@ -1,0 +1,53 @@
+@using LGDXRobot2Cloud.UI.Helpers
+
+@if (Display)
+{
+  <div class="col-12">
+    <div class="alert alert-success" role="alert">
+      <div class="d-flex">
+        <div class="me-2">
+          <CheckIcon />
+        </div>
+        <div>
+          Your @EntityName @(ItemName != null ? $"\"{ItemName}\" (ID: {ItemId})" : $"ID: {ItemId}") has been successfully @switch (Crud){
+            case CrudOperation.Create:
+              <span>created to</span>
+              break;
+            case CrudOperation.Update:
+              <span>updated to</span>
+              break;
+            case CrudOperation.Delete:
+              <span>deleted from</span>
+              break;
+          } the system.
+        </div>
+        <button class="btn-close ms-auto" @onclick="HandleClose"></button>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  [Parameter]
+  public bool Display { get; set; }
+
+  [Parameter]
+  public CrudOperation Crud { get; set; }
+
+  [Parameter]
+  public string EntityName { get; set; } = string.Empty;
+
+  [Parameter]
+  public int ItemId { get; set; }
+
+  [Parameter]
+  public string? ItemName { get; set; } = string.Empty;
+
+  [Parameter]
+  public EventCallback<bool> OnClose { get; set; }
+
+  private async Task HandleClose()
+  {
+    await OnClose.InvokeAsync(false);
+  }
+}

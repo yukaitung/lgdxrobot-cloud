@@ -23,6 +23,9 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
     [Parameter]
     public int? Id { get; set; }
 
+    [Parameter]
+    public EventCallback<(int, string, CrudOperation)> OnSubmitDone { get; set; }
+
     private Node _node { get; set; } = null!;
     private EditContext _editContext = null!;
     private readonly CustomFieldClassProvider _customFieldClassProvider = new();
@@ -37,7 +40,10 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
         // Update
         bool success = await NodeService.UpdateNodeAsync((int)Id, Mapper.Map<NodeCreateDto>(_node));
         if (success)
+        {
           await JSRuntime.InvokeVoidAsync("CloseModal", "nodeDetailModal");
+          await OnSubmitDone.InvokeAsync(((int)Id, _node.Name, CrudOperation.Update));
+        }
         else
           _isError = true;
       }
@@ -46,7 +52,10 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
         // Create
         var success = await NodeService.AddNodeAsync(Mapper.Map<NodeCreateDto>(_node));
         if (success != null)
+        {
           await JSRuntime.InvokeVoidAsync("CloseModal", "nodeDetailModal");
+          await OnSubmitDone.InvokeAsync((success.Id, success.Name, CrudOperation.Create));
+        }
         else
           _isError = true;
       }
@@ -63,7 +72,11 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
       {
         var success = await NodeService.DeleteNodeAsync((int)Id);
         if (success)
+        {
+          // DO NOT REVERSE THE ORDER
           await JSRuntime.InvokeVoidAsync("CloseModal", "nodeDeleteModal");
+          await OnSubmitDone.InvokeAsync(((int)Id, _node.Name, CrudOperation.Delete));
+        } 
         else
           _isDeleteError = true;
       }
