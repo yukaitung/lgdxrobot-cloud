@@ -7,9 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Add API
 builder.Services.AddHttpClient<INodeService, NodeService>(client => {
     client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? throw new ArgumentNullException("Lgdxobot2CloudApiUrl"));
 });
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 

@@ -44,7 +44,6 @@ namespace LGDXRobot2Cloud.UI.Shared
         }
         _renderPage.Add(1);
         _renderPage.Add(pageCount);
-
       }
       await base.SetParametersAsync(parameters);
     }

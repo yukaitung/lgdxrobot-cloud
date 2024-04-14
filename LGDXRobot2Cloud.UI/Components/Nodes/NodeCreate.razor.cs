@@ -7,7 +7,7 @@ using Microsoft.JSInterop;
 
 namespace LGDXRobot2Cloud.UI.Components.Nodes
 {
-  public partial class NodeDetail
+  public partial class NodeCreate
   {
     [Inject]
     public required INodeService NodeService { get; set; }
@@ -15,37 +15,35 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
 
-    private NodeCreateDto _nodeCreate { get; set; } = null!;
-
+    private NodeCreateDto _node { get; set; } = null!;
     private EditContext _editContext = null!;
 
     private bool _isInvalid { get; set; } = false;
-
     private bool _isError { get; set; } = false;
  
-    private async Task HandleValidCreate()
+    private async Task HandleValidSubmit()
     {
       _isInvalid = false;
-      var node = await NodeService.AddNodeAsync(_nodeCreate);
+      var node = await NodeService.AddNodeAsync(_node);
       if(node != null)
       {
         _isError = false;
-        await JSRuntime.InvokeVoidAsync("CloseModal", "nodeDetailModal");
+        _node = new NodeCreateDto();
+        await JSRuntime.InvokeVoidAsync("CloseModal", "nodeCreateModal");
       }
       else
         _isError = true;
     }
 
-    private void HandleInvalidCreate()
+    private void HandleInvalidSubmit()
     {
       _isInvalid = true;
     }
 
     protected override void OnInitialized()
     {
-      
-      _nodeCreate = new NodeCreateDto();
-      _editContext = new EditContext(_nodeCreate);
+      _node = new NodeCreateDto();
+      _editContext = new EditContext(_node);
       _editContext.SetFieldCssClassProvider(new CustomFieldClassProvider());
     }
   }

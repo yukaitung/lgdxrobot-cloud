@@ -10,7 +10,8 @@
       </h2>
     </div>
     <div class="col-auto ms-auto">
-      <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#nodeDetailModal">
+      <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+        data-bs-target="#nodeCreateModal">
         Create Node
       </button>
     </div>
@@ -41,12 +42,12 @@
             </div>
           </div>
           <div class="ms-auto text-secondary">
-            Search: 
+            Search:
           </div>
           <div class="text-secondary">
             <div class="input-group">
               <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
-              <button type="button" class="btn btn-sm" @onclick="SearchEntries">Search</button> 
+              <button type="button" class="btn btn-sm" @onclick="SearchEntries">Search</button>
               <button type="button" class="btn btn-sm" @onclick="ClearSearch">Clear</button>
             </div>
           </div>
@@ -72,6 +73,7 @@
             {
               @foreach (var node in NodesList)
               {
+                var nodeId = node.Id;
                 <tr>
                   <td>@node.Id</td>
                   <td>@node.Name</td>
@@ -80,7 +82,8 @@
                   <td>@node.CreatedAt</td>
                   <td>@node.UpdatedAt</td>
                   <td class="text-end">
-                    <button class="page-link link-primary">Edit</button>
+                    <button class="page-link link-primary" data-bs-toggle="modal" data-bs-target="#nodeUpdateModal"
+                      @onclick="@(e => EditEntries(e, nodeId))">Edit</button>
                   </td>
                 </tr>
               }
@@ -106,4 +109,5 @@
   </div>
 </PageBody>
 
-<NodeDetail />
+<NodeCreate />
+<NodeUpdate Id="_nodeId" />
