@@ -25,7 +25,7 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
 
     private Node _node { get; set; } = null!;
     private EditContext _editContext = null!;
-    private readonly CustomFieldClassProvider customFieldClassProvider = new();
+    private readonly CustomFieldClassProvider _customFieldClassProvider = new();
     private bool _isInvalid { get; set; } = false;
     private bool _isError { get; set; } = false;
     private bool _isDeleteError { get; set; } = false;
@@ -83,14 +83,14 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
           if (node != null) {
             _node = node;
             _editContext = new EditContext(_node);
-            _editContext.SetFieldCssClassProvider(customFieldClassProvider);
+            _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
           }
         }
         else
         {
           _node = new Node();
           _editContext = new EditContext(_node);
-          _editContext.SetFieldCssClassProvider(customFieldClassProvider);
+          _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }
       }
       await base.SetParametersAsync(ParameterView.Empty);

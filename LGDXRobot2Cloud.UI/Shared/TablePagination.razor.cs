@@ -16,10 +16,9 @@ namespace LGDXRobot2Cloud.UI.Shared
     public EventCallback<int> OnPageChange { get; set; }
 
     private SortedSet<int> _renderPage { get; set; } = [];
-
     private int _lastIndex { get; set; } = 0;
      
-    private async Task ChangePage(MouseEventArgs e, int pageNum)
+    private async Task HandlePageChange(int pageNum)
     {
       await OnPageChange.InvokeAsync(pageNum);
     }
