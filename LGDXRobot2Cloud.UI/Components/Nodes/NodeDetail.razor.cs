@@ -25,9 +25,10 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
 
     private Node _node { get; set; } = null!;
     private EditContext _editContext = null!;
-    private CustomFieldClassProvider customFieldClassProvider = new();
+    private readonly CustomFieldClassProvider customFieldClassProvider = new();
     private bool _isInvalid { get; set; } = false;
     private bool _isError { get; set; } = false;
+    private bool _isDeleteError { get; set; } = false;
 
     private async Task HandleValidSubmit()
     {
@@ -36,9 +37,7 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
         // Update
         bool success = await NodeService.UpdateNodeAsync((int)Id, Mapper.Map<NodeCreateDto>(_node));
         if (success)
-        {
           await JSRuntime.InvokeVoidAsync("CloseModal", "nodeDetailModal");
-        }
         else
           _isError = true;
       }
@@ -47,9 +46,7 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
         // Create
         var success = await NodeService.AddNodeAsync(Mapper.Map<NodeCreateDto>(_node));
         if (success != null)
-        {
           await JSRuntime.InvokeVoidAsync("CloseModal", "nodeDetailModal");
-        }
         else
           _isError = true;
       }
@@ -60,6 +57,18 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
       _isInvalid = true;
     }
 
+    private async void HandleDelete()
+    {
+      if (Id != null)
+      {
+        var success = await NodeService.DeleteNodeAsync((int)Id);
+        if (success)
+          await JSRuntime.InvokeVoidAsync("CloseModal", "nodeDeleteModal");
+        else
+          _isDeleteError = true;
+      }
+    }
+
     public override async Task SetParametersAsync(ParameterView parameters)
     {
       parameters.SetParameterProperties(this);
@@ -67,6 +76,7 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
       {
         _isInvalid = false;
         _isError = false;
+        _isDeleteError = false;
         if (_id != null)
         {
           var node = await NodeService.GetNodeAsync((int)_id);
