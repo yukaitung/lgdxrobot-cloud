@@ -1,4 +1,4 @@
-<select class="form-select form-select-sm" @onchange="ChangeSelect">
+<select class="form-select form-select-sm" @onchange="HandleChange">
   <option value="10">10</option>
   <option value="20">20</option>
   <option value="50">50</option>
@@ -9,7 +9,7 @@
   [Parameter]
   public EventCallback<int> OnChange { get; set; }
 
-  private async Task ChangeSelect(ChangeEventArgs e)
+  private async Task HandleChange(ChangeEventArgs e)
   {
     var number = e.Value?.ToString() ?? "10";
     await OnChange.InvokeAsync(int.Parse(number));
