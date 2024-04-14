@@ -1,6 +1,6 @@
 @using LGDXRobot2Cloud.UI.Helpers
 
-@if (Display)
+@if (_display)
 {
   <div class="col-12">
     <div class="alert alert-success" role="alert">
@@ -9,7 +9,7 @@
           <CheckIcon />
         </div>
         <div>
-          The @EntityName @(ItemName != null ? $"\"{ItemName}\" (ID: {ItemId})" : $"ID: {ItemId}") has been successfully @switch (Crud){
+          The @EntityName @(_itemName != null ? $"\"{_itemName}\" (ID: {_itemId})" : $"ID: {_itemId}") has been successfully @switch (_crud){
             case CrudOperation.Create:
               <span>created</span>
               break;
@@ -21,7 +21,7 @@
               break;
           }.
         </div>
-        <button class="btn-close ms-auto" @onclick="HandleClose"></button>
+        <button class="btn-close ms-auto" @onclick="Close"></button>
       </div>
     </div>
   </div>
@@ -29,25 +29,27 @@
 
 @code {
   [Parameter]
-  public bool Display { get; set; }
-
-  [Parameter]
-  public CrudOperation Crud { get; set; }
-
-  [Parameter]
   public string EntityName { get; set; } = string.Empty;
 
-  [Parameter]
-  public int ItemId { get; set; }
+  private bool _display { get; set; }
+  private CrudOperation _crud { get; set; }
+  private int _itemId { get; set; }
+  private string? _itemName { get; set; } = string.Empty;
 
-  [Parameter]
-  public string? ItemName { get; set; } = string.Empty;
 
-  [Parameter]
-  public EventCallback<bool> OnClose { get; set; }
-
-  private async Task HandleClose()
+  public void Open(int itemId, string? itemName, CrudOperation crudOperation)
   {
-    await OnClose.InvokeAsync(false);
+    _display = true;
+    _crud = crudOperation;
+    _itemId = itemId;
+    _itemName = itemName;
+    StateHasChanged();
+  }
+
+  public void Close()
+  {
+    _display = false;
+    _itemName = string.Empty;
+    StateHasChanged();
   }
 }
