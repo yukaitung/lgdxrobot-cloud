@@ -9,17 +9,17 @@
           <CheckIcon />
         </div>
         <div>
-          Your @EntityName @(ItemName != null ? $"\"{ItemName}\" (ID: {ItemId})" : $"ID: {ItemId}") has been successfully @switch (Crud){
+          The @EntityName @(ItemName != null ? $"\"{ItemName}\" (ID: {ItemId})" : $"ID: {ItemId}") has been successfully @switch (Crud){
             case CrudOperation.Create:
-              <span>created to</span>
+              <span>created</span>
               break;
             case CrudOperation.Update:
-              <span>updated to</span>
+              <span>updated</span>
               break;
             case CrudOperation.Delete:
-              <span>deleted from</span>
+              <span>deleted</span>
               break;
-          } the system.
+          }.
         </div>
         <button class="btn-close ms-auto" @onclick="HandleClose"></button>
       </div>

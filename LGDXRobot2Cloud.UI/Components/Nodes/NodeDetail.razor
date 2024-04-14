@@ -1,3 +1,5 @@
+@using LGDXRobot2Cloud.UI.Helpers
+
 <div class="modal modal-blur fade" id="nodeDetailModal" data-bs-backdrop="static" data-bs-keyboard="false"
   tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -10,7 +12,7 @@
         <DataAnnotationsValidator />
         <div class="modal-body">
           <ModalValidationError Display="_isInvalid" />
-          <ModalSubmissionError Display="_isError" />
+          <ModalSubmitError Display="_isError" Crud="@(Id != null ? CrudOperation.Update : CrudOperation.Create)" />
           @if (Id != null)
           {
             <div class="mb-3 row">
@@ -86,7 +88,7 @@
       <div class="modal-content">
         <div class="modal-body">
           <div class="modal-title">Delete Node</div>
-          <ModalDeleteError Display="_isDeleteError" />
+          <ModalSubmitError Display="_isError" Crud="@CrudOperation.Delete" />
           <div>The Node @(_node.Name != null ? $"\"{_node.Name}\" (ID: {_node.Id})" : $"ID: {_node.Id}") will be deleted.</div>
         </div>
         <div class="modal-footer">

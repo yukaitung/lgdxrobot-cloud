@@ -31,7 +31,6 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
     private readonly CustomFieldClassProvider _customFieldClassProvider = new();
     private bool _isInvalid { get; set; } = false;
     private bool _isError { get; set; } = false;
-    private bool _isDeleteError { get; set; } = false;
 
     private async Task HandleValidSubmit()
     {
@@ -78,7 +77,7 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
           await OnSubmitDone.InvokeAsync(((int)Id, _node.Name, CrudOperation.Delete));
         } 
         else
-          _isDeleteError = true;
+          _isError = true;
       }
     }
 
@@ -89,7 +88,6 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
       {
         _isInvalid = false;
         _isError = false;
-        _isDeleteError = false;
         if (_id != null)
         {
           var node = await NodeService.GetNodeAsync((int)_id);
