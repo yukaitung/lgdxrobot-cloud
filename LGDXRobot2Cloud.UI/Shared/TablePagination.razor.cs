@@ -30,11 +30,21 @@ namespace LGDXRobot2Cloud.UI.Shared
       {
         var pageCount = value.PageCount;
         var currentPage = value.CurrentPage;
+        var island = 5; // Odd number
+        var min = currentPage < pageCount - island / 2 ? currentPage - island / 2 : pageCount - island; // Ensure everypage has 5 pages
+        var max = currentPage + island / 2;
         _renderPage.Clear();
-        for(int i = currentPage - 3; i <= currentPage + 3; i++)
-          if (i > 1 && i < pageCount) _renderPage.Add(i);
+        for (int i = min; i <= max; i++)
+        {
+          if (i > 1 && i < pageCount) 
+            _renderPage.Add(i);
+          else if(max < pageCount) {
+            max++;
+          }
+        }
         _renderPage.Add(1);
         _renderPage.Add(pageCount);
+
       }
       await base.SetParametersAsync(parameters);
     }
