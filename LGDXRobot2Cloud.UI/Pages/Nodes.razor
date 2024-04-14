@@ -11,7 +11,7 @@
     </div>
     <div class="col-auto ms-auto">
       <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-        data-bs-target="#nodeCreateModal">
+        data-bs-target="#nodeDetailModal" @onclick="@(e => _nodeId = null)">
         Create Node
       </button>
     </div>
@@ -82,8 +82,8 @@
                   <td>@node.CreatedAt</td>
                   <td>@node.UpdatedAt</td>
                   <td class="text-end">
-                    <button class="page-link link-primary" data-bs-toggle="modal" data-bs-target="#nodeUpdateModal"
-                      @onclick="@(e => EditEntries(e, nodeId))">Edit</button>
+                    <button class="page-link link-primary" data-bs-toggle="modal" data-bs-target="#nodeDetailModal"
+                      @onclick="@(e => _nodeId = nodeId)">Edit</button>
                   </td>
                 </tr>
               }
@@ -109,5 +109,4 @@
   </div>
 </PageBody>
 
-<NodeCreate />
-<NodeUpdate Id="_nodeId" />
+<NodeDetail Id="_nodeId" />

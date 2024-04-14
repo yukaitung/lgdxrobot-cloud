@@ -34,20 +34,20 @@ namespace LGDXRobot2Cloud.UI.Services
       }
     }
 
-    public async Task<NodeDto?> GetNodeAsync(int nodeId)
+    public async Task<Node?> GetNodeAsync(int nodeId)
     {
       var response = await _httpClient.GetAsync($"robot/nodes/{nodeId}");
-      var node = await JsonSerializer.DeserializeAsync<NodeDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      var node = await JsonSerializer.DeserializeAsync<Node>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       return node;
     }
 
-    public async Task<NodeDto?> AddNodeAsync(NodeCreateDto node)
+    public async Task<Node?> AddNodeAsync(NodeCreateDto node)
     {
       var nodeJson = new StringContent(JsonSerializer.Serialize(node), Encoding.UTF8, "application/json");
       var response = await _httpClient.PostAsync("robot/nodes", nodeJson);
       if (response.IsSuccessStatusCode)
       {
-        return await JsonSerializer.DeserializeAsync<NodeDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return await JsonSerializer.DeserializeAsync<Node>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       }
       else
         return null;

@@ -1,5 +1,6 @@
 using AutoMapper;
 using Models = LGDXRobot2Cloud.Shared.Models;
+using Entities = LGDXRobot2Cloud.Shared.Entities;
 
 namespace LGDXRobot2Cloud.UI.Profiles
 {
@@ -8,7 +9,7 @@ namespace LGDXRobot2Cloud.UI.Profiles
     public RobotProfile()
     {
       // Nodes
-      CreateMap<Models.NodeDto, Models.NodeCreateDto>();
+      CreateMap<Entities.Node, Models.NodeCreateDto>();
     }
   }
 }

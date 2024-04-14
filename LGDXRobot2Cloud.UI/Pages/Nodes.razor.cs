@@ -14,7 +14,7 @@ namespace LGDXRobot2Cloud.UI.Pages
     private PaginationMetadata? PaginationMetadata { get; set; } = default!;
     
     // Node Detail
-    private int _nodeId { get; set; }
+    private int? _nodeId { get; set; } = null;
 
     // Table
     private int CurrentPage { get; set; } = 1;
@@ -64,11 +64,6 @@ namespace LGDXRobot2Cloud.UI.Pages
       DataSearch = string.Empty;
       await SearchEntries();
       LastDataSearch = string.Empty;
-    }
-
-    private void EditEntries(MouseEventArgs e, int id)
-    {
-      _nodeId = id;
     }
 
     protected override async Task OnInitializedAsync()
