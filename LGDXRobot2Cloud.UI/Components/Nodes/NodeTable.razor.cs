@@ -69,11 +69,22 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
       _paginationMetadata = data.Item2;
     }
 
-    protected override async Task OnInitializedAsync()
+    public async Task Refresh(bool deleteOpt = false)
     {
-      var data = await NodeService.GetNodesAsync();
+      if (deleteOpt && _currentPage > 1 && _nodesList?.Count == 1)
+        _currentPage--;
+      var data = await NodeService.GetNodesAsync(_dataSearch, _currentPage, _pageSize);
       _nodesList = data.Item1?.ToList();
       _paginationMetadata = data.Item2;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+      if (firstRender)
+      {
+        await Refresh();
+        StateHasChanged();
+      }
     }
   }
 }
