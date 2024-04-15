@@ -9,7 +9,7 @@ using Microsoft.JSInterop;
 
 namespace LGDXRobot2Cloud.UI.Components.Nodes
 {
-  public partial class NodeDetail
+  public partial class NodeDetail : AbstractForm
   {
     [Inject]
     public required INodeService NodeService { get; set; }
@@ -32,7 +32,7 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
     private bool _isInvalid { get; set; } = false;
     private bool _isError { get; set; } = false;
 
-    private async Task HandleValidSubmit()
+    protected override async Task HandleValidSubmit()
     {
       if (Id != null)
       {
@@ -60,12 +60,12 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
       }
     }
 
-    private void HandleInvalidSubmit()
+    protected override void HandleInvalidSubmit()
     {
       _isInvalid = true;
     }
 
-    private async void HandleDelete()
+    protected override async void HandleDelete()
     {
       if (Id != null)
       {
