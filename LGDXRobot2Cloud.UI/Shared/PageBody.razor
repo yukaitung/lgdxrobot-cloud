@@ -1,7 +1,29 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
-      @ChildContent
+      <ErrorBoundary>
+        <ChildContent>
+          @ChildContent
+        </ChildContent>
+        <ErrorContent Context="ex">
+          <div class="container-tight py-4">
+            <div class="empty">
+              <div class="empty-img">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-circle-x" style="width: 64px;height: 64px;">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                  <path d="M10 10l4 4m0 -4l-4 4" />
+                </svg>
+              </div>
+              <p class="empty-title">Service Error</p>
+              <p class="empty-subtitle text-secondary">
+                The service has run into a critical error.<br />Error message: @ex.Message
+              </p>
+            </div>
+          </div>
+        </ErrorContent>
+      </ErrorBoundary>
     </div>
   </div>
 </div>
