@@ -1,3 +1,5 @@
+@inherits NavItem
+
 <li class="nav-item dropdown @GetActive(href)">
   <a class="nav-link dropdown-toggle @GetShowDropdown(href)" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button">
     <span class="nav-link-title">
@@ -15,28 +17,9 @@
   [Parameter]
   public string title { get; set; } = String.Empty;
 
-  [Parameter]
-  public string href { get; set; } = String.Empty;
-
-  [Parameter]
-  public RenderFragment? ChildContent { get; set; }
-
-  // https://stackoverflow.com/questions/64306326/how-do-i-set-nav-item-active-in-blazor
-
   [Inject]
   NavigationManager NavigationManager { get; set; } = default!;
 
-  protected override void OnInitialized() => NavigationManager.LocationChanged += (s, e) => StateHasChanged();
-
-  bool IsActive(string href, NavLinkMatch navLinkMatch = NavLinkMatch.Prefix)
-  {
-    var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
-    return navLinkMatch == NavLinkMatch.All ? relativePath == href.ToLower() : relativePath.StartsWith(href.ToLower());
-  }
-
-  string GetActive(string href, NavLinkMatch navLinkMatch = NavLinkMatch.Prefix) => IsActive(href, navLinkMatch) ?
-  "active" : "";
-
-  string GetShowDropdown(string href, NavLinkMatch navLinkMatch = NavLinkMatch.Prefix) => IsActive(href, navLinkMatch) ?
-  "show" : "";
+  string GetShowDropdown(string href, NavLinkMatch navLinkMatch = NavLinkMatch.Prefix) => 
+    IsActive(href, navLinkMatch) ? "show" : "";
 }
