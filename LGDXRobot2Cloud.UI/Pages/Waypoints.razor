@@ -11,7 +11,7 @@
     </div>
     <div class="col-auto ms-auto">
       <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-        data-bs-target="#waypointDetailModal">
+        data-bs-target="#waypointDetailModal" @onclick="@(e => _waypointId = null)">
         Create Waypoint
       </button>
     </div>
