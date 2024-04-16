@@ -10,6 +10,7 @@ namespace LGDXRobot2Cloud.API.Profiles
     {
       CreateMap<Entities.ApiKey, Models.ApiKeyDto>();
       CreateMap<Models.ApiKeyCreateDto, Entities.ApiKey>();
+      CreateMap<Models.ApiKeyUpdateDto, Entities.ApiKey>();
     }
   }
 }

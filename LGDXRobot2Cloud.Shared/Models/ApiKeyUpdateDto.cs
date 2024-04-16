@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.Shared.Models
 {
-  public class ApiKeyCreateDto
+  public class ApiKeyUpdateDto
   {
     [Required]
     [MaxLength(50)]
@@ -11,8 +11,5 @@ namespace LGDXRobot2Cloud.Shared.Models
     [Required]
     [MaxLength(100)]
     public string Key { get; set; } = null!;
-
-    [Required]
-    public bool IsThirdParty { get; set; }
   }
 }

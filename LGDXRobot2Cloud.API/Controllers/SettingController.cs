@@ -54,7 +54,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpPut("secret/apikeys/{id}")]
-    public async Task<ActionResult> UpdateApiKey(int id, ApiKeyCreateDto apiKeyDto)
+    public async Task<ActionResult> UpdateApiKey(int id, ApiKeyUpdateDto apiKeyDto)
     {
       var apiKeyEntity = await _apiKeyRepository.GetApiKeyAsync(id);
       if (apiKeyEntity == null)
