@@ -17,7 +17,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<(IEnumerable<ApiKey>, PaginationMetadata)> GetApiKeysAsync(string? name, bool isThirdParty, int pageNumber, int pageSize)
     {
       var query = _context.ApiKeys as IQueryable<ApiKey>;
-      query = query.Where(a => a.isThirdParty == isThirdParty);
+      query = query.Where(a => a.IsThirdParty == isThirdParty);
       if(!string.IsNullOrWhiteSpace(name))
       {
         name = name.Trim();

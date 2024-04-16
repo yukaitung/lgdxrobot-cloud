@@ -399,7 +399,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       var apiKey = await _apiKeyRepository.GetApiKeyAsync(triggerDto.ApiKeyId);
       if (apiKey == null)
         return BadRequest($"The API Key Id {triggerDto.ApiKeyId} is invalid.");
-      if (!apiKey.isThirdParty)
+      if (!apiKey.IsThirdParty)
         return BadRequest("Only accept third party API key.");
       await _triggerRepository.AddTriggerAsync(triggerEntity);
       await _triggerRepository.SaveChangesAsync();
@@ -421,7 +421,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       var apiKey = await _apiKeyRepository.GetApiKeyAsync(triggerDto.ApiKeyId);
       if (apiKey == null)
         return BadRequest($"The API Key Id {triggerDto.ApiKeyId} is invalid.");
-      if (!apiKey.isThirdParty)
+      if (!apiKey.IsThirdParty)
         return BadRequest("Only accept third party API key.");
       triggerEntity.UpdatedAt = DateTime.UtcNow;
       await _triggerRepository.SaveChangesAsync();

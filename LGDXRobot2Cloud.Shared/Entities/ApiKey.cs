@@ -11,12 +11,15 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public int Id { get; set; }
 
     [MaxLength(50)]
-    public required string Name { get; set; }
+    [Required]
+    public string Name { get; set; } = string.Empty;
 
     [MaxLength(100)]
-    public required string Key { get; set; }
+    [Required]
+    public string Key { get; set; } = string.Empty;
 
-    public bool isThirdParty { get; set; }
+    [Required]
+    public bool IsThirdParty { get; set; }
 
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
