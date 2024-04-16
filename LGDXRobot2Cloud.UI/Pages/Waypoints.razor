@@ -1,9 +1,26 @@
 @page "/navigation/waypoints"
+@using LGDXRobot2Cloud.UI.Components.Waypoints
+@rendermode InteractiveServer
 
-<PageHeader>
-  Waypoints
+<PageHeader Title="Waypoints">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Waypoints
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+        data-bs-target="#waypointDetailModal">
+        Create Waypoint
+      </button>
+    </div>
+  </div>
 </PageHeader>
 
 <PageBody>
-
+  <ModalSubmitDone EntityName="Waypoint" @ref="_modalSubmitDone" />
+  <WaypointTable OnIdSelected="HandleItemSelect" @ref="_waypointTable" />
 </PageBody>
+
+<WaypointDetail Id="_waypointId" OnSubmitDone="HandleSubmitDoneOpen" />

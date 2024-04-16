@@ -1,0 +1,110 @@
+@using LGDXRobot2Cloud.UI.Helpers
+@inherits AbstractForm
+
+<div class="modal modal-blur fade" id="waypointDetailModal" data-bs-backdrop="static" data-bs-keyboard="false"
+  tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">@(Id != null ? "Update Waypoint" : "Create New Waypoint")</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <DataAnnotationsValidator />
+        <div class="modal-body">
+          <ModalValidationError Display="_isInvalid" />
+          <ModalSubmitError Display="_isError" Crud="@(Id != null ? CrudOperation.Update : CrudOperation.Create)" />
+          @if (Id != null)
+          {
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">ID</label>
+              <div class="col ms-3 form-control-plaintext">@_waypoint.Id</div>
+            </div>
+          }
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="Name">Name</label>
+            <div class="col">
+              <InputText id="Name" @bind-Value="_waypoint.Name" type="text" class="form-control"
+                placeholder="Your waypoint name" />
+              <ValidationMessage class="invalid-feedback" For="@(() => _waypoint.Name)" />
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="X">X (m)</label>
+            <div class="col">
+              <InputNumber id="X" @bind-Value="_waypoint.X" type="number" step="any" class="form-control"
+                placeholder="X position" />
+              <ValidationMessage class="invalid-feedback" For="@(() => _waypoint.X)" />
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="Y">Y (m)</label>
+            <div class="col">
+              <InputNumber id="Y" @bind-Value="_waypoint.Y" type="number" step="any" class="form-control"
+                placeholder="Y position" />
+              <ValidationMessage class="invalid-feedback" For="@(() => _waypoint.Y)" />
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="W">Rotation (rad)</label>
+            <div class="col">
+              <InputNumber id="W" @bind-Value="_waypoint.W" type="number" step="any" class="form-control"
+                placeholder="Rotation" />
+              <ValidationMessage class="invalid-feedback" For="@(() => _waypoint.W)" />
+            </div>
+          </div>
+          @if (Id != null)
+          {
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">Create Time</label>
+              <div class="col ms-3 form-control-plaintext">@_waypoint.CreatedAt</div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">Last Update Time</label>
+              <div class="col ms-3 form-control-plaintext">@_waypoint.UpdatedAt</div>
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <a class="btn btn-link link-secondary" data-bs-dismiss="modal">
+            Cancel
+          </a>
+          @if (Id != null)
+          {
+            <button type="button" class="btn btn-danger ms-auto" data-bs-toggle="modal" data-bs-target="#waypointDeleteModal">
+              Delete Waypoint
+            </button>
+            <button type="submit" class="btn btn-primary ms-2">
+              Update Waypoint
+            </button>
+          }
+          else 
+          {
+            <button type="submit" class="btn btn-primary ms-auto">
+              Create New Waypoint
+            </button>
+          }
+        </div>
+      </EditForm>
+    </div>
+  </div>
+</div>
+
+@if (Id != null)
+{
+  <div class="modal fade" id="waypointDeleteModal" tabindex="-1" data-bs-keyboard="false">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="modal-title">Delete Waypoint</div>
+          <ModalSubmitError Display="_isError" Crud="@CrudOperation.Delete" />
+          <div>The Waypoint @(_waypoint.Name != null ? $"\"{_waypoint.Name}\" (ID: {_waypoint.Id})" : $"ID: {_waypoint.Id}") will be deleted.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" @onclick="HandleDelete">Yes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

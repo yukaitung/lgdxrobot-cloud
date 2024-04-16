@@ -4,7 +4,7 @@
   <div class="card">
     <!-- Header -->
     <div class="card-header">
-      <h3 class="card-title">Saved Nodes</h3>
+      <h3 class="card-title">Saved Waypoints</h3>
     </div>
     <!-- Filter -->
     <div class="card-body border-bottom py-3">
@@ -42,48 +42,50 @@
           <tr>
             <th class="w-1">ID</th>
             <th>Name</th>
-            <th>Process Name</th>
-            <th class="w-100">Arguments</th>
+            <th>X</th>
+            <th>Y</th>
+            <th>W</th>
             <th>Create Time</th>
             <th>Last Update Time</th>
             <th class="w-1"><!-- Action --></th>
           </tr>
         </thead>
         <tbody>
-          @if (_nodesList != null)
+          @if (_waypointsList != null)
           {
-            @foreach (var node in _nodesList)
+            @foreach (var waypoint in _waypointsList)
             {
-              var nodeId = node.Id;
+              var waypointId = waypoint.Id;
               <tr>
-                <td>@node.Id</td>
-                <td>@node.Name</td>
-                <td>@node.ProcessName</td>
-                <td>@node.Arguments</td>
-                <td>@node.CreatedAt</td>
-                <td>@node.UpdatedAt</td>
+                <td>@waypoint.Id</td>
+                <td>@waypoint.Name</td>
+                <td>@waypoint.X</td>
+                <td>@waypoint.Y</td>
+                <td>@waypoint.W</td>
+                <td>@waypoint.CreatedAt</td>
+                <td>@waypoint.UpdatedAt</td>
                 <td class="text-end">
-                  <button class="page-link link-primary" data-bs-toggle="modal" data-bs-target="#nodeDetailModal"
-                    @onclick="@(e => HandleItemSelect(nodeId))">Edit</button>
+                  <button class="page-link link-primary" data-bs-toggle="modal" data-bs-target="#waypointDetailModal"
+                    @onclick="@(e => HandleItemSelect(waypointId))">Edit</button>
                 </td>
               </tr>
             }
           }
           else
           {
-            <TableLoading Columns="7" />
+            <TableLoading Columns="8" />
           }
         </tbody>
       </table>
-      @if (_nodesList != null && _nodesList.Count() == 0)
+      @if (_waypointsList != null && _waypointsList.Count() == 0)
       {
         <TableEmpty />
       }
     </div>
     <!-- Footer -->
-    @if (_paginationMetadata != null && _nodesList != null && _nodesList.Count() > 0)
+    @if (_paginationMetadata != null && _waypointsList != null && _waypointsList.Count() > 0)
     {
-      <TablePagination PaginationMetadata="_paginationMetadata" ItemCount="_nodesList.Count()" OnPageChange="HandlePageChange" />
+      <TablePagination PaginationMetadata="_paginationMetadata" ItemCount="_waypointsList.Count()" OnPageChange="HandlePageChange" />
     }
   </div>
 </div>

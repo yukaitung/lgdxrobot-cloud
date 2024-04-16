@@ -8,9 +8,13 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Add API
-builder.Services.AddHttpClient<INodeService, NodeService>(client => {
-    client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? throw new ArgumentNullException("Lgdxobot2CloudApiUrl"));
-});
+var configureAction = (HttpClient client) => 
+    { client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? throw new Exception("The Lgdxobot2CloudApiUrl is missing.")); };
+// Navigation
+builder.Services.AddHttpClient<IWaypointService, WaypointService>(configureAction);
+
+// Robot
+builder.Services.AddHttpClient<INodeService, NodeService>(configureAction);
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

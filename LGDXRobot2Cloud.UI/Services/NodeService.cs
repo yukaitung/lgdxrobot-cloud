@@ -30,7 +30,7 @@ namespace LGDXRobot2Cloud.UI.Services
       }
       else
       {
-        return (null, null);
+        throw new Exception($"The API service returns status code {response.StatusCode}.");
       }
     }
 
