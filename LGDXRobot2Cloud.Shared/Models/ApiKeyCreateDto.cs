@@ -8,9 +8,8 @@ namespace LGDXRobot2Cloud.Shared.Models
     [MaxLength(50)]
     public string Name { get; set; } = null!;
 
-    [Required]
     [MaxLength(100)]
-    public string Key { get; set; } = null!;
+    public string Key { get; set; } = string.Empty;
 
     [Required]
     public bool IsThirdParty { get; set; }

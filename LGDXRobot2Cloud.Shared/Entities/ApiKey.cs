@@ -15,7 +15,6 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public string Name { get; set; } = string.Empty;
 
     [MaxLength(100)]
-    [Required]
     public string Key { get; set; } = string.Empty;
 
     [Required]

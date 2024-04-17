@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Models;
 using LGDXRobot2Cloud.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
 
 namespace LGDXRobot2Cloud.API.Controllers
 {
@@ -20,6 +21,16 @@ namespace LGDXRobot2Cloud.API.Controllers
     {
       _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
       _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+    }
+
+    private static string GenerateApiKeys()
+    {
+      // https://www.camiloterevinto.com/post/simple-and-secure-api-keys-using-asp-net-core
+      var bytes = RandomNumberGenerator.GetBytes(32);
+      string base64String = Convert.ToBase64String(bytes)
+        .Replace("+", "-")
+        .Replace("/", "_");
+      return "LGDX2" + base64String;
     }
 
     /*
@@ -46,6 +57,12 @@ namespace LGDXRobot2Cloud.API.Controllers
     [HttpPost("secret/apikeys")]
     public async Task<ActionResult> CreateApiKey(ApiKeyCreateDto apiKeyDto)
     {
+      // Extra validation
+      if (!apiKeyDto.IsThirdParty && !string.IsNullOrEmpty(apiKeyDto.Key))
+        return BadRequest("The Key field should be empty as, LGDXRobot2 API Key will be generated.");
+      // Generate LGDXRobot2 API Key
+      if (!apiKeyDto.IsThirdParty)
+        apiKeyDto.Key = GenerateApiKeys();
       var apiKeyEntity = _mapper.Map<ApiKey>(apiKeyDto);
       await _apiKeyRepository.AddApiKeyAsync(apiKeyEntity);
       await _apiKeyRepository.SaveChangesAsync();
@@ -72,6 +89,30 @@ namespace LGDXRobot2Cloud.API.Controllers
       if (apiKey == null)
         return NotFound();
       _apiKeyRepository.DeleteApiKey(apiKey);
+      await _apiKeyRepository.SaveChangesAsync();
+      return NoContent();
+    }
+
+    [HttpGet("secret/apikeys/{id}/secret")]
+    public async Task<ActionResult<ApiKeySecretDto>> GetApiKeySecret(int id)
+    {
+      var apiKey = await _apiKeyRepository.GetApiKeyAsync(id);
+      if (apiKey == null)
+        return NotFound();
+      return Ok(_mapper.Map<ApiKeySecretDto>(apiKey));
+    }
+
+    [HttpPut("secret/apikeys/{id}/secret")]
+    public async Task<ActionResult> UpdateApiKeySecret(int id, ApiKeySecretDto apiKeyDto)
+    {
+      var apiKeyEntity = await _apiKeyRepository.GetApiKeyAsync(id);
+      if (apiKeyEntity == null)
+        return NotFound();
+      // Extra validation
+      if (!apiKeyEntity.IsThirdParty && !string.IsNullOrEmpty(apiKeyDto.Key))
+        return BadRequest("The LGDXRobot2 API Key cannot be changed.");
+      _mapper.Map(apiKeyDto, apiKeyEntity);
+      apiKeyEntity.UpdatedAt = DateTime.UtcNow;
       await _apiKeyRepository.SaveChangesAsync();
       return NoContent();
     }
