@@ -58,11 +58,11 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult> CreateApiKey(ApiKeyCreateDto apiKeyDto)
     {
       // Extra validation
-      if (!apiKeyDto.IsThirdParty && !string.IsNullOrEmpty(apiKeyDto.Key))
-        return BadRequest("The Key field should be empty as, LGDXRobot2 API Key will be generated.");
+      if (!apiKeyDto.IsThirdParty && !string.IsNullOrEmpty(apiKeyDto.Secret))
+        return BadRequest("The Key field should be empty for LGDXRobot2 API Key.");
       // Generate LGDXRobot2 API Key
       if (!apiKeyDto.IsThirdParty)
-        apiKeyDto.Key = GenerateApiKeys();
+        apiKeyDto.Secret = GenerateApiKeys();
       var apiKeyEntity = _mapper.Map<ApiKey>(apiKeyDto);
       await _apiKeyRepository.AddApiKeyAsync(apiKeyEntity);
       await _apiKeyRepository.SaveChangesAsync();
@@ -109,7 +109,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       if (apiKeyEntity == null)
         return NotFound();
       // Extra validation
-      if (!apiKeyEntity.IsThirdParty && !string.IsNullOrEmpty(apiKeyDto.Key))
+      if (!apiKeyEntity.IsThirdParty && !string.IsNullOrEmpty(apiKeyDto.Secret))
         return BadRequest("The LGDXRobot2 API Key cannot be changed.");
       _mapper.Map(apiKeyDto, apiKeyEntity);
       apiKeyEntity.UpdatedAt = DateTime.UtcNow;
