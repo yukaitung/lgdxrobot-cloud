@@ -65,5 +65,19 @@ namespace LGDXRobot2Cloud.UI.Services
       var response = await _httpClient.DeleteAsync($"setting/secret/apikeys/{apiKeyId}");
       return response.IsSuccessStatusCode;
     }
+
+    public async Task<ApiKeySecretDto?> GetApiKeySecretAsync(int apiKeyId)
+    {
+      var response = await _httpClient.GetAsync($"setting/secret/apikeys/{apiKeyId}/secret");
+      var apiKeySecret = await JsonSerializer.DeserializeAsync<ApiKeySecretDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      return apiKeySecret;
+    }
+
+    public async Task<bool> UpdateApiKeySecretAsync(int apiKeyId, ApiKeySecretDto apiKey)
+    {
+      var apiKeySecretJson = new StringContent(JsonSerializer.Serialize(apiKey), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PutAsync($"setting/secret/apikeys/{apiKeyId}/secret", apiKeySecretJson);
+      return response.IsSuccessStatusCode;
+    }
   }
 }

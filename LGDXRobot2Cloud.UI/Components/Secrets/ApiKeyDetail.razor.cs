@@ -74,6 +74,18 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
 
     protected override async void HandleDelete()
     {
+      if (Id != null)
+      {
+        var success = await ApiKeyService.DeleteApiKeyAsync((int)Id);
+        if (success)
+        {
+          // DO NOT REVERSE THE ORDER
+          await JSRuntime.InvokeVoidAsync("CloseModal", "apiKeyDeleteModal");
+          await OnSubmitDone.InvokeAsync(((int)Id, _apiKey.Name, CrudOperation.Delete));
+        } 
+        else
+          _isError = true;
+      }
     }
 
     public override async Task SetParametersAsync(ParameterView parameters)
