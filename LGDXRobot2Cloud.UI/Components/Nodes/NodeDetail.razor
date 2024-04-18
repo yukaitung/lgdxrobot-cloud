@@ -18,7 +18,9 @@
           {
             <div class="mb-3 row">
               <label class="col-3 col-form-label">ID</label>
-              <div class="col ms-3 form-control-plaintext">@_node.Id</div>
+              <div class="col">
+                <div class="col form-control-plaintext">@_node.Id</div>
+              </div>
             </div>
           }
           <div class="mb-3 row">
@@ -49,11 +51,15 @@
           {
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Create Time</label>
-              <div class="col ms-3 form-control-plaintext">@_node.CreatedAt</div>
+              <div class="col">
+                <div class="col form-control-plaintext">@_node.CreatedAt</div>
+              </div>
             </div>
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Last Update Time</label>
-              <div class="col ms-3 form-control-plaintext">@_node.UpdatedAt</div>
+              <div class="col">
+                <div class="col form-control-plaintext">@_node.UpdatedAt</div>
+              </div>
             </div>
           }
         </div>

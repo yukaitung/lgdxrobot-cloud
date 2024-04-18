@@ -16,6 +16,9 @@ builder.Services.AddHttpClient<IWaypointService, WaypointService>(configureActio
 // Robot
 builder.Services.AddHttpClient<INodeService, NodeService>(configureAction);
 
+// Setting
+builder.Services.AddHttpClient<IApiKeyService, ApiKeyService>(configureAction);
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();

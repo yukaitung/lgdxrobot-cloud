@@ -6,10 +6,10 @@ namespace LGDXRobot2Cloud.UI.Services
 {
   public interface IApiKeyService
   {
-    Task<(IEnumerable<ApiKey>?, PaginationMetadata?)> GetApiKeysAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
-    Task<ApiKey?> GetApiKeyAsync(int nodeId);
-    Task<ApiKey?> AddApiKeyAsync(NodeCreateDto node);
-    Task<bool> UpdateApiKeyAsync(int nodeId, NodeCreateDto node);
-    Task<bool> DeleteApiKeyAsync(int nodeId);
+    Task<(IEnumerable<ApiKey>?, PaginationMetadata?)> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10);
+    Task<ApiKey?> GetApiKeyAsync(int apiKeyId);
+    Task<ApiKey?> AddApiKeyAsync(ApiKeyCreateDto apiKey);
+    Task<bool> UpdateApiKeyAsync(int apiKeyId, ApiKeyUpdateDto apiKey);
+    Task<bool> DeleteApiKeyAsync(int apiKeyId);
   }
 }
