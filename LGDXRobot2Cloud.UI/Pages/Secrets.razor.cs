@@ -10,8 +10,8 @@ namespace LGDXRobot2Cloud.UI.Pages
     private LgdxApiTable? _lgdxApiTable { get; set; }
     private ModalSubmitDone? _modalSubmitDone { get; set; }
     private int _currentTab { get; set; } = 0;
-    private List<string> _tabs = ["LGDXRobot2 API Keys", "Third Party API Keys", "Certificates"];
-    private List<string> _entitiesName = ["LGDXRobot2 API Key", "Third Party API Key", "Certificate"];
+    private List<string> _tabs = ["LGDXRobot2 API Keys", "Third-Party API Keys", "Certificates"];
+    private List<string> _entitiesName = ["LGDXRobot2 API Key", "Third-Party API Key", "Certificate"];
 
     private void HandleTabChange(int index)
     {
