@@ -9,7 +9,7 @@
           <CheckIcon />
         </div>
         <div>
-          The @EntityName @(ItemName != null ? $"\"{ItemName}\" (ID: {ItemId})" : $"ID: {ItemId}") has been successfully @switch (Crud){
+          The @EntityName @(!string.IsNullOrEmpty(ItemName) ? $"\"{ItemName}\" (ID: {ItemId})" : $"ID: {ItemId}") has been successfully @switch (Crud){
             case CrudOperation.Create:
               <span>created</span>
               break;

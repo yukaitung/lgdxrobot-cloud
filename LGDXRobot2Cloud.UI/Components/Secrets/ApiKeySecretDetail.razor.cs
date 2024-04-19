@@ -37,7 +37,17 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
 
     private async Task HandleSubmit()
     {
-
+      if (Id != null)
+      {
+        bool success = await ApiKeyService.UpdateApiKeySecretAsync((int)Id, UpdateApiKeySecret);
+        if (success)
+        {
+          await JSRuntime.InvokeVoidAsync("CloseModal", "apiKeySecretModal");
+          await OnSubmitDone.InvokeAsync(((int)Id, "", CrudOperation.Update));
+        }
+        else
+          IsError = true;
+      }
     }
 
     public override async Task SetParametersAsync(ParameterView parameters)

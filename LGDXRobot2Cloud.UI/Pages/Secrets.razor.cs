@@ -8,6 +8,7 @@ namespace LGDXRobot2Cloud.UI.Pages
   {
     private int? SecretId { get; set; } = null;
     private LgdxApiTable? LgdxApiTable { get; set; }
+    private ThirdPartyApiTable? ThirdPartyApiTable { get; set; }
     private ModalSubmitDone? ModalSubmitDone { get; set; }
     private int CurrentTab { get; set; } = 0;
     private readonly List<string> Tabs = ["LGDXRobot2 API Keys", "Third-Party API Keys", "Certificates"];
@@ -15,6 +16,8 @@ namespace LGDXRobot2Cloud.UI.Pages
 
     private void HandleTabChange(int index)
     {
+      if (CurrentTab == index)
+        return;
       ModalSubmitDone!.Close();
       CurrentTab = index;
     }
@@ -29,6 +32,7 @@ namespace LGDXRobot2Cloud.UI.Pages
           await LgdxApiTable!.Refresh(data.Item3 == CrudOperation.Delete);
           break;
         case 1:
+          await ThirdPartyApiTable!.Refresh(data.Item3 == CrudOperation.Delete);
           break;
         case 2:
           break;
