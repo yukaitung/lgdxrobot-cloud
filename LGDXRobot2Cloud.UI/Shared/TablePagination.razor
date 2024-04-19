@@ -11,10 +11,10 @@
         <ChevronLeftIcon />
       </button>
     </li>
-    @foreach (var index in _renderPage)
+    @foreach (var index in RenderPage)
     {
       var i = index;
-      @if (i != 1 && i - 1 != _lastIndex) 
+      @if (i != 1 && i - 1 != LastIndex) 
       {
         <li class="page-item">
           <button class="page-link" disabled="true">...</button>
@@ -24,7 +24,7 @@
         @onclick="@(e => HandlePageChange(i))">
         <button class="page-link">@i</button>
       </li>
-      _lastIndex = i;
+      LastIndex = i;
     }
     <li class="page-item @(PaginationMetadata.CurrentPage == PaginationMetadata.PageCount ? "disabled" : "")"
       @onclick="@(e => HandlePageChange(PaginationMetadata.CurrentPage + 1))">

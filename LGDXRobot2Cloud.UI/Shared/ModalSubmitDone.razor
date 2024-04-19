@@ -34,7 +34,7 @@
   private bool Display { get; set; }
   private CrudOperation Crud { get; set; }
   private int ItemId { get; set; }
-  private string ItemName { get; set; } = string.Empty;
+  private string? ItemName { get; set; }
 
 
   public void Open(int itemId, string? itemName, CrudOperation crudOperation)
