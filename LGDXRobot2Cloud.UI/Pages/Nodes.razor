@@ -11,7 +11,7 @@
     </div>
     <div class="col-auto ms-auto">
       <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-        data-bs-target="#nodeDetailModal" @onclick="@(e => _nodeId = null)">
+        data-bs-target="#nodeDetailModal" @onclick="@(e => NodeId = null)">
         Create Node
       </button>
     </div>
@@ -19,8 +19,8 @@
 </PageHeader>
 
 <PageBody>
-  <ModalSubmitDone EntityName="Node" @ref="_modalSubmitDone"/>
-  <NodeTable OnIdSelected="HandleItemSelect" @ref="_nodeTable" />
+  <ModalSubmitDone EntityName="Node" @ref="ModalSubmitDone"/>
+  <NodeTable OnIdSelected="HandleItemSelect" @ref="NodeTable" />
 </PageBody>
 
-<NodeDetail Id="_nodeId" OnSubmitDone="HandleSubmitDoneOpen" />
+<NodeDetail Id="NodeId" OnSubmitDone="HandleSubmitDoneOpen" />

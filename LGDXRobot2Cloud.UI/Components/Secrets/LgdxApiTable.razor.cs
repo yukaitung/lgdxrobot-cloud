@@ -13,40 +13,40 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
     [Parameter]
     public EventCallback<int> OnIdSelected { get; set; }
 
-    private List<ApiKey>? _apiKeyList { get; set; } = default!;
-    private PaginationMetadata? _paginationMetadata { get; set; } = default!;
-    private int _currentPage { get; set; } = 1;
-    private int _pageSize { get; set; } = 10;
-    private string _dataSearch { get; set; } = string.Empty;
-    private string _lastDataSearch { get; set; } = string.Empty;
+    private List<ApiKey>? ApiKeyList { get; set; }
+    private PaginationMetadata? PaginationMetadata { get; set; }
+    private int CurrentPage { get; set; } = 1;
+    private int PageSize { get; set; } = 10;
+    private string DataSearch { get; set; } = string.Empty;
+    private string LastDataSearch { get; set; } = string.Empty;
     
     protected override async Task HandlePageSizeChange(int number)
     {
-      _pageSize = number;
-      if (_pageSize > 100)
-        _pageSize = 100;
-      else if (_pageSize < 1)
-        _pageSize = 1;
-      var data = await ApiKeyService.GetApiKeysAsync(false, _dataSearch, 1, _pageSize);
-      _apiKeyList = data.Item1?.ToList();
-      _paginationMetadata = data.Item2;
+      PageSize = number;
+      if (PageSize > 100)
+        PageSize = 100;
+      else if (PageSize < 1)
+        PageSize = 1;
+      var data = await ApiKeyService.GetApiKeysAsync(false, DataSearch, 1, PageSize);
+      ApiKeyList = data.Item1?.ToList();
+      PaginationMetadata = data.Item2;
     }
 
     protected override async Task HandleSearch()
     {
-      if (_lastDataSearch == _dataSearch)
+      if (LastDataSearch == DataSearch)
         return;
-      var data = await ApiKeyService.GetApiKeysAsync(false, _dataSearch, 1, _pageSize);
-      _apiKeyList = data.Item1?.ToList();
-      _paginationMetadata = data.Item2;
-      _lastDataSearch = _dataSearch;
+      var data = await ApiKeyService.GetApiKeysAsync(false, DataSearch, 1, PageSize);
+      ApiKeyList = data.Item1?.ToList();
+      PaginationMetadata = data.Item2;
+      LastDataSearch = DataSearch;
     }
 
     protected override async Task HandleClearSearch()
     {
-      if (_dataSearch == string.Empty && _lastDataSearch == string.Empty)
+      if (DataSearch == string.Empty && LastDataSearch == string.Empty)
         return;
-      _dataSearch = string.Empty;
+      DataSearch = string.Empty;
       await HandleSearch();
     }
 
@@ -57,23 +57,23 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
 
     protected override async Task HandlePageChange(int pageNum)
     {
-      if (pageNum == _currentPage)
+      if (pageNum == CurrentPage)
         return;
-      _currentPage = pageNum;
-      if (pageNum > _paginationMetadata?.PageCount || pageNum < 1)
+      CurrentPage = pageNum;
+      if (pageNum > PaginationMetadata?.PageCount || pageNum < 1)
         return;
-      var data = await ApiKeyService.GetApiKeysAsync(false, _dataSearch, pageNum, _pageSize);
-      _apiKeyList = data.Item1?.ToList();
-      _paginationMetadata = data.Item2;
+      var data = await ApiKeyService.GetApiKeysAsync(false, DataSearch, pageNum, PageSize);
+      ApiKeyList = data.Item1?.ToList();
+      PaginationMetadata = data.Item2;
     }
 
     public override async Task Refresh(bool deleteOpt = false)
     {
-      if (deleteOpt && _currentPage > 1 && _apiKeyList?.Count == 1)
-        _currentPage--;
-      var data = await ApiKeyService.GetApiKeysAsync(false, _dataSearch, _currentPage, _pageSize);
-      _apiKeyList = data.Item1?.ToList();
-      _paginationMetadata = data.Item2;
+      if (deleteOpt && CurrentPage > 1 && ApiKeyList?.Count == 1)
+        CurrentPage--;
+      var data = await ApiKeyService.GetApiKeysAsync(false, DataSearch, CurrentPage, PageSize);
+      ApiKeyList = data.Item1?.ToList();
+      PaginationMetadata = data.Item2;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

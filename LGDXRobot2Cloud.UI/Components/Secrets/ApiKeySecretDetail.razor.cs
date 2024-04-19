@@ -23,15 +23,15 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
     [Parameter]
     public EventCallback<(int, string, CrudOperation)> OnSubmitDone { get; set; }
 
-    private ApiKeySecretDto? _getApiKeySecret { get; set; } = null;
-    private ApiKeySecretDto _updateApiKeySecret { get; set; } = new ApiKeySecretDto();
-    private bool _isError { get; set; } = false;
+    private ApiKeySecretDto? GetApiKeySecret { get; set; } = null;
+    private ApiKeySecretDto UpdateApiKeySecret { get; set; } = null!;
+    private bool IsError { get; set; } = false;
 
     private async Task HandleGetSecret()
     {
       if (Id != null)
       {
-        _getApiKeySecret = await ApiKeyService.GetApiKeySecretAsync((int)Id);
+        GetApiKeySecret = await ApiKeyService.GetApiKeySecretAsync((int)Id);
       }
     }
 
@@ -44,9 +44,9 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
     {
       if (parameters.TryGetValue<int?>(nameof(Id), out var _id))
       {
-        _isError = false;
-        _updateApiKeySecret = new ApiKeySecretDto();
-        _getApiKeySecret = null;
+        IsError = false;
+        UpdateApiKeySecret = new ApiKeySecretDto();
+        GetApiKeySecret = null;
       }
       await base.SetParametersAsync(parameters);
     }

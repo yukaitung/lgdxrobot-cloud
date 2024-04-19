@@ -11,7 +11,7 @@
     </div>
     <div class="col-auto ms-auto">
       <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-        data-bs-target="#waypointDetailModal" @onclick="@(e => _waypointId = null)">
+        data-bs-target="#waypointDetailModal" @onclick="@(e => WaypointId = null)">
         Create Waypoint
       </button>
     </div>
@@ -19,8 +19,8 @@
 </PageHeader>
 
 <PageBody>
-  <ModalSubmitDone EntityName="Waypoint" @ref="_modalSubmitDone" />
-  <WaypointTable OnIdSelected="HandleItemSelect" @ref="_waypointTable" />
+  <ModalSubmitDone EntityName="Waypoint" @ref="ModalSubmitDone" />
+  <WaypointTable OnIdSelected="HandleItemSelect" @ref="WaypointTable" />
 </PageBody>
 
-<WaypointDetail Id="_waypointId" OnSubmitDone="HandleSubmitDoneOpen" />
+<WaypointDetail Id="WaypointId" OnSubmitDone="HandleSubmitDoneOpen" />

@@ -12,47 +12,47 @@
       <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
         <DataAnnotationsValidator />
         <div class="modal-body">
-          <ModalValidationError Display="_isInvalid" />
-          <ModalSubmitError Display="_isError" Crud="@(Id != null ? CrudOperation.Update : CrudOperation.Create)" />
+          <ModalValidationError Display="IsInvalid" />
+          <ModalSubmitError Display="IsError" Crud="@(Id != null ? CrudOperation.Update : CrudOperation.Create)" />
           @if (Id != null)
           {
             <div class="mb-3 row">
               <label class="col-3 col-form-label">ID</label>
               <div class="col">
-                <div class="col form-control-plaintext">@_waypoint.Id</div>
+                <div class="col form-control-plaintext">@Waypoint.Id</div>
               </div>
             </div>
           }
           <div class="mb-3 row">
             <label class="col-3 col-form-label required" for="Name">Name</label>
             <div class="col">
-              <InputText id="Name" @bind-Value="_waypoint.Name" type="text" class="form-control"
+              <InputText id="Name" @bind-Value="Waypoint.Name" type="text" class="form-control"
                 placeholder="Your waypoint name" />
-              <ValidationMessage class="invalid-feedback" For="@(() => _waypoint.Name)" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Waypoint.Name)" />
             </div>
           </div>
           <div class="mb-3 row">
             <label class="col-3 col-form-label required" for="X">X (m)</label>
             <div class="col">
-              <InputNumber id="X" @bind-Value="_waypoint.X" type="number" step="any" class="form-control"
+              <InputNumber id="X" @bind-Value="Waypoint.X" type="number" step="any" class="form-control"
                 placeholder="X position" />
-              <ValidationMessage class="invalid-feedback" For="@(() => _waypoint.X)" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Waypoint.X)" />
             </div>
           </div>
           <div class="mb-3 row">
             <label class="col-3 col-form-label required" for="Y">Y (m)</label>
             <div class="col">
-              <InputNumber id="Y" @bind-Value="_waypoint.Y" type="number" step="any" class="form-control"
+              <InputNumber id="Y" @bind-Value="Waypoint.Y" type="number" step="any" class="form-control"
                 placeholder="Y position" />
-              <ValidationMessage class="invalid-feedback" For="@(() => _waypoint.Y)" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Waypoint.Y)" />
             </div>
           </div>
           <div class="mb-3 row">
             <label class="col-3 col-form-label required" for="W">Rotation (rad)</label>
             <div class="col">
-              <InputNumber id="W" @bind-Value="_waypoint.W" type="number" step="any" class="form-control"
+              <InputNumber id="W" @bind-Value="Waypoint.W" type="number" step="any" class="form-control"
                 placeholder="Rotation" />
-              <ValidationMessage class="invalid-feedback" For="@(() => _waypoint.W)" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Waypoint.W)" />
             </div>
           </div>
           @if (Id != null)
@@ -60,13 +60,13 @@
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Create Time</label>
               <div class="col">
-                <div class="col form-control-plaintext">@_waypoint.CreatedAt</div>
+                <div class="col form-control-plaintext">@Waypoint.CreatedAt</div>
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Last Update Time</label>
               <div class="col">
-                <div class="col form-control-plaintext">@_waypoint.UpdatedAt</div>
+                <div class="col form-control-plaintext">@Waypoint.UpdatedAt</div>
               </div>
             </div>
           }
@@ -103,8 +103,8 @@
       <div class="modal-content">
         <div class="modal-body">
           <div class="modal-title">Delete Waypoint</div>
-          <ModalSubmitError Display="_isError" Crud="@CrudOperation.Delete" />
-          <div>The Waypoint @(_waypoint.Name != null ? $"\"{_waypoint.Name}\" (ID: {_waypoint.Id})" : $"ID: {_waypoint.Id}") will be deleted.</div>
+          <ModalSubmitError Display="IsError" Crud="@CrudOperation.Delete" />
+          <div>The Waypoint @(Waypoint.Name != null ? $"\"{Waypoint.Name}\" (ID: {Waypoint.Id})" : $"ID: {Waypoint.Id}") will be deleted.</div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</button>

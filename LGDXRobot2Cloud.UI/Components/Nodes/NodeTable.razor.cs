@@ -13,40 +13,40 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
     [Parameter]
     public EventCallback<int> OnIdSelected { get; set; }
 
-    private List<Node>? _nodesList { get; set; } = default!;
-    private PaginationMetadata? _paginationMetadata { get; set; } = default!;
-    private int _currentPage { get; set; } = 1;
-    private int _pageSize { get; set; } = 10;
-    private string _dataSearch { get; set; } = string.Empty;
-    private string _lastDataSearch { get; set; } = string.Empty;
+    private List<Node>? NodesList { get; set; }
+    private PaginationMetadata? PaginationMetadata { get; set; }
+    private int CurrentPage { get; set; } = 1;
+    private int PageSize { get; set; } = 10;
+    private string DataSearch { get; set; } = string.Empty;
+    private string LastDataSearch { get; set; } = string.Empty;
     
     protected override async Task HandlePageSizeChange(int number)
     {
-      _pageSize = number;
-      if (_pageSize > 100)
-        _pageSize = 100;
-      else if (_pageSize < 1)
-        _pageSize = 1;
-      var data = await NodeService.GetNodesAsync(_dataSearch, 1, _pageSize);
-      _nodesList = data.Item1?.ToList();
-      _paginationMetadata = data.Item2;
+      PageSize = number;
+      if (PageSize > 100)
+        PageSize = 100;
+      else if (PageSize < 1)
+        PageSize = 1;
+      var data = await NodeService.GetNodesAsync(DataSearch, 1, PageSize);
+      NodesList = data.Item1?.ToList();
+      PaginationMetadata = data.Item2;
     }
 
     protected override async Task HandleSearch()
     {
-      if (_lastDataSearch == _dataSearch)
+      if (LastDataSearch == DataSearch)
         return;
-      var data = await NodeService.GetNodesAsync(_dataSearch, 1, _pageSize);
-      _nodesList = data.Item1?.ToList();
-      _paginationMetadata = data.Item2;
-      _lastDataSearch = _dataSearch;
+      var data = await NodeService.GetNodesAsync(DataSearch, 1, PageSize);
+      NodesList = data.Item1?.ToList();
+      PaginationMetadata = data.Item2;
+      LastDataSearch = DataSearch;
     }
 
     protected override async Task HandleClearSearch()
     {
-      if (_dataSearch == string.Empty && _lastDataSearch == string.Empty)
+      if (DataSearch == string.Empty && LastDataSearch == string.Empty)
         return;
-      _dataSearch = string.Empty;
+      DataSearch = string.Empty;
       await HandleSearch();
     }
 
@@ -57,23 +57,23 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
 
     protected override async Task HandlePageChange(int pageNum)
     {
-      if (pageNum == _currentPage)
+      if (pageNum == CurrentPage)
         return;
-      _currentPage = pageNum;
-      if (pageNum > _paginationMetadata?.PageCount || pageNum < 1)
+      CurrentPage = pageNum;
+      if (pageNum > PaginationMetadata?.PageCount || pageNum < 1)
         return;
-      var data = await NodeService.GetNodesAsync(_dataSearch, pageNum, _pageSize);
-      _nodesList = data.Item1?.ToList();
-      _paginationMetadata = data.Item2;
+      var data = await NodeService.GetNodesAsync(DataSearch, pageNum, PageSize);
+      NodesList = data.Item1?.ToList();
+      PaginationMetadata = data.Item2;
     }
 
     public override async Task Refresh(bool deleteOpt = false)
     {
-      if (deleteOpt && _currentPage > 1 && _nodesList?.Count == 1)
-        _currentPage--;
-      var data = await NodeService.GetNodesAsync(_dataSearch, _currentPage, _pageSize);
-      _nodesList = data.Item1?.ToList();
-      _paginationMetadata = data.Item2;
+      if (deleteOpt && CurrentPage > 1 && NodesList?.Count == 1)
+        CurrentPage--;
+      var data = await NodeService.GetNodesAsync(DataSearch, CurrentPage, PageSize);
+      NodesList = data.Item1?.ToList();
+      PaginationMetadata = data.Item2;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

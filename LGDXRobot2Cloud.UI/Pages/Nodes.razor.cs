@@ -6,20 +6,20 @@ namespace LGDXRobot2Cloud.UI.Pages
 {
   public partial class Nodes
   {
-    private int? _nodeId { get; set; } = null;
-    private NodeTable? _nodeTable { get; set; }
-    private ModalSubmitDone? _modalSubmitDone { get; set; }
+    private int? NodeId { get; set; } = null;
+    private NodeTable? NodeTable { get; set; }
+    private ModalSubmitDone? ModalSubmitDone { get; set; }
 
     private async Task HandleSubmitDoneOpen((int, string, CrudOperation) data)
     {
-      _nodeId = null;
-      _modalSubmitDone!.Open(data.Item1, data.Item2,data.Item3);
-      await _nodeTable!.Refresh(data.Item3 == CrudOperation.Delete);
+      NodeId = null;
+      ModalSubmitDone!.Open(data.Item1, data.Item2,data.Item3);
+      await NodeTable!.Refresh(data.Item3 == CrudOperation.Delete);
     }
 
     private void HandleItemSelect(int id)
     {
-      _nodeId = id;
+      NodeId = id;
     }
   }
 }

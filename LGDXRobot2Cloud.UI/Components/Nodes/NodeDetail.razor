@@ -12,39 +12,39 @@
       <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
         <DataAnnotationsValidator />
         <div class="modal-body">
-          <ModalValidationError Display="_isInvalid" />
-          <ModalSubmitError Display="_isError" Crud="@(Id != null ? CrudOperation.Update : CrudOperation.Create)" />
+          <ModalValidationError Display="IsInvalid" />
+          <ModalSubmitError Display="IsError" Crud="@(Id != null ? CrudOperation.Update : CrudOperation.Create)" />
           @if (Id != null)
           {
             <div class="mb-3 row">
               <label class="col-3 col-form-label">ID</label>
               <div class="col">
-                <div class="col form-control-plaintext">@_node.Id</div>
+                <div class="col form-control-plaintext">@Node.Id</div>
               </div>
             </div>
           }
           <div class="mb-3 row">
             <label class="col-3 col-form-label required" for="Name">Name</label>
             <div class="col">
-              <InputText id="Name" @bind-Value="_node.Name" type="text" class="form-control"
+              <InputText id="Name" @bind-Value="Node.Name" type="text" class="form-control"
                 placeholder="Your node name" />
-              <ValidationMessage class="invalid-feedback" For="@(() => _node.Name)" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Node.Name)" />
             </div>
           </div>
           <div class="mb-3 row">
             <label class="col-3 col-form-label required" for="ProcessName">Process Name</label>
             <div class="col">
-              <InputText id="ProcessName" @bind-Value="_node.ProcessName" type="text" class="form-control"
+              <InputText id="ProcessName" @bind-Value="Node.ProcessName" type="text" class="form-control"
                 placeholder="e.g. ros2 launch" />
-              <ValidationMessage class="invalid-feedback" For="@(() => _node.ProcessName)" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Node.ProcessName)" />
             </div>
           </div>
           <div class="mb-3 row">
             <label class="col-3 col-form-label" for="Arguments">Arguments</label>
             <div class="col">
-              <InputTextArea id="Arguments" @bind-Value="_node.Arguments" class="form-control" rows="3"
+              <InputTextArea id="Arguments" @bind-Value="Node.Arguments" class="form-control" rows="3"
                 placeholder="e.g. lgdxrobot2_navigation nav2_rtabmap.launch.py"></InputTextArea>
-              <ValidationMessage class="invalid-feedback" For="@(() => _node.Arguments)" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Node.Arguments)" />
             </div>
           </div>
           @if (Id != null)
@@ -52,13 +52,13 @@
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Create Time</label>
               <div class="col">
-                <div class="col form-control-plaintext">@_node.CreatedAt</div>
+                <div class="col form-control-plaintext">@Node.CreatedAt</div>
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Last Update Time</label>
               <div class="col">
-                <div class="col form-control-plaintext">@_node.UpdatedAt</div>
+                <div class="col form-control-plaintext">@Node.UpdatedAt</div>
               </div>
             </div>
           }
@@ -70,16 +70,16 @@
           @if (Id != null)
           {
             <button type="button" class="btn btn-danger ms-auto" data-bs-toggle="modal" data-bs-target="#nodeDeleteModal">
-              Delete Node
+              Delete
             </button>
             <button type="submit" class="btn btn-primary ms-2">
-              Update Node
+              Update
             </button>
           }
           else 
           {
             <button type="submit" class="btn btn-primary ms-auto">
-              Create New Node
+              Create
             </button>
           }
         </div>
@@ -95,8 +95,8 @@
       <div class="modal-content">
         <div class="modal-body">
           <div class="modal-title">Delete Node</div>
-          <ModalSubmitError Display="_isError" Crud="@CrudOperation.Delete" />
-          <div>The Node @(_node.Name != null ? $"\"{_node.Name}\" (ID: {_node.Id})" : $"ID: {_node.Id}") will be deleted.</div>
+          <ModalSubmitError Display="IsError" Crud="@CrudOperation.Delete" />
+          <div>The Node @(Node.Name != null ? $"\"{Node.Name}\" (ID: {Node.Id})" : $"ID: {Node.Id}") will be deleted.</div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</button>

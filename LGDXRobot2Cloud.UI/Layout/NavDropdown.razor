@@ -2,8 +2,8 @@
 
 <li class="nav-item dropdown @GetActive(href)">
   <a class="nav-link dropdown-toggle @GetShowDropdown(href)" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button">
-    <span class="nav-link-title">
-      @title
+    <span class="nav-link-Title">
+      @Title
     </span>
   </a>
   <div class="dropdown-menu @GetShowDropdown(href)">
@@ -15,7 +15,7 @@
 
 @code {
   [Parameter]
-  public string title { get; set; } = String.Empty;
+  public string Title { get; set; } = String.Empty;
 
   [Inject]
   NavigationManager NavigationManager { get; set; } = default!;

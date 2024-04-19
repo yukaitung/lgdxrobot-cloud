@@ -26,7 +26,7 @@
       </div>
       <div class="text-secondary">
         <div class="input-group">
-          <input type="text" class="form-control form-control-sm ms-2" @bind="_dataSearch">
+          <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
           <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
           <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
         </div>
@@ -49,9 +49,9 @@
         </tr>
       </thead>
       <tbody>
-        @if (_nodesList != null)
+        @if (NodesList != null)
         {
-          @foreach (var node in _nodesList)
+          @foreach (var node in NodesList)
           {
             var nodeId = node.Id;
             <tr>
@@ -74,15 +74,15 @@
         }
       </tbody>
     </table>
-    @if (_nodesList != null && _nodesList.Count() == 0)
+    @if (NodesList != null && NodesList.Count() == 0)
     {
       <TableEmpty />
     }
   </div>
   <!-- Footer -->
-  @if (_paginationMetadata != null && _nodesList != null && _nodesList.Count() > 0)
+  @if (PaginationMetadata != null && NodesList != null && NodesList.Count() > 0)
   {
-    <TablePagination PaginationMetadata="_paginationMetadata" ItemCount="_nodesList.Count()"
+    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="NodesList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

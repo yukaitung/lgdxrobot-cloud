@@ -26,17 +26,17 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
     [Parameter]
     public EventCallback<(int, string, CrudOperation)> OnSubmitDone { get; set; }
 
-    private ApiKey _apiKey { get; set; } = null!;
+    private ApiKey ApiKey { get; set; } = null!;
     private EditContext _editContext = null!;
     private readonly CustomFieldClassProvider _customFieldClassProvider = new();
-    private bool _isInvalid { get; set; } = false;
-    private bool _isError { get; set; } = false;
+    private bool IsInvalid { get; set; } = false;
+    private bool IsError { get; set; } = false;
 
     // Form
     void HandleApiKeyKindChanged(object args)
     {
-      bool.TryParse(args.ToString(), out var result);        
-      _apiKey.IsThirdParty = result;
+      if (bool.TryParse(args.ToString(), out bool result))      
+        ApiKey.IsThirdParty = result;
     }
 
     protected override async Task HandleValidSubmit()
@@ -44,32 +44,32 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
       if (Id != null)
       {
         // Update
-        bool success = await ApiKeyService.UpdateApiKeyAsync((int)Id, Mapper.Map<ApiKeyUpdateDto>(_apiKey));
+        bool success = await ApiKeyService.UpdateApiKeyAsync((int)Id, Mapper.Map<ApiKeyUpdateDto>(ApiKey));
         if (success)
         {
           await JSRuntime.InvokeVoidAsync("CloseModal", "apiKeyDetailModal");
-          await OnSubmitDone.InvokeAsync(((int)Id, _apiKey.Name, CrudOperation.Update));
+          await OnSubmitDone.InvokeAsync(((int)Id, ApiKey.Name, CrudOperation.Update));
         }
         else
-          _isError = true;
+          IsError = true;
       }
       else
       {
         // Create
-        var success = await ApiKeyService.AddApiKeyAsync(Mapper.Map<ApiKeyCreateDto>(_apiKey));
+        var success = await ApiKeyService.AddApiKeyAsync(Mapper.Map<ApiKeyCreateDto>(ApiKey));
         if (success != null)
         {
           await JSRuntime.InvokeVoidAsync("CloseModal", "apiKeyDetailModal");
           await OnSubmitDone.InvokeAsync((success.Id, success.Name, CrudOperation.Create));
         }
         else
-          _isError = true;
+          IsError = true;
       }
     }
 
     protected override void HandleInvalidSubmit()
     {
-      _isInvalid = true;
+      IsInvalid = true;
     }
 
     protected override async void HandleDelete()
@@ -81,10 +81,10 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
         {
           // DO NOT REVERSE THE ORDER
           await JSRuntime.InvokeVoidAsync("CloseModal", "apiKeyDeleteModal");
-          await OnSubmitDone.InvokeAsync(((int)Id, _apiKey.Name, CrudOperation.Delete));
+          await OnSubmitDone.InvokeAsync(((int)Id, ApiKey.Name, CrudOperation.Delete));
         } 
         else
-          _isError = true;
+          IsError = true;
       }
     }
 
@@ -93,21 +93,21 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
       parameters.SetParameterProperties(this);
       if (parameters.TryGetValue<int?>(nameof(Id), out var _id))
       {
-        _isInvalid = false;
-        _isError = false;
+        IsInvalid = false;
+        IsError = false;
         if (_id != null)
         {
           var apiKey = await ApiKeyService.GetApiKeyAsync((int)_id);
           if (apiKey != null) {
-            _apiKey = apiKey;
-            _editContext = new EditContext(_apiKey);
+            ApiKey = apiKey;
+            _editContext = new EditContext(ApiKey);
             _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
           }
         }
         else
         {
-          _apiKey = new ApiKey();
-          _editContext = new EditContext(_apiKey);
+          ApiKey = new ApiKey();
+          _editContext = new EditContext(ApiKey);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }
       }

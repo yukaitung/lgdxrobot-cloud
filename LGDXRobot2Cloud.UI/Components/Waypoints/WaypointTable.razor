@@ -26,7 +26,7 @@
       </div>
       <div class="text-secondary">
         <div class="input-group">
-          <input type="text" class="form-control form-control-sm ms-2" @bind="_dataSearch">
+          <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
           <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
           <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
         </div>
@@ -50,9 +50,9 @@
         </tr>
       </thead>
       <tbody>
-        @if (_waypointsList != null)
+        @if (WaypointsList != null)
         {
-          @foreach (var waypoint in _waypointsList)
+          @foreach (var waypoint in WaypointsList)
           {
             var waypointId = waypoint.Id;
             <tr>
@@ -76,15 +76,15 @@
         }
       </tbody>
     </table>
-    @if (_waypointsList != null && _waypointsList.Count() == 0)
+    @if (WaypointsList != null && WaypointsList.Count() == 0)
     {
       <TableEmpty />
     }
   </div>
   <!-- Footer -->
-  @if (_paginationMetadata != null && _waypointsList != null && _waypointsList.Count() > 0)
+  @if (PaginationMetadata != null && WaypointsList != null && WaypointsList.Count() > 0)
   {
-    <TablePagination PaginationMetadata="_paginationMetadata" ItemCount="_waypointsList.Count()"
+    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="WaypointsList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>
