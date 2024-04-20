@@ -53,7 +53,7 @@ namespace LGDXRobot2Cloud.UI.Services
         return null;
     }
 
-    public async Task<bool> UpdateWaypointAsync(int waypointId, WaypointCreateDto waypoint)
+    public async Task<bool> UpdateWaypointAsync(int waypointId, WaypointUpdateDto waypoint)
     {
       var waypointJson = new StringContent(JsonSerializer.Serialize(waypoint), Encoding.UTF8, "application/json");
       var response = await _httpClient.PutAsync($"navigation/waypoints/{waypointId}", waypointJson);

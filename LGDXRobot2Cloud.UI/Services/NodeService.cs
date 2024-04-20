@@ -53,7 +53,7 @@ namespace LGDXRobot2Cloud.UI.Services
         return null;
     }
 
-    public async Task<bool> UpdateNodeAsync(int nodeId, NodeCreateDto node)
+    public async Task<bool> UpdateNodeAsync(int nodeId, NodeUpdateDto node)
     {
       var nodeJson = new StringContent(JsonSerializer.Serialize(node), Encoding.UTF8, "application/json");
       var response = await _httpClient.PutAsync($"robot/nodes/{nodeId}", nodeJson);

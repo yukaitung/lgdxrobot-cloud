@@ -10,6 +10,7 @@ namespace LGDXRobot2Cloud.UI.Profiles
     {
       // Nodes
       CreateMap<Entities.Node, Models.NodeCreateDto>();
+      CreateMap<Entities.Node, Models.NodeUpdateDto>();
     }
   }
 }

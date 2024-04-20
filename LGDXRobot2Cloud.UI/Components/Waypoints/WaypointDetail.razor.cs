@@ -37,7 +37,7 @@ namespace LGDXRobot2Cloud.UI.Components.Waypoints
       if (Id != null)
       {
         // Update
-        bool success = await WaypointService.UpdateWaypointAsync((int)Id, Mapper.Map<WaypointCreateDto>(Waypoint));
+        bool success = await WaypointService.UpdateWaypointAsync((int)Id, Mapper.Map<WaypointUpdateDto>(Waypoint));
         if (success)
         {
           await JSRuntime.InvokeVoidAsync("CloseModal", "waypointDetailModal");

@@ -8,8 +8,9 @@ namespace LGDXRobot2Cloud.UI.Profiles
   {
     public NavigationProfile()
     {
-      // Nodes
+      // Waypoint
       CreateMap<Entities.Waypoint, Models.WaypointCreateDto>();
+      CreateMap<Entities.Waypoint, Models.WaypointUpdateDto>();
     }
   }
 }

@@ -37,7 +37,7 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
       if (Id != null)
       {
         // Update
-        bool success = await NodeService.UpdateNodeAsync((int)Id, Mapper.Map<NodeCreateDto>(Node));
+        bool success = await NodeService.UpdateNodeAsync((int)Id, Mapper.Map<NodeUpdateDto>(Node));
         if (success)
         {
           await JSRuntime.InvokeVoidAsync("CloseModal", "nodeDetailModal");
