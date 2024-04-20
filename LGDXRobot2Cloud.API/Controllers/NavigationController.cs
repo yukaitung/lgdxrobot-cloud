@@ -227,7 +227,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpPut("progresses/{id}")]
-    public async Task<ActionResult> UpdateProgress(int id, ProgressCreateDto progressDto)
+    public async Task<ActionResult> UpdateProgress(int id, ProgressUpdateDto progressDto)
     {
       var progressEntity = await _progressRepository.GetProgressAsync(id);
       if (progressEntity == null)

@@ -27,6 +27,7 @@ namespace LGDXRobot2Cloud.API.Profiles
       // Progress
       CreateMap<Entities.Progress, Models.ProgressDto>();
       CreateMap<Models.ProgressCreateDto, Entities.Progress>();
+      CreateMap<Models.ProgressUpdateDto, Entities.Progress>();
       // Tasks
       CreateMap<Entities.AutoTask, Models.AutoTaskListDto>();
       CreateMap<Entities.AutoTask, Models.AutoTaskDto>();
