@@ -1,0 +1,24 @@
+@page "/navigation/progresses"
+@using LGDXRobot2Cloud.UI.Components.Progresses
+@rendermode InteractiveServer
+
+<PageHeader Title="Progress">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Progresses
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+        data-bs-target="#"><!-- @onclick="@(e => WaypointId = null)" -->
+        Create Progress
+      </button>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <ModalSubmitDone EntityName="Progress" @ref="ModalSubmitDone" />
+  <ProgressTable OnIdSelected="HandleItemSelect" @ref="ProgressTable" />
+</PageBody>
