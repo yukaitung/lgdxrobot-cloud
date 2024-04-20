@@ -13,12 +13,12 @@ namespace LGDXRobot2Cloud.Shared.Entities
     [MaxLength(50)]
     public string? Name { get; set; }
     
-    public ICollection<AutoTaskWaypointDetail> Waypoints { get; set; } = new List<AutoTaskWaypointDetail>();
+    public ICollection<AutoTaskWaypointDetail> Waypoints { get; set; } = [];
 
     public int Priority { get; set; }
 
     [ForeignKey("FlowId")]
-    public required Flow Flow { get; set; }
+    public Flow Flow { get; set; } = null!;
 
     public int FlowId { get; set; }
 
@@ -28,7 +28,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public int? AssignedRobotId { get; set; }
 
     [ForeignKey("CurrentProgressId")]
-    public required Progress CurrentProgress { get; set; }
+    public Progress CurrentProgress { get; set; } =  null!;
 
     public int CurrentProgressId { get; set; }
 

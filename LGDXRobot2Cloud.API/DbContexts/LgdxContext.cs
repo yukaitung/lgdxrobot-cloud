@@ -46,6 +46,12 @@ namespace LGDXRobot2Cloud.API.DbContexts
         .WithOne(e => e.AutoTask)
         .HasForeignKey(e => e.AutoTaskId)
         .IsRequired();
+      // One Robot has many AutoTasks
+      modelBuilder.Entity<Robot>()
+        .HasMany(e => e.AssignedTasks)
+        .WithOne(e => e.AssignedRobot)
+        .HasForeignKey(e => e.AssignedRobotId)
+        .IsRequired(false);
       // One Flow has many FlowDetails
       modelBuilder.Entity<Flow>()
         .HasMany(e => e.FlowDetails)

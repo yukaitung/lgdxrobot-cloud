@@ -26,10 +26,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
 
     public int? RobotSystemInfoId { get; set; }
 
-    [ForeignKey("AssignedTaskId")]
-    public AutoTask? AssignedTask { get; set; }
-
-    public int? AssignedTaskId { get; set; }
+    public ICollection<AutoTask> AssignedTasks { get; set; } = [];
 
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
