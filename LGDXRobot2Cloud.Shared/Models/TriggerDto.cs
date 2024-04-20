@@ -3,14 +3,13 @@ namespace LGDXRobot2Cloud.Shared.Models
   public class TriggerDto
   {
     public int Id { get; set; }
-    public required string Name { get; set; }
-    public required string Url { get; set; }
+    public string Name { get; set; } = null!;
+    public string Url { get; set; } = null!;
     public string? Body { get; set; }
-    public required string ApiKeyLocation { get; set; }
-    public required string ApiKeyName { get; set; }
-    public ApiKeyDto ApiKey { get; set; } = null!;
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public string? ApiKeyLocation { get; set; }
+    public string? ApiKeyName { get; set; }
+    public ApiKeyDto? ApiKey { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
   }
 }

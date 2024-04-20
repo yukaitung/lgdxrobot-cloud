@@ -12,26 +12,26 @@ namespace LGDXRobot2Cloud.Shared.Entities
 
     [MaxLength(50)]
     [Required]
-    public required string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     [MaxLength(200)]
     [Required]
-    public required string Url { get; set; }
+    public string Url { get; set; } = null!;
 
     public string? Body { get; set; }
 
-    [ForeignKey("ApiKeyLocationId")]
+    [ForeignKey("ApiKeyLocationId")] // Optional if the API Key is not required
     public ApiKeyLocation? ApiKeyLocation { get; set; }
 
-    public int ApiKeyLocationId;
+    public int? ApiKeyLocationId;
 
     [MaxLength(50)]
-    public string? ApiKeyName { get; set; }
+    public string? ApiKeyName { get; set; } // Header name or Json name
 
     [ForeignKey("ApiKeyId")]
     public ApiKey? ApiKey { get; set; }
 
-    public int ApiKeyId { get; set; }
+    public int? ApiKeyId { get; set; }
     
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -40,6 +40,7 @@ namespace LGDXRobot2Cloud.API.Profiles
         .ForMember(dto => dto.ApiKeyLocation,
           m => m.MapFrom(e => e.ApiKeyLocation != null ? e.ApiKeyLocation.Name : ""));
       CreateMap<Models.TriggerCreateDto, Entities.Trigger>();
+      CreateMap<Models.TriggerUpdateDto, Entities.Trigger>();
       // Waypoint
       CreateMap<Entities.Waypoint, Models.WaypointDto>();
       CreateMap<Models.WaypointCreateDto, Entities.Waypoint>();

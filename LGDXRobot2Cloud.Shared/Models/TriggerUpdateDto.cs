@@ -2,6 +2,6 @@ using LGDXRobot2Cloud.Shared.Models.Base;
 
 namespace LGDXRobot2Cloud.Shared.Models
 {
-  public class TriggerCreateDto : TriggerBaseDto
+  public class TriggerUpdateDto : TriggerBaseDto
   {}
 }

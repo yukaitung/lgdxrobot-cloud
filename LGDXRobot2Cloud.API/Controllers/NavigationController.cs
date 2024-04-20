@@ -392,15 +392,21 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult> CreateTrigger(TriggerCreateDto triggerDto)
     {
       var triggerEntity = _mapper.Map<Trigger>(triggerDto);
-      var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyLocationStr);
-      if (apiKeyLocation == null)
-        return BadRequest("The API key location is invalid.");
-      triggerEntity.ApiKeyLocationId = apiKeyLocation.Id;
-      var apiKey = await _apiKeyRepository.GetApiKeyAsync(triggerDto.ApiKeyId);
-      if (apiKey == null)
-        return BadRequest($"The API Key Id {triggerDto.ApiKeyId} is invalid.");
-      if (!apiKey.IsThirdParty)
-        return BadRequest("Only accept third party API key.");
+      if (!string.IsNullOrWhiteSpace(triggerDto.ApiKeyLocationStr))
+      {
+        var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyLocationStr);
+        if (apiKeyLocation == null)
+          return BadRequest("The API key location is invalid.");
+        triggerEntity.ApiKeyLocationId = apiKeyLocation.Id;
+      }
+      if (triggerDto.ApiKeyId != null)
+      {
+        var apiKey = await _apiKeyRepository.GetApiKeyAsync((int)triggerDto.ApiKeyId);
+        if (apiKey == null)
+          return BadRequest($"The API Key Id {triggerDto.ApiKeyId} is invalid.");
+        if (!apiKey.IsThirdParty)
+          return BadRequest("Only accept third party API key.");
+      }
       await _triggerRepository.AddTriggerAsync(triggerEntity);
       await _triggerRepository.SaveChangesAsync();
       var returnTrigger = _mapper.Map<TriggerDto>(triggerEntity);
@@ -408,21 +414,27 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpPut("triggers/{id}")]
-    public async Task<ActionResult> UpdateTrigger(int id, TriggerCreateDto triggerDto)
+    public async Task<ActionResult> UpdateTrigger(int id, TriggerUpdateDto triggerDto)
     {
       var triggerEntity = await _triggerRepository.GetTriggerAsync(id);
       if (triggerEntity == null)
         return NotFound();
       _mapper.Map(triggerDto, triggerEntity);
-      var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyLocationStr);
-      if (apiKeyLocation == null)
-        return BadRequest("The API key location is invalid.");
-      triggerEntity.ApiKeyLocationId = apiKeyLocation.Id;
-      var apiKey = await _apiKeyRepository.GetApiKeyAsync(triggerDto.ApiKeyId);
-      if (apiKey == null)
-        return BadRequest($"The API Key Id {triggerDto.ApiKeyId} is invalid.");
-      if (!apiKey.IsThirdParty)
-        return BadRequest("Only accept third party API key.");
+      if (!string.IsNullOrWhiteSpace(triggerDto.ApiKeyLocationStr))
+      {
+        var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyLocationStr);
+        if (apiKeyLocation == null)
+          return BadRequest("The API key location is invalid.");
+        triggerEntity.ApiKeyLocationId = apiKeyLocation.Id;
+      }
+      if (triggerDto.ApiKeyId != null)
+      {
+        var apiKey = await _apiKeyRepository.GetApiKeyAsync((int)triggerDto.ApiKeyId);
+        if (apiKey == null)
+          return BadRequest($"The API Key Id {triggerDto.ApiKeyId} is invalid.");
+        if (!apiKey.IsThirdParty)
+          return BadRequest("Only accept third party API key.");
+      }
       triggerEntity.UpdatedAt = DateTime.UtcNow;
       await _triggerRepository.SaveChangesAsync();
       return NoContent();
