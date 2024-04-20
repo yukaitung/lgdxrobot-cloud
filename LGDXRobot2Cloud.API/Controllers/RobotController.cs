@@ -102,7 +102,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpPut("nodes/{id}")]
-    public async Task<ActionResult> UpdateNode(int id, NodeCreateDto nodeDto)
+    public async Task<ActionResult> UpdateNode(int id, NodeUpdateDto nodeDto)
     {
       var nodeEntity = await _nodeRepository.GetNodeAsync(id);
       if (nodeEntity == null)

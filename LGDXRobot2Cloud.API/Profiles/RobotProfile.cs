@@ -15,6 +15,7 @@ namespace LGDXRobot2Cloud.API.Profiles
       // Nodes
       CreateMap<Entities.Node, Models.NodeDto>();
       CreateMap<Models.NodeCreateDto, Entities.Node>();
+      CreateMap<Models.NodeUpdateDto, Entities.Node>();
       // Nodes Collection
       CreateMap<Entities.NodesCollection, Models.NodesCollectionListDto>();
       CreateMap<Entities.NodesCollection, Models.NodesCollectionDto>();
