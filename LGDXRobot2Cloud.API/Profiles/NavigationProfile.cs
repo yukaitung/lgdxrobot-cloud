@@ -43,6 +43,7 @@ namespace LGDXRobot2Cloud.API.Profiles
       // Waypoint
       CreateMap<Entities.Waypoint, Models.WaypointDto>();
       CreateMap<Models.WaypointCreateDto, Entities.Waypoint>();
+      CreateMap<Models.WaypointUpdateDto, Entities.Waypoint>();
     }
   }
 

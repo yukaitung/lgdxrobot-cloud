@@ -471,7 +471,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpPut("waypoints/{id}")]
-    public async Task<ActionResult> UpdateWaypoint(int id, WaypointCreateDto waypointDto)
+    public async Task<ActionResult> UpdateWaypoint(int id, WaypointUpdateDto waypointDto)
     {
       var waypointEntity = await _waypointRepository.GetWaypointAsync(id);
       if (waypointEntity == null)

@@ -3,6 +3,6 @@ using LGDXRobot2Cloud.Shared.Models.Base;
 
 namespace LGDXRobot2Cloud.Shared.Models
 {
-  public class WaypointCreateDto : WaypointBaseDto
+  public class WaypointUpdateDto : WaypointBaseDto
   {}
 }
