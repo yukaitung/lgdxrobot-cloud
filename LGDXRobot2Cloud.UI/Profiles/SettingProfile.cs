@@ -1,6 +1,6 @@
 using AutoMapper;
 using Models = LGDXRobot2Cloud.Shared.Models;
-using Entities = LGDXRobot2Cloud.Shared.Entities;
+using Blazor = LGDXRobot2Cloud.Shared.Models.Blazor;
 
 namespace LGDXRobot2Cloud.UI.Profiles
 {
@@ -8,9 +8,10 @@ namespace LGDXRobot2Cloud.UI.Profiles
   {
     public SettingProfile()
     {
-      // Nodes
-      CreateMap<Entities.ApiKey, Models.ApiKeyCreateDto>();
-      CreateMap<Entities.ApiKey, Models.ApiKeyUpdateDto>();
+      // API Key
+      CreateMap<Blazor.ApiKeyBlazor, Models.ApiKeyCreateDto>();
+      CreateMap<Blazor.ApiKeyBlazor, Models.ApiKeyUpdateDto>();
+      CreateMap<Blazor.ApiKeySecretBlazor, Models.ApiKeySecretDto>();
     }
   }
 }

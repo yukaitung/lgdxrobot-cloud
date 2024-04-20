@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Models;
+using LGDXRobot2Cloud.Shared.Models.Blazor;
 using LGDXRobot2Cloud.Shared.Services;
 
 namespace LGDXRobot2Cloud.UI.Services
@@ -17,7 +17,7 @@ namespace LGDXRobot2Cloud.UI.Services
       _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true};
     }
 
-    public async Task<(IEnumerable<ApiKey>?, PaginationMetadata?)> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10)
+    public async Task<(IEnumerable<ApiKeyBlazor>?, PaginationMetadata?)> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10)
     {
       var url = name != null ? $"setting/secret/apikeys?isThirdParty={isThirdParty}&name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"setting/secret/apikeys?isThirdParty={isThirdParty}&pageNumber={pageNumber}&pageSize={pageSize}";
       var response = await _httpClient.GetAsync(url);
@@ -25,7 +25,7 @@ namespace LGDXRobot2Cloud.UI.Services
       {
         var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
         var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
-        var apiKeys = await JsonSerializer.DeserializeAsync<IEnumerable<ApiKey>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        var apiKeys = await JsonSerializer.DeserializeAsync<IEnumerable<ApiKeyBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return (apiKeys, paginationMetadata);
       }
       else
@@ -34,20 +34,20 @@ namespace LGDXRobot2Cloud.UI.Services
       }
     }
 
-    public async Task<ApiKey?> GetApiKeyAsync(int apiKeyId)
+    public async Task<ApiKeyBlazor?> GetApiKeyAsync(int apiKeyId)
     {
       var response = await _httpClient.GetAsync($"setting/secret/apikeys/{apiKeyId}");
-      var apiKeys = await JsonSerializer.DeserializeAsync<ApiKey>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      var apiKeys = await JsonSerializer.DeserializeAsync<ApiKeyBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       return apiKeys;
     }
 
-    public async Task<ApiKey?> AddApiKeyAsync(ApiKeyCreateDto apiKey)
+    public async Task<ApiKeyBlazor?> AddApiKeyAsync(ApiKeyCreateDto apiKey)
     {
       var apiKeyJson = new StringContent(JsonSerializer.Serialize(apiKey), Encoding.UTF8, "application/json");
       var response = await _httpClient.PostAsync("setting/secret/apikeys", apiKeyJson);
       if (response.IsSuccessStatusCode)
       {
-        return await JsonSerializer.DeserializeAsync<ApiKey>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return await JsonSerializer.DeserializeAsync<ApiKeyBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       }
       else
         return null;
@@ -66,10 +66,10 @@ namespace LGDXRobot2Cloud.UI.Services
       return response.IsSuccessStatusCode;
     }
 
-    public async Task<ApiKeySecretDto?> GetApiKeySecretAsync(int apiKeyId)
+    public async Task<ApiKeySecretBlazor?> GetApiKeySecretAsync(int apiKeyId)
     {
       var response = await _httpClient.GetAsync($"setting/secret/apikeys/{apiKeyId}/secret");
-      var apiKeySecret = await JsonSerializer.DeserializeAsync<ApiKeySecretDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      var apiKeySecret = await JsonSerializer.DeserializeAsync<ApiKeySecretBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       return apiKeySecret;
     }
 

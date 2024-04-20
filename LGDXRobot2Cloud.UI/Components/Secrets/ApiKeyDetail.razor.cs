@@ -1,6 +1,6 @@
 using AutoMapper;
-using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Models;
+using LGDXRobot2Cloud.Shared.Models.Blazor;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -26,7 +26,7 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
     [Parameter]
     public EventCallback<(int, string, CrudOperation)> OnSubmitDone { get; set; }
 
-    private ApiKey ApiKey { get; set; } = null!;
+    private ApiKeyBlazor ApiKey { get; set; } = null!;
     private EditContext _editContext = null!;
     private readonly CustomFieldClassProvider _customFieldClassProvider = new();
     private bool IsInvalid { get; set; } = false;
@@ -100,13 +100,14 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
           var apiKey = await ApiKeyService.GetApiKeyAsync((int)_id);
           if (apiKey != null) {
             ApiKey = apiKey;
+            ApiKey.IsUpdate = true;
             _editContext = new EditContext(ApiKey);
             _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
           }
         }
         else
         {
-          ApiKey = new ApiKey();
+          ApiKey = new ApiKeyBlazor();
           _editContext = new EditContext(ApiKey);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }
