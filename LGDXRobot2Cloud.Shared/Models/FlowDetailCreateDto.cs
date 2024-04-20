@@ -1,18 +1,7 @@
-using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Shared.Models.Base;
 
 namespace LGDXRobot2Cloud.Shared.Models
 {
-  public class FlowDetailCreateDto
-  {
-    [Required]
-    public int Order { get; set; }
-
-    [Required]
-    public int ProgressId { get; set; }
-
-    [Required]
-    public required string ProceedCondition { get; set; }
-    public int? StartTriggerId { get; set; }
-    public int? EndTriggerId { get; set; }
-  }
+  public class FlowDetailCreateDto : FlowDetailBaseDto
+  {}
 }

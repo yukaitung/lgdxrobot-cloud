@@ -3,8 +3,8 @@ namespace LGDXRobot2Cloud.Shared.Models
   public class FlowListDto
   {
     public int Id { get; set; }
-    public required string Name { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public string Name { get; set; } = null!;
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
   }
 }

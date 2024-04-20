@@ -94,8 +94,12 @@ namespace LGDXRobot2Cloud.API.Controllers
       var triggers = await _triggerRepository.GetTriggersDictFromListAsync(triggerIds);
       foreach (var detail in flowEntity.FlowDetails)
       {
-        if (progresses.ContainsKey(detail.ProgressId))
+        if (progresses.ContainsKey(detail.ProgressId)) 
+        {
+          if (progresses[detail.ProgressId].Reserved)
+            return BadRequest($"The Progress is reserved.");
           detail.Progress = progresses[detail.ProgressId];
+        }
         else
           return BadRequest($"The Progress Id: {detail.ProgressId} is invalid.");
         if (detail.StartTriggerId != null) // The detail has StartTriggerId
@@ -161,7 +165,11 @@ namespace LGDXRobot2Cloud.API.Controllers
       foreach (var detail in flowEntity.FlowDetails)
       {
         if (progresses.ContainsKey(detail.ProgressId))
+        {
+          if (progresses[detail.ProgressId].Reserved)
+            return BadRequest($"The Progress is reserved.");
           detail.Progress = progresses[detail.ProgressId];
+        }
         else
           return BadRequest($"The Progress Id: {detail.ProgressId} does not exist.");
         if (detail.StartTriggerId != null) // The detail has StartTriggerId

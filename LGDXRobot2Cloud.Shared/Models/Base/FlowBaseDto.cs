@@ -1,0 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace LGDXRobot2Cloud.Shared.Models.Base
+{
+  public class FlowBaseDto
+  {
+    [Required]
+    public string Name { get; set; } = null!;
+    public IEnumerable<FlowDetailUpdateDto> FlowDetails { get; set; } = [];
+  }
+}
