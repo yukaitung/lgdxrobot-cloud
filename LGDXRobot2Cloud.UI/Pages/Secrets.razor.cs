@@ -16,8 +16,6 @@ namespace LGDXRobot2Cloud.UI.Pages
 
     private void HandleTabChange(int index)
     {
-      if (CurrentTab == index)
-        return;
       ModalSubmitDone!.Close();
       CurrentTab = index;
     }
