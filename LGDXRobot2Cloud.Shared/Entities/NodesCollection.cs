@@ -11,9 +11,9 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public int Id { get; set; }
 
     [MaxLength(50)]
-    public required string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public ICollection<NodesCollectionDetail> Nodes { get; set; } = new List<NodesCollectionDetail>();
+    public ICollection<NodesCollectionDetail> Nodes { get; set; } = [];
 
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

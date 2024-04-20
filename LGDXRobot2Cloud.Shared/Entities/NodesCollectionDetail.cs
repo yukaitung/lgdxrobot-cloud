@@ -10,14 +10,14 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public int Id { get; set; }
 
     [ForeignKey("NodeId")]
-    public required Node Node { get; set; }
+    public Node Node { get; set; } = null!;
 
     public int NodeId { get; set; }
 
     public bool AutoRestart { get; set; }
 
     [ForeignKey("NodesCollectionId")]
-    public required NodesCollection NodesCollection { get; set; }
+    public NodesCollection NodesCollection { get; set; } = null!;
 
     public int NodesCollectionId { get; set; }
   }

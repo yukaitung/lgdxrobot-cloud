@@ -1,11 +1,9 @@
-using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Shared.Models.Base;
 
 namespace LGDXRobot2Cloud.Shared.Models
 {
-  public class NodesCollectionUpdateDto
+  public class NodesCollectionUpdateDto : NodesCollectionBaseDto
   {
-    [Required]
-    public required string Name { get; set; }
-    public IEnumerable<NodesCollectionDetailUpdateDto> Nodes { get; set; } = new List<NodesCollectionDetailUpdateDto>();
+    public IEnumerable<NodesCollectionDetailUpdateDto> Nodes { get; set; } = [];
   }
 }

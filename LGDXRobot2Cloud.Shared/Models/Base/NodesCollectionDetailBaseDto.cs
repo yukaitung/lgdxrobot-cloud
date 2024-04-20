@@ -1,11 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LGDXRobot2Cloud.Shared.Models
+namespace LGDXRobot2Cloud.Shared.Models.Base
 {
-  public class NodesCollectionDetailUpdateDto
+  public class NodesCollectionDetailBaseDto
   {
-    public int? Id { get; set;}
-    
     [Required]
     public int NodeId { get; set; }
     public bool AutoRestart { get; set; }
