@@ -14,7 +14,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
     [Required]
     public string Name { get; set; } = null!;
 
-    [MaxLength(100)]
+    [MaxLength(200)]
     public string Secret { get; set; } = null!;
 
     [Required]

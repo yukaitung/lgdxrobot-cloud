@@ -5,7 +5,7 @@ namespace LGDXRobot2Cloud.Shared.Models
 {
   public class ApiKeyCreateDto : ApiKeyBaseDto
   {
-    [MaxLength(100)]
+    [MaxLength(200)]
     public string? Secret { get; set; }
 
     [Required]

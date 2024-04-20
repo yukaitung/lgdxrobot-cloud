@@ -4,7 +4,7 @@ namespace LGDXRobot2Cloud.Shared.Models
 {
   public class ApiKeySecretDto
   {
-    [MaxLength(100)]
+    [MaxLength(200)]
     public string Secret { get; set; } = null!;
   }
 }
