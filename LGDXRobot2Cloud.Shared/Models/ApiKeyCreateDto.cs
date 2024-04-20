@@ -1,15 +1,12 @@
+using LGDXRobot2Cloud.Shared.Models.Base;
 using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.Shared.Models
 {
-  public class ApiKeyCreateDto
+  public class ApiKeyCreateDto : ApiKeyBaseDto
   {
-    [Required]
-    [MaxLength(50)]
-    public string Name { get; set; } = null!;
-
     [MaxLength(100)]
-    public string Secret { get; set; } = string.Empty;
+    public string? Secret { get; set; }
 
     [Required]
     public bool IsThirdParty { get; set; }

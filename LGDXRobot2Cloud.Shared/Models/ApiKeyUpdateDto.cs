@@ -1,11 +1,7 @@
-using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Shared.Models.Base;
 
 namespace LGDXRobot2Cloud.Shared.Models
 {
-  public class ApiKeyUpdateDto
-  {
-    [Required]
-    [MaxLength(50)]
-    public string Name { get; set; } = null!;
-  }
+  public class ApiKeyUpdateDto : ApiKeyBaseDto
+  {}
 }

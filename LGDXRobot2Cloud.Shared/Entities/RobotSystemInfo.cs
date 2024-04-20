@@ -10,10 +10,10 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public int Id { get; set; }
 
     [MaxLength(100)]
-    public required string Cpu { get; set; }
+    public string Cpu { get; set; } = null!;
 
     [MaxLength(100)]
-    public required string Os { get; set; }
+    public string Os { get; set; } = null!;
 
     public bool Is32Bit { get; set; }
 
