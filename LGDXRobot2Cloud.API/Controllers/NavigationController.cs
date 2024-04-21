@@ -400,12 +400,12 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult> CreateTrigger(TriggerCreateDto triggerDto)
     {
       var triggerEntity = _mapper.Map<Trigger>(triggerDto);
-      if (!string.IsNullOrWhiteSpace(triggerDto.ApiKeyLocationStr))
+      if (!string.IsNullOrWhiteSpace(triggerDto.ApiKeyInsertAt))
       {
-        var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyLocationStr);
+        var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyInsertAt);
         if (apiKeyLocation == null)
           return BadRequest("The API key location is invalid.");
-        triggerEntity.ApiKeyLocationId = apiKeyLocation.Id;
+        triggerEntity.ApiKeyInsertAtId = apiKeyLocation.Id;
       }
       if (triggerDto.ApiKeyId != null)
       {
@@ -428,12 +428,12 @@ namespace LGDXRobot2Cloud.API.Controllers
       if (triggerEntity == null)
         return NotFound();
       _mapper.Map(triggerDto, triggerEntity);
-      if (!string.IsNullOrWhiteSpace(triggerDto.ApiKeyLocationStr))
+      if (!string.IsNullOrWhiteSpace(triggerDto.ApiKeyInsertAt))
       {
-        var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyLocationStr);
+        var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyInsertAt);
         if (apiKeyLocation == null)
           return BadRequest("The API key location is invalid.");
-        triggerEntity.ApiKeyLocationId = apiKeyLocation.Id;
+        triggerEntity.ApiKeyInsertAtId = apiKeyLocation.Id;
       }
       if (triggerDto.ApiKeyId != null)
       {

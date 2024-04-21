@@ -14,12 +14,12 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
     [MaxLength(200)]
     public string Url { get; set; } = null!;
     public string? Body { get; set; }
-    public string? ApiKeyLocation { get; set; }
+    public string? ApiKeyInsertAt { get; set; }
 
     [Required]
     [MaxLength(50)]
-    public string? ApiKeyName { get; set; }
-    public ApiKeyDto? ApiKey { get; set; }
+    public string? ApiKeyFieldName { get; set; }
+    public ApiKeyBlazor? ApiKey { get; set; }
 
     [Required]
     public int? ApiKeyId { get; set; }

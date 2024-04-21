@@ -34,7 +34,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<Trigger?> GetTriggerAsync(int triggerId)
     {
       return await _context.Triggers.Where(t => t.Id == triggerId)
-        .Include(t => t.ApiKeyLocation)
+        .Include(t => t.ApiKeyInsertAt)
         .Include(t => t.ApiKey)
         .FirstOrDefaultAsync();
     }
@@ -57,7 +57,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<Dictionary<int, Trigger>> GetTriggersDictFromListAsync(IEnumerable<int> triggerIds)
     {
       return await _context.Triggers.Where(p => triggerIds.Contains(p.Id))
-        .Include(t => t.ApiKeyLocation)
+        .Include(t => t.ApiKeyInsertAt)
         .Include(t => t.ApiKey)
         .ToDictionaryAsync(t => t.Id, t => t);
     }

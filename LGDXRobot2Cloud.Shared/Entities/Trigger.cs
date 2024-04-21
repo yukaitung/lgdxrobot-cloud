@@ -20,13 +20,13 @@ namespace LGDXRobot2Cloud.Shared.Entities
 
     public string? Body { get; set; }
 
-    [ForeignKey("ApiKeyLocationId")] // Optional if the API Key is not required
-    public ApiKeyLocation? ApiKeyLocation { get; set; }
+    [ForeignKey("ApiKeyInsertAtId")] // Optional if the API Key is not required
+    public ApiKeyLocation? ApiKeyInsertAt { get; set; }
 
-    public int? ApiKeyLocationId;
+    public int? ApiKeyInsertAtId;
 
     [MaxLength(50)]
-    public string? ApiKeyName { get; set; } // Header name or Json name
+    public string? ApiKeyFieldName { get; set; } // Header name or Json name
 
     [ForeignKey("ApiKeyId")]
     public ApiKey? ApiKey { get; set; }
