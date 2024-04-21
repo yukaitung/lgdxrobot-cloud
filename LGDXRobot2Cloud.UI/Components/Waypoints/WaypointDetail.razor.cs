@@ -1,6 +1,6 @@
 using AutoMapper;
-using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Models;
+using LGDXRobot2Cloud.Shared.Models.Blazor;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -26,7 +26,7 @@ namespace LGDXRobot2Cloud.UI.Components.Waypoints
     [Parameter]
     public EventCallback<(int, string, CrudOperation)> OnSubmitDone { get; set; }
 
-    private Waypoint Waypoint { get; set; } = null!;
+    private WaypointBlazor Waypoint { get; set; } = null!;
     private EditContext _editContext = null!;
     private readonly CustomFieldClassProvider _customFieldClassProvider = new();
     private bool IsInvalid { get; set; } = false;
@@ -99,7 +99,7 @@ namespace LGDXRobot2Cloud.UI.Components.Waypoints
         }
         else
         {
-          Waypoint = new Waypoint();
+          Waypoint = new WaypointBlazor();
           _editContext = new EditContext(Waypoint);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }

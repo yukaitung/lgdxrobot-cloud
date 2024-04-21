@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Models;
+using LGDXRobot2Cloud.Shared.Models.Blazor;
 using LGDXRobot2Cloud.Shared.Services;
 
 namespace LGDXRobot2Cloud.UI.Services
@@ -17,7 +17,7 @@ namespace LGDXRobot2Cloud.UI.Services
       _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
     }
     
-    public async Task<(IEnumerable<Waypoint>?, PaginationMetadata?)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<WaypointBlazor>?, PaginationMetadata?)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
     {
       var url = name != null ? $"navigation/waypoints?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/waypoints?pageNumber={pageNumber}&pageSize={pageSize}";
       var response = await _httpClient.GetAsync(url);
@@ -25,7 +25,7 @@ namespace LGDXRobot2Cloud.UI.Services
       {
         var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
         var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
-        var waypoints = await JsonSerializer.DeserializeAsync<IEnumerable<Waypoint>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        var waypoints = await JsonSerializer.DeserializeAsync<IEnumerable<WaypointBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return (waypoints, paginationMetadata);
       }
       else
@@ -34,20 +34,20 @@ namespace LGDXRobot2Cloud.UI.Services
       }
     }
 
-    public async Task<Waypoint?> GetWaypointAsync(int waypointId)
+    public async Task<WaypointBlazor?> GetWaypointAsync(int waypointId)
     {
       var response = await _httpClient.GetAsync($"navigation/waypoints/{waypointId}");
-      var waypoint = await JsonSerializer.DeserializeAsync<Waypoint>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      var waypoint = await JsonSerializer.DeserializeAsync<WaypointBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       return waypoint;
     }
 
-    public async Task<Waypoint?> AddWaypointAsync(WaypointCreateDto waypoint)
+    public async Task<WaypointBlazor?> AddWaypointAsync(WaypointCreateDto waypoint)
     {
       var waypointJson = new StringContent(JsonSerializer.Serialize(waypoint), Encoding.UTF8, "application/json");
       var response = await _httpClient.PostAsync("navigation/waypoints", waypointJson);
       if (response.IsSuccessStatusCode)
       {
-        return await JsonSerializer.DeserializeAsync<Waypoint>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return await JsonSerializer.DeserializeAsync<WaypointBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       }
       else
         return null;

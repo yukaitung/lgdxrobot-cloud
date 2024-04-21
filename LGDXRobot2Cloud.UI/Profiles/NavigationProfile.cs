@@ -1,7 +1,6 @@
 using AutoMapper;
 using Models = LGDXRobot2Cloud.Shared.Models;
 using Blazor = LGDXRobot2Cloud.Shared.Models.Blazor;
-using Entities = LGDXRobot2Cloud.Shared.Entities;
 
 namespace LGDXRobot2Cloud.UI.Profiles
 {
@@ -13,8 +12,8 @@ namespace LGDXRobot2Cloud.UI.Profiles
       CreateMap<Blazor.ProgressBlazor, Models.ProgressCreateDto>();
       CreateMap<Blazor.ProgressBlazor, Models.ProgressUpdateDto>();
       // Waypoint
-      CreateMap<Entities.Waypoint, Models.WaypointCreateDto>();
-      CreateMap<Entities.Waypoint, Models.WaypointUpdateDto>();
+      CreateMap<Blazor.WaypointBlazor, Models.WaypointCreateDto>();
+      CreateMap<Blazor.WaypointBlazor, Models.WaypointUpdateDto>();
     }
   }
 }
