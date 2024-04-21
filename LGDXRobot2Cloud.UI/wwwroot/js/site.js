@@ -6,18 +6,25 @@ function CloseModal(modalId) {
 
 var AdvancedSelectDict = {};
 function InitAdvancedSelect(elementId) {
-  if (AdvancedSelectDict[elementId])
-    delete AdvancedSelectDict[elementId];
+  if (AdvancedSelectDict[elementId]) delete AdvancedSelectDict[elementId];
   window.TomSelect &&
     new TomSelect(document.getElementById(elementId), {
       copyClassesToDropdown: false,
+      valueField: "id",
+      labelField: "name",
+      searchField: "name",
       controlInput: "<input>",
       render: {
         item: function (data, escape) {
-          return "<div>" + escape(data.text) + "</div>";
+          return ("<div>" + escape(data.name) + "</div>");
         },
         option: function (data, escape) {
-          return "<div>" + escape(data.text) + "</div>";
+          return (
+            "<div>" +
+              "<div>" + escape(data.name) + "</div>" +
+              '<div class="text-secondary">ID: ' + escape(data.id) + "</div>" +
+            "</div>"
+          );
         },
       },
     });
