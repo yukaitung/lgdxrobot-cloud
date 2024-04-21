@@ -1,4 +1,4 @@
-using LGDXRobot2Cloud.Shared.Entities;
+using LGDXRobot2Cloud.Shared.Models.Blazor;
 using LGDXRobot2Cloud.Shared.Services;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -13,7 +13,7 @@ namespace LGDXRobot2Cloud.UI.Components.Nodes
     [Parameter]
     public EventCallback<int> OnIdSelected { get; set; }
 
-    private List<Node>? NodesList { get; set; }
+    private List<NodeBlazor>? NodesList { get; set; }
     private PaginationMetadata? PaginationMetadata { get; set; }
     private int CurrentPage { get; set; } = 1;
     private int PageSize { get; set; } = 10;

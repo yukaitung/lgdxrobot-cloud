@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Models;
+using LGDXRobot2Cloud.Shared.Models.Blazor;
 using LGDXRobot2Cloud.Shared.Services;
 
 namespace LGDXRobot2Cloud.UI.Services
@@ -17,7 +17,7 @@ namespace LGDXRobot2Cloud.UI.Services
       _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
     }
 
-    public async Task<(IEnumerable<Node>?, PaginationMetadata?)> GetNodesAsync(string? name, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<NodeBlazor>?, PaginationMetadata?)> GetNodesAsync(string? name, int pageNumber, int pageSize)
     {
       var url = name != null ? $"robot/nodes?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot/nodes?pageNumber={pageNumber}&pageSize={pageSize}";
       var response = await _httpClient.GetAsync(url);
@@ -25,7 +25,7 @@ namespace LGDXRobot2Cloud.UI.Services
       {
         var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
         var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
-        var nodes = await JsonSerializer.DeserializeAsync<IEnumerable<Node>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        var nodes = await JsonSerializer.DeserializeAsync<IEnumerable<NodeBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return (nodes, paginationMetadata);
       }
       else
@@ -34,20 +34,20 @@ namespace LGDXRobot2Cloud.UI.Services
       }
     }
 
-    public async Task<Node?> GetNodeAsync(int nodeId)
+    public async Task<NodeBlazor?> GetNodeAsync(int nodeId)
     {
       var response = await _httpClient.GetAsync($"robot/nodes/{nodeId}");
-      var node = await JsonSerializer.DeserializeAsync<Node>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      var node = await JsonSerializer.DeserializeAsync<NodeBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       return node;
     }
 
-    public async Task<Node?> AddNodeAsync(NodeCreateDto node)
+    public async Task<NodeBlazor?> AddNodeAsync(NodeCreateDto node)
     {
       var nodeJson = new StringContent(JsonSerializer.Serialize(node), Encoding.UTF8, "application/json");
       var response = await _httpClient.PostAsync("robot/nodes", nodeJson);
       if (response.IsSuccessStatusCode)
       {
-        return await JsonSerializer.DeserializeAsync<Node>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return await JsonSerializer.DeserializeAsync<NodeBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       }
       else
         return null;
