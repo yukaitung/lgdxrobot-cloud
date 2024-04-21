@@ -16,11 +16,9 @@ namespace LGDXRobot2Cloud.Shared.Models.Base
     
     public string? ApiKeyInsertAt { get; set; }
 
-    [Required]
     [MaxLength(50)]
     public string? ApiKeyFieldName { get; set; }
 
-    [Required]
     public int? ApiKeyId { get; set; }
   }
 }

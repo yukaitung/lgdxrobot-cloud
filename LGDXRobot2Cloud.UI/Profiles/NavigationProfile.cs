@@ -11,6 +11,9 @@ namespace LGDXRobot2Cloud.UI.Profiles
       // Progress
       CreateMap<Blazor.ProgressBlazor, Models.ProgressCreateDto>();
       CreateMap<Blazor.ProgressBlazor, Models.ProgressUpdateDto>();
+      // Triggers
+      CreateMap<Blazor.TriggerBlazor, Models.TriggerCreateDto>();
+      CreateMap<Blazor.TriggerBlazor, Models.TriggerUpdateDto>();
       // Waypoint
       CreateMap<Blazor.WaypointBlazor, Models.WaypointCreateDto>();
       CreateMap<Blazor.WaypointBlazor, Models.WaypointUpdateDto>();

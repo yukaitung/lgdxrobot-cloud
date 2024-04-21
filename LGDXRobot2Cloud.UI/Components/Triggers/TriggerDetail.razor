@@ -1,0 +1,157 @@
+@using LGDXRobot2Cloud.UI.Helpers
+@inherits AbstractForm
+
+<div class="modal modal-blur fade" id="triggerDetailModal" data-bs-backdrop="static" data-bs-keyboard="false"
+  tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">@(Id != null ? "Update Trigger" : "Create New Trigger")</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <DataAnnotationsValidator />
+        <div class="modal-body">
+          <InformationAlert>Trigger supports POST method only.</InformationAlert>
+          <ModalValidationError Display="IsInvalid" />
+          <ModalSubmitError Display="IsError" Crud="@(Id != null ? CrudOperation.Update : CrudOperation.Create)" />
+          @if (Id != null)
+          {
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">ID</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@Trigger.Id</div>
+              </div>
+            </div>
+          }
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="Name">Name</label>
+            <div class="col">
+              <InputText id="Name" @bind-Value="Trigger.Name" type="text" class="form-control"
+                placeholder="Your trigger name" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Trigger.Name)" />
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="URL">URL</label>
+            <div class="col">
+              <InputText id="URL" @bind-Value="Trigger.Url" type="text" class="form-control"
+                placeholder="The service URL being called" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Trigger.Url)" />
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label" for="Body">Body</label>
+            <div class="col">
+              <InputTextArea id="Body" @bind-Value="Trigger.Body" class="form-control" rows="3"
+                placeholder="Request body (JSON format is recommended)"></InputTextArea>
+              <ValidationMessage class="invalid-feedback" For="@(() => Trigger.Body)" />
+            </div>
+          </div>
+          <div class="row">
+            <label class="col-3 col-form-label pt-0"></label>
+            <div class="col">
+              <label class="form-check">
+                <input class="form-check-input" type="checkbox" @bind="Trigger.ApiKeyRequired">
+                <span class="form-check-label">The API endpoint requires an API Key</span>
+              </label>
+            </div>
+          </div>
+          @if (Trigger.ApiKeyRequired)
+          {
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required">Insert Loaction</label>
+              <div class="col">
+                <select class="form-select" @onchange="@((e) => HandleApiKeyInsertAt(e.Value ?? string.Empty))">
+                  <option value="header">Header</option>
+                  <option value="body">Body</option>
+                </select>
+                <small class="form-hint">
+                  For the header, the API key will be inserted into the request header. For the body,
+                  the API key will be inserted as a key-value pair into the JSON body.
+                  If the body is not in JSON format, an error may occur.
+                </small>
+              </div>
+            </div>
+            <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="ApiKeyFieldName">@(Trigger.ApiKeyInsertAt == "header" ?
+              "Header Field Name" : "JSON Key Name")</label>
+              <div class="col">
+                <InputText id="URL" @bind-Value="Trigger.ApiKeyFieldName" type="text" class="form-control"
+                  placeholder="@(Trigger.ApiKeyInsertAt == "header" ? "e.g. X-API-Key" : "e.g. key")" />
+                <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyFieldName)" />
+              </div>
+            </div>
+            <div class="mb-3 row">
+            <label class="col-3 col-form-label required">API Key</label>
+            <div class="col">
+              <select type="text" class="form-select" id="ApiKeySelect" value="">
+                <option value="1">Chuck Tesla</option>
+                <option value="2">Elon Musk</option>
+                <option value="3">Paweł Kuna</option>
+                <option value="4">Nikola Tesla</option>
+              </select>
+            </div>
+          </div>
+          }
+          @if (Id != null)
+          {
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">Create Time</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@Trigger.CreatedAt</div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+            <label class="col-3 col-form-label">Last Update Time</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Trigger.UpdatedAt</div>
+            </div>
+          </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <a class="btn btn-link link-secondary" data-bs-dismiss="modal">
+            Cancel
+          </a>
+          @if (Id != null)
+          {
+            <button type="button" class="btn btn-danger ms-auto" data-bs-toggle="modal"
+              data-bs-target="#triggerDeleteModal">
+              Delete
+            </button>
+            <button type="submit" class="btn btn-primary ms-2">
+            Update
+          </button>
+          }
+          else
+          {
+            <button type="submit" class="btn btn-primary ms-auto">
+              Create
+            </button>
+          }
+        </div>
+      </EditForm>
+    </div>
+  </div>
+</div>
+
+@if (Id != null)
+{
+  <div class="modal fade" id="triggerDeleteModal" tabindex="-1" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="modal-title">Delete Trigger</div>
+        <ModalSubmitError Display="IsError" Crud="@CrudOperation.Delete" />
+        <div>The Trigger @(Trigger.Name != null ? $"\"{Trigger.Name}\" (ID: {Trigger.Id})" : $"ID: {Trigger.Id}") will
+          be deleted.</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" @onclick="HandleDelete">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+}

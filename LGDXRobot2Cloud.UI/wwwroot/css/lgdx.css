@@ -1,0 +1,10 @@
+@charset "UTF-8";
+
+/* Tom select in modal */
+.ts-dropdown {
+  z-index: 2000;
+}
+
+.ts-dropdown .active {
+  background-color: rgba(var(--tblr-secondary-rgb),.08);
+}

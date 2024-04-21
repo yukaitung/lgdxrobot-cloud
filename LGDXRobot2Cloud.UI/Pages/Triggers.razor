@@ -11,7 +11,7 @@
     </div>
     <div class="col-auto ms-auto">
       <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-        data-bs-target="#" ><!-- @onclick="@(e => NodeId = null)" -->
+        data-bs-target="#triggerDetailModal" @onclick="@(e => TriggerId = null)">
         Create Trigger
       </button>
     </div>
@@ -22,3 +22,5 @@
   <ModalSubmitDone EntityName="Trigger" @ref="ModalSubmitDone"/>
   <TriggerTable OnIdSelected="HandleItemSelect" @ref="TriggerTable" />
 </PageBody>
+
+<TriggerDetail Id="TriggerId" OnSubmitDone="HandleSubmitDoneOpen" />

@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 
-namespace LGDXRobot2Cloud.UI.Components.Secrets
+namespace LGDXRobot2Cloud.UI.Components.Triggers
 {
-  public partial class ApiKeyDetail : AbstractForm
+  public partial class TriggerDetail : AbstractForm
   {
     [Inject]
-    public required IApiKeyService ApiKeyService { get; set; }
+    public required ITriggerService TriggerService { get; set; }
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
@@ -26,17 +26,16 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
     [Parameter]
     public EventCallback<(int, string, CrudOperation)> OnSubmitDone { get; set; }
 
-    private ApiKeyBlazor ApiKey { get; set; } = null!;
+    private TriggerBlazor Trigger { get; set; } = null!;
     private EditContext _editContext = null!;
     private readonly CustomFieldClassProvider _customFieldClassProvider = new();
     private bool IsInvalid { get; set; } = false;
     private bool IsError { get; set; } = false;
 
     // Form
-    private void HandleApiKeyKindChanged(object args)
+    private void HandleApiKeyInsertAt(object args)
     {
-      if (bool.TryParse(args.ToString(), out bool result))      
-        ApiKey.IsThirdParty = result;
+      Trigger.ApiKeyInsertAt = args.ToString();
     }
 
     protected override async Task HandleValidSubmit()
@@ -44,11 +43,11 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
       if (Id != null)
       {
         // Update
-        bool success = await ApiKeyService.UpdateApiKeyAsync((int)Id, Mapper.Map<ApiKeyUpdateDto>(ApiKey));
+        bool success = await TriggerService.UpdateTriggerAsync((int)Id, Mapper.Map<TriggerUpdateDto>(Trigger));
         if (success)
         {
-          await JSRuntime.InvokeVoidAsync("CloseModal", "apiKeyDetailModal");
-          await OnSubmitDone.InvokeAsync(((int)Id, ApiKey.Name, CrudOperation.Update));
+          await JSRuntime.InvokeVoidAsync("CloseModal", "triggerDetailModal");
+          await OnSubmitDone.InvokeAsync(((int)Id, Trigger.Name, CrudOperation.Update));
         }
         else
           IsError = true;
@@ -56,10 +55,10 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
       else
       {
         // Create
-        var success = await ApiKeyService.AddApiKeyAsync(Mapper.Map<ApiKeyCreateDto>(ApiKey));
+        var success = await TriggerService.AddTriggerAsync(Mapper.Map<TriggerCreateDto>(Trigger));
         if (success != null)
         {
-          await JSRuntime.InvokeVoidAsync("CloseModal", "apiKeyDetailModal");
+          await JSRuntime.InvokeVoidAsync("CloseModal", "triggerDetailModal");
           await OnSubmitDone.InvokeAsync((success.Id, success.Name, CrudOperation.Create));
         }
         else
@@ -76,13 +75,13 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
     {
       if (Id != null)
       {
-        var success = await ApiKeyService.DeleteApiKeyAsync((int)Id);
+        var success = await TriggerService.DeleteTriggerAsync((int)Id);
         if (success)
         {
           // DO NOT REVERSE THE ORDER
-          await JSRuntime.InvokeVoidAsync("CloseModal", "apiKeyDeleteModal");
-          await OnSubmitDone.InvokeAsync(((int)Id, ApiKey.Name, CrudOperation.Delete));
-        } 
+          await JSRuntime.InvokeVoidAsync("CloseModal", "triggerDeleteModal");
+          await OnSubmitDone.InvokeAsync(((int)Id, Trigger.Name, CrudOperation.Delete));
+        }
         else
           IsError = true;
       }
@@ -97,22 +96,34 @@ namespace LGDXRobot2Cloud.UI.Components.Secrets
         IsError = false;
         if (_id != null)
         {
-          var apiKey = await ApiKeyService.GetApiKeyAsync((int)_id);
-          if (apiKey != null) {
-            ApiKey = apiKey;
-            ApiKey.IsUpdate = true;
-            _editContext = new EditContext(ApiKey);
+          var node = await TriggerService.GetTriggerAsync((int)_id);
+          if (node != null)
+          {
+            Trigger = node;
+            _editContext = new EditContext(Trigger);
             _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
           }
         }
         else
         {
-          ApiKey = new ApiKeyBlazor();
-          _editContext = new EditContext(ApiKey);
+          Trigger = new TriggerBlazor
+          {
+            ApiKeyInsertAt = "header"
+          };
+          _editContext = new EditContext(Trigger);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }
       }
       await base.SetParametersAsync(ParameterView.Empty);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+      if (Trigger.ApiKeyRequired)
+      {
+        await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", "ApiKeySelect");
+      }
+      await base.OnAfterRenderAsync(firstRender);
     }
   }
 }
