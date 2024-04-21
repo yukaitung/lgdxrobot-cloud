@@ -11,7 +11,7 @@
     </div>
     <div class="col-auto ms-auto">
       <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-        data-bs-target="#"><!-- @onclick="@(e => WaypointId = null)" -->
+        data-bs-target="#progressDetailModal" @onclick="@(e => ProgressId = null)">
         Create Progress
       </button>
     </div>
@@ -22,3 +22,5 @@
   <ModalSubmitDone EntityName="Progress" @ref="ModalSubmitDone" />
   <ProgressTable OnIdSelected="HandleItemSelect" @ref="ProgressTable" />
 </PageBody>
+
+<ProgressDetail OnSubmitDone="HandleSubmitDoneOpen" Id="ProgressId" />

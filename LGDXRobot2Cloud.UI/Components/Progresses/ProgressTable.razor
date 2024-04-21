@@ -57,13 +57,16 @@
             <tr>
               <td>@progress.Id</td>
               <td>@progress.Name</td>
-              <td>@progress.System</td>
-              <td>@progress.Reserved</td>
+              <td>@(progress.System ? "Yes" : "No")</td>
+              <td>@(progress.Reserved ? "Yes" : "No")</td>
               <td>@progress.CreatedAt</td>
               <td>@progress.UpdatedAt</td>
               <td class="text-end">
-                <button class="page-link link-primary" data-bs-toggle="modal" data-bs-target="#"
-                  @onclick="@(e => HandleItemSelect(progressId))">Edit</button>
+                @if (!progress.System)
+                {
+                  <button class="page-link link-primary" data-bs-toggle="modal" data-bs-target="#progressDetailModal"
+                    @onclick="@(e => HandleItemSelect(progressId))">Edit</button>
+                }
               </td>
             </tr>
           }

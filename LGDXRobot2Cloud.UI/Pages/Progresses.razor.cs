@@ -1,4 +1,3 @@
-using LGDXRobot2Cloud.UI.Components.Waypoints;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Shared;
 using LGDXRobot2Cloud.UI.Components.Progresses;
