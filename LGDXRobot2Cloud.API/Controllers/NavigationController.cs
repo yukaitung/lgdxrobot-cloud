@@ -379,12 +379,12 @@ namespace LGDXRobot2Cloud.API.Controllers
     ** Trigger
     */
     [HttpGet("triggers")]
-    public async Task<ActionResult<IEnumerable<TriggerDto>>> GetTriggers(string? name, int pageNumber = 1, int pageSize = 10)
+    public async Task<ActionResult<IEnumerable<TriggerListDto>>> GetTriggers(string? name, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
       var (triggers, paginationMetadata) = await _triggerRepository.GetTriggersAsync(name, pageNumber, pageSize);
       Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
-      return Ok(_mapper.Map<IEnumerable<TriggerDto>>(triggers));
+      return Ok(_mapper.Map<IEnumerable<TriggerListDto>>(triggers));
     }
 
     [HttpGet("triggers/{id}", Name = "GetTrigger")]

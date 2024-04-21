@@ -27,8 +27,6 @@ namespace LGDXRobot2Cloud.API.Repositories
       var triggers = await query.OrderBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
-        .Include(t => t.ApiKeyLocation)
-        .Include(t => t.ApiKey)
         .ToListAsync();
       return (triggers, paginationMetadata);
     }
