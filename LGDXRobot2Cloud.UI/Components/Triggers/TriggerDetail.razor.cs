@@ -36,7 +36,10 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
     private bool IsInvalid { get; set; } = false;
     private bool IsError { get; set; } = false;
 
+    private readonly string SelectId = "ApiKeyId";
+
     // Form
+
     private void HandleApiKeyInsertAt(object args)
     {
       Trigger.ApiKeyInsertAt = args.ToString();
@@ -45,17 +48,17 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
     [JSInvokable("HandlSelectSearch")]
     public async Task HandlSelectSearch(string elementId, string name)
     {
-      if (elementId == "ApiKeyString")
+      if (elementId == SelectId)
       {
         var result = await ApiKeyService.SearchApiKeysAsync(name);
-        await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", "ApiKeyString", result);
+        await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", SelectId, result);
       }
     }
 
     [JSInvokable("HandleSelectChange")]
     public void HandleSelectChange(string elementId, int? id)
     {
-      if (elementId == "ApiKeyString")
+      if (elementId == SelectId)
       {
         Trigger.ApiKeyId = id;
       }
@@ -151,7 +154,7 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
       }
       if (Trigger.ApiKeyRequired)
       {
-        await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", "ApiKeyString");
+        await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", SelectId);
       }
     }
 

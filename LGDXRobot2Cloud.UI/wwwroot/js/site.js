@@ -41,6 +41,7 @@ function InitAdvancedSelect(elementId) {
     delete AdvancedSelectDict[elementId + TOMSELECT];
   }
   if (window.TomSelect != undefined) {
+    document.getElementById(elementId).style.display = "none"; 
     AdvancedSelectDict[elementId + TOMSELECT] = new TomSelect(AdvancedSelectDict[elementId] = document.getElementById(elementId), {
       copyClassesToDropdown: false,
       valueField: "id",
@@ -62,10 +63,9 @@ function InitAdvancedSelect(elementId) {
         },
       },
     });
+    AdvancedSelectDict[elementId + TSCONTROL] = document.getElementById(elementId + TSCONTROL);
+    AdvancedSelectDict[elementId + TSCONTROL].addEventListener("input", AdvanceSelectInput);
   }
-    
-  AdvancedSelectDict[elementId + TSCONTROL] = document.getElementById(elementId + TSCONTROL);
-  AdvancedSelectDict[elementId + TSCONTROL].addEventListener("input", AdvanceSelectInput);
 }
 
 var AdvanceSelectEventHandler = function(elementId) {

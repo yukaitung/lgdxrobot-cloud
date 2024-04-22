@@ -86,9 +86,9 @@
             <div class="mb-3 row">
             <label class="col-3 col-form-label required">API Key</label>
             <div class="col">
-              <select id="ApiKeyString" class="form-control" @bind="Trigger.ApiKeyString"
-                  placeholder="Search the name of API Key" />
-              <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyString)" />
+              <InputSelect id="ApiKeyId" class="form-control" @bind-Value="Trigger.ApiKeyId"
+                placeholder="Search the name of API Key" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyId)" />
             </div>
           </div>
           }

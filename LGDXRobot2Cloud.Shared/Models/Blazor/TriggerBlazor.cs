@@ -19,7 +19,6 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
     [MaxLength(50)]
     public string? ApiKeyFieldName { get; set; }
     public ApiKeyBlazor? ApiKey { get; set; }
-    public string? ApiKeyString { get; set; }
     public int? ApiKeyId { get; set; }
 
     public DateTime CreatedAt { get; set; }
@@ -38,7 +37,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
         }
         if (ApiKeyId == null)
         {
-          yield return new ValidationResult("The API Key has not been selected.", ["ApiKeyString", "ApiKeyId"]);
+          yield return new ValidationResult("The API Key has not been selected.", ["ApiKeyId"]);
         }
       }
     }
