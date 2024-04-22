@@ -54,6 +54,7 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
 
     protected override async Task HandleValidSubmit()
     {
+      return;
       if (Id != null)
       {
         // Update

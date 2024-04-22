@@ -29,10 +29,16 @@ var AdvancedSelectBuffer = {};
 var AdvancedSelectIsOnHold = {};
 var AdvancedSelectTimer = {};
 function InitAdvancedSelect(elementId) {
-  if (AdvancedSelectDict[elementId]) {
+  if (document.getElementById(elementId + TSCONTROL)) {
+    // Tom select is initialised
+    return;
+  }
+  if (AdvancedSelectDict[elementId] != undefined) {
+    // The blazor has removed the dom
     delete AdvancedSelectDict[elementId];
     AdvancedSelectDict[elementId + TSCONTROL].removeEventListener("input", AdvanceSelectSearch);
     delete AdvancedSelectDict[elementId + TSCONTROL];
+    delete AdvancedSelectDict[elementId + TOMSELECT];
   }
   if (window.TomSelect != undefined) {
     AdvancedSelectDict[elementId + TOMSELECT] = new TomSelect(AdvancedSelectDict[elementId] = document.getElementById(elementId), {
@@ -79,12 +85,10 @@ function AdvanceSelectSearch(id) {
 
 function AdvanceSelectUpdate(elementId, result) {
   let obj = JSON.parse(result);
-  console.log(obj);
   if (AdvancedSelectDict[elementId + TOMSELECT] != undefined) {
     AdvancedSelectDict[elementId + TOMSELECT].clearOptions();
     for (let i = 0; i < obj.length; i++) {
       AdvancedSelectDict[elementId + TOMSELECT].addOption(obj[i]);
     }
   }
-  console.log("done");
 }
