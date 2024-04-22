@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.Shared.Models.Blazor
 {
-  public class TriggerBlazor
+  public class TriggerBlazor : IValidatableObject
   {
     public int Id { get; set; }
 
@@ -24,5 +24,23 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+      if (ApiKeyRequired)
+      {
+        if (string.IsNullOrEmpty(ApiKeyFieldName))
+        {
+          if (ApiKeyInsertAt == "header")
+            yield return new ValidationResult("The header name is missing.", ["ApiKeyFieldName"]);
+          else
+            yield return new ValidationResult("The key name is missing.", ["ApiKeyFieldName"]);
+        }
+        if (ApiKeyId == null)
+        {
+          yield return new ValidationResult("The API Key has not been selected.", ["ApiKeyString", "ApiKeyId"]);
+        }
+      }
+    }
   }
 }

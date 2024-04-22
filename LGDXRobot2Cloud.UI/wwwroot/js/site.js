@@ -47,6 +47,7 @@ function InitAdvancedSelect(elementId) {
       labelField: "name",
       searchField: "name",
       controlInput: "<input>",
+      onChange: AdvanceSelectEventHandler(elementId),
       render: {
         item: function (data, escape) {
           return ("<div>" + escape(data.name) + "</div>");
@@ -67,6 +68,17 @@ function InitAdvancedSelect(elementId) {
   AdvancedSelectDict[elementId + TSCONTROL].addEventListener("input", AdvanceSelectInput);
 }
 
+var AdvanceSelectEventHandler = function(elementId) {
+	return function() {
+    if (arguments[0] != undefined) {
+      if (arguments[0].length == 0)
+        DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, null);
+      else
+        DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, parseInt(arguments[0]));
+    }
+	};
+};
+
 function AdvanceSelectInput(e) {
   let id = e.target.id.toString();
   let search = e.target.value.toString();
@@ -79,7 +91,7 @@ function AdvanceSelectInput(e) {
 
 function AdvanceSelectSearch(id) {
   var idShort = id.substring(0, (id.length - TSCONTROL.length))
-  DotNetObject.invokeMethodAsync('HandleApiKeySearch', idShort, AdvancedSelectBuffer[id]);
+  DotNetObject.invokeMethodAsync('HandlSelectSearch', idShort, AdvancedSelectBuffer[id]);
   AdvancedSelectIsOnHold[id] = false;
 }
 

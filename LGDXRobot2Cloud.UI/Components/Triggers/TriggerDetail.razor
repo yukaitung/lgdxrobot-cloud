@@ -78,7 +78,7 @@
             <label class="col-3 col-form-label required" for="ApiKeyFieldName">@(Trigger.ApiKeyInsertAt == "header" ?
               "Header Field Name" : "JSON Key Name")</label>
               <div class="col">
-                <InputText id="URL" @bind-Value="Trigger.ApiKeyFieldName" type="text" class="form-control"
+                <InputText id="FieldName" @bind-Value="Trigger.ApiKeyFieldName" type="text" class="form-control"
                   placeholder="@(Trigger.ApiKeyInsertAt == "header" ? "e.g. X-API-Key" : "e.g. key")" />
                 <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyFieldName)" />
               </div>
@@ -86,8 +86,8 @@
             <div class="mb-3 row">
             <label class="col-3 col-form-label required">API Key</label>
             <div class="col">
-              <select id="ApiKeyString" class="form-control"
-                  placeholder="Search the name of API Key" autocomplete="off" />
+              <select id="ApiKeyString" class="form-control" @bind="Trigger.ApiKeyString"
+                  placeholder="Search the name of API Key" />
               <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyString)" />
             </div>
           </div>

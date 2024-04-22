@@ -42,13 +42,22 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
       Trigger.ApiKeyInsertAt = args.ToString();
     }
 
-    [JSInvokable("HandleApiKeySearch")]
-    public async Task HandleApiKeySearch(string elementId, string name)
+    [JSInvokable("HandlSelectSearch")]
+    public async Task HandlSelectSearch(string elementId, string name)
     {
       if (elementId == "ApiKeyString")
       {
         var result = await ApiKeyService.SearchApiKeysAsync(name);
         await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", "ApiKeyString", result);
+      }
+    }
+
+    [JSInvokable("HandleSelectChange")]
+    public void HandleSelectChange(string elementId, int? id)
+    {
+      if (elementId == "ApiKeyString")
+      {
+        Trigger.ApiKeyId = id;
       }
     }
 
