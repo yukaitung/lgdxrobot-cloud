@@ -48,6 +48,8 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
     [JSInvokable("HandlSelectSearch")]
     public async Task HandlSelectSearch(string elementId, string name)
     {
+      if (string.IsNullOrWhiteSpace(name))
+        return;
       if (elementId == SelectId)
       {
         var result = await ApiKeyService.SearchApiKeysAsync(name);
