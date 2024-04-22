@@ -4,11 +4,38 @@ function CloseModal(modalId) {
   modal.hide();
 }
 
+/*
+.NET Methods
+*/
+
+var DotNetObject = {};
+function InitDotNet(dotNetObject) {
+  DotNetObject = dotNetObject;
+}
+
+function UnInitDotNet() {
+  for (const [key, value] of Object.entries(AdvancedSelectTimer)) {
+    clearTimeout(AdvancedSelectTimer[key]);
+  }
+}
+
+/*
+Advanced Select methods
+*/
+const TSCONTROL = "-ts-control";
+const TOMSELECT = "-tomselect-control";
 var AdvancedSelectDict = {};
+var AdvancedSelectBuffer = {};
+var AdvancedSelectIsOnHold = {};
+var AdvancedSelectTimer = {};
 function InitAdvancedSelect(elementId) {
-  if (AdvancedSelectDict[elementId]) delete AdvancedSelectDict[elementId];
-  window.TomSelect &&
-    new TomSelect(document.getElementById(elementId), {
+  if (AdvancedSelectDict[elementId]) {
+    delete AdvancedSelectDict[elementId];
+    AdvancedSelectDict[elementId + TSCONTROL].removeEventListener("input", AdvanceSelectSearch);
+    delete AdvancedSelectDict[elementId + TSCONTROL];
+  }
+  if (window.TomSelect != undefined) {
+    AdvancedSelectDict[elementId + TOMSELECT] = new TomSelect(AdvancedSelectDict[elementId] = document.getElementById(elementId), {
       copyClassesToDropdown: false,
       valueField: "id",
       labelField: "name",
@@ -28,4 +55,36 @@ function InitAdvancedSelect(elementId) {
         },
       },
     });
+  }
+    
+  AdvancedSelectDict[elementId + TSCONTROL] = document.getElementById(elementId + TSCONTROL);
+  AdvancedSelectDict[elementId + TSCONTROL].addEventListener("input", AdvanceSelectInput);
+}
+
+function AdvanceSelectInput(e) {
+  let id = e.target.id.toString();
+  let search = e.target.value.toString();
+  AdvancedSelectBuffer[id] = search;
+  if (AdvancedSelectIsOnHold[id] == undefined || AdvancedSelectIsOnHold[id] == false) {
+    AdvancedSelectIsOnHold[id] = true;
+    AdvancedSelectTimer[id] = setTimeout(function(){ AdvanceSelectSearch(id); }, 200);
+  }
+}
+
+function AdvanceSelectSearch(id) {
+  var idShort = id.substring(0, (id.length - TSCONTROL.length))
+  DotNetObject.invokeMethodAsync('HandleApiKeySearch', idShort, AdvancedSelectBuffer[id]);
+  AdvancedSelectIsOnHold[id] = false;
+}
+
+function AdvanceSelectUpdate(elementId, result) {
+  let obj = JSON.parse(result);
+  console.log(obj);
+  if (AdvancedSelectDict[elementId + TOMSELECT] != undefined) {
+    AdvancedSelectDict[elementId + TOMSELECT].clearOptions();
+    for (let i = 0; i < obj.length; i++) {
+      AdvancedSelectDict[elementId + TOMSELECT].addOption(obj[i]);
+    }
+  }
+  console.log("done");
 }

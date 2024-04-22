@@ -13,5 +13,6 @@ namespace LGDXRobot2Cloud.UI.Services
     Task<bool> DeleteApiKeyAsync(int apiKeyId);
     Task<ApiKeySecretBlazor?> GetApiKeySecretAsync(int apiKeyId);
     Task<bool> UpdateApiKeySecretAsync(int apiKeyId, ApiKeySecretDto apiKey);
+    Task<string> SearchApiKeysAsync(string name);
   }
 }

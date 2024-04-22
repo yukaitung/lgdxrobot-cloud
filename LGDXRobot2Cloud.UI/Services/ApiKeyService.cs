@@ -79,5 +79,19 @@ namespace LGDXRobot2Cloud.UI.Services
       var response = await _httpClient.PutAsync($"setting/secret/apikeys/{apiKeyId}/secret", apiKeySecretJson);
       return response.IsSuccessStatusCode;
     }
+
+    public async Task<string> SearchApiKeysAsync(string name)
+    {
+      var url = $"setting/secret/apikeys?isThirdParty=true&name={name}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        return await response.Content.ReadAsStringAsync();
+      }
+      else
+      {
+        throw new Exception($"The API service returns status code {response.StatusCode}.");
+      }
+    }
   }
 }

@@ -1,5 +1,6 @@
 @using LGDXRobot2Cloud.UI.Helpers
 @inherits AbstractForm
+@implements IDisposable
 
 <div class="modal modal-blur fade" id="triggerDetailModal" data-bs-backdrop="static" data-bs-keyboard="false"
   tabindex="-1">
@@ -85,8 +86,9 @@
             <div class="mb-3 row">
             <label class="col-3 col-form-label required">API Key</label>
             <div class="col">
-              <select type="text" class="form-select" id="ApiKeySelect" placeholder="Search the name of API Key">
-              </select>
+              <input id="ApiKeyString" class="form-control"
+                  placeholder="Search the name of API Key" autocomplete="off" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyString)" />
             </div>
           </div>
           }

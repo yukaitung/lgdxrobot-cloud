@@ -9,10 +9,13 @@ using Microsoft.JSInterop;
 
 namespace LGDXRobot2Cloud.UI.Components.Triggers
 {
-  public partial class TriggerDetail : AbstractForm
+  public partial class TriggerDetail : AbstractForm, IDisposable
   {
     [Inject]
     public required ITriggerService TriggerService { get; set; }
+
+    [Inject]
+    public required IApiKeyService ApiKeyService { get; set; }
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
@@ -26,6 +29,7 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
     [Parameter]
     public EventCallback<(int, string, CrudOperation)> OnSubmitDone { get; set; }
 
+    private DotNetObjectReference<TriggerDetail> ObjectReference = null!;
     private TriggerBlazor Trigger { get; set; } = null!;
     private EditContext _editContext = null!;
     private readonly CustomFieldClassProvider _customFieldClassProvider = new();
@@ -36,6 +40,16 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
     private void HandleApiKeyInsertAt(object args)
     {
       Trigger.ApiKeyInsertAt = args.ToString();
+    }
+
+    [JSInvokable("HandleApiKeySearch")]
+    public async Task HandleApiKeySearch(string elementId, string name)
+    {
+      if (elementId == "ApiKeyString")
+      {
+        var result = await ApiKeyService.SearchApiKeysAsync(name);
+        await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", "ApiKeyString", result);
+      }
     }
 
     protected override async Task HandleValidSubmit()
@@ -119,11 +133,22 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+      await base.OnAfterRenderAsync(firstRender);
+      if (firstRender)
+      {
+        ObjectReference = DotNetObjectReference.Create(this);
+        await JSRuntime.InvokeVoidAsync("InitDotNet", ObjectReference);
+      }
       if (Trigger.ApiKeyRequired)
       {
-        await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", "ApiKeySelect");
+        await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", "ApiKeyString");
       }
-      await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public void Dispose()
+    {
+      GC.SuppressFinalize(this);
+      ObjectReference?.Dispose();
     }
   }
 }
