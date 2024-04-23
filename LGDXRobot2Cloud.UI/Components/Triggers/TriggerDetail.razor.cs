@@ -68,7 +68,6 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
 
     protected override async Task HandleValidSubmit()
     {
-      return;
       if (Id != null)
       {
         // Update
@@ -160,10 +159,9 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
       }
     }
 
-    public async void Dispose()
+    public void Dispose()
     {
       GC.SuppressFinalize(this);
-      await JSRuntime.InvokeVoidAsync("UninitDotNet");
       ObjectReference?.Dispose();
     }
   }
