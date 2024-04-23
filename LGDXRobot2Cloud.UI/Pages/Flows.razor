@@ -11,7 +11,7 @@
     </div>
     <div class="col-auto ms-auto">
       <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-        data-bs-target="#" @onclick="@(e => FlowId = null)">
+        data-bs-target="#flowDetailModal" @onclick="@(e => FlowId = null)">
         Create Flow
       </button>
     </div>
@@ -22,3 +22,5 @@
   <ModalSubmitDone EntityName="Node" @ref="ModalSubmitDone"/>
   <FlowTable OnIdSelected="HandleItemSelect" @ref="FlowTable" />
 </PageBody>
+
+<FlowDetail Id="FlowId" OnSubmitDone="HandleSubmitDoneOpen" />
