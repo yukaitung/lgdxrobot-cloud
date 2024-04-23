@@ -6,6 +6,5 @@ namespace LGDXRobot2Cloud.Shared.Models.Base
   {
     [Required]
     public string Name { get; set; } = null!;
-    public IEnumerable<FlowDetailUpdateDto> FlowDetails { get; set; } = [];
   }
 }

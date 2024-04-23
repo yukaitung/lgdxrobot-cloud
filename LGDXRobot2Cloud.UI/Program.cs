@@ -11,6 +11,7 @@ builder.Services.AddRazorComponents()
 var configureAction = (HttpClient client) => 
     { client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? throw new Exception("The Lgdxobot2CloudApiUrl is missing.")); };
 // Navigation
+builder.Services.AddHttpClient<IFlowService, FlowService>(configureAction);
 builder.Services.AddHttpClient<IProgressService, ProgressService>(configureAction);
 builder.Services.AddHttpClient<ITriggerService, TriggerService>(configureAction);
 builder.Services.AddHttpClient<IWaypointService, WaypointService>(configureAction);
