@@ -39,7 +39,6 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
     private readonly string SelectId = "ApiKeyId";
 
     // Form
-
     private void HandleApiKeyInsertAt(object args)
     {
       Trigger.ApiKeyInsertAt = args.ToString();
@@ -58,11 +57,12 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
     }
 
     [JSInvokable("HandleSelectChange")]
-    public void HandleSelectChange(string elementId, int? id)
+    public void HandleSelectChange(string elementId, int? id, string? name)
     {
       if (elementId == SelectId)
       {
         Trigger.ApiKeyId = id;
+        Trigger.ApiKeyName = name;
       }
     }
 
@@ -160,9 +160,10 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
       }
     }
 
-    public void Dispose()
+    public async void Dispose()
     {
       GC.SuppressFinalize(this);
+      await JSRuntime.InvokeVoidAsync("UninitDotNet");
       ObjectReference?.Dispose();
     }
   }

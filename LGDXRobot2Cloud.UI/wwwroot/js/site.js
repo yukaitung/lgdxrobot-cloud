@@ -13,36 +13,39 @@ function InitDotNet(dotNetObject) {
   DotNetObject = dotNetObject;
 }
 
-function UnInitDotNet() {
-  for (const [key, value] of Object.entries(AdvancedSelectTimer)) {
-    clearTimeout(AdvancedSelectTimer[key]);
-  }
+function UninitDotNet() {
+  AdvancedSelectDict = {};
+  AdvancedSelectBuffer = {};
+  AdvancedSelectOptions = {};
+  AdvancedSelectIsOnHold = {};
+  AdvancedSelectTimer = {};
 }
 
 /*
 Advanced Select methods
 */
-const TSCONTROL = "-ts-control";
-const TOMSELECT = "-tomselect-control";
+const TS_CONTROL = "-ts-control";
+const TOM_SELECT_OBJECT = "-tom-select-object";
 var AdvancedSelectDict = {};
 var AdvancedSelectBuffer = {};
+var AdvancedSelectOptions = {};
 var AdvancedSelectIsOnHold = {};
 var AdvancedSelectTimer = {};
 function InitAdvancedSelect(elementId) {
-  if (document.getElementById(elementId + TSCONTROL)) {
+  if (document.getElementById(elementId + TS_CONTROL)) {
     // Tom select is initialised
     return;
   }
   if (AdvancedSelectDict[elementId] != undefined) {
-    // The blazor has removed the dom
+    // The Blazor removed the DOM
     delete AdvancedSelectDict[elementId];
-    AdvancedSelectDict[elementId + TSCONTROL].removeEventListener("input", AdvanceSelectSearch);
-    delete AdvancedSelectDict[elementId + TSCONTROL];
-    delete AdvancedSelectDict[elementId + TOMSELECT];
+    AdvancedSelectDict[elementId + TS_CONTROL].removeEventListener("input", AdvanceSelectSearch);
+    delete AdvancedSelectDict[elementId + TS_CONTROL];
+    delete AdvancedSelectDict[elementId + TOM_SELECT_OBJECT];
   }
   if (window.TomSelect != undefined) {
     document.getElementById(elementId).style.display = "none"; 
-    AdvancedSelectDict[elementId + TOMSELECT] = new TomSelect(AdvancedSelectDict[elementId] = document.getElementById(elementId), {
+    AdvancedSelectDict[elementId + TOM_SELECT_OBJECT] = new TomSelect(AdvancedSelectDict[elementId] = document.getElementById(elementId), {
       copyClassesToDropdown: false,
       valueField: "id",
       labelField: "name",
@@ -63,8 +66,8 @@ function InitAdvancedSelect(elementId) {
         },
       },
     });
-    AdvancedSelectDict[elementId + TSCONTROL] = document.getElementById(elementId + TSCONTROL);
-    AdvancedSelectDict[elementId + TSCONTROL].addEventListener("input", AdvanceSelectInput);
+    AdvancedSelectDict[elementId + TS_CONTROL] = document.getElementById(elementId + TS_CONTROL);
+    AdvancedSelectDict[elementId + TS_CONTROL].addEventListener("input", AdvanceSelectInput);
   }
 }
 
@@ -72,35 +75,42 @@ var AdvanceSelectEventHandler = function(elementId) {
 	return function() {
     if (arguments[0] != undefined) {
       if (arguments[0].length == 0)
-        DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, null);
-      else
-        DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, parseInt(arguments[0]));
+        DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, null, null);
+      else {
+        const optionId = parseInt(arguments[0]);
+        const optionName = AdvancedSelectOptions[elementId][optionId] != undefined ? AdvancedSelectOptions[elementId][optionId] : "";
+        DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, optionId, optionName);
+      }
     }
 	};
 };
 
 function AdvanceSelectInput(e) {
-  let id = e.target.id.toString();
+  let elementId = e.target.id.toString();
   let search = e.target.value.toString();
-  AdvancedSelectBuffer[id] = search;
-  if (AdvancedSelectIsOnHold[id] == undefined || AdvancedSelectIsOnHold[id] == false) {
-    AdvancedSelectIsOnHold[id] = true;
-    AdvancedSelectTimer[id] = setTimeout(function(){ AdvanceSelectSearch(id); }, 200);
+  AdvancedSelectBuffer[elementId] = search;
+  if (AdvancedSelectIsOnHold[elementId] == undefined || AdvancedSelectIsOnHold[elementId] == false) {
+    AdvancedSelectIsOnHold[elementId] = true;
+    AdvancedSelectTimer[elementId] = setTimeout(function(){ AdvanceSelectSearch(elementId); }, 200);
   }
 }
 
-function AdvanceSelectSearch(id) {
-  var idShort = id.substring(0, (id.length - TSCONTROL.length))
-  DotNetObject.invokeMethodAsync('HandlSelectSearch', idShort, AdvancedSelectBuffer[id]);
-  AdvancedSelectIsOnHold[id] = false;
+function AdvanceSelectSearch(elementId) {
+  var idShort = elementId.substring(0, (elementId.length - TS_CONTROL.length))
+  DotNetObject.invokeMethodAsync('HandlSelectSearch', idShort, AdvancedSelectBuffer[elementId]);
+  AdvancedSelectIsOnHold[elementId] = false;
 }
 
 function AdvanceSelectUpdate(elementId, result) {
   let obj = JSON.parse(result);
-  if (AdvancedSelectDict[elementId + TOMSELECT] != undefined) {
-    AdvancedSelectDict[elementId + TOMSELECT].clearOptions();
+  AdvancedSelectOptions[elementId] = {};
+  if (AdvancedSelectDict[elementId + TOM_SELECT_OBJECT] != undefined) {
+    AdvancedSelectDict[elementId + TOM_SELECT_OBJECT].clearOptions();
     for (let i = 0; i < obj.length; i++) {
-      AdvancedSelectDict[elementId + TOMSELECT].addOption(obj[i]);
+      // Update Tom Select
+      AdvancedSelectDict[elementId + TOM_SELECT_OBJECT].addOption(obj[i]);
+      // Update Buffer for Blazor
+      AdvancedSelectOptions[elementId][obj[i]["id"]] = obj[i]["name"];
     }
   }
 }

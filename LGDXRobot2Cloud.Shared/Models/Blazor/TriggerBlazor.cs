@@ -20,6 +20,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
     public string? ApiKeyFieldName { get; set; }
     public ApiKeyBlazor? ApiKey { get; set; }
     public int? ApiKeyId { get; set; }
+    public string? ApiKeyName { get; set; }
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
