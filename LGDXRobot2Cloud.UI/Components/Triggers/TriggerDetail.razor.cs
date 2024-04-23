@@ -124,10 +124,16 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
         IsError = false;
         if (_id != null)
         {
-          var node = await TriggerService.GetTriggerAsync((int)_id);
-          if (node != null)
+          var trigger = await TriggerService.GetTriggerAsync((int)_id);
+          if (trigger != null)
           {
-            Trigger = node;
+            Trigger = trigger;
+            if (trigger.ApiKey != null)
+            {
+              Trigger.ApiKeyRequired = true;
+              Trigger.ApiKeyId = trigger.ApiKey.Id;
+              Trigger.ApiKeyName = trigger.ApiKey.Name;
+            }
             _editContext = new EditContext(Trigger);
             _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
           }
