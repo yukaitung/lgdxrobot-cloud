@@ -57,25 +57,43 @@
                   <div class="mb-2 row">
                     <label class="col-3 col-form-label col-form-label-sm required" for="Name">Progress Name</label>
                     <div class="col">
-                      <input type="text" class="form-control form-control-sm" />
+                      <InputSelect id="@(ProgressIdElement + i.ToString())" class="form-control form-control-sm" @bind-Value="flowDetail.ProgressId">
+                        @if (flowDetail.ProgressName != null)
+                        {
+                          <option value="@flowDetail.ProgressId">@flowDetail.ProgressName</option>
+                        }
+                      </InputSelect>
                     </div>
                   </div>
                   <div class="mb-2 row">
                     <label class="col-3 col-form-label col-form-label-sm required" for="Name">Proceed Condition</label>
                     <div class="col">
-                      <InputText type="text" class="form-control form-control-sm" @bind-Value="flowDetail.ProceedCondition" />
+                      <select class="form-select form-select-sm" value="@flowDetail.ProceedCondition" @onchange="@((e) => HandleProceedConditionChange(index, e.Value ?? null))">
+                        <option value="robot">Robot</option>
+                        <option value="api">API</option>
+                      </select>
                     </div>
                   </div>
                   <div class="mb-2 row">
                     <label class="col-3 col-form-label col-form-label-sm" for="Name">Begin Trigger</label>
                     <div class="col">
-                      <input type="text" class="form-control form-control-sm" />
+                      <InputSelect id="@(StartTriggerdElement + i.ToString())" class="form-control form-control-sm" @bind-Value="flowDetail.StartTriggerId">
+                        @if (flowDetail.StartTriggerName != null)
+                        {
+                          <option value="@flowDetail.StartTriggerId">@flowDetail.StartTriggerName</option>
+                        }
+                      </InputSelect>
                     </div>
                   </div>
                   <div class="row">
                     <label class="col-3 col-form-label col-form-label-sm" for="Name">Complete Trigger</label>
                     <div class="col">
-                      <input type="text" class="form-control form-control-sm" />
+                      <InputSelect id="@(EndTriggerdElement + i.ToString())" class="form-control form-control-sm" @bind-Value="flowDetail.EndTriggerId">
+                        @if (flowDetail.EndTriggerName != null)
+                        {
+                          <option value="@flowDetail.EndTriggerId">@flowDetail.EndTriggerName</option>
+                        }
+                      </InputSelect>
                     </div>
                   </div>
                 </div>

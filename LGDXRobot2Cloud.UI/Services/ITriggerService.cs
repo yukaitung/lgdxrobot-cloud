@@ -11,5 +11,6 @@ namespace LGDXRobot2Cloud.UI.Services
     Task<TriggerBlazor?> AddTriggerAsync(TriggerCreateDto trigger);
     Task<bool> UpdateTriggerAsync(int triggerId, TriggerUpdateDto trigger);
     Task<bool> DeleteTriggerAsync(int triggerId);
+    Task<string> SearchTriggersAsync(string name);
   }
 }

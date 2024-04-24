@@ -207,10 +207,10 @@ namespace LGDXRobot2Cloud.API.Controllers
     ** Progress
     */
     [HttpGet("progresses")]
-    public async Task<ActionResult<IEnumerable<ProgressDto>>> GetProgresses(string? name, int pageNumber = 1, int pageSize = 10)
+    public async Task<ActionResult<IEnumerable<ProgressDto>>> GetProgresses(string? name, int pageNumber = 1, int pageSize = 10, bool hideReserved = false)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (progresses, paginationMetadata) = await _progressRepository.GetProgressesAsync(name, pageNumber, pageSize);
+      var (progresses, paginationMetadata) = await _progressRepository.GetProgressesAsync(name, pageNumber, pageSize, hideReserved);
       Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
       return Ok(_mapper.Map<IEnumerable<ProgressDto>>(progresses));
     }

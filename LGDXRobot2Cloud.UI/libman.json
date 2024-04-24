@@ -17,7 +17,8 @@
       "library": "tom-select@2.3.1",
       "destination": "wwwroot/lib/tom-select",
       "files": [
-        "dist/js/tom-select.base.min.js"
+        "dist/js/tom-select.base.min.js",
+        "dist/js/tom-select.base.min.js.map"
       ]
     }
   ]

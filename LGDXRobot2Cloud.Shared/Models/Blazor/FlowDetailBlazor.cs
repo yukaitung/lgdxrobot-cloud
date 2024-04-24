@@ -6,9 +6,11 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
 
     public int Order { get; set; }
 
-    public ProgressBlazor Progress { get; set; } = null!;
+    public ProgressBlazor? Progress { get; set; }
 
-    public int ProgressId { get; set; }
+    public int? ProgressId { get; set; }
+
+    public string? ProgressName { get; set; }
 
     public string ProceedCondition { get; set; } = null!;
   
@@ -16,8 +18,13 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
 
     public int? StartTriggerId { get; set; }
 
+    public string? StartTriggerName { get; set; }
+
     public TriggerBlazor? EndTrigger { get; set; }
 
-    public TriggerBlazor? EndTriggerId { get; set; }
+    public int? EndTriggerId { get; set; }
+
+    public string? EndTriggerName { get; set; }
+    
   }
 }

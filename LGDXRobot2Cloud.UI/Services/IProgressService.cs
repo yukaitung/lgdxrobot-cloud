@@ -11,5 +11,6 @@ namespace LGDXRobot2Cloud.UI.Services
     Task<ProgressBlazor?> AddProgressAsync(ProgressCreateDto progress);
     Task<bool> UpdateProgressAsync(int progressId, ProgressUpdateDto progress);
     Task<bool> DeleteProgressAsync(int progressId);
+    Task<string> SearchProgressesAsync(string name);
   }
 }

@@ -65,5 +65,19 @@ namespace LGDXRobot2Cloud.UI.Services
       var response = await _httpClient.DeleteAsync($"navigation/progresses/{progressId}");
       return response.IsSuccessStatusCode;
     }
+
+    public async Task<string> SearchProgressesAsync(string name)
+    {
+      var url = $"navigation/progresses?name={name}&hideReserved=true";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        return await response.Content.ReadAsStringAsync();
+      }
+      else
+      {
+        throw new Exception($"The API service returns status code {response.StatusCode}.");
+      }
+    }
   }
 }

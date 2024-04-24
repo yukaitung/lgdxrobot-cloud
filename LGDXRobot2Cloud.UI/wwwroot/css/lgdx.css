@@ -8,3 +8,9 @@
 .ts-dropdown .active {
   background-color: rgba(var(--tblr-secondary-rgb),.08);
 }
+
+/* Tom select input-sm */
+
+.form-control-sm > .ts-control {
+  padding: .125rem .25rem;
+}
