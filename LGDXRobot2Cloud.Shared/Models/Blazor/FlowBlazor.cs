@@ -9,7 +9,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
     [MaxLength(50)]
     public string Name { get; set; } = null!;
 
-    public ICollection<FlowDetailBlazor> FlowDetails { get; set; } = [];
+    public IList<FlowDetailBlazor> FlowDetails { get; set; } = [];
 
     public DateTime CreatedAt { get; set; }
     

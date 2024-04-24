@@ -32,6 +32,33 @@ namespace LGDXRobot2Cloud.UI.Components.Flows
     private bool IsInvalid { get; set; } = false;
     private bool IsError { get; set; } = false;
 
+    // Form
+    private void FlowAddStep()
+    {
+      Flow.FlowDetails.Add(new FlowDetailBlazor());
+    }
+
+    private void FlowStepMoveUp(int i)
+    {
+      if (i < 1)
+        return;
+      (Flow.FlowDetails[i], Flow.FlowDetails[i - 1]) = (Flow.FlowDetails[i - 1], Flow.FlowDetails[i]);
+    }
+
+    private void FlowStepMoveDown(int i)
+    {
+      if (i > Flow.FlowDetails.Count() - 1)
+        return;
+      (Flow.FlowDetails[i], Flow.FlowDetails[i + 1]) = (Flow.FlowDetails[i + 1], Flow.FlowDetails[i]);
+    }
+
+    private void FlowRemoveStep(int i)
+    {
+      if (Flow.FlowDetails.Count <= 1)
+        return;
+      Flow.FlowDetails.RemoveAt(i);
+    }
+
     protected override async Task HandleValidSubmit()
     {
       if (Id != null)
@@ -100,6 +127,7 @@ namespace LGDXRobot2Cloud.UI.Components.Flows
         else
         {
           Flow = new FlowBlazor();
+          Flow.FlowDetails.Add(new FlowDetailBlazor());
           _editContext = new EditContext(Flow);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }

@@ -11,9 +11,6 @@ function CloseModal(modalId) {
 var DotNetObject = {};
 function InitDotNet(dotNetObject) {
   DotNetObject = dotNetObject;
-}
-
-function UninitDotNet() {
   AdvancedSelectDict = {};
   AdvancedSelectBuffer = {};
   AdvancedSelectOptions = {};

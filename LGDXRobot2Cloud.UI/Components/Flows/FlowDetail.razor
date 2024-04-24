@@ -27,7 +27,7 @@
             <label class="col-3 col-form-label required" for="Name">Name</label>
             <div class="col">
               <InputText id="Name" @bind-Value="Flow.Name" type="text" class="form-control"
-                placeholder="Your node name" />
+                placeholder="Your flow name" />
               <ValidationMessage class="invalid-feedback" For="@(() => Flow.Name)" />
             </div>
           </div>
@@ -38,61 +38,69 @@
             1. The "Moving" progress must be included in the flow.<br />
             2. An external API call is required for using "API" as proceed condition.
           </InformationAlert>
-          <fieldset class="form-fieldset">
-            <div class="d-flex flex-row gap-2">
-              <div class="flex-grow-1">
-                <div class="mb-2 row">
-                  <label class="col-3 col-form-label col-form-label-sm">ID</label>
-                  <div class="col">
-                    <div class="col col-form-label col-form-label-sm">ID</div>
+          @for (int i = 0; i < Flow.FlowDetails.Count(); i++)
+          {
+            var index = i;
+            var flowDetail = Flow.FlowDetails[i];
+            <fieldset class="form-fieldset" @key="flowDetail">
+              <div class="d-flex flex-row gap-2">
+                <div class="flex-grow-1">
+                  @if (flowDetail.Id != null)
+                  {
+                    <div class="mb-2 row">
+                      <label class="col-3 col-form-label col-form-label-sm">ID</label>
+                      <div class="col">
+                        <div class="col col-form-label col-form-label-sm">@flowDetail.Id</div>
+                      </div>
+                    </div>
+                  }
+                  <div class="mb-2 row">
+                    <label class="col-3 col-form-label col-form-label-sm required" for="Name">Progress Name</label>
+                    <div class="col">
+                      <input type="text" class="form-control form-control-sm" />
+                    </div>
+                  </div>
+                  <div class="mb-2 row">
+                    <label class="col-3 col-form-label col-form-label-sm required" for="Name">Proceed Condition</label>
+                    <div class="col">
+                      <InputText type="text" class="form-control form-control-sm" @bind-Value="flowDetail.ProceedCondition" />
+                    </div>
+                  </div>
+                  <div class="mb-2 row">
+                    <label class="col-3 col-form-label col-form-label-sm" for="Name">Begin Trigger</label>
+                    <div class="col">
+                      <input type="text" class="form-control form-control-sm" />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <label class="col-3 col-form-label col-form-label-sm" for="Name">Complete Trigger</label>
+                    <div class="col">
+                      <input type="text" class="form-control form-control-sm" />
+                    </div>
                   </div>
                 </div>
-                <div class="mb-2 row">
-                  <label class="col-3 col-form-label col-form-label-sm required" for="Name">Progress</label>
-                  <div class="col">
-                    <input type="text" class="form-control form-control-sm" />
+                <div class="d-flex flex-column justify-content-between">
+                  <div class="">
+                    <button type="button" class="btn btn-ghost-secondary btn-icon @(i < 1 ? "disabled" : "")" @onclick="e => FlowStepMoveUp(index)">
+                      <ArrowUpIcon />
+                    </button>
                   </div>
-                </div>
-                <div class="mb-2 row">
-                  <label class="col-3 col-form-label col-form-label-sm required" for="Name">Proceed Condition</label>
-                  <div class="col">
-                    <input type="text" class="form-control form-control-sm" />
+                  <div class="">
+                    <button type="button" class="btn btn-ghost-danger btn-icon @(Flow.FlowDetails.Count() <= 1 ? "disabled" : "")" @onclick="e => FlowRemoveStep(index)">
+                      <TrashIcon />
+                    </button>
                   </div>
-                </div>
-                <div class="mb-2 row">
-                  <label class="col-3 col-form-label col-form-label-sm" for="Name">Start Trigger</label>
-                  <div class="col">
-                    <input type="text" class="form-control form-control-sm" />
-                  </div>
-                </div>
-                <div class="row">
-                  <label class="col-3 col-form-label col-form-label-sm" for="Name">End Trigger</label>
-                  <div class="col">
-                    <input type="text" class="form-control form-control-sm" />
+                  <div class="">
+                    <button type="button" class="btn btn-ghost-secondary btn-icon @(i >= Flow.FlowDetails.Count() - 1 ? "disabled" : "")"  @onclick="e => FlowStepMoveDown(index)">
+                      <ArrowDownIcon />
+                    </button>
                   </div>
                 </div>
               </div>
-              <div class="d-flex flex-column justify-content-between">
-                <div class="">
-                  <button type="button" class="btn btn-ghost-secondary btn-icon">
-                    <ArrowUpIcon />
-                  </button>
-                </div>
-                <div class="">
-                  <button type="button" class="btn btn-ghost-danger btn-icon">
-                    <TrashIcon />
-                  </button>
-                </div>
-                <div class="">
-                  <button type="button" class="btn btn-ghost-secondary btn-icon">
-                    <ArrowDownIcon />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </fieldset>
+            </fieldset>
+          }
           <div class="row">
-            <button type="button" class="btn btn-secondary w-8 mx-auto">
+            <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="FlowAddStep">
               Add A Step
             </button>
           </div>
@@ -145,7 +153,7 @@
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-body">
-        <div class="modal-title">Delete FlowFlow</div>
+        <div class="modal-title">Delete Flow</div>
         <ModalSubmitError Display="IsError" Crud="@CrudOperation.Delete" />
         <div>The Node @(Flow.Name != null ? $"\"{Flow.Name}\" (ID: {Flow.Id})" : $"ID: {Flow.Id}") will be deleted.
         </div>
