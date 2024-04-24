@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LGDXRobot2Cloud.Shared.Entities
 {
+  [Table("Robot.RobotSystemInfos")]
   public class RobotSystemInfo
   {
     [Key]

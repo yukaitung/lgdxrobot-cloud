@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Shared.Entities
 {
+  [Table("Robot.NodesCollections")]
   public class NodesCollection
   {
     [Key]

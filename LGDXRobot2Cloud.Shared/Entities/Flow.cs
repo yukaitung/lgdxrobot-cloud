@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Shared.Entities
 {
+  [Table("Navigation.Flows")]
   public class Flow
   {
     [Key]
