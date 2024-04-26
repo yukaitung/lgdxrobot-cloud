@@ -12,7 +12,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
 
     public string? ProgressName { get; set; }
 
-    public string ProceedCondition { get; set; } = null!;
+    public string ProceedCondition { get; set; } = "robot";
   
     public TriggerBlazor? StartTrigger { get; set; }
 

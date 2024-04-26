@@ -42,7 +42,7 @@
           {
             var index = i;
             var flowDetail = Flow.FlowDetails[i];
-            <fieldset class="form-fieldset" @key="flowDetail">
+            <fieldset class="form-fieldset">
               <div class="d-flex flex-row gap-2">
                 <div class="flex-grow-1">
                   @if (flowDetail.Id != null)
@@ -57,7 +57,7 @@
                   <div class="mb-2 row">
                     <label class="col-3 col-form-label col-form-label-sm required" for="Name">Progress Name</label>
                     <div class="col">
-                      <InputSelect id="@(ProgressIdElement + i.ToString())" class="form-control form-control-sm" @bind-Value="flowDetail.ProgressId">
+                      <InputSelect id="@(AdvanceSelectElements[0] + i.ToString())" class="form-control form-control-sm" @bind-Value="flowDetail.ProgressId">
                         @if (flowDetail.ProgressName != null)
                         {
                           <option value="@flowDetail.ProgressId">@flowDetail.ProgressName</option>
@@ -77,7 +77,7 @@
                   <div class="mb-2 row">
                     <label class="col-3 col-form-label col-form-label-sm" for="Name">Begin Trigger</label>
                     <div class="col">
-                      <InputSelect id="@(StartTriggerdElement + i.ToString())" class="form-control form-control-sm" @bind-Value="flowDetail.StartTriggerId">
+                      <InputSelect id="@(AdvanceSelectElements[1] + i.ToString())" class="form-control form-control-sm" @bind-Value="flowDetail.StartTriggerId">
                         @if (flowDetail.StartTriggerName != null)
                         {
                           <option value="@flowDetail.StartTriggerId">@flowDetail.StartTriggerName</option>
@@ -88,7 +88,7 @@
                   <div class="row">
                     <label class="col-3 col-form-label col-form-label-sm" for="Name">Complete Trigger</label>
                     <div class="col">
-                      <InputSelect id="@(EndTriggerdElement + i.ToString())" class="form-control form-control-sm" @bind-Value="flowDetail.EndTriggerId">
+                      <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control form-control-sm" @bind-Value="flowDetail.EndTriggerId">
                         @if (flowDetail.EndTriggerName != null)
                         {
                           <option value="@flowDetail.EndTriggerId">@flowDetail.EndTriggerName</option>

@@ -56,6 +56,7 @@ namespace LGDXRobot2Cloud.UI.Services
     public async Task<bool> UpdateFlowAsync(int flowId, FlowUpdateDto flow)
     {
       var flowJson = new StringContent(JsonSerializer.Serialize(flow), Encoding.UTF8, "application/json");
+      Console.WriteLine(flowJson.ReadAsStringAsync().Result);
       var response = await _httpClient.PutAsync($"navigation/flows/{flowId}", flowJson);
       return response.IsSuccessStatusCode;
     }

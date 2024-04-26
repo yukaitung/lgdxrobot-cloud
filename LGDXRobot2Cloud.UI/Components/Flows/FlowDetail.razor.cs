@@ -40,10 +40,9 @@ namespace LGDXRobot2Cloud.UI.Components.Flows
     private bool IsError { get; set; } = false;
 
     // Form helping variables
-    private readonly string ProgressIdElement = "ProgressId-";
-    private readonly string StartTriggerdElement = "StartTriggerdId-";
-    private readonly string EndTriggerdElement = "EndTriggerdId-";
-    private bool UpdateTomSelect { get; set; } = false;
+    private readonly string[] AdvanceSelectElements = ["ProgressId-", "StartTriggerdId-", "EndTriggerdId-"];
+    private bool UpdateAdvanceSelect { get; set; } = false;
+    private bool UpdateAdvanceSelectList { get; set; } = false;
 
     // Form
     [JSInvokable("HandlSelectSearch")]
@@ -56,17 +55,17 @@ namespace LGDXRobot2Cloud.UI.Components.Flows
         return;
       string element = elementId[..(index + 1)];
       //int id = int.Parse(elementId[(index + 1)..]);
-      if (element == ProgressIdElement)
+      if (element == AdvanceSelectElements[0])
       {
         var result = await ProgressService.SearchProgressesAsync(name);
         await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
       }
-      else if (element == StartTriggerdElement)
+      else if (element == AdvanceSelectElements[1])
       {
         var result = await TriggerService.SearchTriggersAsync(name);
         await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
       }
-      else if (element == EndTriggerdElement)
+      else if (element == AdvanceSelectElements[2])
       {
         var result = await TriggerService.SearchTriggersAsync(name);
         await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
@@ -83,23 +82,22 @@ namespace LGDXRobot2Cloud.UI.Components.Flows
         return;
       string element = elementId[..(index + 1)];
       int order = int.Parse(elementId[(index + 1)..]);
-      if (element == ProgressIdElement && id != null)
+      if (element == AdvanceSelectElements[0] && id != null)
       {
         Flow.FlowDetails[order].ProgressId = id;
         Flow.FlowDetails[order].ProgressName = name;
       }
-      else if (element == StartTriggerdElement)
+      else if (element == AdvanceSelectElements[1])
       {
         Flow.FlowDetails[order].StartTriggerId = id;
         Flow.FlowDetails[order].StartTriggerName = name;
       }
-      else if (element == EndTriggerdElement)
+      else if (element == AdvanceSelectElements[2])
       {
         Flow.FlowDetails[order].EndTriggerId = id;
         Flow.FlowDetails[order].EndTriggerName = name;
       }
     }
-
 
     private void HandleProceedConditionChange(int i, object? args)
     {
@@ -110,32 +108,41 @@ namespace LGDXRobot2Cloud.UI.Components.Flows
     private void FlowAddStep()
     {
       Flow.FlowDetails.Add(new FlowDetailBlazor());
-      UpdateTomSelect = true;
+      UpdateAdvanceSelect = true;
     }
 
-    private void FlowStepMoveUp(int i)
+    private async Task FlowStepMoveUp(int i)
     {
       if (i < 1)
         return;
       (Flow.FlowDetails[i], Flow.FlowDetails[i - 1]) = (Flow.FlowDetails[i - 1], Flow.FlowDetails[i]);
+      await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i - 1, i);
     }
 
-    private void FlowStepMoveDown(int i)
+    private async Task FlowStepMoveDown(int i)
     {
-      if (i > Flow.FlowDetails.Count() - 1)
+      if (i > Flow.FlowDetails.Count - 1)
         return;
       (Flow.FlowDetails[i], Flow.FlowDetails[i + 1]) = (Flow.FlowDetails[i + 1], Flow.FlowDetails[i]);
+      await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i, i + 1);
     }
 
-    private void FlowRemoveStep(int i)
+    private async Task FlowRemoveStep(int i)
     {
       if (Flow.FlowDetails.Count <= 1)
         return;
+      if (i < Flow.FlowDetails.Count - 1)
+        await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i, i + 1, true);
       Flow.FlowDetails.RemoveAt(i);
     }
 
     protected override async Task HandleValidSubmit()
     {
+      // Setup Order
+      for (int i = 0; i < Flow.FlowDetails.Count; i++)
+      {
+        Flow.FlowDetails[i].Order = i;
+      }
       if (Id != null)
       {
         // Update
@@ -196,17 +203,27 @@ namespace LGDXRobot2Cloud.UI.Components.Flows
           if (flow != null)
           {
             Flow = flow;
+            for (int i = 0; i < Flow.FlowDetails.Count; i++)
+            {
+              Flow.FlowDetails[i].ProgressName = flow.FlowDetails[i].Progress?.Name;
+              Flow.FlowDetails[i].ProgressId = flow.FlowDetails[i].Progress?.Id;
+              Flow.FlowDetails[i].StartTriggerId = flow.FlowDetails[i].StartTrigger?.Id;
+              Flow.FlowDetails[i].StartTriggerName = flow.FlowDetails[i].StartTrigger?.Name;
+              Flow.FlowDetails[i].EndTriggerId = flow.FlowDetails[i].EndTrigger?.Id;
+              Flow.FlowDetails[i].EndTriggerName = flow.FlowDetails[i].EndTrigger?.Name;
+            }
             _editContext = new EditContext(Flow);
             _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+            UpdateAdvanceSelectList = true;
           }
         }
         else
         {
           Flow = new FlowBlazor();
           Flow.FlowDetails.Add(new FlowDetailBlazor());
-          UpdateTomSelect = true;
           _editContext = new EditContext(Flow);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+          UpdateAdvanceSelect = true;
         }
       }
       await base.SetParametersAsync(ParameterView.Empty);
@@ -220,13 +237,17 @@ namespace LGDXRobot2Cloud.UI.Components.Flows
         ObjectReference = DotNetObjectReference.Create(this);
         await JSRuntime.InvokeVoidAsync("InitDotNet", ObjectReference);
       }
-      if (UpdateTomSelect)
+      if (UpdateAdvanceSelect)
       {
         var index = (Flow.FlowDetails.Count - 1).ToString();
-        await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", ProgressIdElement + index);
-        await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", StartTriggerdElement + index);
-        await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", EndTriggerdElement + index);
-        UpdateTomSelect = false;
+        await JSRuntime.InvokeVoidAsync("InitAdvancedSelectList", AdvanceSelectElements, index, 1);
+        UpdateAdvanceSelect = false;
+      }
+      else if (UpdateAdvanceSelectList)
+      {
+        var index = Flow.FlowDetails.Count.ToString();
+        await JSRuntime.InvokeVoidAsync("InitAdvancedSelectList", AdvanceSelectElements, 0, index);
+        UpdateAdvanceSelectList = false;
       }
     }
 

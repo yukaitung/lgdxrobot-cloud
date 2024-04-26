@@ -8,6 +8,11 @@ namespace LGDXRobot2Cloud.UI.Profiles
   {
     public NavigationProfile()
     {
+      // Flow
+      CreateMap<Blazor.FlowBlazor, Models.FlowCreateDto>();
+      CreateMap<Blazor.FlowDetailBlazor, Models.FlowDetailCreateDto>();
+      CreateMap<Blazor.FlowBlazor, Models.FlowUpdateDto>();
+      CreateMap<Blazor.FlowDetailBlazor, Models.FlowDetailUpdateDto>();
       // Progress
       CreateMap<Blazor.ProgressBlazor, Models.ProgressCreateDto>();
       CreateMap<Blazor.ProgressBlazor, Models.ProgressUpdateDto>();

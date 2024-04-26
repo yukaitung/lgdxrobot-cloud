@@ -41,7 +41,6 @@
         <tr>
           <th class="w-1">ID</th>
           <th>Name</th>
-          <th>Steps</th>
           <th class="w-1">Create Time</th>
           <th class="w-1">Last Update Time</th>
           <th class="w-1"><!-- Action --></th>
@@ -56,7 +55,6 @@
             <tr>
               <td>@flow.Id</td>
               <td>@flow.Name</td>
-              <td>@flow.FlowDetails.Count()</td>
               <td>@flow.CreatedAt</td>
               <td>@flow.UpdatedAt</td>
               <td class="text-end">
@@ -68,7 +66,7 @@
         }
         else
         {
-          <TableLoading Columns="6" />
+          <TableLoading Columns="5" />
         }
       </tbody>
     </table>

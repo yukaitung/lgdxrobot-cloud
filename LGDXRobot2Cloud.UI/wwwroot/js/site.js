@@ -68,6 +68,18 @@ function InitAdvancedSelect(elementId) {
   }
 }
 
+function InitAdvancedSelectList(elementList, start, len) {
+  start = parseInt(start);
+  len = parseInt(len)
+  if (!Array.isArray(elementList))
+    return;
+  for (let i = 0; i < elementList.length; i++) {
+    for (let j = 0; j < len; j++) {
+      InitAdvancedSelect(elementList[i] + (start + j).toString());
+    }
+  }
+}
+
 var AdvanceSelectEventHandler = function(elementId) {
 	return function() {
     if (arguments[0] != undefined) {
@@ -75,8 +87,11 @@ var AdvanceSelectEventHandler = function(elementId) {
         DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, null, null);
       else {
         const optionId = parseInt(arguments[0]);
-        const optionName = AdvancedSelectOptions[elementId][optionId] != undefined ? AdvancedSelectOptions[elementId][optionId] : "";
-        DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, optionId, optionName);
+        if (AdvancedSelectOptions[elementId] != undefined && AdvancedSelectOptions[elementId][optionId] != undefined) {
+          console.log("bbb")
+          const optionName = AdvancedSelectOptions[elementId][optionId];
+          DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, optionId, optionName);
+        }
       }
     }
 	};
@@ -108,6 +123,25 @@ function AdvanceSelectUpdate(elementId, result) {
       AdvancedSelectDict[elementId + TOM_SELECT_OBJECT].addOption(obj[i]);
       // Update Buffer for Blazor
       AdvancedSelectOptions[elementId][obj[i]["id"]] = obj[i]["name"];
+    }
+  }
+}
+
+function AdvanceControlExchange(elementList, indexA, indexB, isDelete = false) {
+  if (!Array.isArray(elementList))
+    return;
+  for (let i = 0; i < elementList.length; i++) {
+    let idA = AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].getValue();
+    let idB = AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].getValue();
+    let objA = {id: idA, name: idA ? AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].options[idA].name: ""};
+    let objB = {id: idB, name: idB ? AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].options[idB].name: ""};
+      AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].clearOptions();
+      AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].addOption(objB);
+      AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].setValue(objB.id);
+    if (isDelete != true) {
+      AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].clearOptions();
+      AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].addOption(objA);
+      AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].setValue(objA.id);
     }
   }
 }
