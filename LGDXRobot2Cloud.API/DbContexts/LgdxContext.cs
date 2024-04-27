@@ -67,8 +67,8 @@ namespace LGDXRobot2Cloud.API.DbContexts
       modelBuilder.Entity<Progress>().HasData(
         new Progress
         {
-          Id = (int)ProgressState.Saved,
-          Name = "Saved",
+          Id = (int)ProgressState.Template,
+          Name = "Template",
           System = true,
           Reserved = true
         },

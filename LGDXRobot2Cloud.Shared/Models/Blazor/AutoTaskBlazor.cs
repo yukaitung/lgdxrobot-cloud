@@ -14,6 +14,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Base
     public int? FlowId { get; set; }
     public string? FlowName { get; set; }
     public ProgressBlazor CurrentProgress { get; set; } = null!;
+    public bool IsTemplate { get; set; } = false;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
   }

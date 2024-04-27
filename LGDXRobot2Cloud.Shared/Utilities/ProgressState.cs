@@ -2,7 +2,7 @@ namespace LGDXRobot2Cloud.Shared.Utilities
 {
   public enum ProgressState
   {
-    Saved = 1,
+    Template = 1,
     Waiting = 2,
     Starting = 3,
     Loading = 4,

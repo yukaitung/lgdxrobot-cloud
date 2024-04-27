@@ -304,8 +304,9 @@ namespace LGDXRobot2Cloud.API.Controllers
         return BadRequest($"The Flow ID {taskEntity.FlowId} is invalid.");
       taskEntity.Flow = flow;
       // Add Progress to Entity
-      var currentProgress = taskDto.Saved ? 
-        await _progressRepository.GetProgressAsync((int)ProgressState.Saved) : await _progressRepository.GetProgressAsync((int)ProgressState.Waiting);
+      var currentProgress = taskDto.IsTemplate 
+        ? await _progressRepository.GetProgressAsync((int)ProgressState.Template) 
+        : await _progressRepository.GetProgressAsync((int)ProgressState.Waiting);
       if (currentProgress == null)
         return BadRequest();
       taskEntity.CurrentProgress = currentProgress;
@@ -322,7 +323,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       var taskEntity = await _autoTaskRepository.GetAutoTaskAsync(id);
       if (taskEntity == null)
         return NotFound();
-      if (taskEntity.CurrentProgressId != (int)ProgressState.Waiting && taskEntity.CurrentProgressId != (int)ProgressState.Saved)
+      if (taskEntity.CurrentProgressId != (int)ProgressState.Waiting && taskEntity.CurrentProgressId != (int)ProgressState.Template)
         return BadRequest($"Cannot change the task not in Waiting / Saved status.");
       // Ensure the input task does not include Detail ID from other task
       HashSet<int> detailIds = [];
@@ -367,7 +368,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       var task = await _autoTaskRepository.GetAutoTaskAsync(id);
       if (task == null)
         return NotFound();
-      if (task.CurrentProgressId != (int)ProgressState.Waiting && task.CurrentProgressId != (int)ProgressState.Saved)
+      if (task.CurrentProgressId != (int)ProgressState.Waiting && task.CurrentProgressId != (int)ProgressState.Template)
         return BadRequest("Cannot delete the task not in Waiting status.");
       _autoTaskRepository.DeleteAutoTask(task);
       await _autoTaskRepository.SaveChangesAsync();
