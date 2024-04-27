@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LGDXRobot2Cloud.Shared.Entities
 {
-  [Table("Navigation.AutoTaskWaypointDetails")]
-  public class AutoTaskWaypointDetail
+  [Table("Navigation.AutoTaskDetails")]
+  public class AutoTaskDetail
   {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

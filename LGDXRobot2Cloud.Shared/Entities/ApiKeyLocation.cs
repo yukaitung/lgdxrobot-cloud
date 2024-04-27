@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LGDXRobot2Cloud.Shared.Entities
 {
-  [Table("Navigation.ApiKeyLocations")]
+  [Table("Constant.ApiKeyLocations")]
   public class ApiKeyLocation
   {
     [Key]

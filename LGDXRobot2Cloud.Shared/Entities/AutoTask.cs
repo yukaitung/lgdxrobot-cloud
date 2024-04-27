@@ -14,7 +14,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
     [MaxLength(50)]
     public string? Name { get; set; }
     
-    public ICollection<AutoTaskWaypointDetail> Waypoints { get; set; } = [];
+    public ICollection<AutoTaskDetail> Waypoints { get; set; } = [];
 
     public int Priority { get; set; }
 

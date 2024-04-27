@@ -1,6 +1,6 @@
 namespace LGDXRobot2Cloud.Shared.Models
 {
-  public class AutoTaskWaypointDetailDto
+  public class AutoTaskDetailDto
   {
     public int Id { get; set; }
     public int Order { get; set; }

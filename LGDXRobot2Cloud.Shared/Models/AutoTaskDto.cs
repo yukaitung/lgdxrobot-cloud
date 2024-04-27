@@ -4,7 +4,7 @@ namespace LGDXRobot2Cloud.Shared.Models
   {
     public int Id { get; set; }
     public string? Name { get; set; }
-    public IEnumerable<AutoTaskWaypointDetailDto> Waypoints { get; set; } = [];
+    public IEnumerable<AutoTaskDetailDto> Waypoints { get; set; } = [];
     public int Priority { get; set; }
     public RobotListDto? AssignedRobot { get; set; }
     public FlowListDto Flow { get; set; } = null!;

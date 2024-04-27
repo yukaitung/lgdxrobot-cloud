@@ -4,6 +4,6 @@ namespace LGDXRobot2Cloud.Shared.Models
 {
   public class AutoTaskUpdateDto : AutoTaskBaseDto
   {
-    public IEnumerable<AutoTaskWaypointDetailUpdateDto> Waypoints { get; set; } = [];
+    public IEnumerable<AutoTaskDetailUpdateDto> Waypoints { get; set; } = [];
   }
 }
