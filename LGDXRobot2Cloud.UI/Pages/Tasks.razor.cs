@@ -23,7 +23,10 @@ namespace LGDXRobot2Cloud.UI.Pages
     {
       TaskId = null;
       ModalSubmitDone!.Open(data.Item1, data.Item2,data.Item3);
-      await WaitingTaskTable!.Refresh(data.Item3 == CrudOperation.Delete);
+      if (CurrentTab == 0)
+        await WaitingTaskTable!.Refresh(data.Item3 == CrudOperation.Delete);
+      else if (CurrentTab == 3)
+        await SavedTaskTable!.Refresh(data.Item3 == CrudOperation.Delete);
     }
 
     private void HandleItemSelect(int id)
