@@ -8,9 +8,11 @@ namespace LGDXRobot2Cloud.Shared.Models.Base
     public int Id { get; set; }
     public string? Name { get; set; }
     public IList<AutoTaskDetailBlazor> TaskDetails { get; set; } = [];
-    public int Priority { get; set; }
+    public int? Priority { get; set; }
     //public RobotListDto? AssignedRobot { get; set; }
     public FlowBlazor Flow { get; set; } = null!;
+    public int? FlowId { get; set; }
+    public string? FlowName { get; set; }
     public ProgressBlazor CurrentProgress { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

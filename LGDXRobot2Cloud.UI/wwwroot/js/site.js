@@ -75,7 +75,10 @@ function InitAdvancedSelectList(elementList, start, len) {
     return;
   for (let i = 0; i < elementList.length; i++) {
     for (let j = 0; j < len; j++) {
-      InitAdvancedSelect(elementList[i] + (start + j).toString());
+      let elementId = elementList[i] + (start + j).toString();
+      if (document.getElementById(elementId) == null)
+        break;
+      InitAdvancedSelect(elementId);
     }
   }
 }
@@ -88,7 +91,6 @@ var AdvanceSelectEventHandler = function(elementId) {
       else {
         const optionId = parseInt(arguments[0]);
         if (AdvancedSelectOptions[elementId] != undefined && AdvancedSelectOptions[elementId][optionId] != undefined) {
-          console.log("bbb")
           const optionName = AdvancedSelectOptions[elementId][optionId];
           DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, optionId, optionName);
         }

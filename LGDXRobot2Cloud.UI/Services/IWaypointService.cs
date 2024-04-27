@@ -11,5 +11,6 @@ namespace LGDXRobot2Cloud.UI.Services
     Task<WaypointBlazor?> AddWaypointAsync(WaypointCreateDto waypoint);
     Task<bool> UpdateWaypointAsync(int waypointId, WaypointUpdateDto waypoint);
     Task<bool> DeleteWaypointAsync(int waypointId);
+    Task<string> SearchWaypointsAsync(string name);
   }
 }

@@ -11,5 +11,6 @@ namespace LGDXRobot2Cloud.UI.Services
     Task<FlowBlazor?> AddFlowAsync(FlowCreateDto flow);
     Task<bool> UpdateFlowAsync(int flowId, FlowUpdateDto flow);
     Task<bool> DeleteFlowAsync(int flowId);
+    Task<string> SearchFlowsAsync(string name);
   }
 }
