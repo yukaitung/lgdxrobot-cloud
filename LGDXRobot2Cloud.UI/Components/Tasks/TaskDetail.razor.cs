@@ -31,6 +31,9 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     public int? Id { get; set; }
 
     [Parameter]
+    public int? CloneId { get; set; }
+
+    [Parameter]
     public EventCallback<(int, string?, CrudOperation)> OnSubmitDone { get; set; }
 
     private DotNetObjectReference<TaskDetail> ObjectReference = null!;
@@ -185,13 +188,32 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     public override async Task SetParametersAsync(ParameterView parameters)
     {
       parameters.SetParameterProperties(this);
-      if (parameters.TryGetValue<int?>(nameof(Id), out var _id))
+      
+      if (parameters.TryGetValue<int?>(nameof(Id), out var _id) && parameters.TryGetValue<int?>(nameof(CloneId), out var _cloneId) )
       {
         IsInvalid = false;
         IsError = false;
         if (_id != null)
         {
           var task = await AutoTaskService.GetAutoTaskAsync((int)_id);
+          if (task != null)
+          {
+            Task = task;
+            Task.FlowId = Task.Flow.Id;
+            Task.FlowName = Task.Flow.Name;
+            for (int i = 0; i < Task.Details.Count; i++)
+            {
+              Task.Details[i].WaypointName = Task.Details[i].Waypoint?.Name;
+              Task.Details[i].WaypointId = Task.Details[i].Waypoint?.Id;
+            }
+            _editContext = new EditContext(Task);
+            _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+            UpdateAdvanceSelectList = true;
+          }
+        }
+        else if (_cloneId != null)
+        {
+          var task = await AutoTaskService.GetAutoTaskAsync((int)_cloneId);
           if (task != null)
           {
             Task = task;
@@ -216,6 +238,7 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
           UpdateAdvanceSelect = true;
         }
       }
+
       await base.SetParametersAsync(ParameterView.Empty);
     }
 

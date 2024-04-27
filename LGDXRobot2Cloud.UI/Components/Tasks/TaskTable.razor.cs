@@ -15,6 +15,9 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     [Parameter]
     public EventCallback<int> OnIdSelected { get; set; }
 
+     [Parameter]
+    public EventCallback<int> OnCloneSelected { get; set; }
+
     [Parameter]
     public string Title { get; set; } = null!;
 
@@ -70,6 +73,11 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     protected override async Task HandleItemSelect(int id)
     {
       await OnIdSelected.InvokeAsync(id);
+    }
+
+    protected async Task HandleCloneSelect(int id)
+    {
+      await OnCloneSelected.InvokeAsync(id);
     }
 
     protected override async Task HandlePageChange(int pageNum)

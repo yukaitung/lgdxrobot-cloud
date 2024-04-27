@@ -12,7 +12,7 @@
     </div>
     <div class="col-auto ms-auto">
       <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-        data-bs-target="#taskDetailModal" @onclick="@(e => TaskId = null)">
+        data-bs-target="#taskDetailModal" @onclick="HandleCreateTask">
         Create Task
       </button>
     </div>
@@ -43,25 +43,25 @@
   {
     <div class="row row-cards">
       <div class="col-12">
-        <TaskTable Title="Running Tasks" OnIdSelected="HandleItemSelect" ShowRunningTasks="true" />
+        <TaskTable Title="Running Tasks" OnIdSelected="HandleItemSelect" OnCloneSelected="HandleCloneSelect" ShowRunningTasks="true" />
       </div>
       <div class="col-12">
-        <TaskTable Title="Waiting Queue" OnIdSelected="HandleItemSelect" ShowProgressId="ProgressState.Waiting" @ref="WaitingTaskTable" />
+        <TaskTable Title="Waiting Queue" OnIdSelected="HandleItemSelect" OnCloneSelected="HandleCloneSelect" ShowProgressId="ProgressState.Waiting" @ref="WaitingTaskTable" />
       </div>
     </div>
   }
   else if (CurrentTab == 1)
   {
-    <TaskTable Title="Completed Tasks" OnIdSelected="HandleItemSelect" ShowProgressId="ProgressState.Completed" />
+    <TaskTable Title="Completed Tasks" OnIdSelected="HandleItemSelect" OnCloneSelected="HandleCloneSelect" ShowProgressId="ProgressState.Completed" />
   }
   else if (CurrentTab == 2)
   {
-    <TaskTable Title="Aborted Tasks" OnIdSelected="HandleItemSelect" ShowProgressId="ProgressState.Aborted" />
+    <TaskTable Title="Aborted Tasks" OnIdSelected="HandleItemSelect" OnCloneSelected="HandleCloneSelect" ShowProgressId="ProgressState.Aborted" />
   }
   else if (CurrentTab == 3)
   {
-    <TaskTable Title="Task Templates" OnIdSelected="HandleItemSelect" ShowProgressId="ProgressState.Template" @ref="SavedTaskTable" />
+    <TaskTable Title="Task Templates" OnIdSelected="HandleItemSelect" OnCloneSelected="HandleCloneSelect" ShowProgressId="ProgressState.Template" @ref="SavedTaskTable" />
   }
 </PageBody>
 
-<TaskDetail Id="TaskId" OnSubmitDone="HandleSubmitDoneOpen" />
+<TaskDetail Id="TaskId" CloneId="TaskCloneId" OnSubmitDone="HandleSubmitDoneOpen" />

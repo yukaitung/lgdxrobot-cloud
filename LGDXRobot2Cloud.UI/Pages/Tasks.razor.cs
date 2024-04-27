@@ -7,6 +7,7 @@ namespace LGDXRobot2Cloud.UI.Pages
   public partial class Tasks
   {
     private int? TaskId { get; set; } = null;
+    private int? TaskCloneId { get; set; } = null;
     private TaskTable? WaitingTaskTable { get; set; }
     private TaskTable? SavedTaskTable { get; set; }
     private ModalSubmitDone? ModalSubmitDone { get; set; }
@@ -32,6 +33,19 @@ namespace LGDXRobot2Cloud.UI.Pages
     private void HandleItemSelect(int id)
     {
       TaskId = id;
+      TaskCloneId = null;
+    }
+
+    private void HandleCloneSelect(int id)
+    {
+      TaskCloneId = id;
+      TaskId = null;
+    }
+
+    private void HandleCreateTask()
+    {
+      TaskId = null;
+      TaskCloneId = null;
     }
   }
 }
