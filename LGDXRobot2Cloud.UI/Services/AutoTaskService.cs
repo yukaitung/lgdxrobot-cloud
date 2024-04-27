@@ -7,7 +7,7 @@ using LGDXRobot2Cloud.Shared.Utilities;
 
 namespace LGDXRobot2Cloud.UI.Services
 {
-  public class AutoTaskService
+  public class AutoTaskService : IAutoTaskService
   {
     public readonly HttpClient _httpClient;
     public readonly JsonSerializerOptions _jsonSerializerOptions;

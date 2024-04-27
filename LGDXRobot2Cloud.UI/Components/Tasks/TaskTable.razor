@@ -1,0 +1,92 @@
+@inherits AbstractTable
+
+<div class="card">
+  <!-- Header -->
+  <div class="card-header">
+    <h3 class="card-title">@Title</h3>
+  </div>
+  <!-- Filter -->
+  <div class="card-body border-bottom py-3">
+    <div class="d-flex">
+      <div class="text-secondary">
+        <div class="row g-2">
+          <div class="col">
+            Show
+          </div>
+          <div class="col-auto">
+            <TablePageSizeSelect OnChange="HandlePageSizeChange" />
+          </div>
+          <div class="col-auto">
+            entries
+          </div>
+        </div>
+      </div>
+      <div class="ms-auto text-secondary">
+        Search:
+      </div>
+      <div class="text-secondary">
+        <div class="input-group">
+          <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
+          <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
+          <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data -->
+  <div class="table-responsive">
+    <table class="table card-table table-vcenter text-nowrap datatable">
+      <thead>
+        <tr>
+          <th class="w-1">ID</th>
+          <th>Name</th>
+          <th>Priority</th>
+          <th>Assigned Robot</th>
+          <th>Current Progress</th>
+          <th>Flow</th>
+          <th>Create Time</th>
+          <th>Last Update Time</th>
+          <th class="w-1"><!-- Action --></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (TasksList != null)
+        {
+          @foreach (var task in TasksList)
+          {
+            var taskId = task.Id;
+            <tr>
+              <td>@task.Id</td>
+              <td>@(task.Name != null ? task.Name : "-")</td>
+              <td>@task.Priority</td>
+              <td>-</td>
+              <td>@task.CurrentProgress.Name</td>
+              <td>@task.Flow.Name</td>
+              <td>@task.CreatedAt</td>
+              <td>@task.UpdatedAt</td>
+              <td class="text-end">
+                <button class="page-link link-primary" data-bs-toggle="modal" data-bs-target="#taskDetailModal"
+                  @onclick="@(e => HandleItemSelect(taskId))">Edit</button>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <TableLoading Columns="9" />
+        }
+      </tbody>
+    </table>
+    @if (TasksList != null && TasksList.Count() == 0)
+    {
+      <TableEmpty />
+    }
+  </div>
+  <!-- Footer -->
+  @if (PaginationMetadata != null && TasksList != null && TasksList.Count() > 0)
+  {
+    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="TasksList.Count()"
+      OnPageChange="HandlePageChange" />
+  }
+</div>

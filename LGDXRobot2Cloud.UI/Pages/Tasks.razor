@@ -1,4 +1,6 @@
 @page "/navigation/tasks"
+@using LGDXRobot2Cloud.UI.Components.Tasks
+@using LGDXRobot2Cloud.Shared.Utilities
 @rendermode InteractiveServer
 
 <PageHeader Title="Tasks">
@@ -19,5 +21,45 @@
 
 
 <PageBody>
+  <ul class="nav nav-bordered mb-4">
+    @for (int i = 0; i < Tabs.Count; i++)
+    {
+      var index = i;
+      <li class="nav-item">
+        @if (@CurrentTab == i) 
+        {
+          <button class="nav-link active">@Tabs[i]</button>
+        }
+        else 
+        {
+          <button class="nav-link" @onclick="@(e => HandleTabChange(index))">@Tabs[i]</button>
+        }
+      </li>
+    }
+  </ul>
+
   <ModalSubmitDone EntityName="Task" @ref="ModalSubmitDone" />
+  @if (CurrentTab == 0)
+  {
+    <div class="row row-cards">
+      <div class="col-12">
+        <TaskTable Title="Running Tasks" OnIdSelected="HandleItemSelect" ShowRunningTasks="true" />
+      </div>
+      <div class="col-12">
+        <TaskTable Title="Waiting Queue" OnIdSelected="HandleItemSelect" ShowProgressId="ProgressState.Waiting" @ref="WaitingTaskTable" />
+      </div>
+    </div>
+  }
+  else if (CurrentTab == 1)
+  {
+    <TaskTable Title="Completed Tasks" OnIdSelected="HandleItemSelect" ShowProgressId="ProgressState.Completed" />
+  }
+  else if (CurrentTab == 2)
+  {
+    <TaskTable Title="Aborted Tasks" OnIdSelected="HandleItemSelect" ShowProgressId="ProgressState.Aborted" />
+  }
+  else if (CurrentTab == 3)
+  {
+    <TaskTable Title="Saved Tasks" OnIdSelected="HandleItemSelect" ShowProgressId="ProgressState.Saved" @ref="SavedTaskTable" />
+  }
 </PageBody>
