@@ -103,7 +103,7 @@
             var taskDetail = Task.Details[i];
             <fieldset class="form-fieldset">
               <div class="d-flex flex-row gap-2">
-                <div class="flex-grow-1">
+                <div class="flex-grow-1 d-flex flex-column justify-content-center">
                   @if (taskDetail.Id != null)
                   {
                     <div class="mb-2 row">
@@ -135,21 +135,21 @@
                 </div>
                 @if (IsEditable())
                 {
-                  <div class="d-flex flex-row justify-content-between">
-                    <div class="">
+                  <div class="d-flex flex-row justify-content-center">
+                    <div class="my-auto">
                       <button type="button" class="btn btn-ghost-secondary btn-icon @(i < 1 ? "disabled" : "")"
                         @onclick="e => TaskStepMoveUp(index)">
                         <ArrowUpIcon />
                       </button>
                     </div>
-                    <div class="">
+                    <div class="my-auto">
                       <button type="button"
                         class="btn btn-ghost-danger btn-icon @(Task.Details.Count <= 1 ? "disabled" : "")"
                         @onclick="e => TaskRemoveStep(index)">
                         <TrashIcon />
                       </button>
                     </div>
-                    <div class="">
+                    <div class="my-auto">
                       <button type="button"
                         class="btn btn-ghost-secondary btn-icon @(i >= Task.Details.Count - 1 ? "disabled" : "")"
                         @onclick="e => TaskStepMoveDown(index)">
