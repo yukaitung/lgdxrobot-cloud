@@ -6,35 +6,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-  public class AutoTaskRepository : IAutoTaskRepository
+  public class AutoTaskRepository(LgdxContext context) : IAutoTaskRepository
   {
-    private readonly LgdxContext _context;
+    private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public AutoTaskRepository(LgdxContext context)
-    {
-      _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
-
-    public async Task<(IEnumerable<AutoTask>, PaginationMetadata)> GetAutoTasksAsync(string? name, bool showSaved, bool showWaiting, bool showProcessing, bool showCompleted, bool showAborted, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<AutoTask>, PaginationMetadata)> GetAutoTasksAsync(string? name, int? showProgressId, bool? showRunningTasks, int pageNumber, int pageSize)
     {
       var query = _context.AutoTasks as IQueryable<AutoTask>;
       if (!string.IsNullOrWhiteSpace(name))
       {
         name = name.Trim();
-        query = query.Where(t => t.Name != null ? t.Name.Contains(name) : false);
+        query = query.Where(t => t.Name != null && t.Name.Contains(name));
       }
+       if (showProgressId != null) {
+        query = query.Where(t => t.CurrentProgressId == showProgressId);
+      }
+      if (showRunningTasks == true)
+        query = query.Where(t => (t.CurrentProgressId >= (int)ProgressState.Starting && t.CurrentProgressId <= (int)ProgressState.Completing) || t.CurrentProgressId > (int)ProgressState.Aborted);
+      /*
       var predicate = PredicateBuilder.False<AutoTask>();
-      if (showSaved)
-        predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Saved);
-      if (showWaiting)
-        predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Waiting);
-      if (showProcessing)
+      if (showProgressId != null) {
+        predicate = predicate.Or(t => t.CurrentProgressId == showProgressId);
+      }
+      if (showRunningTasks == true)
         predicate = predicate.Or(t => (t.CurrentProgressId >= (int)ProgressState.Starting && t.CurrentProgressId <= (int)ProgressState.Completing) || t.CurrentProgressId > (int)ProgressState.Aborted);
-      if (showCompleted)
-        predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Completed);
-      if (showAborted)
-        predicate = predicate.Or(t => t.CurrentProgressId == (int)ProgressState.Aborted);
       query = query.Where(predicate);
+      */
       var itemCount = await query.CountAsync();
       var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
       var autoTasks = await query.OrderByDescending(t => t.Priority)

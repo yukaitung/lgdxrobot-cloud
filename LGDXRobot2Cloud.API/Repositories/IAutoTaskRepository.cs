@@ -5,7 +5,7 @@ namespace LGDXRobot2Cloud.API.Repositories
 {
   public interface IAutoTaskRepository
   {
-    Task<(IEnumerable<AutoTask>, PaginationMetadata)> GetAutoTasksAsync(string? name, bool showSaved, bool showWaiting, bool showProcessing, bool showCompleted, bool showAborted, int pageNumber, int pageSize);
+    Task<(IEnumerable<AutoTask>, PaginationMetadata)> GetAutoTasksAsync(string? name, int? showProgressId, bool? showRunningTasks, int pageNumber, int pageSize);
     Task<AutoTask?> GetAutoTaskAsync(int autoTaskId);
     Task AddAutoTaskAsync(AutoTask autoTask);
     void DeleteAutoTask(AutoTask autoTask);

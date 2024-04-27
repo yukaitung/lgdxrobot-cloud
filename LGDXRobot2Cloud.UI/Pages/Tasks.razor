@@ -1,9 +1,23 @@
 @page "/navigation/tasks"
+@rendermode InteractiveServer
 
-<PageHeader>
-  Tasks
+<PageHeader Title="Tasks">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Tasks
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+        data-bs-target="#taskDetailModal" @onclick="@(e => TaskId = null)">
+        Create Task
+      </button>
+    </div>
+  </div>
 </PageHeader>
 
-<PageBody>
 
+<PageBody>
+  <ModalSubmitDone EntityName="Task" @ref="ModalSubmitDone" />
 </PageBody>

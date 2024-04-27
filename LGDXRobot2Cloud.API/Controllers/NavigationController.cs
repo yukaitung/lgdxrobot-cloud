@@ -265,11 +265,10 @@ namespace LGDXRobot2Cloud.API.Controllers
     ** Task
     */
     [HttpGet("tasks")]
-    public async Task<ActionResult<IEnumerable<AutoTaskListDto>>> GetTasks(string? name, bool showSaved, bool showWaiting = true, bool showProcessing = true, 
-      bool showCompleted = true, bool showAborted = true, int pageNumber = 1, int pageSize = 10)
+    public async Task<ActionResult<IEnumerable<AutoTaskListDto>>> GetTasks(string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (tasks, paginationMetadata) = await _autoTaskRepository.GetAutoTasksAsync(name, showSaved, showWaiting, showProcessing, showCompleted, showAborted, pageNumber, pageSize);
+      var (tasks, paginationMetadata) = await _autoTaskRepository.GetAutoTasksAsync(name, showProgressId, showRunningTasks, pageNumber, pageSize);
       Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
       return Ok(_mapper.Map<IEnumerable<AutoTaskListDto>>(tasks));
     }
