@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using LGDXRobot2Cloud.Shared.Models.Blazor;
 
-namespace LGDXRobot2Cloud.Shared.Models.Base
+namespace LGDXRobot2Cloud.Shared.Models.Blazor
 {
   public class AutoTaskDetailBlazor
   {
@@ -14,7 +13,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Base
 
     public string? WaypointName{ get; set; }
 
-    [Required]
+    // Will be added before submit
     public int Order { get; set; }
   }
 }

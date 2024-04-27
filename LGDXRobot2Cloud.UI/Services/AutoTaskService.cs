@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Shared.Models;
-using LGDXRobot2Cloud.Shared.Models.Base;
+using LGDXRobot2Cloud.Shared.Models.Blazor;
 using LGDXRobot2Cloud.Shared.Services;
 using LGDXRobot2Cloud.Shared.Utilities;
 

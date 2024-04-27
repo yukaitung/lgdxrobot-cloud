@@ -1,7 +1,7 @@
 using AutoMapper;
 using LGDXRobot2Cloud.Shared.Models;
-using LGDXRobot2Cloud.Shared.Models.Base;
 using LGDXRobot2Cloud.Shared.Models.Blazor;
+using LGDXRobot2Cloud.Shared.Utilities;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -31,7 +31,7 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     public int? Id { get; set; }
 
     [Parameter]
-    public EventCallback<(int, string, CrudOperation)> OnSubmitDone { get; set; }
+    public EventCallback<(int, string?, CrudOperation)> OnSubmitDone { get; set; }
 
     private DotNetObjectReference<TaskDetail> ObjectReference = null!;
     private AutoTaskBlazor Task { get; set; } = null!;
@@ -42,10 +42,18 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
 
     // Form helping variables
     private readonly string[] AdvanceSelectElements = ["FlowId-", "WaypointsId-"];
+    private readonly string[] AdvanceSelectElementsDetail = ["WaypointsId-"];
     private bool UpdateAdvanceSelect { get; set; } = false;
     private bool UpdateAdvanceSelectList { get; set; } = false;
 
     // Form
+    private bool IsEditable()
+    {
+      return Id == null 
+        || Task.CurrentProgress.Id == (int)ProgressState.Waiting 
+        || Task.CurrentProgress.Id == (int)ProgressState.Template;
+    }
+
     [JSInvokable("HandlSelectSearch")]
     public async Task HandlSelectSearch(string elementId, string name)
     {
@@ -84,14 +92,14 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
       }
       else if (element == AdvanceSelectElements[1])
       {
-        Task.TaskDetails[order].WaypointId = id;
-        Task.TaskDetails[order].WaypointName = name;
+        Task.Details[order].WaypointId = id;
+        Task.Details[order].WaypointName = name;
       }
     }
 
     private void TaskAddStep()
     {
-      Task.TaskDetails.Add(new AutoTaskDetailBlazor());
+      Task.Details.Add(new AutoTaskDetailBlazor());
       UpdateAdvanceSelect = true;
     }
 
@@ -99,33 +107,33 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     {
       if (i < 1)
         return;
-      (Task.TaskDetails[i], Task.TaskDetails[i - 1]) = (Task.TaskDetails[i - 1], Task.TaskDetails[i]);
-      await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i - 1, i);
+      (Task.Details[i], Task.Details[i - 1]) = (Task.Details[i - 1], Task.Details[i]);
+      await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i - 1, i);
     }
 
     private async Task TaskStepMoveDown(int i)
     {
-      if (i > Task.TaskDetails.Count - 1)
+      if (i > Task.Details.Count - 1)
         return;
-      (Task.TaskDetails[i], Task.TaskDetails[i + 1]) = (Task.TaskDetails[i + 1], Task.TaskDetails[i]);
-      await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i, i + 1);
+      (Task.Details[i], Task.Details[i + 1]) = (Task.Details[i + 1], Task.Details[i]);
+      await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i, i + 1);
     }
 
     private async Task TaskRemoveStep(int i)
     {
-      if (Task.TaskDetails.Count <= 1)
+      if (Task.Details.Count <= 1)
         return;
-      if (i < Task.TaskDetails.Count - 1)
-        await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i, i + 1, true);
-      Task.TaskDetails.RemoveAt(i);
+      if (i < Task.Details.Count - 1)
+        await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i, i + 1, true);
+      Task.Details.RemoveAt(i);
     }
 
     protected override async Task HandleValidSubmit()
     {
       // Setup Order
-      for (int i = 0; i < Task.TaskDetails.Count; i++)
+      for (int i = 0; i < Task.Details.Count; i++)
       {
-        Task.TaskDetails[i].Order = i;
+        Task.Details[i].Order = i;
       }
       if (Id != null)
       {
@@ -133,8 +141,8 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
         bool success = await AutoTaskService.UpdateAutoTaskAsync((int)Id, Mapper.Map<AutoTaskUpdateDto>(Task));
         if (success)
         {
-          await JSRuntime.InvokeVoidAsync("CloseModal", "flowDetailModal");
-          await OnSubmitDone.InvokeAsync(((int)Id, Task.Name ?? "", CrudOperation.Update));
+          await JSRuntime.InvokeVoidAsync("CloseModal", "taskDetailModal");
+          await OnSubmitDone.InvokeAsync(((int)Id, Task.Name, CrudOperation.Update));
         }
         else
           IsError = true;
@@ -145,8 +153,8 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
         var success = await AutoTaskService.AddAutoTaskAsync(Mapper.Map<AutoTaskCreateDto>(Task));
         if (success != null)
         {
-          await JSRuntime.InvokeVoidAsync("CloseModal", "flowDetailModal");
-          await OnSubmitDone.InvokeAsync((success.Id, success.Name ?? "", CrudOperation.Create));
+          await JSRuntime.InvokeVoidAsync("CloseModal", "taskDetailModal");
+          await OnSubmitDone.InvokeAsync((success.Id, success.Name, CrudOperation.Create));
         }
         else
           IsError = true;
@@ -166,8 +174,8 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
         if (success)
         {
           // DO NOT REVERSE THE ORDER
-          await JSRuntime.InvokeVoidAsync("CloseModal", "flowDeleteModal");
-          await OnSubmitDone.InvokeAsync(((int)Id, Task.Name ?? "", CrudOperation.Delete));
+          await JSRuntime.InvokeVoidAsync("CloseModal", "taskDeleteModal");
+          await OnSubmitDone.InvokeAsync(((int)Id, Task.Name, CrudOperation.Delete));
         }
         else
           IsError = true;
@@ -187,10 +195,12 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
           if (task != null)
           {
             Task = task;
-            for (int i = 0; i < Task.TaskDetails.Count; i++)
+            Task.FlowId = Task.Flow.Id;
+            Task.FlowName = Task.Flow.Name;
+            for (int i = 0; i < Task.Details.Count; i++)
             {
-              Task.TaskDetails[i].WaypointName = Task.TaskDetails[i].Waypoint?.Name;
-              Task.TaskDetails[i].WaypointId = Task.TaskDetails[i].Waypoint?.Id;
+              Task.Details[i].WaypointName = Task.Details[i].Waypoint?.Name;
+              Task.Details[i].WaypointId = Task.Details[i].Waypoint?.Id;
             }
             _editContext = new EditContext(Task);
             _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
@@ -200,7 +210,7 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
         else
         {
           Task = new AutoTaskBlazor();
-          Task.TaskDetails.Add(new AutoTaskDetailBlazor());
+          Task.Details.Add(new AutoTaskDetailBlazor());
           _editContext = new EditContext(Task);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
           UpdateAdvanceSelect = true;
@@ -219,13 +229,13 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
       }
       if (UpdateAdvanceSelect)
       {
-        var index = (Task.TaskDetails.Count - 1).ToString();
+        var index = (Task.Details.Count - 1).ToString();
         await JSRuntime.InvokeVoidAsync("InitAdvancedSelectList", AdvanceSelectElements, index, 1);
         UpdateAdvanceSelect = false;
       }
       else if (UpdateAdvanceSelectList)
       {
-        var index = Task.TaskDetails.Count.ToString();
+        var index = Task.Details.Count.ToString();
         await JSRuntime.InvokeVoidAsync("InitAdvancedSelectList", AdvanceSelectElements, 0, index);
         UpdateAdvanceSelectList = false;
       }

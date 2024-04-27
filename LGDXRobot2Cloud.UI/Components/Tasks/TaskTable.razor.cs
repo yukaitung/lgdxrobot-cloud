@@ -30,6 +30,12 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     private int PageSize { get; set; } = 10;
     private string DataSearch { get; set; } = string.Empty;
     private string LastDataSearch { get; set; } = string.Empty;
+
+    private bool IsEditable()
+    {
+      return ShowProgressId == ProgressState.Waiting 
+        || ShowProgressId == ProgressState.Template;
+    }
     
     protected override async Task HandlePageSizeChange(int number)
     {

@@ -1,16 +1,19 @@
 using System.ComponentModel.DataAnnotations;
-using LGDXRobot2Cloud.Shared.Models.Blazor;
 
-namespace LGDXRobot2Cloud.Shared.Models.Base
+namespace LGDXRobot2Cloud.Shared.Models.Blazor
 {
   public class AutoTaskBlazor
   {
     public int Id { get; set; }
+
+    [MaxLength(50)]
     public string? Name { get; set; }
-    public IList<AutoTaskDetailBlazor> TaskDetails { get; set; } = [];
+    public IList<AutoTaskDetailBlazor> Details { get; set; } = [];
     public int? Priority { get; set; }
     //public RobotListDto? AssignedRobot { get; set; }
     public FlowBlazor Flow { get; set; } = null!;
+    
+    [Required]
     public int? FlowId { get; set; }
     public string? FlowName { get; set; }
     public ProgressBlazor CurrentProgress { get; set; } = null!;

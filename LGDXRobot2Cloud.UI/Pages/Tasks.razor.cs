@@ -11,7 +11,7 @@ namespace LGDXRobot2Cloud.UI.Pages
     private TaskTable? SavedTaskTable { get; set; }
     private ModalSubmitDone? ModalSubmitDone { get; set; }
     private int CurrentTab { get; set; } = 0;
-    private readonly List<string> Tabs = ["Ongoing Tasks", "Completed Tasks", "Aborted Tasks", "Saved Tasks"];
+    private readonly List<string> Tabs = ["Ongoing Tasks", "Completed Tasks", "Aborted Tasks", "Task Templates"];
 
     private void HandleTabChange(int index)
     {
@@ -19,7 +19,7 @@ namespace LGDXRobot2Cloud.UI.Pages
       CurrentTab = index;
     }
     
-    private async Task HandleSubmitDoneOpen((int, string, CrudOperation) data)
+    private async Task HandleSubmitDoneOpen((int, string?, CrudOperation) data)
     {
       TaskId = null;
       ModalSubmitDone!.Open(data.Item1, data.Item2,data.Item3);

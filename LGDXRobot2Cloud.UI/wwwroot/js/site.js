@@ -133,6 +133,8 @@ function AdvanceControlExchange(elementList, indexA, indexB, isDelete = false) {
   if (!Array.isArray(elementList))
     return;
   for (let i = 0; i < elementList.length; i++) {
+    if (AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT] == undefined || AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT] == undefined)
+        continue;
     let idA = AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].getValue();
     let idB = AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].getValue();
     let objA = {id: idA, name: idA ? AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].options[idA].name: ""};

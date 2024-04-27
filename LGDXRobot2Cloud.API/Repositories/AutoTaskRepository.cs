@@ -35,7 +35,7 @@ namespace LGDXRobot2Cloud.API.Repositories
       var itemCount = await query.CountAsync();
       var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
       var autoTasks = await query.OrderByDescending(t => t.Priority)
-        .OrderBy(t => t.Id)
+        .ThenBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .Include(t => t.Flow)
@@ -47,7 +47,8 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<AutoTask?> GetAutoTaskAsync(int autoTaskId)
     {
       return await _context.AutoTasks.Where(t => t.Id == autoTaskId)
-        .Include(t => t.Details)
+        .Include(t => t.Details
+          .OrderBy(td => td.Order))
         .ThenInclude(td => td.Waypoint)
         .Include(t => t.Flow)
         .Include(t => t.CurrentProgress)

@@ -45,8 +45,8 @@
           <th>Assigned Robot</th>
           <th>Current Progress</th>
           <th>Flow</th>
-          <th>Create Time</th>
-          <th>Last Update Time</th>
+          <th class="w-1">Create Time</th>
+          <th class="w-1">Last Update Time</th>
           <th class="w-1"><!-- Action --></th>
         </tr>
       </thead>
@@ -58,7 +58,7 @@
             var taskId = task.Id;
             <tr>
               <td>@task.Id</td>
-              <td>@(task.Name != null ? task.Name : "-")</td>
+              <td>@(string.IsNullOrWhiteSpace(task.Name) ? "-" : task.Name)</td>
               <td>@task.Priority</td>
               <td>-</td>
               <td>@task.CurrentProgress.Name</td>
@@ -67,7 +67,7 @@
               <td>@task.UpdatedAt</td>
               <td class="text-end">
                 <button class="page-link link-primary" data-bs-toggle="modal" data-bs-target="#taskDetailModal"
-                  @onclick="@(e => HandleItemSelect(taskId))">Edit</button>
+                  @onclick="@(e => HandleItemSelect(taskId))">@(IsEditable() ? "Edit" : "View")</button>
               </td>
             </tr>
           }
