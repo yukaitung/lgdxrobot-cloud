@@ -33,9 +33,9 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Entities.AutoTask, Models.AutoTaskDto>();
       CreateMap<Models.AutoTaskCreateDto, Entities.AutoTask>();
       CreateMap<Models.AutoTaskUpdateDto, Entities.AutoTask>();
-      CreateMap<Entities.AutoTaskWaypointDetail, Models.AutoTaskWaypointDetailDto>();
-      CreateMap<Models.AutoTaskWaypointDetailCreateDto, Entities.AutoTaskWaypointDetail>();
-      CreateMap<Models.AutoTaskWaypointDetailUpdateDto, Entities.AutoTaskWaypointDetail>();
+      CreateMap<Entities.AutoTaskDetail, Models.AutoTaskDetailDto>();
+      CreateMap<Models.AutoTaskDetailCreateDto, Entities.AutoTaskDetail>();
+      CreateMap<Models.AutoTaskDetailUpdateDto, Entities.AutoTaskDetail>();
       // Trigger
       CreateMap<Entities.Trigger, Models.TriggerListDto>();
       CreateMap<Entities.Trigger, Models.TriggerDto>()

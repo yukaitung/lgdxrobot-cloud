@@ -42,7 +42,7 @@ namespace LGDXRobot2Cloud.API.DbContexts
     {
       // One AutoTask has many AutoTaskDetails
       modelBuilder.Entity<AutoTask>()
-        .HasMany(e => e.Waypoints)
+        .HasMany(e => e.Details)
         .WithOne(e => e.AutoTask)
         .HasForeignKey(e => e.AutoTaskId)
         .IsRequired();

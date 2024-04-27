@@ -287,16 +287,16 @@ namespace LGDXRobot2Cloud.API.Controllers
     {
       var taskEntity = _mapper.Map<AutoTask>(taskDto);
       // Validating the Waypoint ID
-      HashSet<int> waypointIds = new HashSet<int>();
-      foreach(var waypoint in taskDto.Waypoints)
+      HashSet<int> waypointIds = [];
+      foreach(var waypoint in taskDto.Details)
         waypointIds.Add(waypoint.WaypointId);
       var waypointDict = await _waypointRepository.GetWaypointsDictFromListAsync(waypointIds);
-      for(int i = 0; i < taskEntity.Waypoints.Count; i++)
+      for(int i = 0; i < taskEntity.Details.Count; i++)
       {
-        if (waypointDict.ContainsKey(taskDto.Waypoints.ElementAt(i).WaypointId))
-          taskEntity.Waypoints.ElementAt(i).Waypoint = waypointDict[taskDto.Waypoints.ElementAt(i).WaypointId];
+        if (waypointDict.ContainsKey(taskDto.Details.ElementAt(i).WaypointId))
+          taskEntity.Details.ElementAt(i).Waypoint = waypointDict[taskDto.Details.ElementAt(i).WaypointId];
         else
-          return BadRequest($"The Waypoint ID {taskDto.Waypoints.ElementAt(i).WaypointId} is invalid.");
+          return BadRequest($"The Waypoint ID {taskDto.Details.ElementAt(i).WaypointId} is invalid.");
       }
       // Add Flow to Entity
       var flow = await _flowRepository.GetFlowAsync(taskEntity.FlowId);
@@ -325,25 +325,25 @@ namespace LGDXRobot2Cloud.API.Controllers
       if (taskEntity.CurrentProgressId != (int)ProgressState.Waiting && taskEntity.CurrentProgressId != (int)ProgressState.Saved)
         return BadRequest($"Cannot change the task not in Waiting / Saved status.");
       // Ensure the input task does not include Detail ID from other task
-      HashSet<int> detailIds = new HashSet<int>();
-      foreach(var waypoint in taskEntity.Waypoints)
+      HashSet<int> detailIds = [];
+      foreach(var waypoint in taskEntity.Details)
         detailIds.Add(waypoint.Id);
-      foreach(var detailDto in taskDto.Waypoints)
+      foreach(var detailDto in taskDto.Details)
       {
         if(detailDto.Id != null && !detailIds.Contains((int)detailDto.Id))
-          return BadRequest($"The Task Waypoint Detail ID {(int)detailDto.Id} is belongs to other Flow.");
+          return BadRequest($"The Task Detail ID {(int)detailDto.Id} is belongs to other Task.");
       }
       // Validating the Waypoint ID, Add Waypoint to Entity
       HashSet<int> waypointIds = new HashSet<int>();
-      foreach(var waypoint in taskDto.Waypoints)
+      foreach(var waypoint in taskDto.Details)
         waypointIds.Add(waypoint.WaypointId);
       var waypointDict = await _waypointRepository.GetWaypointsDictFromListAsync(waypointIds);
-      for(int i = 0; i < taskDto.Waypoints.Count(); i++)
+      for(int i = 0; i < taskDto.Details.Count(); i++)
       {
-        if (waypointDict.ContainsKey(taskDto.Waypoints.ElementAt(i).WaypointId))
-          taskEntity.Waypoints.ElementAt(i).Waypoint = waypointDict[taskDto.Waypoints.ElementAt(i).WaypointId];
+        if (waypointDict.ContainsKey(taskDto.Details.ElementAt(i).WaypointId))
+          taskEntity.Details.ElementAt(i).Waypoint = waypointDict[taskDto.Details.ElementAt(i).WaypointId];
         else
-          return BadRequest($"The Waypoint ID {taskDto.Waypoints.ElementAt(i).WaypointId} is invalid.");
+          return BadRequest($"The Waypoint ID {taskDto.Details.ElementAt(i).WaypointId} is invalid.");
       }
       _mapper.Map(taskDto, taskEntity);
       // Add Flow to Entity
