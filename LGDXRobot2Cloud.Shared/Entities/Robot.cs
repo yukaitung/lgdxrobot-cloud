@@ -14,7 +14,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
     [MaxLength(50)]
     public required string Name { get; set; }
 
-    [MaxLength(50)]
+    [MaxLength(100)]
     public required string Address { get; set; }
 
     [ForeignKey("DefaultNodesCollectionId")]

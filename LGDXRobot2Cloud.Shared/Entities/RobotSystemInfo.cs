@@ -13,16 +13,16 @@ namespace LGDXRobot2Cloud.Shared.Entities
     [MaxLength(100)]
     public string Cpu { get; set; } = null!;
 
-    [MaxLength(100)]
-    public string Os { get; set; } = null!;
-
-    public bool Is32Bit { get; set; }
-
     public bool IsLittleEndian { get; set; }
+
+    public int RamMiB { get; set; }
 
     [MaxLength(100)]
     public string? Gpu { get; set; }
 
-    public int RamMiB { get; set; }
+    [MaxLength(100)]
+    public string Os { get; set; } = null!;
+
+    public bool Is32Bit { get; set; }
   }
 }

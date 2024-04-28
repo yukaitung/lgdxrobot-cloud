@@ -5,9 +5,9 @@ namespace LGDXRobot2Cloud.Shared.Models
   public class RobotCreateDto
   {
     [Required]
-    public required string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     [Required]
-    public required string Address { get; set; }
+    public string Address { get; set; } = null!;
   }
 }
