@@ -33,7 +33,14 @@ namespace LGDXRobot2Cloud.API.Repositories
 
     public async Task<Robot?> GetRobotAsync(int robotId)
     {
-      return await _context.Robots.Where(r => r.Id == robotId).FirstOrDefaultAsync();
+      return await _context.Robots.Where(r => r.Id == robotId)
+        .Include(r => r.DefaultNodesCollection)
+        .Include(r => r.RobotSystemInfo)
+        .Include(r => r.AssignedTasks)
+          .ThenInclude(t => t.Flow)
+        .Include(r => r.AssignedTasks)
+          .ThenInclude(t => t.CurrentProgress)
+        .FirstOrDefaultAsync();
     }
 
     public async Task AddRobotAsync(Robot robot)

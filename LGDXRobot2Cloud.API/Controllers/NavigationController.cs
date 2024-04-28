@@ -10,44 +10,31 @@ namespace LGDXRobot2Cloud.API.Controllers
 {
   [ApiController]
   [Route("[controller]")]
-  public class NavigationController : ControllerBase
+  public class NavigationController(IApiKeyLocationRepository apiKeyLocationRepository,
+    IApiKeyRepository apiKeyRepository,
+    IFlowRepository flowRepository,
+    IProgressRepository progressRepository,
+    IAutoTaskRepository autoTaskRepository,
+    ISystemComponentRepository systemComponentRepository,
+    ITriggerRepository triggerRepository,
+    IWaypointRepository waypointRepository,
+    IMapper mapper) : ControllerBase
   {
-    private readonly IApiKeyLocationRepository _apiKeyLocationRepository;
-    private readonly IApiKeyRepository _apiKeyRepository;
-    private readonly IFlowRepository _flowRepository;
-    private readonly IProgressRepository _progressRepository;
-    private readonly IAutoTaskRepository _autoTaskRepository;
-    private readonly ISystemComponentRepository _systemComponentRepository;
-    private readonly ITriggerRepository _triggerRepository;
-    private readonly IWaypointRepository _waypointRepository;
-    private readonly IMapper _mapper;
+    private readonly IApiKeyLocationRepository _apiKeyLocationRepository = apiKeyLocationRepository ?? throw new ArgumentNullException(nameof(apiKeyLocationRepository));
+    private readonly IApiKeyRepository _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
+    private readonly IFlowRepository _flowRepository = flowRepository ?? throw new ArgumentNullException(nameof(flowRepository));
+    private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
+    private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
+    private readonly ISystemComponentRepository _systemComponentRepository = systemComponentRepository ?? throw new ArgumentNullException(nameof(systemComponentRepository));
+    private readonly ITriggerRepository _triggerRepository = triggerRepository ?? throw new ArgumentNullException(nameof(triggerRepository));
+    private readonly IWaypointRepository _waypointRepository = waypointRepository ?? throw new ArgumentNullException(nameof(waypointRepository));
+    private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     private readonly int maxPageSize = 100;
 
-    public NavigationController(IApiKeyLocationRepository apiKeyLocationRepository,
-      IApiKeyRepository apiKeyRepository,
-      IFlowRepository flowRepository,
-      IProgressRepository progressRepository,
-      IAutoTaskRepository autoTaskRepository,
-      ISystemComponentRepository systemComponentRepository,
-      ITriggerRepository triggerRepository,
-      IWaypointRepository waypointRepository,
-      IMapper mapper)
-    {
-      _apiKeyLocationRepository = apiKeyLocationRepository ?? throw new ArgumentNullException(nameof(apiKeyLocationRepository));
-      _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
-      _flowRepository = flowRepository ?? throw new ArgumentNullException(nameof(flowRepository));
-      _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
-      _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
-      _systemComponentRepository = systemComponentRepository ?? throw new ArgumentNullException(nameof(systemComponentRepository));
-      _triggerRepository = triggerRepository ?? throw new ArgumentNullException(nameof(triggerRepository));
-      _waypointRepository = waypointRepository ?? throw new ArgumentNullException(nameof(waypointRepository));
-      _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-    }
-
-    /*
-    ** Flow
-    */
-    [HttpGet("flows")]
+        /*
+        ** Flow
+        */
+        [HttpGet("flows")]
     public async Task<ActionResult<IEnumerable<FlowListDto>>> GetFlows(string? name, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;

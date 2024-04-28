@@ -9,24 +9,16 @@ namespace LGDXRobot2Cloud.API.Controllers
 {
   [ApiController]
   [Route("[controller]")]
-  public class RobotController : ControllerBase
+  public class RobotController(INodeRepository nodeRepository,
+    INodesCollectionRepository nodesCollectionRepository,
+    IRobotRepository robotRepository,
+    IMapper mapper) : ControllerBase
   {
-    private readonly INodeRepository _nodeRepository;
-    private readonly INodesCollectionRepository _nodesCollectionRepository;
-    private readonly IRobotRepository _robotRepository;
-    private readonly IMapper _mapper;
+    private readonly INodeRepository _nodeRepository = nodeRepository ?? throw new ArgumentException(nameof(nodeRepository));
+    private readonly INodesCollectionRepository _nodesCollectionRepository = nodesCollectionRepository ?? throw new ArgumentException(nameof(nodesCollectionRepository));
+    private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
+    private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     private readonly int maxPageSize = 100;
-
-    public RobotController(INodeRepository nodeRepository,
-      INodesCollectionRepository nodesCollectionRepository,
-      IRobotRepository robotRepository,
-      IMapper mapper)
-    {
-      _nodeRepository = nodeRepository ?? throw new ArgumentException(nameof(nodeRepository));
-      _nodesCollectionRepository = nodesCollectionRepository ?? throw new ArgumentException(nameof(nodesCollectionRepository));
-      _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
-      _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-    }
 
     /*
     ** Robot
@@ -41,12 +33,12 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpGet("{id}", Name = "GetRobot")]
-    public async Task<ActionResult<RobotListDto>> GetRobot(int id)
+    public async Task<ActionResult<RobotDto>> GetRobot(int id)
     {
       var robot = await _robotRepository.GetRobotAsync(id);
       if (robot == null)
         return NotFound();
-      return Ok(_mapper.Map<RobotListDto>(robot));
+      return Ok(_mapper.Map<RobotDto>(robot));
     }
 
     [HttpPost("")]
@@ -55,7 +47,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       var robotEntity = _mapper.Map<Robot>(robotDto);
       await _robotRepository.AddRobotAsync(robotEntity);
       await _robotRepository.SaveChangesAsync();
-      var returnRobot = _mapper.Map<RobotListDto>(robotEntity);
+      var returnRobot = _mapper.Map<RobotDto>(robotEntity);
       return CreatedAtAction(nameof(GetRobot), new { id = returnRobot.Id }, returnRobot);
     }
 

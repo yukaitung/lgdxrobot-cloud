@@ -10,20 +10,14 @@ namespace LGDXRobot2Cloud.API.Controllers
 {
   [ApiController]
   [Route("[controller]")]
-  public class SettingController : ControllerBase
+  public class SettingController(IApiKeyRepository apiKeyRepository,
+    IMapper mapper) : ControllerBase
   {
-    private readonly IApiKeyRepository _apiKeyRepository;
-    private readonly IMapper _mapper;
+    private readonly IApiKeyRepository _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
+    private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     private readonly int maxPageSize = 100;
 
-    public SettingController(IApiKeyRepository apiKeyRepository,
-      IMapper mapper)
-    {
-      _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
-      _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-    }
-
-    private static string GenerateApiKeys()
+        private static string GenerateApiKeys()
     {
       // https://www.camiloterevinto.com/post/simple-and-secure-api-keys-using-asp-net-core
       var bytes = RandomNumberGenerator.GetBytes(32);
