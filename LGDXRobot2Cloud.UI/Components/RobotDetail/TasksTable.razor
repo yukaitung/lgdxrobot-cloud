@@ -1,0 +1,53 @@
+<div class="card">
+  <!-- Header -->
+  <div class="card-header">
+    <h3 class="card-title">Assigned Tasks</h3>
+  </div>
+
+  <!-- Data -->
+  <div class="table-responsive">
+    <table class="table card-table table-vcenter text-nowrap datatable">
+      <thead>
+        <tr>
+          <th class="w-1">ID</th>
+          <th>Name</th>
+          <th>Priority</th>
+          <th>Current Progress</th>
+          <th>Flow</th>
+          <th class="w-1">Create Time</th>
+          <th class="w-1">Last Update Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (TasksList != null)
+        {
+          @foreach (var task in TasksList)
+          {
+            <tr>
+              <td>@task.Id</td>
+              <td>@task.Name</td>
+              <td>@task.Priority</td>
+              <td>@task.CurrentProgress.Name</td>
+              <td>@task.Flow.Name</td>
+              <td>@task.CreatedAt</td>
+              <td>@task.UpdatedAt</td>
+            </tr>
+          }
+        }
+        else
+        {
+          <TableLoading Columns="7" />
+        }
+      </tbody>
+    </table>
+    @if (TasksList != null && TasksList.Count() == 0)
+    {
+      <div class="empty">
+        <p class="empty-title">No results found</p>
+        <p class="empty-subtitle text-secondary">
+          The robot currently does not has assigned task.
+        </p>
+      </div>
+    }
+  </div>
+</div>

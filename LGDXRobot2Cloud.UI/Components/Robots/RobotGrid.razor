@@ -18,13 +18,15 @@
   <div class="row row-deck row-cards">
     @foreach (var robot in RobotsList)
     {
+      var id = robot.Id;
       <div class="col-sm-6 col-lg-3">
         <div class="card">
           <div class="card-body">
-            <div class="h1 mb-3">@robot.Name</div>
+            <div class="h1 mb-2">@robot.Name</div>
             <div>
               <div>Address: @robot.Address</div>
               <div>Status: @(robot.IsOnline ? "Online" : "Offline")</div>
+              <a href="@($"/robots/network/{id}")" class="btn btn-primary mt-2">Manage</a>
             </div>
           </div>
         </div>

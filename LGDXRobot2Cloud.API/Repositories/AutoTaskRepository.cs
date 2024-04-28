@@ -39,6 +39,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .Include(t => t.Flow)
+        .Include(t => t.AssignedRobot)
         .Include(t => t.CurrentProgress)
         .ToListAsync();
       return (autoTasks, paginationMetadata);

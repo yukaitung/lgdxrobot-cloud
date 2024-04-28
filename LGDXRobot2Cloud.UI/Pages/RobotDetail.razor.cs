@@ -1,0 +1,27 @@
+using LGDXRobot2Cloud.Shared.Entities;
+using LGDXRobot2Cloud.Shared.Models.Blazor;
+using LGDXRobot2Cloud.UI.Services;
+using Microsoft.AspNetCore.Components;
+
+namespace LGDXRobot2Cloud.UI.Pages
+{
+  public partial class RobotDetail
+  {
+    [Parameter]
+    public int RobotId { get; set; }
+
+    [Inject]
+    public required IRobotService RobotService { get; set; }
+
+    private RobotBlazor? Robot { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+      if (firstRender)
+      {
+        Robot = await RobotService.GetRobotAsync(RobotId);
+        StateHasChanged();
+      }
+    }
+  }
+}

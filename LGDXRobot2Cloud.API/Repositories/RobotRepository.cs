@@ -1,6 +1,7 @@
 using LGDXRobot2Cloud.API.DbContexts;
 using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Services;
+using LGDXRobot2Cloud.Shared.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
@@ -38,7 +39,11 @@ namespace LGDXRobot2Cloud.API.Repositories
         .Include(r => r.RobotSystemInfo)
         .Include(r => r.AssignedTasks)
           .ThenInclude(t => t.Flow)
-        .Include(r => r.AssignedTasks)
+        .Include(r => r.AssignedTasks.Where(t => t.CurrentProgressId != (int)ProgressState.Aborted 
+                                                && t.CurrentProgressId != (int)ProgressState.Completed 
+                                                && t.CurrentProgressId != (int)ProgressState.Template)
+                                      .OrderByDescending(t => t.CurrentProgressId)
+                                      .ThenBy(t => t.Id))
           .ThenInclude(t => t.CurrentProgress)
         .FirstOrDefaultAsync();
     }

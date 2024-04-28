@@ -61,7 +61,7 @@
               <td>@task.Id</td>
               <td>@(string.IsNullOrWhiteSpace(task.Name) ? "-" : task.Name)</td>
               <td>@task.Priority</td>
-              <td>-</td>
+              <td>@(string.IsNullOrWhiteSpace(task.AssignedRobot?.Name) ? "-" : task.AssignedRobot.Name)</td>
               <td>@task.CurrentProgress.Name</td>
               <td>@task.Flow.Name</td>
               <td>@task.CreatedAt</td>

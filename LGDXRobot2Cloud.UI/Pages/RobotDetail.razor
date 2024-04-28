@@ -1,0 +1,35 @@
+@page "/robots/network/{RobotId:int}"
+@using LGDXRobot2Cloud.UI.Components.RobotDetail
+@rendermode InteractiveServer
+
+<PageHeader Title="Network">
+  <div class="row align-items-center">
+    <div class="col">
+      @if (Robot != null)
+      {
+        <h2 class="page-title">
+          @Robot.Name
+        </h2>
+        <div class="text-secondary">
+          <ul class="list-inline list-inline-dots mb-0">
+            <li class="list-inline-item">@Robot.Address</li>
+            <li class="list-inline-item">@(Robot.IsOnline ? "Online" : "Offline")</li>
+          </ul>
+        </div>
+      }
+      else
+      {
+        <div class="placeholder-glow">
+          <div class="placeholder col-2 placeholder-lg"></div>
+          <div class="text-secondary">
+            <div class="placeholder col-1"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <TasksTable TasksList="Robot?.AssignedTasks" />
+</PageBody>

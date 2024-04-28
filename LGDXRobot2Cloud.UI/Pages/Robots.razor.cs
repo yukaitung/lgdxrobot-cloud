@@ -8,12 +8,13 @@ namespace LGDXRobot2Cloud.UI.Pages
 {
   public partial class Robots
   {
+    private RobotGrid? RobotGrid { get; set; }
     private ModalSubmitDone? ModalSubmitDone { get; set; }
 
     private async Task HandleSubmitDoneOpen((int, string, CrudOperation) data)
     {
       ModalSubmitDone!.Open(data.Item1, data.Item2,data.Item3);
-      //await ProgressTable!.Refresh(data.Item3 == CrudOperation.Delete);
+      await RobotGrid!.Refresh(data.Item3 == CrudOperation.Delete);
     }
   }
 }
