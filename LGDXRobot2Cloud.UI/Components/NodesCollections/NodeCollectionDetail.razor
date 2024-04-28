@@ -1,0 +1,157 @@
+@using LGDXRobot2Cloud.UI.Shared.Icons
+@inherits AbstractForm
+
+<div class="modal modal-blur fade" id="nodesCollectionDetailModal" data-bs-backdrop="static" data-bs-keyboard="false"
+  tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">@(Id != null ? "Update Nodes Collection" : "Create New Nodes Collection")</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <DataAnnotationsValidator />
+        <div class="modal-body">
+          <ModalValidationError Display="IsInvalid" />
+          <ModalSubmitError Display="IsError" Crud="@(Id != null ? CrudOperation.Update : CrudOperation.Create)" />
+          @if (Id != null)
+          {
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">ID</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@NodesCollection.Id</div>
+              </div>
+            </div>
+          }
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="Name">Name</label>
+            <div class="col">
+              <InputText id="Name" @bind-Value="NodesCollection.Name" type="text" class="form-control"
+                placeholder="Your nodes collection name" />
+              <ValidationMessage class="invalid-feedback" For="@(() => NodesCollection.Name)" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <label class="form-label required">Nodes Collection Detail</label>
+          @for (int i = 0; i < NodesCollection.Nodes.Count(); i++)
+          {
+            var index = i;
+            var nodesCollectionDetail = NodesCollection.Nodes[i];
+            <fieldset class="form-fieldset">
+              <div class="d-flex flex-row gap-2">
+                <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                  @if (nodesCollectionDetail.Id != null)
+                  {
+                    <div class="mb-2 row">
+                      <label class="col-3 col-form-label col-form-label-sm">ID</label>
+                      <div class="col">
+                        <div class="col col-form-label col-form-label-sm">@nodesCollectionDetail.Id</div>
+                      </div>
+                    </div>
+                  }
+                  <div class="row">
+                    <label class="col-3 col-form-label col-form-label-sm required" for="Name">Node</label>
+                    <div class="col">
+                      <InputSelect id="@(AdvanceSelectElements[0] + i.ToString())" class="form-control form-control-sm"
+                        @bind-Value="nodesCollectionDetail.NodeId">
+                        @if (nodesCollectionDetail.NodeName != null)
+                        {
+                          <option value="@nodesCollectionDetail.NodeId">@nodesCollectionDetail.NodeName</option>
+                        }
+                      </InputSelect>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex flex-row justify-content-center">
+                  <!-- Haven't decide the order -->
+                  <!--<div class="my-auto">
+                    <button type="button" class="btn btn-ghost-secondary btn-icon @(i < 1 ? "disabled" : "")"
+                      @onclick="e => TaskStepMoveUp(index)">
+                      <ArrowUpIcon />
+                    </button>
+                  </div>-->
+                  <div class="my-auto">
+                    <button type="button"
+                      class="btn btn-ghost-danger btn-icon @(NodesCollection.Nodes.Count <= 1 ? "disabled" : "")"
+                      @onclick="e => TaskRemoveStep(index)">
+                      <TrashIcon />
+                    </button>
+                  </div>
+                  <!--<div class="my-auto">
+                    <button type="button"
+                      class="btn btn-ghost-secondary btn-icon @(i >= NodesCollection.Nodes.Count - 1 ? "disabled" : "")"
+                      @onclick="e => TaskStepMoveDown(index)">
+                      <ArrowDownIcon />
+                    </button>
+                  </div>-->
+                </div>
+              </div>
+            </fieldset>
+          }
+          <div class="row">
+            <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="TaskAddStep">
+              Add A Step
+            </button>
+          </div>
+        </div>
+        <div class="modal-body">
+          @if (Id != null)
+          {
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">Create Time</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@NodesCollection.CreatedAt</div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">Last Update Time</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@NodesCollection.UpdatedAt</div>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <a class="btn btn-link link-secondary" data-bs-dismiss="modal">
+            Cancel
+          </a>
+          @if (Id != null)
+          {
+            <button type="button" class="btn btn-danger ms-auto" data-bs-toggle="modal" data-bs-target="#nodesCollectionDeleteModal">
+              Delete
+            </button>
+            <button type="submit" class="btn btn-primary ms-2">
+              Update
+            </button>
+          }
+          else 
+          {
+            <button type="submit" class="btn btn-primary ms-auto">
+              Create
+            </button>
+          }
+        </div>
+      </EditForm>
+    </div>
+  </div>
+</div>
+
+@if (Id != null)
+{
+  <div class="modal fade" id="nodesCollectionDeleteModal" tabindex="-1" data-bs-keyboard="false">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="modal-title">Delete Nodes Collection</div>
+          <ModalSubmitError Display="IsError" Crud="@CrudOperation.Delete" />
+          <div>The Node @(NodesCollection.Name != null ? $"\"{NodesCollection.Name}\" (ID: {NodesCollection.Id})" : $"ID: {NodesCollection.Id}") will be deleted.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" @onclick="HandleDelete">Yes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

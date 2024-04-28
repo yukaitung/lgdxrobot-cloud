@@ -72,27 +72,27 @@
               </div>
             </div>
             <div class="mb-3 row">
-            <label class="col-3 col-form-label required" for="ApiKeyFieldName">@(Trigger.ApiKeyInsertAt == "header" ?
-              "Header Field Name" : "JSON Key Name")</label>
+              <label class="col-3 col-form-label required" for="ApiKeyFieldName">@(Trigger.ApiKeyInsertAt == "header" ?
+                "Header Field Name" : "JSON Key Name")</label>
+                <div class="col">
+                  <InputText id="FieldName" @bind-Value="Trigger.ApiKeyFieldName" type="text" class="form-control"
+                    placeholder="@(Trigger.ApiKeyInsertAt == "header" ? "e.g. X-API-Key" : "e.g. key")" />
+                  <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyFieldName)" />
+                </div>
+              </div>
+              <div class="mb-3 row">
+              <label class="col-3 col-form-label required">API Key</label>
               <div class="col">
-                <InputText id="FieldName" @bind-Value="Trigger.ApiKeyFieldName" type="text" class="form-control"
-                  placeholder="@(Trigger.ApiKeyInsertAt == "header" ? "e.g. X-API-Key" : "e.g. key")" />
-                <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyFieldName)" />
+                <InputSelect id="ApiKeyId" class="form-control" @bind-Value="Trigger.ApiKeyId"
+                  placeholder="Search the name of API Key">
+                  @if (Trigger.ApiKeyName != null)
+                  {
+                    <option value="@Trigger.ApiKeyId">@Trigger.ApiKeyName</option>
+                  }
+                </InputSelect>
+                <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyId)" />
               </div>
             </div>
-            <div class="mb-3 row">
-            <label class="col-3 col-form-label required">API Key</label>
-            <div class="col">
-              <InputSelect id="ApiKeyId" class="form-control" @bind-Value="Trigger.ApiKeyId"
-                placeholder="Search the name of API Key">
-                @if (Trigger.ApiKeyName != null)
-                {
-                  <option value="@Trigger.ApiKeyId">@Trigger.ApiKeyName</option>
-                }
-              </InputSelect>
-              <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyId)" />
-            </div>
-          </div>
           }
           @if (Id != null)
           {

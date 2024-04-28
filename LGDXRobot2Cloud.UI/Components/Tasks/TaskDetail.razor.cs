@@ -238,7 +238,6 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
           UpdateAdvanceSelect = true;
         }
       }
-
       await base.SetParametersAsync(ParameterView.Empty);
     }
 

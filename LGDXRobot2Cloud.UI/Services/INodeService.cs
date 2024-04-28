@@ -11,5 +11,6 @@ namespace LGDXRobot2Cloud.UI.Services
     Task<NodeBlazor?> AddNodeAsync(NodeCreateDto node);
     Task<bool> UpdateNodeAsync(int nodeId, NodeUpdateDto node);
     Task<bool> DeleteNodeAsync(int nodeId);
+    Task<string> SearchNodesAsync(string name);
   }
 }

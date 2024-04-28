@@ -19,6 +19,7 @@ builder.Services.AddHttpClient<IWaypointService, WaypointService>(configureActio
 
 // Robot
 builder.Services.AddHttpClient<INodeService, NodeService>(configureAction);
+builder.Services.AddHttpClient<INodesCollectionService, NodesCollectionService>(configureAction);
 
 // Setting
 builder.Services.AddHttpClient<IApiKeyService, ApiKeyService>(configureAction);
