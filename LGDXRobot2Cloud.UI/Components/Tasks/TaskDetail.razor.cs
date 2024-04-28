@@ -19,6 +19,9 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     public required IFlowService FlowService { get; set; }
 
     [Inject]
+    public required IRobotService RobotService { get; set; }
+
+    [Inject]
     public required IWaypointService WaypointService { get; set; }
 
     [Inject]
@@ -44,7 +47,7 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     private bool IsError { get; set; } = false;
 
     // Form helping variables
-    private readonly string[] AdvanceSelectElements = ["FlowId-", "WaypointsId-"];
+    private readonly string[] AdvanceSelectElements = ["FlowId-", "AssignedRobotId-", "WaypointsId-"];
     private readonly string[] AdvanceSelectElementsDetail = ["WaypointsId-"];
     private bool UpdateAdvanceSelect { get; set; } = false;
     private bool UpdateAdvanceSelectList { get; set; } = false;
@@ -71,7 +74,12 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
         var result = await FlowService.SearchFlowsAsync(name);
         await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
       }
-      if (element == AdvanceSelectElements[1])
+      else if (element == AdvanceSelectElements[1])
+      {
+        var result = await RobotService.SearchRobotsAsync(name);
+        await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
+      }
+      else if (element == AdvanceSelectElements[2])
       {
         var result = await WaypointService.SearchWaypointsAsync(name);
         await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
@@ -94,6 +102,11 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
         Task.FlowName = name;
       }
       else if (element == AdvanceSelectElements[1])
+      {
+        Task.AssignedRobotId = id;
+        Task.AssignedRobotName = name;
+      }
+      else if (element == AdvanceSelectElements[2])
       {
         Task.Details[order].WaypointId = id;
         Task.Details[order].WaypointName = name;
@@ -198,9 +211,12 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
           var task = await AutoTaskService.GetAutoTaskAsync((int)_id);
           if (task != null)
           {
+            // Normal Assigement
             Task = task;
             Task.FlowId = Task.Flow.Id;
             Task.FlowName = Task.Flow.Name;
+            Task.AssignedRobotId = Task.AssignedRobot?.Id;
+            Task.AssignedRobotName = Task.AssignedRobot?.Name;
             for (int i = 0; i < Task.Details.Count; i++)
             {
               Task.Details[i].WaypointName = Task.Details[i].Waypoint?.Name;
@@ -216,9 +232,12 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
           var task = await AutoTaskService.GetAutoTaskAsync((int)_cloneId);
           if (task != null)
           {
+            // Clone Assigement
             Task = task;
             Task.FlowId = Task.Flow.Id;
             Task.FlowName = Task.Flow.Name;
+            Task.AssignedRobotId = Task.AssignedRobot?.Id;
+            Task.AssignedRobotName = Task.AssignedRobot?.Name;
             for (int i = 0; i < Task.Details.Count; i++)
             {
               Task.Details[i].WaypointName = Task.Details[i].Waypoint?.Name;

@@ -14,6 +14,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     IApiKeyRepository apiKeyRepository,
     IFlowRepository flowRepository,
     IProgressRepository progressRepository,
+    IRobotRepository robotRepository,
     IAutoTaskRepository autoTaskRepository,
     ISystemComponentRepository systemComponentRepository,
     ITriggerRepository triggerRepository,
@@ -24,6 +25,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     private readonly IApiKeyRepository _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
     private readonly IFlowRepository _flowRepository = flowRepository ?? throw new ArgumentNullException(nameof(flowRepository));
     private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
+    private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
     private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
     private readonly ISystemComponentRepository _systemComponentRepository = systemComponentRepository ?? throw new ArgumentNullException(nameof(systemComponentRepository));
     private readonly ITriggerRepository _triggerRepository = triggerRepository ?? throw new ArgumentNullException(nameof(triggerRepository));
@@ -290,6 +292,13 @@ namespace LGDXRobot2Cloud.API.Controllers
       if (flow == null)
         return BadRequest($"The Flow ID {taskEntity.FlowId} is invalid.");
       taskEntity.Flow = flow;
+      // Addigned robot
+      if (taskEntity.AssignedRobotId != null) {
+        var robot = await _robotRepository.GetRobotSimpleAsync((int)taskEntity.AssignedRobotId);
+        if (robot == null)
+          return BadRequest($"Robot ID: {taskEntity.AssignedRobotId} is invalid.");
+        taskEntity.AssignedRobot = robot;
+      }
       // Add Progress to Entity
       var currentProgress = taskDto.IsTemplate 
         ? await _progressRepository.GetProgressAsync((int)ProgressState.Template) 

@@ -10,5 +10,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Base
    
     [Required]
     public int FlowId { get; set; }
+
+    public int? AssignedRobotId { get; set; }
   }
 }

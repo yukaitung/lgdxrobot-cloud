@@ -48,6 +48,12 @@ namespace LGDXRobot2Cloud.API.Repositories
         .FirstOrDefaultAsync();
     }
 
+    public async Task<Robot?> GetRobotSimpleAsync(int robotId)
+    {
+      return await _context.Robots.Where(r => r.Id == robotId)
+        .FirstOrDefaultAsync();
+    }
+
     public async Task AddRobotAsync(Robot robot)
     {
       await _context.Robots.AddAsync(robot);

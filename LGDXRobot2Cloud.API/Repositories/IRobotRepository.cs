@@ -7,6 +7,7 @@ namespace LGDXRobot2Cloud.API.Repositories
   {
     Task<(IEnumerable<Robot>, PaginationMetadata)> GetRobotsAsync(string? name, int pageNumber, int pageSize);
     Task<Robot?> GetRobotAsync(int robotId);
+    Task<Robot?> GetRobotSimpleAsync(int robotId);
     Task AddRobotAsync(Robot robot);
     void DeleteRobot(Robot robot);
     Task<bool> SaveChangesAsync();

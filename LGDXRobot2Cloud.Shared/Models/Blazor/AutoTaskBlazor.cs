@@ -10,7 +10,9 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
     public string? Name { get; set; }
     public IList<AutoTaskDetailBlazor> Details { get; set; } = [];
     public int? Priority { get; set; }
-    public RobotListDto? AssignedRobot { get; set; }
+    public RobotBlazor? AssignedRobot { get; set; }
+    public int? AssignedRobotId { get; set; }
+    public string? AssignedRobotName { get; set; }
     public FlowBlazor Flow { get; set; } = null!;
     
     [Required]

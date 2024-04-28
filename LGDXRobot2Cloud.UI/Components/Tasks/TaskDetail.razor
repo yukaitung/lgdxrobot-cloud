@@ -59,7 +59,7 @@
               @if (IsEditable())
               {
                 <InputSelect id="@(AdvanceSelectElements[0] + "0")" class="form-control" @bind-Value="Task.FlowId"
-                  placeholder="Search the name of the Flow">
+                  placeholder="Search the name of the flow">
                   @if (Task.FlowId != null)
                   {
                     <option value="@Task.FlowId">@Task.FlowName</option>
@@ -70,6 +70,26 @@
               else
               {
                 <div class="col form-control-plaintext">@Task.FlowName</div>
+              }
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label" for="AssignedRobotId">Assign Robot</label>
+            <div class="col">
+              @if (IsEditable())
+              {
+                <InputSelect id="@(AdvanceSelectElements[1] + "0")" class="form-control" @bind-Value="Task.AssignedRobotId"
+                  placeholder="Search the name of the robot">
+                  @if (Task.AssignedRobotId != null)
+                  {
+                    <option value="@Task.AssignedRobotId">@Task.AssignedRobotName</option>
+                  }
+                </InputSelect>
+                <ValidationMessage class="invalid-feedback" For="@(() => Task.AssignedRobotId)" />
+              }
+              else
+              {
+                <div class="col form-control-plaintext">@Task.AssignedRobotName</div>
               }
             </div>
           </div>
@@ -118,7 +138,7 @@
                     <div class="col">
                       @if (IsEditable())
                       {
-                        <InputSelect id="@(AdvanceSelectElements[1] + i.ToString())" class="form-control form-control-sm"
+                        <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control form-control-sm"
                           @bind-Value="taskDetail.WaypointId">
                           @if (taskDetail.WaypointName != null)
                           {

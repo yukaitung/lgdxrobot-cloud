@@ -10,5 +10,6 @@ namespace LGDXRobot2Cloud.UI.Services
     Task<RobotBlazor?> GetRobotAsync(int robotId);
     Task<RobotBlazor?> AddRobotAsync(RobotCreateDto robot);
     Task<bool> DeleteRobotAsync(int robotId);
+    Task<string> SearchRobotsAsync(string name);
   }
 }

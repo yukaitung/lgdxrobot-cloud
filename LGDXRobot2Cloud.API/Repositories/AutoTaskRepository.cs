@@ -52,6 +52,7 @@ namespace LGDXRobot2Cloud.API.Repositories
           .OrderBy(td => td.Order))
         .ThenInclude(td => td.Waypoint)
         .Include(t => t.Flow)
+        .Include(t => t.AssignedRobot)
         .Include(t => t.CurrentProgress)
         .FirstOrDefaultAsync();
     }
