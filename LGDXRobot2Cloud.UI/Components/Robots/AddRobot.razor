@@ -1,0 +1,42 @@
+<div class="modal modal-blur fade" id="addRobotModal" data-bs-backdrop="static" data-bs-keyboard="false"
+  tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Robot</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <DataAnnotationsValidator />
+        <div class="modal-body">
+          <ModalValidationError Display="IsInvalid" />
+          <ModalSubmitError Display="IsError" Crud="@CrudOperation.Create" />
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="Name">Name</label>
+            <div class="col">
+              <InputText id="Name" @bind-Value="Robot.Name" type="text" class="form-control"
+                placeholder="Your robot name" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Robot.Name)" />
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="Address">Address</label>
+            <div class="col">
+              <InputText id="Address" @bind-Value="Robot.Address" type="text" class="form-control"
+                placeholder="Address of your robot" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Robot.Address)" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a class="btn btn-link link-secondary" data-bs-dismiss="modal">
+            Cancel
+          </a>
+          <button type="submit" class="btn btn-primary ms-auto">
+            Add
+          </button>
+        </div>
+      </EditForm>
+    </div>
+  </div>
+</div>

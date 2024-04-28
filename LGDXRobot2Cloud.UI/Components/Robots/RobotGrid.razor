@@ -1,0 +1,65 @@
+<div class="card p-3 mb-3">
+  <div class="d-flex justify-content-center">
+    <div class="text-secondary">
+      Search:
+    </div>
+    <div class="text-secondary">
+      <div class="input-group">
+        <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
+        <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
+        <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (RobotsList != null)
+{
+  <div class="row row-deck row-cards">
+    @foreach (var robot in RobotsList)
+    {
+      <div class="col-sm-6 col-lg-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="h1 mb-3">@robot.Name</div>
+            <div>
+              <div>Address: @robot.Address</div>
+              <div>Status: @(robot.IsOnline ? "Online" : "Offline")</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+else
+{
+  <div class="row row-deck row-cards">
+    @for (int i = 0; i < 16; i++)
+    {
+      <div class="col-sm-6 col-lg-3">
+        <div class="card">
+          <div class="card-body placeholder-glow">
+            <div class="placeholder col-12 placeholder-lg mb-3"></div>
+            <div>
+              <div class="placeholder col-9"></div>
+              <div class="placeholder col-9"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+@if (RobotsList != null && RobotsList.Count() == 0)
+{
+  <TableEmpty />
+}
+
+<div class="mt-3">
+  @if (PaginationMetadata != null && RobotsList != null && RobotsList.Count() > 0)
+  {
+    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="RobotsList.Count()"
+      OnPageChange="HandlePageChange" />
+  }
+</div>

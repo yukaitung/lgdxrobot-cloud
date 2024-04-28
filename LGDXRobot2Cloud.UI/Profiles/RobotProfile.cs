@@ -16,6 +16,8 @@ namespace LGDXRobot2Cloud.UI.Profiles
       CreateMap<Blazor.NodesCollectionBlazor, Models.NodesCollectionUpdateDto>();
       CreateMap<Blazor.NodesCollectionDetailBlazor, Models.NodesCollectionDetailCreateDto>();
       CreateMap<Blazor.NodesCollectionDetailBlazor, Models.NodesCollectionDetailUpdateDto>();
+      // Robot
+      CreateMap<Blazor.RobotBlazor, Models.RobotCreateDto>();
     }
   }
 }
