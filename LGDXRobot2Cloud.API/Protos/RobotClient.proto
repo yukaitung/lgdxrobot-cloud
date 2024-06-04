@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option csharp_namespace = "RobotClient.gRPC";
+
+service RobotClientService {
+  rpc Exchange (RobotData) returns (TaskProgressDetail);
+  rpc CompleteTaskProgress (CompleteToken) returns (StatusMessage);
+  rpc UpdateRobotSpecification (RobotSpecification) returns (StatusMessage);
+}
+
+enum Status {
+  Success = 0;
+  Failed = 1;
+}
+
+message StatusMessage {
+  Status Status = 1;
+  string message = 2;
+}
+
+message Dof {
+  double X = 1;
+  double Y = 2;
+  double W = 3;
+}
+
+message RobotData {
+  Dof Position = 1;
+  Dof Velocity = 2;
+  repeated double Batteries = 3;
+  bool GetTask = 4;
+}
+
+message TaskProgressDetail {
+  int64 TaskId = 1;
+  string TaskName = 2;
+  int64 TaskProgressId = 3;
+  string TaskProgressName = 4;
+  repeated Dof Waypoints = 5;
+  string CompleteToken = 6;
+}
+
+message CompleteToken {
+  int64 TaskId = 1;
+  string CompleteToken = 2;
+  bool Abort = 3;
+}
+
+message RobotSpecification {
+  SystemInfo SystemInfo = 1;
+}
+
+message SystemInfo {
+  string Cpu = 1;
+  bool IsLittleEndian = 2;
+  int32 RamMiB = 3;
+  string Gpu = 4;
+  string Os = 5;
+  bool Is32Bit = 6;
+}
