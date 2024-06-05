@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "RobotClient.gRPC";
+option csharp_namespace = "LGDXRobot2Cloud.Protos";
 
 service RobotClientService {
   rpc Exchange (RobotData) returns (TaskProgressDetail);

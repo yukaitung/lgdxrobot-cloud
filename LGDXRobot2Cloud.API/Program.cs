@@ -1,6 +1,7 @@
 using LGDXRobot2Cloud.API.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
@@ -8,6 +9,7 @@ builder.Configuration.AddJsonFile("secrets.json", true, true);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddGrpc(cfg => cfg.EnableDetailedErrors = true);
 
 var connectionString = builder.Configuration["MySQLConnectionString"];
 var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
@@ -51,6 +53,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+
 app.MapControllers();
+app.MapGrpcService<RobotClientService>();
 
 app.Run();
