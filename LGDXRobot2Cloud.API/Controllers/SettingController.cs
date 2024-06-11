@@ -17,7 +17,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     private readonly int maxPageSize = 100;
 
-        private static string GenerateApiKeys()
+    private static string GenerateApiKeys()
     {
       // https://www.camiloterevinto.com/post/simple-and-secure-api-keys-using-asp-net-core
       var bytes = RandomNumberGenerator.GetBytes(32);

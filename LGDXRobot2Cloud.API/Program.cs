@@ -5,6 +5,7 @@ using LGDXRobot2Cloud.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
+builder.WebHost.UseUrls("https://localhost:5162");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -20,6 +21,9 @@ builder.Services.AddDbContext<LgdxContext>(
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
 );
+
+// Custom Services
+builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 
 // Navigation Repositories
 builder.Services.AddScoped<IApiKeyLocationRepository, ApiKeyLocationRepository>();
@@ -52,7 +56,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
 
 app.MapControllers();
 app.MapGrpcService<RobotClientService>();

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-  public class AutoTaskRepository(LgdxContext context) : IAutoTaskRepository
+    public class AutoTaskRepository(LgdxContext context) : IAutoTaskRepository
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
@@ -70,6 +70,35 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<bool> SaveChangesAsync()
     {
       return await _context.SaveChangesAsync() >= 0;
+    }
+
+    public async Task<AutoTask?> GetFirstWaitingAutoTaskAsync(int robotId)
+    {
+      return await _context.AutoTasks.Where(t => t.CurrentProgressId == (int)ProgressState.Waiting)
+        .Where(t => t.AssignedRobotId == robotId || t.AssignedRobotId == null)
+        .OrderByDescending(t => t.Priority)
+        .ThenByDescending(t => t.AssignedRobotId)
+        .ThenBy(t => t.Id)
+        .FirstOrDefaultAsync();
+    }
+
+    public async Task<AutoTask?> GetOnGoingAutoTaskAsync(int robotId)
+    {
+      return await _context.AutoTasks.Where(t => t.AssignedRobotId == robotId)
+        .Where(t => !LgdxUtil.AutoTaskRunningStateList.Contains(t.CurrentProgressId))
+        .OrderByDescending(t => t.Priority) // In case the robot has multiple running task by mistake 
+        .ThenByDescending(t => t.AssignedRobotId)
+        .ThenBy(t => t.Id)
+        .Include(t => t.CurrentProgress)
+        .FirstOrDefaultAsync();
+    }
+
+    public async Task<AutoTask?> GetAutoTaskToComplete(int robotId, int taskId, string token)
+    {
+      return await _context.AutoTasks.Where(t => t.AssignedRobotId == robotId)
+        .Where(t => t.Id == taskId)
+        .Where(t => t.CompleteToken == token)
+        .FirstOrDefaultAsync();
     }
   }
 }

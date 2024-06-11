@@ -61,5 +61,14 @@ namespace LGDXRobot2Cloud.API.Repositories
     {
       return await _context.SaveChangesAsync() >= 0;
     }
+
+    public async Task<Flow?> GetFlowProgressesAsync(int flowId)
+    {
+      return await _context.Flows.Where(f => f.Id == flowId)
+        .Include(f => f.FlowDetails
+          .OrderBy(fd => fd.Order))
+        .ThenInclude(fd => fd.Progress)
+        .FirstOrDefaultAsync();
+    }
   }
 }

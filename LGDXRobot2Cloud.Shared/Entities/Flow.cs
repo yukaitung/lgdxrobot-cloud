@@ -14,7 +14,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
     [MaxLength(50)]
     public string Name { get; set; } = null!;
 
-    public ICollection<FlowDetail> FlowDetails { get; set; } = [];
+    public IList<FlowDetail> FlowDetails { get; set; } = []; // Do not change
 
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

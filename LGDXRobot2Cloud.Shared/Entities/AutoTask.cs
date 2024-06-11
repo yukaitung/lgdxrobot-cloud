@@ -29,9 +29,12 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public int? AssignedRobotId { get; set; }
 
     [ForeignKey("CurrentProgressId")]
-    public Progress CurrentProgress { get; set; } =  null!;
+    public Progress CurrentProgress { get; set; } = null!;
 
     public int CurrentProgressId { get; set; }
+
+    [MaxLength(32)]
+    public string? CompleteToken { get; set; }
 
     [Precision(6)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

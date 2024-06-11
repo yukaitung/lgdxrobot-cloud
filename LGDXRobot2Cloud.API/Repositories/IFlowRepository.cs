@@ -10,5 +10,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     Task AddFlowAsync(Flow flow);
     void DeleteFlow(Flow flow);
     Task<bool> SaveChangesAsync();
+
+    Task<Flow?> GetFlowProgressesAsync(int flowId);
   }
 }

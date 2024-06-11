@@ -33,10 +33,17 @@ namespace LGDXRobot2Cloud.API.Controllers
     private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     private readonly int maxPageSize = 100;
 
-        /*
-        ** Flow
-        */
-        [HttpGet("flows")]
+    [HttpGet("test")]
+    public async Task<ActionResult> Test()
+    {
+      await _autoTaskRepository.GetFirstWaitingAutoTaskAsync(1);
+      return Ok();
+    }
+
+    /*
+    ** Flow
+    */
+    [HttpGet("flows")]
     public async Task<ActionResult<IEnumerable<FlowListDto>>> GetFlows(string? name, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
