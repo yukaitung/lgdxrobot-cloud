@@ -56,7 +56,6 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     private bool IsEditable()
     {
       return Id == null 
-        || Task.CurrentProgress.Id == (int)ProgressState.Waiting 
         || Task.CurrentProgress.Id == (int)ProgressState.Template;
     }
 

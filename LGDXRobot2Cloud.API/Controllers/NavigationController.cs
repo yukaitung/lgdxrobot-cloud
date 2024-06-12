@@ -326,8 +326,8 @@ namespace LGDXRobot2Cloud.API.Controllers
       var taskEntity = await _autoTaskRepository.GetAutoTaskAsync(id);
       if (taskEntity == null)
         return NotFound();
-      if (taskEntity.CurrentProgressId != (int)ProgressState.Waiting && taskEntity.CurrentProgressId != (int)ProgressState.Template)
-        return BadRequest($"Cannot change the task not in Waiting / Saved status.");
+      if (taskEntity.CurrentProgressId != (int)ProgressState.Template)
+        return BadRequest($"Only AutoTask Templates are editable.");
       // Ensure the input task does not include Detail ID from other task
       HashSet<int> detailIds = [];
       foreach(var waypoint in taskEntity.Details)

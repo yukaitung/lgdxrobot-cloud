@@ -36,8 +36,7 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
 
     private bool IsEditable()
     {
-      return ShowProgressId == ProgressState.Waiting 
-        || ShowProgressId == ProgressState.Template;
+      return ShowProgressId == ProgressState.Template;
     }
     
     protected override async Task HandlePageSizeChange(int number)
