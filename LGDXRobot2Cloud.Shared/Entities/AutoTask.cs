@@ -33,6 +33,8 @@ namespace LGDXRobot2Cloud.Shared.Entities
 
     public int CurrentProgressId { get; set; }
 
+    public int? CurrentProgressOrder { get; set; }
+
     [MaxLength(32)]
     public string? CompleteToken { get; set; }
 
