@@ -2,7 +2,7 @@ using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Utilities;
 
-namespace LGDXRobot2Cloud.Services
+namespace LGDXRobot2Cloud.API.Services
 {
   public class AutoTaskSchedulerService(IAutoTaskRepository autoTaskRepository,
     IProgressRepository progressRepository) : IAutoTaskSchedulerService

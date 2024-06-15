@@ -1,11 +1,48 @@
 using LGDXRobot2Cloud.API.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using LGDXRobot2Cloud.API.Repositories;
-using LGDXRobot2Cloud.Services;
+using LGDXRobot2Cloud.API.Services;
+using Microsoft.AspNetCore.Authentication.Certificate;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
 builder.WebHost.UseUrls("https://localhost:5162");
+builder.WebHost.ConfigureKestrel(cfg =>
+{
+  cfg.ConfigureHttpsDefaults(ctx => ctx.ClientCertificateMode = ClientCertificateMode.AllowCertificate);
+});
+
+builder.Services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
+    .AddCertificate(cfg =>
+    {
+			cfg.AllowedCertificateTypes = CertificateTypes.Chained;
+			cfg.RevocationMode = X509RevocationMode.NoCheck;
+			cfg.Events = new CertificateAuthenticationEvents()
+			{
+				OnCertificateValidated = ctx =>
+				{
+					if (ctx.ClientCertificate.Issuer == builder.Configuration["LgdxRobot2:GrpcCertificateIssuer"])
+					{
+						// The subject must have CN=
+						if (ctx.ClientCertificate.Subject.Length < 4)
+							ctx.Fail("Incorrect Subject.");
+						var claims = new [] {
+							new Claim(ClaimTypes.NameIdentifier, ctx.ClientCertificate.Subject[3..])
+						};
+						ctx.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ctx.Scheme.Name));
+						ctx.Success();
+					}
+					else
+					{
+						ctx.Fail("Invalid Issuer.");
+					}
+					return Task.CompletedTask;
+				}
+			};
+    });
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -55,6 +92,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

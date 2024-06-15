@@ -1,6 +1,6 @@
 using LGDXRobot2Cloud.Shared.Entities;
 
-namespace LGDXRobot2Cloud.Services
+namespace LGDXRobot2Cloud.API.Services
 {
   public interface IAutoTaskSchedulerService
   {

@@ -1,22 +1,37 @@
+using System.Security.Claims;
 using Grpc.Core;
 using LGDXRobot2Cloud.Protos;
+using Microsoft.AspNetCore.Authentication.Certificate;
+using Microsoft.AspNetCore.Authorization;
 using static LGDXRobot2Cloud.Protos.RobotClientService;
 
-namespace LGDXRobot2Cloud.Services
+namespace LGDXRobot2Cloud.API.Services
 {
+  [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
   public class RobotClientService(IAutoTaskSchedulerService autoTaskSchedulerService) : RobotClientServiceBase
   {
     private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
-    
+
     public override async Task<ExchangeReturn> Exchange(RobotData data, ServerCallContext context)
     {
-      // Set Robot Data
+      var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
+      if (robotClaim == null)
+      {
+        return new ExchangeReturn{
+          Result = new ResultMessage {
+            Status = ResultStatus.Failed,
+            Message = "Robot ID is missing in CN."
+          }
+        };
+      }
+      var robotId = robotClaim.Value;
+      // TODO: Set Robot Data
 
       // Get AutoTask
       var taskDetail = new TaskProgressDetail();
       if (data.GetTask == true)
       {
-        var task = await _autoTaskSchedulerService.GetAutoTask(1);
+        var task = await _autoTaskSchedulerService.GetAutoTask(int.Parse(robotId));
         if (task != null) 
         {
           taskDetail = new TaskProgressDetail{
@@ -40,7 +55,19 @@ namespace LGDXRobot2Cloud.Services
 
     public override async Task<ExchangeReturn> CompleteProgress(CompleteToken token, ServerCallContext context)
     {
-      var result = await _autoTaskSchedulerService.CompleteProgress(1, token.TaskId, token.Token);
+      var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
+      if (robotClaim == null)
+      {
+        return new ExchangeReturn{
+          Result = new ResultMessage {
+            Status = ResultStatus.Failed,
+            Message = "Robot ID is missing in CN."
+          }
+        };
+      }
+      var robotId = robotClaim.Value;
+
+      var result = await _autoTaskSchedulerService.CompleteProgress(int.Parse(robotId), token.TaskId, token.Token);
       return new ExchangeReturn {
         Result = new ResultMessage {
           Status = result.Item2 == string.Empty ? ResultStatus.Success : ResultStatus.Failed,
@@ -61,7 +88,19 @@ namespace LGDXRobot2Cloud.Services
 
     public override async Task<ExchangeReturn> AbortAutoTask(CompleteToken token, ServerCallContext context)
     {
-      var result = await _autoTaskSchedulerService.AbortAutoTask(1, token.TaskId, token.Token);
+      var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
+      if (robotClaim == null)
+      {
+        return new ExchangeReturn{
+          Result = new ResultMessage {
+            Status = ResultStatus.Failed,
+            Message = "Robot ID is missing in CN."
+          }
+        };
+      }
+      var robotId = robotClaim.Value;
+
+      var result = await _autoTaskSchedulerService.AbortAutoTask(int.Parse(robotId), token.TaskId, token.Token);
       return new ExchangeReturn {
         Result = new ResultMessage {
           Status = result == string.Empty ? ResultStatus.Success : ResultStatus.Failed,
@@ -72,7 +111,6 @@ namespace LGDXRobot2Cloud.Services
 
     public override Task<ResultMessage> UpdateSpecification(RobotSpecification specification, ServerCallContext context)
     {
-      Console.WriteLine("Task<StatusMessage> UpdateRobotSpecification(RobotSpecification specification, ServerCallContext context)");
       return Task.FromResult(new ResultMessage());
     }
   }
