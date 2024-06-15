@@ -5,6 +5,7 @@ option csharp_namespace = "LGDXRobot2Cloud.Protos";
 service RobotClientService {
   rpc Exchange (RobotData) returns (ExchangeReturn);
   rpc CompleteProgress (CompleteToken) returns (ExchangeReturn);
+  rpc AbortAutoTask (CompleteToken) returns (ExchangeReturn);
   rpc UpdateSpecification (RobotSpecification) returns (ResultMessage);
 }
 
@@ -48,7 +49,6 @@ message ExchangeReturn {
 message CompleteToken {
   int32 TaskId = 1;
   string Token = 2;
-  bool Abort = 3;
 }
 
 message RobotSpecification {

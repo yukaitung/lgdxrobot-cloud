@@ -40,35 +40,34 @@ namespace LGDXRobot2Cloud.Services
 
     public override async Task<ExchangeReturn> CompleteProgress(CompleteToken token, ServerCallContext context)
     {
-      if (token.Abort == true)
-      {
-        var result = await _autoTaskSchedulerService.AbortAutoTask(1, token.TaskId, token.Token);
-        return new ExchangeReturn {
-          Result = new ResultMessage {
-            Status = result == string.Empty ? ResultStatus.Success : ResultStatus.Failed,
-            Message = result
-          }
-        };
-      }
-      else
-      {
-        var result = await _autoTaskSchedulerService.CompleteProgress(1, token.TaskId, token.Token);
-        return new ExchangeReturn {
-          Result = new ResultMessage {
-            Status = result.Item2 == string.Empty ? ResultStatus.Success : ResultStatus.Failed,
-            Message = result.Item2
-          },
-          Task = result.Item1 != null 
-          ? new TaskProgressDetail{
-            TaskId = result.Item1.Id,
-            TaskName = result.Item1.Name,
-            TaskProgressId = result.Item1.CurrentProgressId,
-            Waypoints = {},
-            CompleteToken = result.Item1.CompleteToken
-          } 
-          : null
-        };
-      }
+      var result = await _autoTaskSchedulerService.CompleteProgress(1, token.TaskId, token.Token);
+      return new ExchangeReturn {
+        Result = new ResultMessage {
+          Status = result.Item2 == string.Empty ? ResultStatus.Success : ResultStatus.Failed,
+          Message = result.Item2
+        },
+        Task = result.Item1 != null 
+        ? new TaskProgressDetail{
+          TaskId = result.Item1.Id,
+          TaskName = result.Item1.Name,
+          TaskProgressId = result.Item1.CurrentProgressId,
+          TaskProgressName = result.Item1.CurrentProgress.Name,
+          Waypoints = {},
+          CompleteToken = result.Item1.CompleteToken
+        } 
+        : null
+      };
+    }
+
+    public override async Task<ExchangeReturn> AbortAutoTask(CompleteToken token, ServerCallContext context)
+    {
+      var result = await _autoTaskSchedulerService.AbortAutoTask(1, token.TaskId, token.Token);
+      return new ExchangeReturn {
+        Result = new ResultMessage {
+          Status = result == string.Empty ? ResultStatus.Success : ResultStatus.Failed,
+          Message = result
+        }
+      };
     }
 
     public override Task<ResultMessage> UpdateSpecification(RobotSpecification specification, ServerCallContext context)

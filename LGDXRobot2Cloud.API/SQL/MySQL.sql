@@ -11,7 +11,6 @@ BEGIN
   DECLARE progressId INT;
   DECLARE progressOrder INT;
   DECLARE runningTasks INT;
-  DECLARE taskAssigned TINYINT DEFAULT 0;
   
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
@@ -46,11 +45,15 @@ BEGIN
             ,`CompleteToken`        = (SELECT MD5(CONCAT(robotId, " ", taskId, " ", progressId, " ", UTC_TIMESTAMP(6))))
             ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = taskId;
-      SET taskAssigned = 1;
     END IF;
     COMMIT;
   END IF;
-  SELECT taskAssigned;
+
+  IF taskId IS NOT NULL THEN
+    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = taskId;
+  ELSE
+    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = NULL;
+  END IF;
 END //
 
 -- Complete Progress
@@ -61,12 +64,11 @@ CREATE PROCEDURE auto_task_complete_progress (
   ,IN completeToken CHAR(32)
 )
 BEGIN
-  DECLARE flowId INT;
-  DECLARE currentProgressOrder INT;
-  DECLARE nextProgressId INT;
-  DECLARE nextProgressOrder INT;
-  DECLARE taskNextProgress TINYINT DEFAULT 0;
-  DECLARE taskCompleted TINYINT DEFAULT 0;
+  DECLARE flowId INT DEFAULT NULL;
+  DECLARE currentProgressOrder INT DEFAULT NULL;
+  DECLARE nextProgressId INT DEFAULT NULL;
+  DECLARE nextProgressOrder INT DEFAULT NULL;
+  DECLARE taskUpdated TINYINT DEFAULT 0;
   
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
@@ -94,8 +96,8 @@ BEGIN
             ,`CompleteToken`        = (SELECT MD5(CONCAT(robotId, " ", taskId, " ", nextProgressId, " ", UTC_TIMESTAMP(6))))
             ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = taskId;
-      SET taskNextProgress = 1;
-      ELSE
+      SET taskUpdated = 1;
+    ELSE
       -- Complete
       UPDATE `Navigation.AutoTasks`
         SET  `CurrentProgressId`    = 8
@@ -103,11 +105,16 @@ BEGIN
             ,`CompleteToken`        = NULL
             ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = taskId;
-      SET taskCompleted = 1;
+      SET taskUpdated = 1;
     END IF;
   END IF;
   COMMIT;
-  SELECT taskNextProgress, taskCompleted;
+
+  IF taskUpdated = 1 THEN
+    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = taskId;
+  ELSE
+    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = NULL;
+  END IF;
 END //
 
 -- Abort Auto Task
@@ -144,7 +151,12 @@ BEGIN
     SET taskAborted = 1;
   END IF;
   COMMIT;
-  SELECT taskAborted;
+
+  IF taskAborted = 1 THEN
+    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = taskId;
+  ELSE
+    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = NULL;
+  END IF;
 END //
 
 -- Remove Auto Task

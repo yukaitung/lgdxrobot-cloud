@@ -72,33 +72,41 @@ namespace LGDXRobot2Cloud.API.Repositories
       return await _context.SaveChangesAsync() >= 0;
     }
 
-    public async Task<AutoTask?> GetFirstWaitingAutoTaskAsync(int robotId)
+    public async Task<AutoTask?> AssignAutoTaskAsync(int robotId)
     {
-      return await _context.AutoTasks.Where(t => t.CurrentProgressId == (int)ProgressState.Waiting)
-        .Where(t => t.AssignedRobotId == robotId || t.AssignedRobotId == null)
-        .OrderByDescending(t => t.Priority)
-        .ThenByDescending(t => t.AssignedRobotId)
-        .ThenBy(t => t.Id)
-        .FirstOrDefaultAsync();
+      var result = await _context.AutoTasks.FromSql($"CALL auto_task_assign_task({robotId});").ToListAsync();
+      if (result.Count > 0)
+        return result[0];
+      else
+        return null;
     }
 
-    public async Task<AutoTask?> GetOnGoingAutoTaskAsync(int robotId)
+    public async Task<AutoTask?> GetRunningAutoTaskAsync(int robotId)
     {
       return await _context.AutoTasks.Where(t => t.AssignedRobotId == robotId)
         .Where(t => !LgdxUtil.AutoTaskRunningStateList.Contains(t.CurrentProgressId))
         .OrderByDescending(t => t.Priority) // In case the robot has multiple running task by mistake 
         .ThenByDescending(t => t.AssignedRobotId)
         .ThenBy(t => t.Id)
-        .Include(t => t.CurrentProgress)
         .FirstOrDefaultAsync();
     }
 
-    public async Task<AutoTask?> GetAutoTaskToComplete(int robotId, int taskId, string token)
+    public async Task<AutoTask?> AutoTaskCompleteProgressAsync(int robotId, int taskId, string token)
     {
-      return await _context.AutoTasks.Where(t => t.AssignedRobotId == robotId)
-        .Where(t => t.Id == taskId)
-        .Where(t => t.CompleteToken == token)
-        .FirstOrDefaultAsync();
+      var result = await _context.AutoTasks.FromSql($"CALL auto_task_complete_progress({robotId}, {taskId}, {token});").ToListAsync();
+      if (result.Count > 0)
+        return result[0];
+      else
+        return null;
+    }
+
+    public async Task<AutoTask?> AutoTaskAbortAsync(int robotId, int taskId, string token)
+    {
+      var result = await _context.AutoTasks.FromSql($"CALL auto_task_abort({robotId}, {taskId}, {token});").ToListAsync();
+      if (result.Count > 0)
+        return result[0];
+      else
+        return null;
     }
   }
 }
