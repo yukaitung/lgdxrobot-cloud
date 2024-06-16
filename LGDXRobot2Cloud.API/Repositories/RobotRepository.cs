@@ -32,7 +32,7 @@ namespace LGDXRobot2Cloud.API.Repositories
       return (robots, paginationMetadata);
     }
 
-    public async Task<Robot?> GetRobotAsync(int robotId)
+    public async Task<Robot?> GetRobotAsync(Guid robotId)
     {
       return await _context.Robots.Where(r => r.Id == robotId)
         .Include(r => r.DefaultNodesCollection)
@@ -48,7 +48,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         .FirstOrDefaultAsync();
     }
 
-    public async Task<Robot?> GetRobotSimpleAsync(int robotId)
+    public async Task<Robot?> GetRobotSimpleAsync(Guid robotId)
     {
       return await _context.Robots.Where(r => r.Id == robotId)
         .FirstOrDefaultAsync();

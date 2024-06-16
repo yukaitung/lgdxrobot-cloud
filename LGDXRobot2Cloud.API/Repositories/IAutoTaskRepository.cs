@@ -11,9 +11,9 @@ namespace LGDXRobot2Cloud.API.Repositories
     void DeleteAutoTask(AutoTask autoTask);
     Task<bool> SaveChangesAsync();
 
-    Task<AutoTask?> AssignAutoTaskAsync(int robotId);
-    Task<AutoTask?> GetRunningAutoTaskAsync(int robotId);
-    Task<AutoTask?> AutoTaskCompleteProgressAsync(int robotId, int taskId, string token);
-    Task<AutoTask?> AutoTaskAbortAsync(int robotId, int taskId, string token);
+    Task<AutoTask?> AssignAutoTaskAsync(Guid robotId);
+    Task<AutoTask?> GetRunningAutoTaskAsync(Guid robotId);
+    Task<AutoTask?> AutoTaskCompleteProgressAsync(Guid robotId, int taskId, string token);
+    Task<AutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token);
   }
 }

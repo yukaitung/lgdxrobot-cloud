@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LGDXRobot2Cloud.API.DbContexts
 {
-  public class LgdxContext : DbContext
+  public class LgdxContext(DbContextOptions<LgdxContext> options) : DbContext(options)
   {
     // Navigation
     public DbSet<AutoTask> AutoTasks { get; set; }
@@ -29,8 +29,6 @@ namespace LGDXRobot2Cloud.API.DbContexts
     // Setting
     public DbSet<ApiKey> ApiKeys { get; set; }
 
-    public LgdxContext(DbContextOptions<LgdxContext> options) : base(options) { }
-
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
       configurationBuilder
@@ -52,6 +50,9 @@ namespace LGDXRobot2Cloud.API.DbContexts
         .WithOne(e => e.AssignedRobot)
         .HasForeignKey(e => e.AssignedRobotId)
         .IsRequired(false);
+      modelBuilder.Entity<Robot>()
+        .HasIndex(e => e.Id)
+        .IsUnique();
       // One Flow has many FlowDetails
       modelBuilder.Entity<Flow>()
         .HasMany(e => e.FlowDetails)

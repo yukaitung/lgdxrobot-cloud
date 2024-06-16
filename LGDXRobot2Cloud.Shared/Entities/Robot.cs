@@ -9,7 +9,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
   {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     [MaxLength(50)]
     public required string Name { get; set; }

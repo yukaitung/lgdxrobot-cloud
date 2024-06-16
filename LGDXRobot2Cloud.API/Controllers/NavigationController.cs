@@ -69,8 +69,8 @@ namespace LGDXRobot2Cloud.API.Controllers
           return BadRequest($"The Proceed Condition {temp} is invalid.");
       }
       // Validate Progress & Trigger, add Entity for both
-      HashSet<int> progressIds = new HashSet<int>();
-      HashSet<int> triggerIds = new HashSet<int>();
+      HashSet<int> progressIds = [];
+      HashSet<int> triggerIds = [];
       foreach (var detail in flowEntity.FlowDetails)
       {
         progressIds.Add(detail.ProgressId);
@@ -139,8 +139,8 @@ namespace LGDXRobot2Cloud.API.Controllers
           return BadRequest($"The Proceed Condition: {temp} does not exist.");
       }
       // Validate Progress & Trigger, add Entity for both
-      HashSet<int> progressIds = new HashSet<int>();
-      HashSet<int> triggerIds = new HashSet<int>();
+      HashSet<int> progressIds = [];
+      HashSet<int> triggerIds = [];
       foreach (var detail in flowEntity.FlowDetails)
       {
         progressIds.Add(detail.ProgressId);
@@ -294,7 +294,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       taskEntity.Flow = flow;
       // Addigned robot
       if (taskEntity.AssignedRobotId != null) {
-        var robot = await _robotRepository.GetRobotSimpleAsync((int)taskEntity.AssignedRobotId);
+        var robot = await _robotRepository.GetRobotSimpleAsync((Guid)taskEntity.AssignedRobotId!);
         if (robot == null)
           return BadRequest($"Robot ID: {taskEntity.AssignedRobotId} is invalid.");
         taskEntity.AssignedRobot = robot;

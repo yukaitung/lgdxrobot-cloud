@@ -10,7 +10,7 @@ namespace LGDXRobot2Cloud.API.Services
     private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
     private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
     
-    public async Task<AutoTask?> GetAutoTask(int robotId)
+    public async Task<AutoTask?> GetAutoTask(Guid robotId)
     {
       var currentTask = await _autoTaskRepository.GetRunningAutoTaskAsync(robotId) ?? await _autoTaskRepository.AssignAutoTaskAsync(robotId);
       if (currentTask != null)
@@ -21,7 +21,7 @@ namespace LGDXRobot2Cloud.API.Services
       return currentTask;
     }
 
-    public async Task<string> AbortAutoTask(int robotId, int taskId, string token)
+    public async Task<string> AbortAutoTask(Guid robotId, int taskId, string token)
     {
       var task = await _autoTaskRepository.AutoTaskAbortAsync(robotId, taskId, token);
       if (task == null)
@@ -32,7 +32,7 @@ namespace LGDXRobot2Cloud.API.Services
         return "Database Error.";
     }
 
-    public async Task<(AutoTask?, string)> CompleteProgress(int robotId, int taskId, string token)
+    public async Task<(AutoTask?, string)> CompleteProgress(Guid robotId, int taskId, string token)
     {
       var task = await _autoTaskRepository.AutoTaskCompleteProgressAsync(robotId, taskId, token);
       if (task == null)

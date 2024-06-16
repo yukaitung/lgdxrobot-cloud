@@ -26,7 +26,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
     [ForeignKey("AssignedRobotId")]
     public Robot? AssignedRobot { get; set; }
 
-    public int? AssignedRobotId { get; set; }
+    public Guid? AssignedRobotId { get; set; }
 
     [ForeignKey("CurrentProgressId")]
     public Progress CurrentProgress { get; set; } = null!;

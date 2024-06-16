@@ -23,7 +23,7 @@ namespace LGDXRobot2Cloud.UI.Pages
     private async Task HandleSubmitDoneOpen((int, string?, CrudOperation) data)
     {
       TaskId = null;
-      ModalSubmitDone!.Open(data.Item1, data.Item2,data.Item3);
+      ModalSubmitDone!.Open(data.Item1.ToString(), data.Item2,data.Item3);
       if (CurrentTab == 0)
         await WaitingTaskTable!.Refresh(data.Item3 == CrudOperation.Delete);
       else if (CurrentTab == 3)

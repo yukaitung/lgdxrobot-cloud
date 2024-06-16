@@ -13,7 +13,7 @@ namespace LGDXRobot2Cloud.UI.Pages
     private async Task HandleSubmitDoneOpen((int, string, CrudOperation) data)
     {
       WaypointId = null;
-      ModalSubmitDone!.Open(data.Item1, data.Item2,data.Item3);
+      ModalSubmitDone!.Open(data.Item1.ToString(), data.Item2,data.Item3);
       await WaypointTable!.Refresh(data.Item3 == CrudOperation.Delete);
     }
 

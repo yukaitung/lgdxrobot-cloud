@@ -11,9 +11,9 @@ namespace LGDXRobot2Cloud.UI.Pages
     private RobotGrid? RobotGrid { get; set; }
     private ModalSubmitDone? ModalSubmitDone { get; set; }
 
-    private async Task HandleSubmitDoneOpen((int, string, CrudOperation) data)
+    private async Task HandleSubmitDoneOpen((Guid, string, CrudOperation) data)
     {
-      ModalSubmitDone!.Open(data.Item1, data.Item2,data.Item3);
+      ModalSubmitDone!.Open(data.Item1.ToString(), data.Item2, data.Item3);
       await RobotGrid!.Refresh(data.Item3 == CrudOperation.Delete);
     }
   }

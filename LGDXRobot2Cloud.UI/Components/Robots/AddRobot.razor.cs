@@ -21,7 +21,7 @@ namespace LGDXRobot2Cloud.UI.Components.Robots
     public required IMapper Mapper { get; set; }
 
     [Parameter]
-    public EventCallback<(int, string, CrudOperation)> OnSubmitDone { get; set; }
+    public EventCallback<(Guid, string, CrudOperation)> OnSubmitDone { get; set; }
 
     private RobotBlazor Robot { get; set; } = null!;
     private EditContext _editContext = null!;

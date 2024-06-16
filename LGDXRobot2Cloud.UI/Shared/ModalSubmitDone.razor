@@ -9,7 +9,7 @@
           <CheckIcon />
         </div>
         <div>
-          The @EntityName @(!string.IsNullOrEmpty(ItemName) ? $"\"{ItemName}\" (ID: {ItemId})" : $"ID: {ItemId}") has been successfully @switch (Crud){
+          The @EntityName <b>@(!string.IsNullOrEmpty(ItemName) ? $"{ItemName} ({ItemId})" : $"ID: {ItemId}")</b> has been successfully @switch (Crud){
             case CrudOperation.Create:
               <span>created</span>
               break;
@@ -33,11 +33,11 @@
 
   private bool Display { get; set; }
   private CrudOperation Crud { get; set; }
-  private int ItemId { get; set; }
+  private string ItemId { get; set; } = string.Empty;
   private string? ItemName { get; set; }
 
 
-  public void Open(int itemId, string? itemName, CrudOperation crudOperation)
+  public void Open(string itemId, string? itemName, CrudOperation crudOperation)
   {
     Display = true;
     Crud = crudOperation;

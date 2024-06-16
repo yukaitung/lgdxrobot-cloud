@@ -31,7 +31,7 @@ namespace LGDXRobot2Cloud.API.Services
       var taskDetail = new TaskProgressDetail();
       if (data.GetTask == true)
       {
-        var task = await _autoTaskSchedulerService.GetAutoTask(int.Parse(robotId));
+        var task = await _autoTaskSchedulerService.GetAutoTask(Guid.Parse(robotId));
         if (task != null) 
         {
           taskDetail = new TaskProgressDetail{
@@ -67,7 +67,7 @@ namespace LGDXRobot2Cloud.API.Services
       }
       var robotId = robotClaim.Value;
 
-      var result = await _autoTaskSchedulerService.CompleteProgress(int.Parse(robotId), token.TaskId, token.Token);
+      var result = await _autoTaskSchedulerService.CompleteProgress(Guid.Parse(robotId), token.TaskId, token.Token);
       return new ExchangeReturn {
         Result = new ResultMessage {
           Status = result.Item2 == string.Empty ? ResultStatus.Success : ResultStatus.Failed,
@@ -100,7 +100,7 @@ namespace LGDXRobot2Cloud.API.Services
       }
       var robotId = robotClaim.Value;
 
-      var result = await _autoTaskSchedulerService.AbortAutoTask(int.Parse(robotId), token.TaskId, token.Token);
+      var result = await _autoTaskSchedulerService.AbortAutoTask(Guid.Parse(robotId), token.TaskId, token.Token);
       return new ExchangeReturn {
         Result = new ResultMessage {
           Status = result == string.Empty ? ResultStatus.Success : ResultStatus.Failed,

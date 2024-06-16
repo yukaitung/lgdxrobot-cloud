@@ -34,7 +34,7 @@ namespace LGDXRobot2Cloud.UI.Services
       }
     }
 
-    public async Task<RobotBlazor?> GetRobotAsync(int robotId)
+    public async Task<RobotBlazor?> GetRobotAsync(string robotId)
     {
       var response = await _httpClient.GetAsync($"robot/{robotId}");
       var robot = await JsonSerializer.DeserializeAsync<RobotBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
@@ -53,7 +53,7 @@ namespace LGDXRobot2Cloud.UI.Services
         return null;
     }
 
-    public async Task<bool> DeleteRobotAsync(int robotId)
+    public async Task<bool> DeleteRobotAsync(string robotId)
     {
       var response = await _httpClient.DeleteAsync($"robot/{robotId}");
       return response.IsSuccessStatusCode;

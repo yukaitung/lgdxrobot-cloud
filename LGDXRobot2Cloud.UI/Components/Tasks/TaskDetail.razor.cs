@@ -86,7 +86,7 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     }
 
     [JSInvokable("HandleSelectChange")]
-    public void HandleSelectChange(string elementId, int? id, string? name)
+    public void HandleSelectChange(string elementId, string? id, string? name)
     {
       if (string.IsNullOrWhiteSpace(name))
         return;
@@ -97,17 +97,17 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
       int order = int.Parse(elementId[(index + 1)..]);
       if (element == AdvanceSelectElements[0])
       {
-        Task.FlowId = id;
+        Task.FlowId = int.Parse(id);
         Task.FlowName = name;
       }
       else if (element == AdvanceSelectElements[1])
       {
-        Task.AssignedRobotId = id;
+        Task.AssignedRobotId = Guid.Parse(id);
         Task.AssignedRobotName = name;
       }
       else if (element == AdvanceSelectElements[2])
       {
-        Task.Details[order].WaypointId = id;
+        Task.Details[order].WaypointId = int.Parse(id);
         Task.Details[order].WaypointName = name;
       }
     }

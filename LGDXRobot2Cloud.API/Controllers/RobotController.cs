@@ -33,7 +33,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpGet("{id}", Name = "GetRobot")]
-    public async Task<ActionResult<RobotDto>> GetRobot(int id)
+    public async Task<ActionResult<RobotDto>> GetRobot(Guid id)
     {
       var robot = await _robotRepository.GetRobotAsync(id);
       if (robot == null)
@@ -45,6 +45,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult> CreateRobot(RobotCreateDto robotDto)
     {
       var robotEntity = _mapper.Map<Robot>(robotDto);
+      robotEntity.Id = Guid.NewGuid();
       await _robotRepository.AddRobotAsync(robotEntity);
       await _robotRepository.SaveChangesAsync();
       var returnRobot = _mapper.Map<RobotDto>(robotEntity);
@@ -52,7 +53,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteRobot(int id)
+    public async Task<ActionResult> DeleteRobot(Guid id)
     {
       var robot = await _robotRepository.GetRobotAsync(id);
       if (robot == null)

@@ -72,7 +72,7 @@ namespace LGDXRobot2Cloud.API.Repositories
       return await _context.SaveChangesAsync() >= 0;
     }
 
-    public async Task<AutoTask?> AssignAutoTaskAsync(int robotId)
+    public async Task<AutoTask?> AssignAutoTaskAsync(Guid robotId)
     {
       var result = await _context.AutoTasks.FromSql($"CALL auto_task_assign_task({robotId});").ToListAsync();
       if (result.Count > 0)
@@ -81,7 +81,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         return null;
     }
 
-    public async Task<AutoTask?> GetRunningAutoTaskAsync(int robotId)
+    public async Task<AutoTask?> GetRunningAutoTaskAsync(Guid robotId)
     {
       return await _context.AutoTasks.Where(t => t.AssignedRobotId == robotId)
         .Where(t => !LgdxUtil.AutoTaskRunningStateList.Contains(t.CurrentProgressId))
@@ -91,7 +91,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         .FirstOrDefaultAsync();
     }
 
-    public async Task<AutoTask?> AutoTaskCompleteProgressAsync(int robotId, int taskId, string token)
+    public async Task<AutoTask?> AutoTaskCompleteProgressAsync(Guid robotId, int taskId, string token)
     {
       var result = await _context.AutoTasks.FromSql($"CALL auto_task_complete_progress({robotId}, {taskId}, {token});").ToListAsync();
       if (result.Count > 0)
@@ -100,7 +100,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         return null;
     }
 
-    public async Task<AutoTask?> AutoTaskAbortAsync(int robotId, int taskId, string token)
+    public async Task<AutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token)
     {
       var result = await _context.AutoTasks.FromSql($"CALL auto_task_abort({robotId}, {taskId}, {token});").ToListAsync();
       if (result.Count > 0)

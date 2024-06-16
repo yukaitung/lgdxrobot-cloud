@@ -3,7 +3,7 @@ delimiter //
 -- Assign Auto Task
 DROP PROCEDURE IF EXISTS auto_task_assign_task //
 CREATE PROCEDURE auto_task_assign_task (
-  IN robotId INT
+  IN robotId CHAR(36)
 )
 BEGIN
   DECLARE taskId INT;
@@ -120,7 +120,7 @@ END //
 -- Abort Auto Task
 DROP PROCEDURE IF EXISTS auto_task_abort //
 CREATE PROCEDURE auto_task_abort (
-   IN robotId INT
+   IN robotId CHAR(36)
   ,IN taskId INT
   ,IN completeToken CHAR(32)
 )

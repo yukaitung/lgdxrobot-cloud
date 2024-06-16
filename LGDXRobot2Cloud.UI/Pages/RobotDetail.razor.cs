@@ -8,7 +8,7 @@ namespace LGDXRobot2Cloud.UI.Pages
   public partial class RobotDetail
   {
     [Parameter]
-    public int RobotId { get; set; }
+    public string RobotId { get; set; } = string.Empty;
 
     [Inject]
     public required IRobotService RobotService { get; set; }
