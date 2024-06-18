@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-    public class AutoTaskRepository(LgdxContext context) : IAutoTaskRepository
+  public class AutoTaskRepository(LgdxContext context) : IAutoTaskRepository
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
@@ -71,7 +71,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     {
       return await _context.SaveChangesAsync() >= 0;
     }
-
+    
     public async Task<AutoTask?> AssignAutoTaskAsync(Guid robotId)
     {
       var result = await _context.AutoTasks.FromSql($"CALL auto_task_assign_task({robotId});").ToListAsync();

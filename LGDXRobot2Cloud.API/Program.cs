@@ -67,6 +67,7 @@ builder.Services.AddScoped<IApiKeyLocationRepository, ApiKeyLocationRepository>(
 builder.Services.AddScoped<IFlowRepository, FlowRepository>();
 builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
 builder.Services.AddScoped<IAutoTaskRepository, AutoTaskRepository>();
+builder.Services.AddScoped<IAutoTaskDetailRepository, AutoTaskDetailRepository>();
 builder.Services.AddScoped<ISystemComponentRepository, SystemComponentRepository>();
 builder.Services.AddScoped<ITriggerRepository, TriggerRepository>();
 builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();

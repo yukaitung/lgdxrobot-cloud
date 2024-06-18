@@ -59,7 +59,7 @@ END //
 -- Complete Progress
 DROP PROCEDURE IF EXISTS auto_task_complete_progress //
 CREATE PROCEDURE auto_task_complete_progress (
-   IN robotId INT
+   IN robotId CHAR(36)
   ,IN taskId INT
   ,IN completeToken CHAR(32)
 )
@@ -146,7 +146,8 @@ BEGIN
       SET  `CurrentProgressId`    = 9
           ,`CurrentProgressOrder` = NULL
           ,`CompleteToken`        = NULL
-          ,`UpdatedAt`            = UTC_TIMESTAMP(6)
+          ,`UpdatedAt`            = UTC_TIMESTAMP(
+            6)
       WHERE `Id` = taskId;
     SET taskAborted = 1;
   END IF;
