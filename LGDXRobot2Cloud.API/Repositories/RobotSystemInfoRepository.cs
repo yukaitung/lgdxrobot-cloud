@@ -1,0 +1,26 @@
+using LGDXRobot2Cloud.API.DbContexts;
+using LGDXRobot2Cloud.Shared.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace LGDXRobot2Cloud.API.Repositories
+{
+  public class RobotSystemInfoRepository(LgdxContext context) : IRobotSystemInfoRepository
+  {
+    private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+
+    public async Task<RobotSystemInfo?> GetRobotSystemInfoAsync(Guid robotId)
+    {
+      return await _context.RobotSystemInfos.Where(s => s.RobotId == robotId).FirstOrDefaultAsync();
+    }
+
+    public async Task AddRobotSystemInfoAsync(RobotSystemInfo robot)
+    {
+      await _context.RobotSystemInfos.AddAsync(robot);
+    }
+
+    public async Task<bool> SaveChangesAsync()
+    {
+      return await _context.SaveChangesAsync() >= 0;
+    }
+  }
+}

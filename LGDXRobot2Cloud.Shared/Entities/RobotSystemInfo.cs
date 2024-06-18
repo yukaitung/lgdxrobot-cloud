@@ -24,5 +24,10 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public string Os { get; set; } = null!;
 
     public bool Is32Bit { get; set; }
+
+    [ForeignKey("RobotId")]
+    public Robot Robot { get; set; } = null!;
+
+    public Guid RobotId { get; set; }
   }
 }

@@ -12,10 +12,12 @@ namespace LGDXRobot2Cloud.API.Services
 {
   [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
   public class RobotClientService(IAutoTaskSchedulerService autoTaskSchedulerService,
-  IAutoTaskDetailRepository autoTaskDetailRepository) : RobotClientServiceBase
+  IAutoTaskDetailRepository autoTaskDetailRepository,
+  IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientServiceBase
   {
     private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
     private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
+    private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
 
     private async Task<TaskProgressDetail?> GenerateTaskDetail(AutoTask? task)
     {
@@ -123,9 +125,48 @@ namespace LGDXRobot2Cloud.API.Services
       };
     }
 
-    public override Task<ResultMessage> UpdateSpecification(RobotSpecification specification, ServerCallContext context)
+    public override async Task<ResultMessage> UpdateSpecification(RobotSpecification specification, ServerCallContext context)
     {
-      return Task.FromResult(new ResultMessage());
+      var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
+      if (robotClaim == null)
+      {
+        return new ResultMessage {
+          Status = ResultStatus.Failed,
+          Message = "Robot ID is missing in CN."
+        };
+      }
+      var robotId = robotClaim.Value;
+
+      bool success;
+      var specificationEntity = await _robotSystemInfoRepository.GetRobotSystemInfoAsync(Guid.Parse(robotId));
+      if (specificationEntity == null)
+      {
+        var newSpecificationEntity = new RobotSystemInfo {
+          Cpu = specification.Cpu,
+          IsLittleEndian = specification.IsLittleEndian,
+          RamMiB = specification.RamMiB,
+          Gpu = specification.Gpu,
+          Os = specification.Os,
+          Is32Bit = specification.Is32Bit,
+          RobotId = Guid.Parse(robotId)
+        };
+        await _robotSystemInfoRepository.AddRobotSystemInfoAsync(newSpecificationEntity);
+      }
+      else
+      {
+        specificationEntity.Cpu = specification.Cpu;
+        specificationEntity.IsLittleEndian = specification.IsLittleEndian;
+        specificationEntity.RamMiB = specification.RamMiB;
+        specificationEntity.Gpu = specification.Gpu;
+        specificationEntity.Os = specification.Os;
+        specificationEntity.Is32Bit = specification.Is32Bit;
+      }
+
+      success = await _robotSystemInfoRepository.SaveChangesAsync();
+      return new ResultMessage {
+        Status = success ? ResultStatus.Success : ResultStatus.Failed,
+        Message = success ? "" : "Database error."
+      };
     }
   }
 }

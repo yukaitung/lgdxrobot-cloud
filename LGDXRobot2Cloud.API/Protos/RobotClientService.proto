@@ -52,10 +52,6 @@ message CompleteToken {
 }
 
 message RobotSpecification {
-  SystemInfo SystemInfo = 1;
-}
-
-message SystemInfo {
   string Cpu = 1;
   bool IsLittleEndian = 2;
   int32 RamMiB = 3;

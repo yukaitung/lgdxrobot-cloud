@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-  public class ProgressRepository : IProgressRepository
+  public class ProgressRepository(LgdxContext context) : IProgressRepository
   {
-    private readonly LgdxContext _context;
-
-    public ProgressRepository(LgdxContext context)
-    {
-      _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<(IEnumerable<Progress>, PaginationMetadata)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved)
     {

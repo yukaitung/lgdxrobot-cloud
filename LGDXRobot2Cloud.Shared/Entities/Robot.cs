@@ -22,10 +22,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
 
     public int? DefaultNodesCollectionId { get; set; }
 
-    [ForeignKey("RobotSystemInfoId")]
     public RobotSystemInfo? RobotSystemInfo { get; set; }
-
-    public int? RobotSystemInfoId { get; set; }
 
     public ICollection<AutoTask> AssignedTasks { get; set; } = [];
 
