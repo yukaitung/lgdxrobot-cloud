@@ -125,7 +125,7 @@ namespace LGDXRobot2Cloud.API.Services
       };
     }
 
-    public override async Task<ResultMessage> UpdateSpecification(RobotSpecification specification, ServerCallContext context)
+    public override async Task<ResultMessage> UpdateSystemInfo(Protos.RobotSystemInfo specification, ServerCallContext context)
     {
       var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
       if (robotClaim == null)
@@ -141,7 +141,7 @@ namespace LGDXRobot2Cloud.API.Services
       var specificationEntity = await _robotSystemInfoRepository.GetRobotSystemInfoAsync(Guid.Parse(robotId));
       if (specificationEntity == null)
       {
-        var newSpecificationEntity = new RobotSystemInfo {
+        var newSpecificationEntity = new Shared.Entities.RobotSystemInfo {
           Cpu = specification.Cpu,
           IsLittleEndian = specification.IsLittleEndian,
           RamMiB = specification.RamMiB,

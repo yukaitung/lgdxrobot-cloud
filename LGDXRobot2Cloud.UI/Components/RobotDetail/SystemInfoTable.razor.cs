@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.RobotDetail
 {
-  public partial class TasksTable
+  public partial class SystemInfoTable
   {
     [Parameter]
-    public ICollection<AutoTaskBlazor>? TasksList { get; set; }
+    public RobotSystemInfoBlazor? RobotSystemInfo { get; set; }
   }
 }

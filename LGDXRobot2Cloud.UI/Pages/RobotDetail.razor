@@ -31,5 +31,12 @@
 </PageHeader>
 
 <PageBody>
-  <TasksTable TasksList="Robot?.AssignedTasks" />
+  <div class="row row-cards">
+    <div class="col-12">
+      <TasksTable TasksList="Robot?.AssignedTasks" />
+    </div>
+    <div class="col-12">
+      <SystemInfoTable RobotSystemInfo="Robot?.RobotSystemInfo"/>
+    </div>
+  </div>
 </PageBody>

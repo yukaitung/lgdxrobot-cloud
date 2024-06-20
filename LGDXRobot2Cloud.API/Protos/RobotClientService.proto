@@ -6,7 +6,7 @@ service RobotClientService {
   rpc Exchange (RobotData) returns (ExchangeReturn);
   rpc CompleteProgress (CompleteToken) returns (ExchangeReturn);
   rpc AbortAutoTask (CompleteToken) returns (ResultMessage);
-  rpc UpdateSpecification (RobotSpecification) returns (ResultMessage);
+  rpc UpdateSystemInfo (RobotSystemInfo) returns (ResultMessage);
 }
 
 enum ResultStatus {
@@ -51,7 +51,7 @@ message CompleteToken {
   string Token = 2;
 }
 
-message RobotSpecification {
+message RobotSystemInfo {
   string Cpu = 1;
   bool IsLittleEndian = 2;
   int32 RamMiB = 3;
