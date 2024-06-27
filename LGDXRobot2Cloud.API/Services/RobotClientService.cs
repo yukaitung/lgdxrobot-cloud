@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using Grpc.Core;
 using LGDXRobot2Cloud.API.Repositories;
@@ -13,9 +14,11 @@ namespace LGDXRobot2Cloud.API.Services
   [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
   public class RobotClientService(IAutoTaskSchedulerService autoTaskSchedulerService,
   IAutoTaskDetailRepository autoTaskDetailRepository,
+  IRobotDataService robotDataService,
   IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientServiceBase
   {
     private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
+    private readonly IRobotDataService _robotDataService = robotDataService ?? throw new ArgumentNullException(nameof(robotDataService));
     private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
     private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
 
@@ -23,13 +26,13 @@ namespace LGDXRobot2Cloud.API.Services
     {
       if (task == null)
         return null;
-      List<Dof> waypoints = [];
+      List<RobotPosition> waypoints = [];
       if (task.CurrentProgressId == (int)ProgressState.Moving)
       {
         var taskDetails = await _autoTaskDetailRepository.GetAutoTaskDetailsAsync(task.Id);
         foreach (var t in taskDetails)
         {
-          waypoints.Add(new Dof {X = t.Waypoint.X, Y = t.Waypoint.Y, W = t.Waypoint.W});
+          waypoints.Add(new RobotPosition {X = t.Waypoint.X, Y = t.Waypoint.Y, W = t.Waypoint.W});
         }
       }
       return new TaskProgressDetail{
@@ -42,7 +45,35 @@ namespace LGDXRobot2Cloud.API.Services
       };
     }
 
-    public override async Task<ExchangeReturn> Exchange(RobotData data, ServerCallContext context)
+    static private RobotData GenerateRobotData(RpcRobotExchangeData data)
+    {
+      var batteriesCount = data.Batteries.Count;
+      (double, double, double, double) batteries = (0, 0, 0, 0);
+      if (batteriesCount >= 1)
+        batteries.Item1 = data.Batteries.ElementAt(0);
+      if (batteriesCount >= 2)
+        batteries.Item2 = data.Batteries.ElementAt(1);
+      if (batteriesCount >= 3)
+        batteries.Item3 = data.Batteries.ElementAt(2);
+      if (batteriesCount >= 4)
+        batteries.Item4 = data.Batteries.ElementAt(3);
+
+      var emergencyStopsCount = data.EmergencyStopsEnabled.Count;
+      (bool, bool) emergencyStopsEnabled = (false, false);
+      if (emergencyStopsCount >= 1)
+        emergencyStopsEnabled.Item1 = data.EmergencyStopsEnabled.ElementAt(0);
+      if (emergencyStopsCount >= 2)
+        emergencyStopsEnabled.Item2 = data.EmergencyStopsEnabled.ElementAt(1);
+
+      return new RobotData {
+        Batteries = batteries,
+        Position = (data.Position.X, data.Position.Y, data.Position.W),
+        Velocity = (data.Velocity.X, data.Velocity.Y, data.Velocity.W),
+        EmergencyStopsEnabled = emergencyStopsEnabled
+      };
+    }
+
+    public override async Task<ExchangeReturn> Exchange(RpcRobotExchangeData data, ServerCallContext context)
     {
       var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
       if (robotClaim == null)
@@ -54,13 +85,13 @@ namespace LGDXRobot2Cloud.API.Services
           }
         };
       }
-      var robotId = robotClaim.Value;
-      // TODO: Set Robot Data
+      var robotId = Guid.Parse(robotClaim.Value);
 
+      _robotDataService.SetRobotData(robotId, GenerateRobotData(data));
       // Get AutoTask
       if (data.GetTask == true)
       {
-        var task = await _autoTaskSchedulerService.GetAutoTask(Guid.Parse(robotId));
+        var task = await _autoTaskSchedulerService.GetAutoTask(robotId);
         var taskDetail = await GenerateTaskDetail(task);
         return new ExchangeReturn{
           Result = new ResultMessage {
@@ -93,9 +124,9 @@ namespace LGDXRobot2Cloud.API.Services
           }
         };
       }
-      var robotId = robotClaim.Value;
+      var robotId = Guid.Parse(robotClaim.Value);
 
-      var (task, errorMessage) = await _autoTaskSchedulerService.CompleteProgress(Guid.Parse(robotId), token.TaskId, token.Token);
+      var (task, errorMessage) = await _autoTaskSchedulerService.CompleteProgress(robotId, token.TaskId, token.Token);
       var taskDetail = await GenerateTaskDetail(task);
       return new ExchangeReturn {
         Result = new ResultMessage {
@@ -116,9 +147,9 @@ namespace LGDXRobot2Cloud.API.Services
           Message = "Robot ID is missing in CN."
         };
       }
-      var robotId = robotClaim.Value;
+      var robotId = Guid.Parse(robotClaim.Value);
 
-      var result = await _autoTaskSchedulerService.AbortAutoTask(Guid.Parse(robotId), token.TaskId, token.Token);
+      var result = await _autoTaskSchedulerService.AbortAutoTask(robotId, token.TaskId, token.Token);
       return  new ResultMessage {
         Status = result == string.Empty ? ResultStatus.Success : ResultStatus.Failed,
         Message = result

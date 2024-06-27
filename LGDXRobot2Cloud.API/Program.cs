@@ -61,6 +61,7 @@ builder.Services.AddDbContext<LgdxContext>(
 
 // Custom Services
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
+builder.Services.AddSingleton<IRobotDataService, RobotDataService>();
 
 // Navigation Repositories
 builder.Services.AddScoped<IApiKeyLocationRepository, ApiKeyLocationRepository>();

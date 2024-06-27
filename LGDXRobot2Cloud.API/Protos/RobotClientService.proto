@@ -3,7 +3,7 @@ syntax = "proto3";
 option csharp_namespace = "LGDXRobot2Cloud.Protos";
 
 service RobotClientService {
-  rpc Exchange (RobotData) returns (ExchangeReturn);
+  rpc Exchange (RpcRobotExchangeData) returns (ExchangeReturn);
   rpc CompleteProgress (CompleteToken) returns (ExchangeReturn);
   rpc AbortAutoTask (CompleteToken) returns (ResultMessage);
   rpc UpdateSystemInfo (RobotSystemInfo) returns (ResultMessage);
@@ -19,17 +19,18 @@ message ResultMessage {
   string Message = 2;
 }
 
-message Dof {
+message RobotPosition {
   double X = 1;
   double Y = 2;
   double W = 3;
 }
 
-message RobotData {
-  Dof Position = 1;
-  Dof Velocity = 2;
+message RpcRobotExchangeData {
+  RobotPosition Position = 1;
+  RobotPosition Velocity = 2;
   repeated double Batteries = 3;
-  bool GetTask = 4;
+  repeated bool EmergencyStopsEnabled = 4;
+  bool GetTask = 5;
 }
 
 message TaskProgressDetail {
@@ -37,7 +38,7 @@ message TaskProgressDetail {
   string TaskName = 2;
   int32 TaskProgressId = 3;
   string TaskProgressName = 4;
-  repeated Dof Waypoints = 5;
+  repeated RobotPosition Waypoints = 5;
   string CompleteToken = 6;
 }
 
