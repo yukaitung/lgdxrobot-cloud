@@ -9,40 +9,44 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
-builder.WebHost.UseUrls("https://localhost:5162");
 builder.WebHost.ConfigureKestrel(cfg =>
 {
   cfg.ConfigureHttpsDefaults(ctx => ctx.ClientCertificateMode = ClientCertificateMode.AllowCertificate);
 });
 
 builder.Services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
-    .AddCertificate(cfg =>
-    {
-			cfg.AllowedCertificateTypes = CertificateTypes.Chained;
-			cfg.RevocationMode = X509RevocationMode.NoCheck;
-			cfg.Events = new CertificateAuthenticationEvents()
+	.AddCertificate(cfg =>
+	{
+		cfg.AllowedCertificateTypes = CertificateTypes.All;
+		cfg.RevocationMode = X509RevocationMode.NoCheck;
+		cfg.Events = new CertificateAuthenticationEvents()
+		{
+				OnAuthenticationFailed = context =>
 			{
-				OnCertificateValidated = ctx =>
+				context.Fail("Certificate authentication failed");
+				return Task.CompletedTask;
+			},
+			OnCertificateValidated = ctx =>
+			{
+				if (ctx.ClientCertificate.Issuer == builder.Configuration["LgdxRobot2:GrpcCertificateIssuer"])
 				{
-					if (ctx.ClientCertificate.Issuer == builder.Configuration["LgdxRobot2:GrpcCertificateIssuer"])
-					{
-						// The subject must have CN=
-						if (ctx.ClientCertificate.Subject.Length < 4)
-							ctx.Fail("Incorrect Subject.");
-						var claims = new [] {
-							new Claim(ClaimTypes.NameIdentifier, ctx.ClientCertificate.Subject[3..])
-						};
-						ctx.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ctx.Scheme.Name));
-						ctx.Success();
-					}
-					else
-					{
-						ctx.Fail("Invalid Issuer.");
-					}
-					return Task.CompletedTask;
+					// The subject must have CN=
+					if (ctx.ClientCertificate.Subject.Length < 4)
+						ctx.Fail("Incorrect Subject.");
+					var claims = new [] {
+						new Claim(ClaimTypes.NameIdentifier, ctx.ClientCertificate.Subject[3..])
+					};
+					ctx.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ctx.Scheme.Name));
+					ctx.Success();
 				}
-			};
-    });
+				else
+				{
+					ctx.Fail("Invalid Issuer.");
+				}
+				return Task.CompletedTask;
+			}
+		};
+	});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
