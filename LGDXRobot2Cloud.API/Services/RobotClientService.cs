@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 using System.Security.Claims;
 using Grpc.Core;
 using LGDXRobot2Cloud.API.Repositories;
@@ -13,19 +12,38 @@ namespace LGDXRobot2Cloud.API.Services
 {
   [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
   public class RobotClientService(IAutoTaskSchedulerService autoTaskSchedulerService,
-  IAutoTaskDetailRepository autoTaskDetailRepository,
-  IRobotDataService robotDataService,
-  IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientServiceBase
+    IAutoTaskDetailRepository autoTaskDetailRepository,
+    IRobotDataService robotDataService,
+    IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientServiceBase
   {
     private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
-    private readonly IRobotDataService _robotDataService = robotDataService ?? throw new ArgumentNullException(nameof(robotDataService));
     private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
+    private readonly IRobotDataService _robotDataService = robotDataService ?? throw new ArgumentNullException(nameof(robotDataService));
     private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
 
-    private async Task<RpcTaskProgressDetail?> GenerateTaskDetail(AutoTask? task)
+    private static Guid? ValidateRobotClaim(ServerCallContext context)
+    {
+      var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
+      if (robotClaim == null)
+      {
+        return null;
+      }
+      return Guid.Parse(robotClaim.Value);
+    }
+
+    private static RpcRespond ValidateRobotClaimFailed()
+    {
+      return new RpcRespond {
+        Status = RpcResultStatus.Failed,
+        Message = "Robot ID missing in CN field."
+      };
+    }
+
+    private async Task<RpcAutoTask?> GenerateTaskDetail(AutoTask? task)
     {
       if (task == null)
         return null;
+
       List<RpcRobotDof> waypoints = [];
       if (task.CurrentProgressId == (int)ProgressState.Moving)
       {
@@ -35,7 +53,7 @@ namespace LGDXRobot2Cloud.API.Services
           waypoints.Add(new RpcRobotDof {X = t.Waypoint.X, Y = t.Waypoint.Y, W = t.Waypoint.W});
         }
       }
-      return new RpcTaskProgressDetail{
+      return new RpcAutoTask{
         TaskId = task.Id,
         TaskName = task.Name,
         TaskProgressId = task.CurrentProgressId,
@@ -45,7 +63,7 @@ namespace LGDXRobot2Cloud.API.Services
       };
     }
 
-    static private RobotData GenerateRobotData(RpcRobotExchangeData data)
+    static private RobotData GenerateRobotData(RpcExchange data)
     {
       var batteriesCount = data.Batteries.Count;
       (double, double, double, double) batteries = (0, 0, 0, 0);
@@ -73,130 +91,96 @@ namespace LGDXRobot2Cloud.API.Services
       };
     }
 
-    public override async Task<RpcResultMessageWithTask> Exchange(RpcRobotExchangeData data, ServerCallContext context)
+    public override async Task<RpcRespond> Greet(RpcGreet greet, ServerCallContext context)
     {
-      var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
-      if (robotClaim == null)
-      {
-        return new RpcResultMessageWithTask{
-          Result = new RpcResultMessage {
-            Status = RpcResultStatus.Failed,
-            Message = "Robot ID is missing in CN."
-          }
-        };
-      }
-      var robotId = Guid.Parse(robotClaim.Value);
+      var robotId = ValidateRobotClaim(context);
+      if (robotId == null)
+        return ValidateRobotClaimFailed();
 
-      _robotDataService.SetRobotData(robotId, GenerateRobotData(data));
+      bool success;
+      var systemInfoEntity = await _robotSystemInfoRepository.GetRobotSystemInfoAsync((Guid)robotId);
+      if (systemInfoEntity == null)
+      {
+        var newSystemInfoEntity = new RobotSystemInfo {
+          Cpu = greet.SystemInfo.Cpu,
+          IsLittleEndian =  greet.SystemInfo.IsLittleEndian,
+          RamMiB =  greet.SystemInfo.RamMiB,
+          Gpu =  greet.SystemInfo.Gpu,
+          Os =  greet.SystemInfo.Os,
+          Is32Bit =  greet.SystemInfo.Is32Bit,
+          RobotId = (Guid)robotId
+        };
+        await _robotSystemInfoRepository.AddRobotSystemInfoAsync(newSystemInfoEntity);
+      }
+      else
+      {
+        systemInfoEntity.Cpu = greet.SystemInfo.Cpu;
+        systemInfoEntity.IsLittleEndian = greet.SystemInfo.IsLittleEndian;
+        systemInfoEntity.RamMiB = greet.SystemInfo.RamMiB;
+        systemInfoEntity.Gpu = greet.SystemInfo.Gpu;
+        systemInfoEntity.Os = greet.SystemInfo.Os;
+        systemInfoEntity.Is32Bit = greet.SystemInfo.Is32Bit;
+      }
+
+      success = await _robotSystemInfoRepository.SaveChangesAsync();
+      return new RpcRespond {
+        Status = success ? RpcResultStatus.Success : RpcResultStatus.Failed,
+        Message = success ? string.Empty : "Database error."
+      };
+    }
+
+    public override async Task<RpcRespond> Exchange(RpcExchange data, ServerCallContext context)
+    {
+      var robotId = ValidateRobotClaim(context);
+      if (robotId == null)
+        return ValidateRobotClaimFailed();
+
+      _robotDataService.SetRobotData((Guid)robotId, GenerateRobotData(data));
       // Get AutoTask
       if (data.GetTask == true)
       {
-        var task = await _autoTaskSchedulerService.GetAutoTask(robotId);
+        var task = await _autoTaskSchedulerService.GetAutoTask((Guid)robotId);
         var taskDetail = await GenerateTaskDetail(task);
-        return new RpcResultMessageWithTask{
-          Result = new RpcResultMessage {
-            Status = RpcResultStatus.Success,
-            Message = ""
-          },
+        return new RpcRespond {
+          Status = RpcResultStatus.Success,
+          Message = string.Empty,
           Task = taskDetail
         };
       }
       else
       {
-        return new RpcResultMessageWithTask{
-          Result = new RpcResultMessage {
-            Status = RpcResultStatus.Success,
-            Message = ""
-          }
+        return new RpcRespond {
+          Status = RpcResultStatus.Success,
+          Message = string.Empty,
         };
       }
     }
 
-    public override async Task<RpcResultMessageWithTask> CompleteProgress(RpcCompleteToken token, ServerCallContext context)
+    public override async Task<RpcRespond> AutoTaskNext(RpcCompleteToken token, ServerCallContext context)
     {
-      var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
-      if (robotClaim == null)
-      {
-        return new RpcResultMessageWithTask{
-          Result = new RpcResultMessage {
-            Status = RpcResultStatus.Failed,
-            Message = "Robot ID is missing in CN."
-          }
-        };
-      }
-      var robotId = Guid.Parse(robotClaim.Value);
+      var robotId = ValidateRobotClaim(context);
+      if (robotId == null)
+        return ValidateRobotClaimFailed();
 
-      var (task, errorMessage) = await _autoTaskSchedulerService.CompleteProgress(robotId, token.TaskId, token.Token);
+      var (task, errorMessage) = await _autoTaskSchedulerService.CompleteProgress((Guid)robotId, token.TaskId, token.Token);
       var taskDetail = await GenerateTaskDetail(task);
-      return new RpcResultMessageWithTask {
-        Result = new RpcResultMessage {
-          Status = errorMessage == string.Empty ? RpcResultStatus.Success : RpcResultStatus.Failed,
-          Message = errorMessage
-        },
+      return new RpcRespond {
+        Status = errorMessage == string.Empty ? RpcResultStatus.Success : RpcResultStatus.Failed,
+        Message = errorMessage,
         Task = taskDetail
       };
     }
 
-    public override async Task<RpcResultMessage> AbortAutoTask(RpcCompleteToken token, ServerCallContext context)
+    public override async Task<RpcRespond> AutoTaskAbort(RpcCompleteToken token, ServerCallContext context)
     {
-      var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
-      if (robotClaim == null)
-      {
-        return new RpcResultMessage {
-          Status = RpcResultStatus.Failed,
-          Message = "Robot ID is missing in CN."
-        };
-      }
-      var robotId = Guid.Parse(robotClaim.Value);
+      var robotId = ValidateRobotClaim(context);
+      if (robotId == null)
+        return ValidateRobotClaimFailed();
 
-      var result = await _autoTaskSchedulerService.AbortAutoTask(robotId, token.TaskId, token.Token);
-      return  new RpcResultMessage {
+      var result = await _autoTaskSchedulerService.AbortAutoTask((Guid)robotId, token.TaskId, token.Token);
+      return new RpcRespond {
         Status = result == string.Empty ? RpcResultStatus.Success : RpcResultStatus.Failed,
         Message = result
-      };
-    }
-
-    public override async Task<RpcResultMessage> UpdateSystemInfo(RpcRobotSystemInfo specification, ServerCallContext context)
-    {
-      var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
-      if (robotClaim == null)
-      {
-        return new RpcResultMessage {
-          Status = RpcResultStatus.Failed,
-          Message = "Robot ID is missing in CN."
-        };
-      }
-      var robotId = robotClaim.Value;
-
-      bool success;
-      var specificationEntity = await _robotSystemInfoRepository.GetRobotSystemInfoAsync(Guid.Parse(robotId));
-      if (specificationEntity == null)
-      {
-        var newSpecificationEntity = new RobotSystemInfo {
-          Cpu = specification.Cpu,
-          IsLittleEndian = specification.IsLittleEndian,
-          RamMiB = specification.RamMiB,
-          Gpu = specification.Gpu,
-          Os = specification.Os,
-          Is32Bit = specification.Is32Bit,
-          RobotId = Guid.Parse(robotId)
-        };
-        await _robotSystemInfoRepository.AddRobotSystemInfoAsync(newSpecificationEntity);
-      }
-      else
-      {
-        specificationEntity.Cpu = specification.Cpu;
-        specificationEntity.IsLittleEndian = specification.IsLittleEndian;
-        specificationEntity.RamMiB = specification.RamMiB;
-        specificationEntity.Gpu = specification.Gpu;
-        specificationEntity.Os = specification.Os;
-        specificationEntity.Is32Bit = specification.Is32Bit;
-      }
-
-      success = await _robotSystemInfoRepository.SaveChangesAsync();
-      return new RpcResultMessage {
-        Status = success ? RpcResultStatus.Success : RpcResultStatus.Failed,
-        Message = success ? "" : "Database error."
       };
     }
   }

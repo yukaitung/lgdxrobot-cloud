@@ -3,12 +3,15 @@ syntax = "proto3";
 option csharp_namespace = "LGDXRobot2Cloud.Protos";
 
 service RobotClientService {
-  rpc Exchange (RpcRobotExchangeData) returns (RpcResultMessageWithTask);
-  rpc CompleteProgress (RpcCompleteToken) returns (RpcResultMessageWithTask);
-  rpc AbortAutoTask (RpcCompleteToken) returns (RpcResultMessage);
-  rpc UpdateSystemInfo (RpcRobotSystemInfo) returns (RpcResultMessage);
+  rpc Greet (RpcGreet) returns (RpcRespond);
+  rpc Exchange (RpcExchange) returns (RpcRespond);
+  rpc AutoTaskNext (RpcCompleteToken) returns (RpcRespond);
+  rpc AutoTaskAbort (RpcCompleteToken) returns (RpcRespond);
 }
 
+/*
+** Common
+*/
 enum RpcResultStatus {
   Success = 0;
   Failed = 1;
@@ -20,21 +23,24 @@ message RpcRobotDof {
   double W = 3;
 }
 
-// Send
-
-message RpcRobotExchangeData {
-  RpcRobotDof Position = 1;
-  RpcRobotDof Velocity = 2;
-  repeated double Batteries = 3;
-  repeated bool EmergencyStopsEnabled = 4;
-  bool GetTask = 5;
-}
-
-message RpcCompleteToken {
+message RpcAutoTask {
   int32 TaskId = 1;
-  string Token = 2;
+  string TaskName = 2;
+  int32 TaskProgressId = 3;
+  string TaskProgressName = 4;
+  repeated RpcRobotDof Waypoints = 5;
+  string CompleteToken = 6;
 }
 
+message RpcRespond {
+  RpcResultStatus Status = 1;
+  string Message = 2;
+  optional RpcAutoTask Task = 3;
+}
+
+/*
+** Greet
+*/
 message RpcRobotSystemInfo {
   string Cpu = 1;
   bool IsLittleEndian = 2;
@@ -44,23 +50,22 @@ message RpcRobotSystemInfo {
   bool Is32Bit = 6;
 }
 
-// Return
-
-message RpcResultMessage {
-  RpcResultStatus Status = 1;
-  string Message = 2;
+message RpcGreet {
+  RpcRobotSystemInfo SystemInfo = 1;
 }
 
-message RpcResultMessageWithTask {
-  RpcResultMessage Result = 1;
-  RpcTaskProgressDetail Task = 2;
+/*
+** Exchange
+*/
+message RpcExchange {
+  optional RpcRobotDof Position = 1;
+  optional RpcRobotDof Velocity = 2;
+  repeated double Batteries = 3;
+  repeated bool EmergencyStopsEnabled = 4;
+  optional bool GetTask = 5;
 }
 
-message RpcTaskProgressDetail {
+message RpcCompleteToken {
   int32 TaskId = 1;
-  string TaskName = 2;
-  int32 TaskProgressId = 3;
-  string TaskProgressName = 4;
-  repeated RpcRobotDof Waypoints = 5;
-  string CompleteToken = 6;
+  string Token = 2;
 }

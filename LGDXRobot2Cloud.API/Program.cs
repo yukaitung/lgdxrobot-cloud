@@ -21,28 +21,16 @@ builder.Services.AddAuthentication(CertificateAuthenticationDefaults.Authenticat
 		cfg.RevocationMode = X509RevocationMode.NoCheck;
 		cfg.Events = new CertificateAuthenticationEvents()
 		{
-				OnAuthenticationFailed = context =>
-			{
-				context.Fail("Certificate authentication failed");
-				return Task.CompletedTask;
-			},
 			OnCertificateValidated = ctx =>
 			{
-				if (ctx.ClientCertificate.Issuer == builder.Configuration["LgdxRobot2:GrpcCertificateIssuer"])
-				{
-					// The subject must have CN=
-					if (ctx.ClientCertificate.Subject.Length < 4)
-						ctx.Fail("Incorrect Subject.");
-					var claims = new [] {
-						new Claim(ClaimTypes.NameIdentifier, ctx.ClientCertificate.Subject[3..])
-					};
-					ctx.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ctx.Scheme.Name));
-					ctx.Success();
-				}
-				else
-				{
-					ctx.Fail("Invalid Issuer.");
-				}
+				// The subject must have CN=
+				if (ctx.ClientCertificate.Subject.Length < 4)
+					ctx.Fail("Incorrect Subject.");
+				var claims = new [] {
+					new Claim(ClaimTypes.NameIdentifier, ctx.ClientCertificate.Subject[3..])
+				};
+				ctx.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ctx.Scheme.Name));
+				ctx.Success();
 				return Task.CompletedTask;
 			}
 		};
