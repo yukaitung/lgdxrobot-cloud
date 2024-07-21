@@ -21,7 +21,7 @@ namespace LGDXRobot2Cloud.API.Services
       return currentTask;
     }
 
-    public async Task<string> AbortAutoTask(Guid robotId, int taskId, string token)
+    public async Task<string> AutoTaskAbort(Guid robotId, int taskId, string token)
     {
       var task = await _autoTaskRepository.AutoTaskAbortAsync(robotId, taskId, token);
       if (task == null)
@@ -32,9 +32,9 @@ namespace LGDXRobot2Cloud.API.Services
         return "Database Error.";
     }
 
-    public async Task<(AutoTask?, string)> CompleteProgress(Guid robotId, int taskId, string token)
+    public async Task<(AutoTask?, string)> AutoTaskNext(Guid robotId, int taskId, string token)
     {
-      var task = await _autoTaskRepository.AutoTaskCompleteProgressAsync(robotId, taskId, token);
+      var task = await _autoTaskRepository.AutoTaskNextAsync(robotId, taskId, token);
       if (task == null)
         return (null, "Task not found / Invalid token.");
       if (task.CurrentProgressId == (int)ProgressState.Completed)

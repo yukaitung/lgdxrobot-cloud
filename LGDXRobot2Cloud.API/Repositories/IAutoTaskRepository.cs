@@ -13,7 +13,7 @@ namespace LGDXRobot2Cloud.API.Repositories
 
     Task<AutoTask?> AssignAutoTaskAsync(Guid robotId);
     Task<AutoTask?> GetRunningAutoTaskAsync(Guid robotId);
-    Task<AutoTask?> AutoTaskCompleteProgressAsync(Guid robotId, int taskId, string token);
+    Task<AutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token);
     Task<AutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token);
   }
 }

@@ -91,7 +91,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         .FirstOrDefaultAsync();
     }
 
-    public async Task<AutoTask?> AutoTaskCompleteProgressAsync(Guid robotId, int taskId, string token)
+    public async Task<AutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token)
     {
       var result = await _context.AutoTasks.FromSql($"CALL auto_task_complete_progress({robotId}, {taskId}, {token});").ToListAsync();
       if (result.Count > 0)
