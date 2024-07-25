@@ -55,11 +55,11 @@ namespace LGDXRobot2Cloud.API.Services
       }
       return new RpcAutoTask{
         TaskId = task.Id,
-        TaskName = task.Name,
+        TaskName = task.Name ?? string.Empty,
         TaskProgressId = task.CurrentProgressId,
-        TaskProgressName = task.CurrentProgress.Name,
+        TaskProgressName = task.CurrentProgress.Name ?? string.Empty,
         Waypoints = {waypoints},
-        CompleteToken = task.CompleteToken
+        NextToken = task.CompleteToken
       };
     }
 
@@ -156,7 +156,7 @@ namespace LGDXRobot2Cloud.API.Services
       }
     }
 
-    public override async Task<RpcRespond> AutoTaskNext(RpcCompleteToken token, ServerCallContext context)
+    public override async Task<RpcRespond> AutoTaskNext(RpcNextToken token, ServerCallContext context)
     {
       var robotId = ValidateRobotClaim(context);
       if (robotId == null)
@@ -171,7 +171,7 @@ namespace LGDXRobot2Cloud.API.Services
       };
     }
 
-    public override async Task<RpcRespond> AutoTaskAbort(RpcCompleteToken token, ServerCallContext context)
+    public override async Task<RpcRespond> AutoTaskAbort(RpcNextToken token, ServerCallContext context)
     {
       var robotId = ValidateRobotClaim(context);
       if (robotId == null)

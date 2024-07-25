@@ -5,8 +5,8 @@ option csharp_namespace = "LGDXRobot2Cloud.Protos";
 service RobotClientService {
   rpc Greet (RpcGreet) returns (RpcRespond);
   rpc Exchange (RpcExchange) returns (RpcRespond);
-  rpc AutoTaskNext (RpcCompleteToken) returns (RpcRespond);
-  rpc AutoTaskAbort (RpcCompleteToken) returns (RpcRespond);
+  rpc AutoTaskNext (RpcNextToken) returns (RpcRespond);
+  rpc AutoTaskAbort (RpcNextToken) returns (RpcRespond);
 }
 
 /*
@@ -29,7 +29,7 @@ message RpcAutoTask {
   int32 TaskProgressId = 3;
   string TaskProgressName = 4;
   repeated RpcRobotDof Waypoints = 5;
-  string CompleteToken = 6;
+  string NextToken = 6;
 }
 
 message RpcRespond {
@@ -65,7 +65,7 @@ message RpcExchange {
   optional bool GetTask = 5;
 }
 
-message RpcCompleteToken {
+message RpcNextToken {
   int32 TaskId = 1;
-  string Token = 2;
+  string token = 2;
 }
