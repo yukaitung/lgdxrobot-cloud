@@ -36,7 +36,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public int? CurrentProgressOrder { get; set; }
 
     [MaxLength(32)]
-    public string? CompleteToken { get; set; }
+    public string? NextToken { get; set; }
 
     [Precision(6)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

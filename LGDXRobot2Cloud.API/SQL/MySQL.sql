@@ -42,7 +42,7 @@ BEGIN
         SET  `AssignedRobotId`      = robotId
             ,`CurrentProgressId`    = progressId
             ,`CurrentProgressOrder` = progressOrder
-            ,`CompleteToken`        = (SELECT MD5(CONCAT(robotId, " ", taskId, " ", progressId, " ", UTC_TIMESTAMP(6))))
+            ,`NextToken`        = (SELECT MD5(CONCAT(robotId, " ", taskId, " ", progressId, " ", UTC_TIMESTAMP(6))))
             ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = taskId;
     END IF;
@@ -61,7 +61,7 @@ DROP PROCEDURE IF EXISTS auto_task_complete_progress //
 CREATE PROCEDURE auto_task_complete_progress (
    IN robotId CHAR(36)
   ,IN taskId INT
-  ,IN completeToken CHAR(32)
+  ,IN nextToken CHAR(32)
 )
 BEGIN
   DECLARE flowId INT DEFAULT NULL;
@@ -80,7 +80,7 @@ BEGIN
   START TRANSACTION;
   SELECT T.`FlowId`, T.`CurrentProgressOrder` INTO flowId, currentProgressOrder 
     FROM `Navigation.AutoTasks` AS T
-    WHERE T.`Id` = taskId AND T.`AssignedRobotId` = robotId AND T.`CompleteToken` = completeToken
+    WHERE T.`Id` = taskId AND T.`AssignedRobotId` = robotId AND T.`NextToken` = nextToken
     LIMIT 1 FOR UPDATE NOWAIT;
 
   IF flowId IS NOT NULL AND currentProgressOrder IS NOT NULL THEN
@@ -93,7 +93,7 @@ BEGIN
       UPDATE `Navigation.AutoTasks`
         SET  `CurrentProgressId`    = nextProgressId
             ,`CurrentProgressOrder` = nextProgressOrder
-            ,`CompleteToken`        = (SELECT MD5(CONCAT(robotId, " ", taskId, " ", nextProgressId, " ", UTC_TIMESTAMP(6))))
+            ,`NextToken`        = (SELECT MD5(CONCAT(robotId, " ", taskId, " ", nextProgressId, " ", UTC_TIMESTAMP(6))))
             ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = taskId;
       SET taskUpdated = 1;
@@ -102,7 +102,7 @@ BEGIN
       UPDATE `Navigation.AutoTasks`
         SET  `CurrentProgressId`    = 8
             ,`CurrentProgressOrder` = NULL
-            ,`CompleteToken`        = NULL
+            ,`NextToken`        = NULL
             ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = taskId;
       SET taskUpdated = 1;
@@ -122,7 +122,7 @@ DROP PROCEDURE IF EXISTS auto_task_abort //
 CREATE PROCEDURE auto_task_abort (
    IN robotId CHAR(36)
   ,IN taskId INT
-  ,IN completeToken CHAR(32)
+  ,IN nextToken CHAR(32)
 )
 BEGIN
   DECLARE taskCount INT;
@@ -138,14 +138,14 @@ BEGIN
   START TRANSACTION;
   SELECT COUNT(*) INTO taskCount
     FROM `Navigation.AutoTasks` AS T
-    WHERE T.`Id` = taskId AND T.`AssignedRobotId` = robotId AND T.`CompleteToken` = completeToken
+    WHERE T.`Id` = taskId AND T.`AssignedRobotId` = robotId AND T.`NextToken` = nextToken
     LIMIT 1 FOR UPDATE NOWAIT;
   
   IF taskCount = 1 THEN
     UPDATE `Navigation.AutoTasks`
       SET  `CurrentProgressId`    = 9
           ,`CurrentProgressOrder` = NULL
-          ,`CompleteToken`        = NULL
+          ,`NextToken`        = NULL
           ,`UpdatedAt`            = UTC_TIMESTAMP(
             6)
       WHERE `Id` = taskId;

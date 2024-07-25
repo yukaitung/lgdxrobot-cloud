@@ -67,5 +67,5 @@ message RpcExchange {
 
 message RpcNextToken {
   int32 TaskId = 1;
-  string token = 2;
+  string NextToken = 2;
 }

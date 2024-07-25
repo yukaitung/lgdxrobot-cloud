@@ -59,7 +59,7 @@ namespace LGDXRobot2Cloud.API.Services
         TaskProgressId = task.CurrentProgressId,
         TaskProgressName = task.CurrentProgress.Name ?? string.Empty,
         Waypoints = {waypoints},
-        NextToken = task.CompleteToken
+        NextToken = task.NextToken
       };
     }
 
@@ -162,7 +162,7 @@ namespace LGDXRobot2Cloud.API.Services
       if (robotId == null)
         return ValidateRobotClaimFailed();
 
-      var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNext((Guid)robotId, token.TaskId, token.Token);
+      var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNext((Guid)robotId, token.TaskId, token.NextToken);
       var taskDetail = await GenerateTaskDetail(task);
       return new RpcRespond {
         Status = errorMessage == string.Empty ? RpcResultStatus.Success : RpcResultStatus.Failed,
@@ -177,7 +177,7 @@ namespace LGDXRobot2Cloud.API.Services
       if (robotId == null)
         return ValidateRobotClaimFailed();
 
-      var result = await _autoTaskSchedulerService.AutoTaskAbort((Guid)robotId, token.TaskId, token.Token);
+      var result = await _autoTaskSchedulerService.AutoTaskAbort((Guid)robotId, token.TaskId, token.NextToken);
       return new RpcRespond {
         Status = result == string.Empty ? RpcResultStatus.Success : RpcResultStatus.Failed,
         Message = result
