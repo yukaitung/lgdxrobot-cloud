@@ -1,11 +1,14 @@
 namespace LGDXRobot2Cloud.Shared.Entities
 {
   // Not part of Database
-  public class RobotData
+  public record RobotData
   {
     public (double, double, double, double) Batteries;
     public (double, double, double) Position;
-    public (double, double, double) Velocity;
     public (bool, bool) EmergencyStopsEnabled;
+    public double Eta;
+    public int Recoveries;
+    public double DistanceRemaining;
+    public int WaypointsRemaining;
   }
 }

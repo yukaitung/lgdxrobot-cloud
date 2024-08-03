@@ -4,12 +4,14 @@ namespace LGDXRobot2Cloud.Shared.Utilities
   {
     Template = 1,
     Waiting = 2,
-    Starting = 3,
-    Loading = 4,
-    Moving = 5,
-    Unloading = 6,
-    Completing = 7,
-    Completed = 8,
-    Aborted = 9
+    Completed = 3,
+    Aborted = 4,
+    Starting = 5,
+    Loading = 6,
+    PreMoving = 7,
+    Moving = 8,
+    Unloading = 9,
+    Completing = 10,
+    Reserved = 99
   }
 }

@@ -86,6 +86,20 @@ namespace LGDXRobot2Cloud.API.DbContexts
         },
         new Progress
         {
+          Id = (int)ProgressState.Completed,
+          Name = "Completed",
+          System = true,
+          Reserved = true
+        },
+        new Progress
+        {
+          Id = (int)ProgressState.Aborted,
+          Name = "Aborted",
+          System = true,
+          Reserved = true
+        },
+        new Progress
+        {
           Id = (int)ProgressState.Starting,
           Name = "Starting",
           System = true
@@ -94,6 +108,12 @@ namespace LGDXRobot2Cloud.API.DbContexts
         {
           Id = (int)ProgressState.Loading,
           Name = "Loading",
+          System = true
+        },
+        new Progress
+        {
+          Id = (int)ProgressState.PreMoving,
+          Name = "PreMoving",
           System = true
         },
         new Progress
@@ -116,15 +136,8 @@ namespace LGDXRobot2Cloud.API.DbContexts
         },
         new Progress
         {
-          Id = (int)ProgressState.Completed,
-          Name = "Completed",
-          System = true,
-          Reserved = true
-        },
-        new Progress
-        {
-          Id = (int)ProgressState.Aborted,
-          Name = "Aborted",
+          Id = (int)ProgressState.Reserved,
+          Name = "Reserved",
           System = true,
           Reserved = true
         }

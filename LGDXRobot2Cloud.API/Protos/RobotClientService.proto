@@ -57,9 +57,16 @@ message RpcGreet {
 /*
 ** Exchange
 */
+message RpcAutoTaskNavProgress {
+  double Eta = 1;
+  int32 Recoveries = 2;
+  double DistanceRemaining = 3;
+  int32 WaypointsRemaining = 4;
+}
+
 message RpcExchange {
   optional RpcRobotDof Position = 1;
-  optional RpcRobotDof Velocity = 2;
+  optional RpcAutoTaskNavProgress NavProgress = 2;
   repeated double Batteries = 3;
   repeated bool EmergencyStopsEnabled = 4;
   optional bool GetTask = 5;

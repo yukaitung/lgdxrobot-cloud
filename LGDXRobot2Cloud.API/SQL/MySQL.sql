@@ -24,8 +24,8 @@ BEGIN
     WHERE T.`AssignedRobotId` = pRobotId
     AND T.`CurrentProgressId` != 1
     AND T.`CurrentProgressId` != 2
-    AND T.`CurrentProgressId` != 8
-    AND T.`CurrentProgressId` != 9;
+    AND T.`CurrentProgressId` != 3
+    AND T.`CurrentProgressId` != 4;
 
   IF pRunningTasks = 0 THEN
     START TRANSACTION;
@@ -42,7 +42,7 @@ BEGIN
         SET  `AssignedRobotId`      = pRobotId
             ,`CurrentProgressId`    = pProgressId
             ,`CurrentProgressOrder` = pProgressOrder
-            ,`NextToken`        = (SELECT MD5(CONCAT(pRobotId, " ", pTaskId, " ", pProgressId, " ", UTC_TIMESTAMP(6))))
+            ,`NextToken`            = (SELECT MD5(CONCAT(pRobotId, " ", pTaskId, " ", pProgressId, " ", UTC_TIMESTAMP(6))))
             ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = pTaskId;
     END IF;
@@ -100,9 +100,9 @@ BEGIN
     ELSE
       -- Complete
       UPDATE `Navigation.AutoTasks`
-        SET  `CurrentProgressId`    = 8
+        SET  `CurrentProgressId`    = 3
             ,`CurrentProgressOrder` = NULL
-            ,`NextToken`        = NULL
+            ,`NextToken`            = NULL
             ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = pTaskId;
       SET pTaskUpdated = 1;
@@ -143,7 +143,7 @@ BEGIN
   
   IF pTaskCount = 1 THEN
     UPDATE `Navigation.AutoTasks`
-      SET  `CurrentProgressId`    = 9
+      SET  `CurrentProgressId`    = 4
           ,`CurrentProgressOrder` = NULL
           ,`NextToken`            = NULL
           ,`UpdatedAt`            = UTC_TIMESTAMP(6)

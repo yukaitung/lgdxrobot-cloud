@@ -45,6 +45,14 @@ namespace LGDXRobot2Cloud.API.Services
         return null;
 
       List<RpcRobotDof> waypoints = [];
+      if (task.CurrentProgressId == (int)ProgressState.PreMoving)
+      {
+        var firstTaskDetail = await _autoTaskDetailRepository.GetAutoTaskFirstDetailAsync(task.Id);
+        if (firstTaskDetail != null)
+        {
+          waypoints.Add(new RpcRobotDof {X = firstTaskDetail.Waypoint.X, Y = firstTaskDetail.Waypoint.Y, W = firstTaskDetail.Waypoint.W});
+        }
+      }
       if (task.CurrentProgressId == (int)ProgressState.Moving)
       {
         var taskDetails = await _autoTaskDetailRepository.GetAutoTaskDetailsAsync(task.Id);
@@ -86,8 +94,11 @@ namespace LGDXRobot2Cloud.API.Services
       return new RobotData {
         Batteries = batteries,
         Position = (data.Position.X, data.Position.Y, data.Position.W),
-        Velocity = (data.Velocity.X, data.Velocity.Y, data.Velocity.W),
-        EmergencyStopsEnabled = emergencyStopsEnabled
+        EmergencyStopsEnabled = emergencyStopsEnabled,
+        Eta = data.NavProgress.Eta,
+        Recoveries = data.NavProgress.Recoveries,
+        DistanceRemaining = data.NavProgress.DistanceRemaining,
+        WaypointsRemaining = data.NavProgress.WaypointsRemaining
       };
     }
 
