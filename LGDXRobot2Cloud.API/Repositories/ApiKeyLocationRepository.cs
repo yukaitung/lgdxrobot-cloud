@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-  public class ApiKeyLocationRepository : IApiKeyLocationRepository
+  public interface IApiKeyLocationRepository
   {
-    private readonly LgdxContext _context;
+    Task<ApiKeyLocation?> GetApiKeyLocationAsync(string location);
+  }
 
-    public ApiKeyLocationRepository(LgdxContext context)
-    {
-      _context = context;
-    }
+  public class ApiKeyLocationRepository(LgdxContext context) : IApiKeyLocationRepository
+  {
+    private readonly LgdxContext _context = context;
 
     public async Task<ApiKeyLocation?> GetApiKeyLocationAsync(string location)
     {

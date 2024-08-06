@@ -5,14 +5,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-  public class TriggerRepository : ITriggerRepository
+  public interface ITriggerRepository
   {
-    private readonly LgdxContext _context;
+    Task<(IEnumerable<Trigger>, PaginationMetadata)> GetTriggersAsync(string? name, int pageNumber, int pageSize);
+    Task<Trigger?> GetTriggerAsync(int triggerId);
+    Task AddTriggerAsync(Trigger trigger);
+    void DeleteTrigger(Trigger trigger);
+    Task<bool> SaveChangesAsync();
 
-    public TriggerRepository(LgdxContext context)
-    {
-      _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    // Specific Functions
+    Task<Dictionary<int, Trigger>> GetTriggersDictFromListAsync(IEnumerable<int> triggerIds);
+  }
+  
+  public class TriggerRepository(LgdxContext context) : ITriggerRepository
+  {
+    private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<(IEnumerable<Trigger>, PaginationMetadata)> GetTriggersAsync(string? name, int pageNumber, int pageSize)
     {

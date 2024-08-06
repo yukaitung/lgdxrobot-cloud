@@ -6,6 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
+  public interface IRobotRepository
+  {
+    Task<(IEnumerable<Robot>, PaginationMetadata)> GetRobotsAsync(string? name, int pageNumber, int pageSize);
+    Task<Robot?> GetRobotAsync(Guid robotId);
+    Task<Robot?> GetRobotSimpleAsync(Guid robotId);
+    Task AddRobotAsync(Robot robot);
+    void DeleteRobot(Robot robot);
+    Task<bool> SaveChangesAsync();
+  }
+  
   public class RobotRepository(LgdxContext context) : IRobotRepository
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));

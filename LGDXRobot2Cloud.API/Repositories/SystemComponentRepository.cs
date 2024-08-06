@@ -1,10 +1,15 @@
 using LGDXRobot2Cloud.API.DbContexts;
 using LGDXRobot2Cloud.Shared.Entities;
-using LGDXRobot2Cloud.Shared.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
+  public interface ISystemComponentRepository
+  {
+    // Specific Functions
+    Task<Dictionary<string, SystemComponent>> GetSystemComponentsDictAsync();
+  }
+
   public class SystemComponentRepository : ISystemComponentRepository
   {
     private readonly LgdxContext _context;

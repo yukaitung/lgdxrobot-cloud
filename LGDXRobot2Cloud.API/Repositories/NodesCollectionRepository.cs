@@ -5,14 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-  public class NodesCollectionRepository : INodesCollectionRepository
+  public interface INodesCollectionRepository
   {
-    private readonly LgdxContext _context;
+    Task<(IEnumerable<NodesCollection>, PaginationMetadata)> GetNodesCollectionsAsync(string? name, int pageNumber, int pageSize);
+    Task<NodesCollection?> GetNodesCollectionAsync(int nodesCollectionId);
+    Task AddNodesCollectionAsync(NodesCollection nodesCollection);
+    void DeleteNodesCollection(NodesCollection nodesCollection);
+    Task<bool> SaveChangesAsync();
+  }
 
-    public NodesCollectionRepository(LgdxContext context)
-    {
-      _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+  public class NodesCollectionRepository(LgdxContext context) : INodesCollectionRepository
+  {
+    private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<(IEnumerable<NodesCollection>, PaginationMetadata)> GetNodesCollectionsAsync(string? name, int pageNumber, int pageSize)
     {

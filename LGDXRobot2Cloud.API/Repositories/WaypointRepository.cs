@@ -5,16 +5,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-  public class WaypointRepository : IWaypointRepository
+  public interface IWaypointRepository
   {
-    private readonly LgdxContext _context;
+    Task<(IEnumerable<Waypoint>, PaginationMetadata)> GetWaypointsAsync(string? name, int pageNumber, int pageSize);
+    Task<Waypoint?> GetWaypointAsync(int waypointId);
+    Task<bool> WaypointExistsAsync(int waypointId);
+    Task AddWaypointAsync(Waypoint waypoint);
+    void DeleteWaypoint(Waypoint waypoint);
+    Task<bool> SaveChangesAsync();
 
-    public WaypointRepository(LgdxContext context)
-    {
-      _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+     // Specific Functions
+    Task<Dictionary<int, Waypoint>> GetWaypointsDictFromListAsync(IEnumerable<int> waypointIds);
+  }
+  
+  public class WaypointRepository(LgdxContext context) : IWaypointRepository
+  {
+    private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<(IEnumerable<Waypoint>, PaginationMetadata)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
+        public async Task<(IEnumerable<Waypoint>, PaginationMetadata)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
     {
       var query = _context.Waypoints as IQueryable<Waypoint>;
       if(!string.IsNullOrWhiteSpace(name))

@@ -5,14 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-  public class FlowRepository : IFlowRepository
+  public interface IFlowRepository
   {
-    private readonly LgdxContext _context;
+    Task<(IEnumerable<Flow>, PaginationMetadata)> GetFlowsAsync(string? name, int pageNumber, int pageSize);
+    Task<Flow?> GetFlowAsync(int flowId);
+    Task AddFlowAsync(Flow flow);
+    void DeleteFlow(Flow flow);
+    Task<bool> SaveChangesAsync();
 
-    public FlowRepository(LgdxContext context)
-    {
-      _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    Task<Flow?> GetFlowProgressesAsync(int flowId);
+  }
+
+  public class FlowRepository(LgdxContext context) : IFlowRepository
+  {
+    private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<(IEnumerable<Flow>, PaginationMetadata)> GetFlowsAsync(string? name, int pageNumber, int pageSize)
     {

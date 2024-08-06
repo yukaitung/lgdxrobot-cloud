@@ -5,14 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
-  public class ApiKeyRepository : IApiKeyRepository
+  public interface IApiKeyRepository
   {
-    private readonly LgdxContext _context;
+    Task<(IEnumerable<ApiKey>, PaginationMetadata)> GetApiKeysAsync(string? name, bool isThirdParty, int pageNumber, int pageSize);
+    Task<ApiKey?> GetApiKeyAsync(int apiKeyId);
+    Task AddApiKeyAsync(ApiKey apiKey);
+    void DeleteApiKey(ApiKey apiKey);
+    Task<bool> SaveChangesAsync();
+  }
 
-    public ApiKeyRepository(LgdxContext context)
-    {
-      _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+  public class ApiKeyRepository(LgdxContext context) : IApiKeyRepository
+  {
+    private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<(IEnumerable<ApiKey>, PaginationMetadata)> GetApiKeysAsync(string? name, bool isThirdParty, int pageNumber, int pageSize)
     {

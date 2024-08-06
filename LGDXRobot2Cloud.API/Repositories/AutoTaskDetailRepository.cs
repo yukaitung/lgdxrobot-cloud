@@ -4,6 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
+  public interface IAutoTaskDetailRepository
+  {
+    Task<AutoTaskDetail?> GetAutoTaskFirstDetailAsync(int taskId);
+    Task<IEnumerable<AutoTaskDetail>> GetAutoTaskDetailsAsync(int taskId);
+  }
+  
   public class AutoTaskDetailRepository(LgdxContext context) : IAutoTaskDetailRepository
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));

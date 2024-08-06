@@ -4,6 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
+  public interface IRobotSystemInfoRepository
+  {
+    Task<RobotSystemInfo?> GetRobotSystemInfoAsync(Guid robotId);
+    Task AddRobotSystemInfoAsync(RobotSystemInfo robot);
+    Task<bool> SaveChangesAsync();
+  }
+  
   public class RobotSystemInfoRepository(LgdxContext context) : IRobotSystemInfoRepository
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
