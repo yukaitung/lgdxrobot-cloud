@@ -22,7 +22,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public double Y { get; set; }
 
     [Required]
-    public double W { get; set; }
+    public double Rotation { get; set; }
 
     [Precision(3)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

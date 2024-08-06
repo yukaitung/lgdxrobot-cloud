@@ -17,7 +17,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
     public double Y { get; set; }
 
     [Required]
-    public double W { get; set; }
+    public double Rotation { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
   }

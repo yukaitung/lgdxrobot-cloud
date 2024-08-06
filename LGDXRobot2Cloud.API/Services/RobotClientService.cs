@@ -50,7 +50,7 @@ namespace LGDXRobot2Cloud.API.Services
         var firstTaskDetail = await _autoTaskDetailRepository.GetAutoTaskFirstDetailAsync(task.Id);
         if (firstTaskDetail != null)
         {
-          waypoints.Add(new RpcRobotDof {X = firstTaskDetail.Waypoint.X, Y = firstTaskDetail.Waypoint.Y, W = firstTaskDetail.Waypoint.W});
+          waypoints.Add(new RpcRobotDof {X = firstTaskDetail.Waypoint.X, Y = firstTaskDetail.Waypoint.Y, W = firstTaskDetail.Waypoint.Rotation});
         }
       }
       if (task.CurrentProgressId == (int)ProgressState.Moving)
@@ -58,7 +58,7 @@ namespace LGDXRobot2Cloud.API.Services
         var taskDetails = await _autoTaskDetailRepository.GetAutoTaskDetailsAsync(task.Id);
         foreach (var t in taskDetails)
         {
-          waypoints.Add(new RpcRobotDof {X = t.Waypoint.X, Y = t.Waypoint.Y, W = t.Waypoint.W});
+          waypoints.Add(new RpcRobotDof {X = t.Waypoint.X, Y = t.Waypoint.Y, W = t.Waypoint.Rotation});
         }
       }
       return new RpcAutoTask{

@@ -15,6 +15,6 @@ namespace LGDXRobot2Cloud.Shared.Models.Base
     public double Y { get; set; }
 
     [Required]
-    public double W { get; set; }
+    public double Rotation { get; set; }
   }
 }

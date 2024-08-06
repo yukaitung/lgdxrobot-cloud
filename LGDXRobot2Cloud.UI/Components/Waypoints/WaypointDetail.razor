@@ -49,9 +49,9 @@
           <div class="mb-3 row">
             <label class="col-3 col-form-label required" for="W">Rotation (rad)</label>
             <div class="col">
-              <InputNumber id="W" @bind-Value="Waypoint.W" type="number" step="any" class="form-control"
+              <InputNumber id="W" @bind-Value="Waypoint.Rotation" type="number" step="any" class="form-control"
                 placeholder="Rotation" />
-              <ValidationMessage class="invalid-feedback" For="@(() => Waypoint.W)" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Waypoint.Rotation)" />
             </div>
           </div>
           @if (Id != null)
