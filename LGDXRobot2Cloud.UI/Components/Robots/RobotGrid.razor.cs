@@ -54,6 +54,7 @@ namespace LGDXRobot2Cloud.UI.Components.Robots
       var data = await RobotService.GetRobotsAsync(DataSearch, CurrentPage, PageSize);
       RobotsList = data.Item1?.ToList();
       PaginationMetadata = data.Item2;
+      StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

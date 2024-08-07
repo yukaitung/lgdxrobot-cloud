@@ -3,7 +3,7 @@
 
 <div class="modal modal-blur fade" id="taskDetailModal" data-bs-backdrop="static" data-bs-keyboard="false"
   tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">@(Id != null ? (IsEditable() ? "Update Task" : "View Task") : "Create New Task")</h5>
@@ -116,31 +116,23 @@
           }
         </div>
         <div class="modal-body">
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Waypoints</h3>
-              @if (IsEditable())
-              {
-                <button type="button" class="btn btn-secondary btn-sm w-7 ms-auto" @onclick="TaskAddStep">
-                  Add A Step
-                </button>
-              }
-            </div>
-            <table class="table card-table table-vcenter text-nowrap">
+          <div class="form-label">Waypoints</div>
+          <div class="table">
+            <table class="table table-sm card-table table-vcenter text-nowrap">
               <thead>
                 <tr>
-                  <th class="col-1">ID</th>
+                  <th class="w-1">ID</th>
                   @if (IsEditable())
                   {
-                    <th class="col-1"></th>
+                    <th class="w-1"></th>
                   }
-                  <th>Waypoint</th>
-                  <th class="col-2">X</th>
-                  <th class="col-2">Y</th>
-                  <th class="col-2">Rotation</th>
+                  <th style="width:250px">Waypoint</th>
+                  <th>X</th>
+                  <th>Y</th>
+                  <th>Rotation</th>
                   @if (IsEditable())
                   {
-                    <th class="col-1"></th>
+                    <th class="w-1"></th>
                   }
                 </tr>
               </thead>
@@ -189,7 +181,7 @@
                     <td>
                       @if (IsEditable())
                       {
-                        <input type="number" class="form-control form-control-sm" @bind="@Task.Details[index].CustomX">
+                        <input type="text" class="form-control form-control-sm" @bind="@Task.Details[index].CustomX">
                       }
                       else
                       {
@@ -199,7 +191,7 @@
                     <td>
                       @if (IsEditable())
                       {
-                        <input type="number" class="form-control form-control-sm" @bind="@Task.Details[index].CustomY">
+                        <input type="text" class="form-control form-control-sm" @bind="@Task.Details[index].CustomY">
                       }
                       else
                       {
@@ -209,7 +201,7 @@
                     <td>
                       @if (IsEditable())
                       {
-                        <input type="number" class="form-control form-control-sm" @bind="@Task.Details[index].CustomRotation">
+                        <input type="text" class="form-control form-control-sm" @bind="@Task.Details[index].CustomRotation">
                       }
                       else
                       {
@@ -231,6 +223,14 @@
               </tbody>
             </table>
           </div>
+          @if (IsEditable())
+          {
+            <div class="row">
+              <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="TaskAddStep">
+                Add A Step
+              </button>
+            </div>
+          }
         </div>
         @if (Id != null)
         {
@@ -261,8 +261,8 @@
                 Delete
               </button>
               <button type="submit" class="btn btn-primary ms-2">
-            Update
-          </button>
+                Update
+              </button>
             }
             else
             {
