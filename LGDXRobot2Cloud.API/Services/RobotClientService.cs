@@ -50,7 +50,23 @@ namespace LGDXRobot2Cloud.API.Services
         var firstTaskDetail = await _autoTaskDetailRepository.GetAutoTaskFirstDetailAsync(task.Id);
         if (firstTaskDetail != null)
         {
-          waypoints.Add(new RpcRobotDof {X = firstTaskDetail.Waypoint.X, Y = firstTaskDetail.Waypoint.Y, W = firstTaskDetail.Waypoint.Rotation});
+          if (firstTaskDetail.Waypoint != null)
+          {
+            var waypoint = new RpcRobotDof {  X = firstTaskDetail.Waypoint.X, 
+                                              Y = firstTaskDetail.Waypoint.Y, 
+                                              W = firstTaskDetail.Waypoint.Rotation};
+            if (firstTaskDetail.CustomX != null)
+              waypoint.X = (double)firstTaskDetail.CustomX;
+            if (firstTaskDetail.CustomY != null)
+              waypoint.X = (double)firstTaskDetail.CustomY;
+            if (firstTaskDetail.CustomRotation != null)
+              waypoint.X = (double)firstTaskDetail.CustomRotation;
+            waypoints.Add(waypoint);
+          }
+          else 
+            waypoints.Add(new RpcRobotDof { X = firstTaskDetail.CustomX != null ? (double)firstTaskDetail.CustomX : 0, 
+                                            Y = firstTaskDetail.CustomY != null ? (double)firstTaskDetail.CustomY : 0, 
+                                            W = firstTaskDetail.CustomRotation != null ? (double)firstTaskDetail.CustomRotation : 0});
         }
       }
       if (task.CurrentProgressId == (int)ProgressState.Moving)
@@ -58,7 +74,23 @@ namespace LGDXRobot2Cloud.API.Services
         var taskDetails = await _autoTaskDetailRepository.GetAutoTaskDetailsAsync(task.Id);
         foreach (var t in taskDetails)
         {
-          waypoints.Add(new RpcRobotDof {X = t.Waypoint.X, Y = t.Waypoint.Y, W = t.Waypoint.Rotation});
+          if (t.Waypoint != null)
+          {
+            var waypoint = new RpcRobotDof {  X = t.Waypoint.X, 
+                                              Y = t.Waypoint.Y, 
+                                              W = t.Waypoint.Rotation};
+            if (t.CustomX != null)
+              waypoint.X = (double)t.CustomX;
+            if (t.CustomY != null)
+              waypoint.X = (double)t.CustomY;
+            if (t.CustomRotation != null)
+              waypoint.X = (double)t.CustomRotation;
+            waypoints.Add(waypoint);
+          }
+          else 
+            waypoints.Add(new RpcRobotDof { X = t.CustomX != null ? (double)t.CustomX : 0, 
+                                            Y = t.CustomY != null ? (double)t.CustomY : 0, 
+                                            W = t.CustomRotation != null ? (double)t.CustomRotation : 0});
         }
       }
       return new RpcAutoTask{

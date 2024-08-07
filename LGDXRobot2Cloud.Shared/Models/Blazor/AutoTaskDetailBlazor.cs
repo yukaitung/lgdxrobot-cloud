@@ -6,6 +6,12 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
   {
     public int? Id { get; set; }
 
+    public double? CustomX { get; set; }
+
+    public double? CustomY { get; set; }
+
+    public double? CustomRotation { get; set; }
+
     public WaypointBlazor? Waypoint { get; set; }
 
     [Required]

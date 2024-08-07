@@ -3,7 +3,7 @@
 
 <div class="modal modal-blur fade" id="taskDetailModal" data-bs-backdrop="static" data-bs-keyboard="false"
   tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">@(Id != null ? (IsEditable() ? "Update Task" : "View Task") : "Create New Task")</h5>
@@ -116,26 +116,61 @@
           }
         </div>
         <div class="modal-body">
-          <label class="form-label required">Task Detail</label>
-          @for (int i = 0; i < Task.Details.Count; i++)
-          {
-            var index = i;
-            var taskDetail = Task.Details[i];
-            <fieldset class="form-fieldset">
-              <div class="d-flex flex-row gap-2">
-                <div class="flex-grow-1 d-flex flex-column justify-content-center">
-                  @if (taskDetail.Id != null)
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Waypoints</h3>
+              @if (IsEditable())
+              {
+                <button type="button" class="btn btn-secondary btn-sm w-7 ms-auto" @onclick="TaskAddStep">
+                  Add A Step
+                </button>
+              }
+            </div>
+            <table class="table card-table table-vcenter text-nowrap">
+              <thead>
+                <tr>
+                  <th class="col-1">ID</th>
+                  @if (IsEditable())
                   {
-                    <div class="mb-2 row">
-                      <label class="col-3 col-form-label col-form-label-sm">ID</label>
-                      <div class="col">
-                        <div class="col col-form-label col-form-label-sm">@taskDetail.Id</div>
-                      </div>
-                    </div>
+                    <th class="col-1"></th>
                   }
-                  <div class="row">
-                    <label class="col-3 col-form-label col-form-label-sm required" for="Name">Waypoint</label>
-                    <div class="col">
+                  <th>Waypoint</th>
+                  <th class="col-2">X</th>
+                  <th class="col-2">Y</th>
+                  <th class="col-2">Rotation</th>
+                  @if (IsEditable())
+                  {
+                    <th class="col-1"></th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (int i = 0; i < Task.Details.Count; i++)
+                {
+                  var index = i;
+                  var taskDetail = Task.Details[i];
+                  <tr>
+                    <td>
+                      @if (taskDetail.Id != null)
+                      {
+                        <div class="col col-form-label col-form-label-sm">@taskDetail.Id</div>
+                      }
+                    </td>
+                    @if (IsEditable())
+                    {
+                      <td>
+                        <button type="button" class="btn btn-ghost-secondary btn-icon btn-sm @(i < 1 ? "disabled" : "")"
+                          @onclick="e => TaskStepMoveUp(index)">
+                          <ArrowUpIcon />
+                        </button>
+                        <button type="button"
+                          class="btn btn-ghost-secondary btn-icon btn-sm @(i >= Task.Details.Count - 1 ? "disabled" : "")"
+                          @onclick="e => TaskStepMoveDown(index)">
+                          <ArrowDownIcon />
+                        </button>
+                      </td>
+                    }
+                    <td>
                       @if (IsEditable())
                       {
                         <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control form-control-sm"
@@ -150,45 +185,52 @@
                       {
                         <div class="col col-form-label col-form-label-sm">@taskDetail.WaypointName</div>
                       }
-                    </div>
-                  </div>
-                </div>
-                @if (IsEditable())
-                {
-                  <div class="d-flex flex-row justify-content-center">
-                    <div class="my-auto">
-                      <button type="button" class="btn btn-ghost-secondary btn-icon @(i < 1 ? "disabled" : "")"
-                        @onclick="e => TaskStepMoveUp(index)">
-                        <ArrowUpIcon />
-                      </button>
-                    </div>
-                    <div class="my-auto">
-                      <button type="button"
-                        class="btn btn-ghost-danger btn-icon @(Task.Details.Count <= 1 ? "disabled" : "")"
-                        @onclick="e => TaskRemoveStep(index)">
-                        <TrashIcon />
-                      </button>
-                    </div>
-                    <div class="my-auto">
-                      <button type="button"
-                        class="btn btn-ghost-secondary btn-icon @(i >= Task.Details.Count - 1 ? "disabled" : "")"
-                        @onclick="e => TaskStepMoveDown(index)">
-                        <ArrowDownIcon />
-                      </button>
-                    </div>
-                  </div>
+                    </td>
+                    <td>
+                      @if (IsEditable())
+                      {
+                        <input type="number" class="form-control form-control-sm" @bind="@Task.Details[index].CustomX">
+                      }
+                      else
+                      {
+                        <div class="col col-form-label col-form-label-sm">@Task.Details[index].CustomX</div>
+                      }
+                    </td>
+                    <td>
+                      @if (IsEditable())
+                      {
+                        <input type="number" class="form-control form-control-sm" @bind="@Task.Details[index].CustomY">
+                      }
+                      else
+                      {
+                        <div class="col col-form-label col-form-label-sm">@Task.Details[index].CustomY</div>
+                      }
+                    </td>
+                    <td>
+                      @if (IsEditable())
+                      {
+                        <input type="number" class="form-control form-control-sm" @bind="@Task.Details[index].CustomRotation">
+                      }
+                      else
+                      {
+                        <div class="col col-form-label col-form-label-sm">@Task.Details[index].CustomRotation</div>
+                      }
+                    </td>
+                    @if (IsEditable())
+                    {
+                      <td>
+                        <button type="button"
+                          class="btn btn-ghost-danger btn-icon btn-sm @(Task.Details.Count <= 1 ? "disabled" : "")"
+                          @onclick="e => TaskRemoveStep(index)">
+                          <TrashIcon />
+                        </button>
+                      </td>
+                    }
+                  </tr>
                 }
-              </div>
-            </fieldset>
-          }
-          @if (IsEditable())
-          {
-            <div class="row">
-              <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="TaskAddStep">
-                Add A Step
-              </button>
-            </div>
-          }
+              </tbody>
+            </table>
+          </div>
         </div>
         @if (Id != null)
         {

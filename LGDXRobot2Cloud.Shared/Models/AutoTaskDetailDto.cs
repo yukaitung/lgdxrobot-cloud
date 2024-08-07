@@ -4,6 +4,11 @@ namespace LGDXRobot2Cloud.Shared.Models
   {
     public int Id { get; set; }
     public int Order { get; set; }
-    public WaypointDto Waypoint { get; set; } = null!;
+    public double? CustomX { get; set; }
+
+    public double? CustomY { get; set; }
+
+    public double? CustomRotation { get; set; }
+    public WaypointDto? Waypoint { get; set; }
   }
 }

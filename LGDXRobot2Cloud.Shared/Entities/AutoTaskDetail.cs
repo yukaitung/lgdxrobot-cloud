@@ -12,10 +12,16 @@ namespace LGDXRobot2Cloud.Shared.Entities
 
     public int Order { get; set; }
 
-    [ForeignKey("WaypointId")]
-    public Waypoint Waypoint { get; set; } = null!;
+    public double? CustomX { get; set; }
 
-    public int WaypointId { get; set; }
+    public double? CustomY { get; set; }
+
+    public double? CustomRotation { get; set; }
+
+    [ForeignKey("WaypointId")]
+    public Waypoint? Waypoint { get; set; } = null!;
+
+    public int? WaypointId { get; set; }
 
     [ForeignKey("AutoTaskId")]
     public AutoTask AutoTask { get; set; } = null!;
