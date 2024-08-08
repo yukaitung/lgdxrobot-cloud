@@ -7,7 +7,8 @@ namespace LGDXRobot2Cloud.Shared.Models
     [Required]
     public string Name { get; set; } = null!;
 
-    [Required]
-    public string Address { get; set; } = null!;
+    public string? Address { get; set; }
+
+    public string? Namespace { get; set; }
   }
 }

@@ -5,12 +5,10 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
   public class RobotBlazor
   {
     public Guid Id { get; set; }
-
     [Required]
     public string Name { get; set; } = null!;
-
-    [Required]
-    public string Address { get; set; } = null!;
+    public string? Address { get; set; }
+    public string? Namespace { get; set; }
     public bool IsOnline { get; set; }
     public NodesCollectionBlazor? DefaultNodesCollection { get; set; }
     public RobotSystemInfoBlazor? RobotSystemInfo { get; set; }

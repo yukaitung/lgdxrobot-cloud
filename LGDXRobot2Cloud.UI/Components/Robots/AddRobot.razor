@@ -4,39 +4,137 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Add Robot</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        @if (currentStep == 0)
+        {
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        }
       </div>
       <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
         <DataAnnotationsValidator />
         <div class="modal-body">
+          <div class="mb-3 row">
+            <ul class="steps steps-counter">
+              @for (int i = 0; i < stepHeadings.Count(); i++)
+              {
+                <li class="step-item @(currentStep == i ? "active" : "")">@stepHeadings[i]</li>
+              }
+            </ul>
+          </div>
           <ModalValidationError Display="IsInvalid" />
           <ModalSubmitError Display="IsError" Crud="@CrudOperation.Create" />
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label required" for="Name">Name</label>
-            <div class="col">
-              <InputText id="Name" @bind-Value="Robot.Name" type="text" class="form-control"
-                placeholder="Your robot name" />
-              <ValidationMessage class="invalid-feedback" For="@(() => Robot.Name)" />
+          @if (currentStep == 0)
+          {
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="Name">Name</label>
+              <div class="col">
+                <InputText id="Name" @bind-Value="Robot.Name" type="text" class="form-control"
+                  placeholder="Your robot name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => Robot.Name)" />
+              </div>
             </div>
-          </div>
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label required" for="Address">Address</label>
-            <div class="col">
-              <InputText id="Address" @bind-Value="Robot.Address" type="text" class="form-control"
-                placeholder="Address of your robot" />
-              <ValidationMessage class="invalid-feedback" For="@(() => Robot.Address)" />
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label" for="Address">Address</label>
+              <div class="col">
+                <InputText id="Address" @bind-Value="Robot.Address" type="text" class="form-control"
+                  placeholder="Address of your robot" />
+              </div>
             </div>
-          </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label" for="Namespace">Namespace</label>
+              <div class="col">
+                <InputText id="Namespace" @bind-Value="Robot.Namespace" type="text" class="form-control"
+                  placeholder="Namespace of your robot" />
+              </div>
+            </div>
+          }
+          else if (currentStep == 1)
+          {
+            <InformationAlert>
+              The system does not store "Robot Private Key" and "Robot Public Key", please save the keys before continue.
+            </InformationAlert>
+            <div class="mb-3">
+              <label class="form-label">Root Certificate</label>
+              <textarea id="RootCertificateTextarea" class="form-control mb-2" rows="6" readonly>@RobotCertificates!.RootCertificate</textarea>
+              <div class="input-group mb-2">
+                <input id="RootCertificateFileName" type="text" class="form-control" placeholder="File name for Root Certificate" value="root.crt">
+                <button class="btn" type="button" onclick="downloadCertificate(0)">Download</button>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Robot Private Key</label>
+              <textarea id="RobotPrivateKeyTextarea" class="form-control mb-2" rows="6" readonly>@RobotCertificates!.RobotCertificatePrivateKey</textarea>
+              <div class="input-group mb-2">
+                <input id="RobotPrivateKeyFileName" type="text" class="form-control" placeholder="File name for Robot Private Key" value="@(RobotCertificates!.Name).key">
+                <button class="btn" type="button" onclick="downloadCertificate(1)">Download</button>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Robot Public Key</label>
+              <textarea id="RobotPublicKeyTextarea" class="form-control mb-2" rows="6" readonly>@RobotCertificates!.RobotCertificatePublicKey</textarea>
+              <div class="input-group mb-2">
+                <input id="RobotPublicKeyFileName" type="text" class="form-control" placeholder="File name for Robot Public Key" value="@(RobotCertificates!.Name).crt">
+                <button class="btn" type="button" onclick="downloadCertificate(2)">Download</button>
+              </div>
+            </div>
+          }
+          else if (currentStep == 2)
+          {
+            <div class="mb-3">
+              The robot is created, please add the keys into robot.
+            </div>
+          }
         </div>
         <div class="modal-footer">
-          <a class="btn btn-link link-secondary" data-bs-dismiss="modal">
-            Cancel
-          </a>
-          <button type="submit" class="btn btn-primary ms-auto">
-            Add
-          </button>
+          @if (currentStep == 0)
+          {
+            <a class="btn btn-link link-secondary" data-bs-dismiss="modal">
+              Cancel
+            </a>
+          }
+          @if (currentStep < stepHeadings.Count() - 1)
+          {
+            <button type="submit" class="btn btn-primary ms-auto">
+              Next
+            </button>
+          }
+          else
+          {
+            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">
+              Done
+            </button>
+          }
         </div>
       </EditForm>
     </div>
   </div>
 </div>
+
+<script>
+  function downloadCertificate(fileType) 
+  {
+    var text = "";
+    var filename = "";
+    switch (fileType)
+    {
+      case 0:
+        text = document.getElementById("RootCertificateTextarea").value;
+        filename = document.getElementById("RootCertificateFileName").value;
+        break;
+      case 1:
+        text = document.getElementById("RobotPrivateKeyTextarea").value;
+        filename = document.getElementById("RobotPrivateKeyFileName").value;
+        break;
+      case 2:
+        text = document.getElementById("RobotPublicKeyTextarea").value;
+        filename = document.getElementById("RobotPublicKeyFileName").value;
+        break;
+    }
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+</script>

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Certificate;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using System.Security.Claims;
+using LGDXRobot2Cloud.API.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
@@ -23,11 +24,12 @@ builder.Services.AddAuthentication(CertificateAuthenticationDefaults.Authenticat
 		{
 			OnCertificateValidated = ctx =>
 			{
-				// The subject must have CN=
-				if (ctx.ClientCertificate.Subject.Length < 4)
-					ctx.Fail("Incorrect Subject.");
+				string subject = ctx.ClientCertificate.Subject;
+				string guid = subject.Substring(subject.IndexOf("OID.0.9.2342.19200300.100.1.1=") + 30, 36);
+				if (guid == string.Empty)
+					ctx.Fail("Robot ID not found.");
 				var claims = new [] {
-					new Claim(ClaimTypes.NameIdentifier, ctx.ClientCertificate.Subject[3..])
+					new Claim(ClaimTypes.NameIdentifier, guid)
 				};
 				ctx.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ctx.Scheme.Name));
 				ctx.Success();
@@ -49,6 +51,11 @@ builder.Services.AddDbContext<LgdxContext>(
         .LogTo(Console.WriteLine, LogLevel.Information)
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
+);
+
+// 
+builder.Services.Configure<LgdxRobot2Configuration>(
+	builder.Configuration.GetSection("LGDXRobot2")
 );
 
 // Custom Services

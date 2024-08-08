@@ -41,13 +41,13 @@ namespace LGDXRobot2Cloud.UI.Services
       return robot;
     }
     
-    public async Task<RobotBlazor?> AddRobotAsync(RobotCreateDto robot)
+    public async Task<RobotCreateResponseDto?> AddRobotAsync(RobotCreateDto robot)
     {
       var robotJson = new StringContent(JsonSerializer.Serialize(robot), Encoding.UTF8, "application/json");
       var response = await _httpClient.PostAsync("robot", robotJson);
       if (response.IsSuccessStatusCode)
       {
-        return await JsonSerializer.DeserializeAsync<RobotBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return await JsonSerializer.DeserializeAsync<RobotCreateResponseDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       }
       else
         return null;

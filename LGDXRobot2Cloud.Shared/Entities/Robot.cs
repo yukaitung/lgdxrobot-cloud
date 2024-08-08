@@ -12,10 +12,24 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public Guid Id { get; set; }
 
     [MaxLength(50)]
-    public required string Name { get; set; }
+    [Required]
+    public string Name { get; set; } = null!;
 
     [MaxLength(100)]
-    public required string Address { get; set; }
+    public string? Address { get; set; }
+
+    [MaxLength(50)]
+    public string? Namespace { get; set; }
+
+    [MaxLength(40)]
+    public string CertificateThumbprint { get; set; } = null!;
+
+    [MaxLength(40)]
+    public string? CertificateThumbprintBackup { get; set; } = null!;
+
+    public DateTime CertificateNotBefore { get; set; }
+
+    public DateTime CertificateNotAfter { get; set; }
 
     [ForeignKey("DefaultNodesCollectionId")]
     public NodesCollection? DefaultNodesCollection { get; set; }

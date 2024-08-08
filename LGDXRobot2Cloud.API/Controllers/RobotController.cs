@@ -4,6 +4,10 @@ using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Models;
 using LGDXRobot2Cloud.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
+using Microsoft.Extensions.Options;
+using LGDXRobot2Cloud.API.Configurations;
 
 namespace LGDXRobot2Cloud.API.Controllers
 {
@@ -12,14 +16,47 @@ namespace LGDXRobot2Cloud.API.Controllers
   public class RobotController(INodeRepository nodeRepository,
     INodesCollectionRepository nodesCollectionRepository,
     IRobotRepository robotRepository,
-    IMapper mapper) : ControllerBase
+    IMapper mapper,
+    IOptionsSnapshot<LgdxRobot2Configuration> options) : ControllerBase
   {
     private readonly INodeRepository _nodeRepository = nodeRepository ?? throw new ArgumentException(nameof(nodeRepository));
     private readonly INodesCollectionRepository _nodesCollectionRepository = nodesCollectionRepository ?? throw new ArgumentException(nameof(nodesCollectionRepository));
     private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
     private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+    private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = options.Value ?? throw new ArgumentNullException(nameof(options));
     private readonly int maxPageSize = 100;
 
+    public record RobotCertificates {
+      required public string RootCertificate { get; set; }
+      required public string RobotCertificatePrivateKey { get; set; }
+      required public string RobotCertificatePublicKey { get; set; }
+      required public string RobotCertificateThumbprint { get; set; }
+      required public DateTime RobotCertificateNotBefore { get; set; }
+      required public DateTime RobotCertificateNotAfter { get; set; }
+    }
+
+    private RobotCertificates GenerateRobotCertificate(Guid robotId)
+    {
+      X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
+      store.Open(OpenFlags.OpenExistingOnly);
+      X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobot2Configuration.RootCertificateSN);
+
+      var certificateNotBefore = DateTime.UtcNow;
+      var certificateNotAfter = DateTimeOffset.Now.AddDays(_lgdxRobot2Configuration.RobotCertificateValidDay);
+
+      var rsa = RSA.Create();
+      var certificateRequest = new CertificateRequest("CN=LGDXRobot2 Robot Certificate for " + robotId.ToString() + ",OID.0.9.2342.19200300.100.1.1=" + robotId.ToString(), rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+      var certificate = certificateRequest.Create(rootCertificate, certificateNotBefore, certificateNotAfter, RandomNumberGenerator.GetBytes(20));
+
+      return new RobotCertificates {
+        RootCertificate = rootCertificate.ExportCertificatePem(),
+        RobotCertificatePrivateKey = new string(PemEncoding.Write("PRIVATE KEY", rsa.ExportPkcs8PrivateKey())),
+        RobotCertificatePublicKey = certificate.ExportCertificatePem(),
+        RobotCertificateThumbprint = certificate.Thumbprint,
+        RobotCertificateNotBefore = certificateNotBefore,
+        RobotCertificateNotAfter = certificateNotAfter.DateTime
+      };
+    }
     /*
     ** Robot
     */
@@ -41,15 +78,26 @@ namespace LGDXRobot2Cloud.API.Controllers
       return Ok(_mapper.Map<RobotDto>(robot));
     }
 
-    [HttpPost("")]
+    [HttpPost(Name = "CreateRobot")]
     public async Task<ActionResult> CreateRobot(RobotCreateDto robotDto)
     {
       var robotEntity = _mapper.Map<Robot>(robotDto);
       robotEntity.Id = Guid.NewGuid();
+      RobotCertificates certificates = GenerateRobotCertificate(robotEntity.Id);
+      robotEntity.CertificateThumbprint = certificates.RobotCertificateThumbprint;
+      robotEntity.CertificateNotBefore = certificates.RobotCertificateNotBefore;
+      robotEntity.CertificateNotAfter = certificates.RobotCertificateNotAfter;
       await _robotRepository.AddRobotAsync(robotEntity);
       await _robotRepository.SaveChangesAsync();
-      var returnRobot = _mapper.Map<RobotDto>(robotEntity);
-      return CreatedAtAction(nameof(GetRobot), new { id = returnRobot.Id }, returnRobot);
+      var response = new RobotCreateResponseDto
+      {
+        Id = robotEntity.Id,
+        Name = robotEntity.Name,
+        RootCertificate = certificates.RootCertificate,
+        RobotCertificatePrivateKey = certificates.RobotCertificatePrivateKey,
+        RobotCertificatePublicKey = certificates.RobotCertificatePublicKey
+      };
+      return CreatedAtAction(nameof(CreateRobot), response);
     }
 
     [HttpDelete("{id}")]

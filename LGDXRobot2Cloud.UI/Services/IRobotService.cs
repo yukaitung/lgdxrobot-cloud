@@ -8,7 +8,7 @@ namespace LGDXRobot2Cloud.UI.Services
   {
     Task<(IEnumerable<RobotBlazor>?, PaginationMetadata?)> GetRobotsAsync(string? name = null, int pageNumber = 1, int pageSize = 16);
     Task<RobotBlazor?> GetRobotAsync(string robotId);
-    Task<RobotBlazor?> AddRobotAsync(RobotCreateDto robot);
+    Task<RobotCreateResponseDto?> AddRobotAsync(RobotCreateDto robot);
     Task<bool> DeleteRobotAsync(string robotId);
     Task<string> SearchRobotsAsync(string name);
   }
