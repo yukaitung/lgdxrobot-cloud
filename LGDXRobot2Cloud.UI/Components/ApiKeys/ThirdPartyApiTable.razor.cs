@@ -3,7 +3,7 @@ using LGDXRobot2Cloud.Shared.Services;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace LGDXRobot2Cloud.UI.Components.Secrets
+namespace LGDXRobot2Cloud.UI.Components.ApiKeys
 {
   public partial class ThirdPartyApiTable : AbstractTable
   {

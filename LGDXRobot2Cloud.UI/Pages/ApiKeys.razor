@@ -1,22 +1,18 @@
-@page "/setting/secrets"
-@using LGDXRobot2Cloud.UI.Components.Secrets
+@page "/setting/apikeys"
+@using LGDXRobot2Cloud.UI.Components.ApiKeys
 @rendermode InteractiveServer
 
-<PageHeader Title="Secrets">
+<PageHeader Title="API Keys">
   <div class="row align-items-center">
     <div class="col">
       <h2 class="page-title">
-        Secrets
+        API Keys
       </h2>
     </div>
     <div class="col-auto ms-auto">
       <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
         data-bs-target="#apiKeyDetailModal" @onclick="@(e => SecretId = null)">
         Create API Key
-      </button>
-      <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-        data-bs-target="#">
-        Import Certificate
       </button>
     </div>
   </div>
@@ -40,7 +36,7 @@
     }
   </ul>
 
-  <ModalSubmitDone EntityName="@EntitiesName[CurrentTab]" @ref="ModalSubmitDone"/>
+  <ModalSubmitDone EntityName="Api Key" @ref="ModalSubmitDone"/>
 
   @if (CurrentTab == 0)
   {
@@ -49,10 +45,6 @@
   else if (CurrentTab == 1)
   {
     <ThirdPartyApiTable OnIdSelected="HandleItemSelect" @ref="ThirdPartyApiTable" />
-  }
-  else if (CurrentTab == 2)
-  {
-    <p>cert</p>
   }
 </PageBody>
 

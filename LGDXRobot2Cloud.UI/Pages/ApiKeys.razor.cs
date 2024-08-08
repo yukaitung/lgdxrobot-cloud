@@ -1,18 +1,17 @@
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Components.Secrets;
+using LGDXRobot2Cloud.UI.Components.ApiKeys;
 using LGDXRobot2Cloud.UI.Shared;
 
 namespace LGDXRobot2Cloud.UI.Pages
 {
-  public partial class Secrets
+  public partial class ApiKeys
   {
     private int? SecretId { get; set; } = null;
     private LgdxApiTable? LgdxApiTable { get; set; }
     private ThirdPartyApiTable? ThirdPartyApiTable { get; set; }
     private ModalSubmitDone? ModalSubmitDone { get; set; }
     private int CurrentTab { get; set; } = 0;
-    private readonly List<string> Tabs = ["LGDXRobot2 API Keys", "Third-Party API Keys", "Certificates"];
-    private readonly List<string> EntitiesName = ["LGDXRobot2 API Key", "Third-Party API Key", "Certificate"];
+    private readonly List<string> Tabs = ["LGDXRobot2 API Keys", "Third-Party API Keys"];
 
     private void HandleTabChange(int index)
     {

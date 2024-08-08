@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 
-namespace LGDXRobot2Cloud.UI.Components.Secrets
+namespace LGDXRobot2Cloud.UI.Components.ApiKeys
 {
   public partial class ApiKeySecretDetail
   {
