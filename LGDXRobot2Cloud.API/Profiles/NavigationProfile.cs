@@ -11,19 +11,15 @@ namespace LGDXRobot2Cloud.API.Profiles
       // Flow
       CreateMap<Entities.Flow, Models.FlowListDto>();
       CreateMap<Entities.Flow, Models.FlowDto>();
-      CreateMap<Entities.FlowDetail, Models.FlowDetailDto>()
-        .ForMember(dto => dto.ProceedCondition,
-          m => m.MapFrom(e => e.ProceedCondition.Name));
+      CreateMap<Entities.FlowDetail, Models.FlowDetailDto>();
       CreateMap<Models.FlowCreateDto, Entities.Flow>();
       CreateMap<IEnumerable<Models.FlowDetailCreateDto>, ICollection<Entities.FlowDetail>>()
         .ConvertUsing<FlowDetailCreateDtoToFlowDetail>();
-      CreateMap<Models.FlowDetailCreateDto, Entities.FlowDetail>()
-        .ForMember(e => e.ProceedCondition, m => m.Ignore());
+      CreateMap<Models.FlowDetailCreateDto, Entities.FlowDetail>();
       CreateMap<Models.FlowUpdateDto, Entities.Flow>();
       CreateMap<IEnumerable<Models.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>()
         .ConvertUsing<FlowDetailUpdateDtoToFlowDetail>();
-      CreateMap<Models.FlowDetailUpdateDto, Entities.FlowDetail>()
-        .ForMember(e => e.ProceedCondition, m => m.Ignore());
+      CreateMap<Models.FlowDetailUpdateDto, Entities.FlowDetail>();
       // Progress
       CreateMap<Entities.Progress, Models.ProgressDto>();
       CreateMap<Models.ProgressCreateDto, Entities.Progress>();
@@ -38,13 +34,9 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Models.AutoTaskDetailUpdateDto, Entities.AutoTaskDetail>();
       // Trigger
       CreateMap<Entities.Trigger, Models.TriggerListDto>();
-      CreateMap<Entities.Trigger, Models.TriggerDto>()
-        .ForMember(dto => dto.ApiKeyInsertAt,
-          m => m.MapFrom(e => e.ApiKeyInsertAt != null ? e.ApiKeyInsertAt.Name : ""));
-      CreateMap<Models.TriggerCreateDto, Entities.Trigger>()
-        .ForMember(e => e.ApiKeyInsertAt, m => m.Ignore());
-      CreateMap<Models.TriggerUpdateDto, Entities.Trigger>()
-        .ForMember(e => e.ApiKeyInsertAt, m => m.Ignore());
+      CreateMap<Entities.Trigger, Models.TriggerDto>();
+      CreateMap<Models.TriggerCreateDto, Entities.Trigger>();
+      CreateMap<Models.TriggerUpdateDto, Entities.Trigger>();
       // Waypoint
       CreateMap<Entities.Waypoint, Models.WaypointDto>();
       CreateMap<Models.WaypointCreateDto, Entities.Waypoint>();

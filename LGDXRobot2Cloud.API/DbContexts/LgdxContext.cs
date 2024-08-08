@@ -1,5 +1,6 @@
 using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Utilities;
+using LGDXRobot2Cloud.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -10,11 +11,9 @@ namespace LGDXRobot2Cloud.API.DbContexts
     // Navigation
     public DbSet<AutoTask> AutoTasks { get; set; }
     public DbSet<AutoTaskDetail> AutoTasksDetail { get; set; }
-    public DbSet<ApiKeyLocation> ApiKeyLocations { get; set; } // Used by Triggers
     public DbSet<Flow> Flows { get; set; }
     public DbSet<FlowDetail> FlowDetails { get; set; }
     public DbSet<Progress> Progresses { get; set; }
-    public DbSet<SystemComponent> SystemComponents { get; set; }
     public DbSet<Trigger> Triggers { get; set; }
     public DbSet<Waypoint> Waypoints { get; set; }
 
@@ -140,30 +139,6 @@ namespace LGDXRobot2Cloud.API.DbContexts
           Name = "Reserved",
           System = true,
           Reserved = true
-        }
-      );
-      modelBuilder.Entity<SystemComponent>().HasData(
-        new SystemComponent
-        {
-          Id = (int)SystemComponentName.API,
-          Name = "api",
-        },
-        new SystemComponent
-        {
-          Id = (int)SystemComponentName.Robot,
-          Name = "robot",
-        }
-      );
-      modelBuilder.Entity<ApiKeyLocation>().HasData(
-        new ApiKeyLocation
-        {
-          Id = (int)ApiKeyLocationStr.Header,
-          Name = "header",
-        },
-        new SystemComponent
-        {
-          Id = (int)ApiKeyLocationStr.Body,
-          Name = "body",
         }
       );
       base.OnModelCreating(modelBuilder);

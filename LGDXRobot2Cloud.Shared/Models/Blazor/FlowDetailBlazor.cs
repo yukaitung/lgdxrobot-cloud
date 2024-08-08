@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Shared.Enums;
 
 namespace LGDXRobot2Cloud.Shared.Models.Blazor
 {
@@ -16,7 +17,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
 
     public string? ProgressName { get; set; }
 
-    public string ProceedCondition { get; set; } = "robot";
+    public int AutoTaskNextControllerId { get; set; } = (int)AutoTaskNextController.Robot;
   
     public TriggerBlazor? StartTrigger { get; set; }
 
@@ -32,7 +33,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
     
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-      if (ProceedCondition == "api" && StartTriggerId == null)
+      if (AutoTaskNextControllerId == (int)AutoTaskNextController.API && StartTriggerId == null)
       {
         yield return new ValidationResult("The Begin Trigger is requried for condition in API.", ["StartTriggerId"]);
       }

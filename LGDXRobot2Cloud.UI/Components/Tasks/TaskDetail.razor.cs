@@ -1,7 +1,7 @@
 using AutoMapper;
 using LGDXRobot2Cloud.Shared.Models;
 using LGDXRobot2Cloud.Shared.Models.Blazor;
-using LGDXRobot2Cloud.Shared.Utilities;
+using LGDXRobot2Cloud.Shared.Enums;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -97,17 +97,17 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
       int order = int.Parse(elementId[(index + 1)..]);
       if (element == AdvanceSelectElements[0])
       {
-        Task.FlowId = int.Parse(id);
+        Task.FlowId = id != null ? int.Parse(id) : null;
         Task.FlowName = name;
       }
       else if (element == AdvanceSelectElements[1])
       {
-        Task.AssignedRobotId = Guid.Parse(id);
+        Task.AssignedRobotId = id != null ? Guid.Parse(id) : null;
         Task.AssignedRobotName = name;
       }
       else if (element == AdvanceSelectElements[2])
       {
-        Task.Details[order].WaypointId = int.Parse(id);
+        Task.Details[order].WaypointId = id != null ? int.Parse(id) : null;
         Task.Details[order].WaypointName = name;
       }
     }

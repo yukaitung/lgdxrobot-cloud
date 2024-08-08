@@ -1,4 +1,5 @@
 @using LGDXRobot2Cloud.UI.Shared.Icons
+@using LGDXRobot2Cloud.Shared.Enums
 @inherits AbstractForm
 
 <div class="modal modal-blur fade" id="flowDetailModal" data-bs-backdrop="static" data-bs-keyboard="false"
@@ -68,9 +69,9 @@
                   <div class="mb-2 row">
                     <label class="col-3 col-form-label col-form-label-sm required" for="Name">Proceed Condition</label>
                     <div class="col">
-                      <select class="form-select form-select-sm" value="@flowDetail.ProceedCondition" @onchange="@((e) => HandleProceedConditionChange(index, e.Value ?? null))">
-                        <option value="robot">Robot</option>
-                        <option value="api">API</option>
+                      <select class="form-select form-select-sm" value="@flowDetail.AutoTaskNextControllerId" @onchange="@((e) => HandleProceedConditionChange(index, e.Value ?? string.Empty))">
+                        <option value="@((int)AutoTaskNextController.API)">Robot</option>
+                        <option value="@((int)AutoTaskNextController.Robot)">API</option>
                       </select>
                     </div>
                   </div>

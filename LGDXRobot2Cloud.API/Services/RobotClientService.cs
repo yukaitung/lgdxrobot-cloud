@@ -3,6 +3,7 @@ using Grpc.Core;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Shared.Entities;
+using LGDXRobot2Cloud.Shared.Enums;
 using LGDXRobot2Cloud.Shared.Utilities;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authorization;

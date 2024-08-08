@@ -1,6 +1,7 @@
 using System.Text.Json;
 using AutoMapper;
 using LGDXRobot2Cloud.Shared.Entities;
+using LGDXRobot2Cloud.Shared.Enums;
 using LGDXRobot2Cloud.Shared.Models;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Shared.Utilities;
@@ -10,24 +11,21 @@ namespace LGDXRobot2Cloud.API.Controllers
 {
   [ApiController]
   [Route("[controller]")]
-  public class NavigationController(IApiKeyLocationRepository apiKeyLocationRepository,
+  public class NavigationController(
     IApiKeyRepository apiKeyRepository,
     IFlowRepository flowRepository,
     IProgressRepository progressRepository,
     IRobotRepository robotRepository,
     IAutoTaskRepository autoTaskRepository,
-    ISystemComponentRepository systemComponentRepository,
     ITriggerRepository triggerRepository,
     IWaypointRepository waypointRepository,
     IMapper mapper) : ControllerBase
   {
-    private readonly IApiKeyLocationRepository _apiKeyLocationRepository = apiKeyLocationRepository ?? throw new ArgumentNullException(nameof(apiKeyLocationRepository));
     private readonly IApiKeyRepository _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
     private readonly IFlowRepository _flowRepository = flowRepository ?? throw new ArgumentNullException(nameof(flowRepository));
     private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
     private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
     private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
-    private readonly ISystemComponentRepository _systemComponentRepository = systemComponentRepository ?? throw new ArgumentNullException(nameof(systemComponentRepository));
     private readonly ITriggerRepository _triggerRepository = triggerRepository ?? throw new ArgumentNullException(nameof(triggerRepository));
     private readonly IWaypointRepository _waypointRepository = waypointRepository ?? throw new ArgumentNullException(nameof(waypointRepository));
     private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -58,16 +56,6 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult> CreateFlow(FlowCreateDto flowDto)
     {
       var flowEntity = _mapper.Map<Flow>(flowDto);
-      // Validate Proceed Condition, add ProceedConditions Entity
-      var proceedConditions = await _systemComponentRepository.GetSystemComponentsDictAsync();
-      for (int i = 0; i < flowDto.FlowDetails.Count(); i++)
-      {
-        string temp = flowDto.FlowDetails.ElementAt(i).ProceedCondition;
-        if (proceedConditions.ContainsKey(temp))
-          flowEntity.FlowDetails.ElementAt(i).ProceedCondition = proceedConditions[temp];
-        else
-          return BadRequest($"The Proceed Condition {temp} is invalid.");
-      }
       // Validate Progress & Trigger, add Entity for both
       HashSet<int> progressIds = [];
       HashSet<int> triggerIds = [];
@@ -128,16 +116,6 @@ namespace LGDXRobot2Cloud.API.Controllers
           return BadRequest($"The Flow Detail ID {(int)detailDto.Id} is belongs to other Flow.");
       }
       _mapper.Map(flowDto, flowEntity);
-      // Validate Proceed Condition, add ProceedConditions Entity
-      var proceedConditions = await _systemComponentRepository.GetSystemComponentsDictAsync();
-      for (int i = 0; i < flowDto.FlowDetails.Count(); i++)
-      {
-        string temp = flowDto.FlowDetails.ElementAt(i).ProceedCondition;
-        if (proceedConditions.ContainsKey(temp))
-          flowEntity.FlowDetails.ElementAt(i).ProceedCondition = proceedConditions[temp];
-        else
-          return BadRequest($"The Proceed Condition: {temp} does not exist.");
-      }
       // Validate Progress & Trigger, add Entity for both
       HashSet<int> progressIds = [];
       HashSet<int> triggerIds = [];
@@ -410,13 +388,6 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult> CreateTrigger(TriggerCreateDto triggerDto)
     {
       var triggerEntity = _mapper.Map<Trigger>(triggerDto);
-      if (!string.IsNullOrWhiteSpace(triggerDto.ApiKeyInsertAt))
-      {
-        var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyInsertAt);
-        if (apiKeyLocation == null)
-          return BadRequest("The API key location is invalid.");
-        triggerEntity.ApiKeyInsertAtId = apiKeyLocation.Id;
-      }
       if (triggerDto.ApiKeyId != null)
       {
         var apiKey = await _apiKeyRepository.GetApiKeyAsync((int)triggerDto.ApiKeyId);
@@ -438,13 +409,6 @@ namespace LGDXRobot2Cloud.API.Controllers
       if (triggerEntity == null)
         return NotFound();
       _mapper.Map(triggerDto, triggerEntity);
-      if (!string.IsNullOrWhiteSpace(triggerDto.ApiKeyInsertAt))
-      {
-        var apiKeyLocation = await _apiKeyLocationRepository.GetApiKeyLocationAsync(triggerDto.ApiKeyInsertAt);
-        if (apiKeyLocation == null)
-          return BadRequest("The API key location is invalid.");
-        triggerEntity.ApiKeyInsertAtId = apiKeyLocation.Id;
-      }
       if (triggerDto.ApiKeyId != null)
       {
         var apiKey = await _apiKeyRepository.GetApiKeyAsync((int)triggerDto.ApiKeyId);

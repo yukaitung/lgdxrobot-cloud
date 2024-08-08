@@ -17,10 +17,7 @@ namespace LGDXRobot2Cloud.Shared.Entities
 
     public int ProgressId { get; set; }
 
-    [ForeignKey("SystemComponentId")]
-    public SystemComponent ProceedCondition { get; set; } = null!;
-
-    public int SystemComponentId { get; set; }
+    public int AutoTaskNextControllerId { get; set; }
   
     [ForeignKey("StartTriggerId")]
     public Trigger? StartTrigger { get; set; }

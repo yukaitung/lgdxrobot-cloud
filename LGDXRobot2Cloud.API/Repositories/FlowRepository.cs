@@ -45,8 +45,6 @@ namespace LGDXRobot2Cloud.API.Repositories
           .OrderBy(fd => fd.Order))
         .ThenInclude(fd => fd.Progress)
         .Include(f => f.FlowDetails)
-        .ThenInclude(fd => fd.ProceedCondition)
-        .Include(f => f.FlowDetails)
         .ThenInclude(fd => fd.StartTrigger)
         .Include(f => f.FlowDetails)
         .ThenInclude(fd => fd.EndTrigger)

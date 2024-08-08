@@ -11,7 +11,7 @@ namespace LGDXRobot2Cloud.Shared.Models.Base
     public int ProgressId { get; set; }
 
     [Required]
-    public string ProceedCondition { get; set; } = null!;
+    public int AutoTaskNextControllerId { get; set; }
     
     public int? StartTriggerId { get; set; }
     public int? EndTriggerId { get; set; }

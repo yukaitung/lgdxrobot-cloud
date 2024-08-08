@@ -1,5 +1,6 @@
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Shared.Entities;
+using LGDXRobot2Cloud.Shared.Enums;
 using LGDXRobot2Cloud.Shared.Utilities;
 
 namespace LGDXRobot2Cloud.API.Services

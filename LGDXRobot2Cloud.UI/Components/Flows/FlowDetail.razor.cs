@@ -102,7 +102,7 @@ namespace LGDXRobot2Cloud.UI.Components.Flows
     private void HandleProceedConditionChange(int i, object? args)
     {
       if (args != null)
-        Flow.FlowDetails[i].ProceedCondition = args.ToString() ?? string.Empty;
+        Flow.FlowDetails[i].AutoTaskNextControllerId = int.Parse(args.ToString() ?? string.Empty);
     }
 
     private void FlowAddStep()

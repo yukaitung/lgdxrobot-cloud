@@ -3,6 +3,7 @@ using System.Text.Json;
 using LGDXRobot2Cloud.Shared.Models;
 using LGDXRobot2Cloud.Shared.Models.Blazor;
 using LGDXRobot2Cloud.Shared.Services;
+using LGDXRobot2Cloud.Shared.Enums;
 using LGDXRobot2Cloud.Shared.Utilities;
 
 namespace LGDXRobot2Cloud.UI.Services

@@ -41,7 +41,7 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
     // Form
     private void HandleApiKeyInsertAt(object args)
     {
-      Trigger.ApiKeyInsertAt = args.ToString();
+      Trigger.ApiKeyInsertLocationId = int.Parse(args.ToString() ?? string.Empty);
     }
 
     [JSInvokable("HandlSelectSearch")]
@@ -140,10 +140,7 @@ namespace LGDXRobot2Cloud.UI.Components.Triggers
         }
         else
         {
-          Trigger = new TriggerBlazor
-          {
-            ApiKeyInsertAt = "header"
-          };
+          Trigger = new TriggerBlazor();
           _editContext = new EditContext(Trigger);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }

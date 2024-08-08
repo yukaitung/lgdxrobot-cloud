@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Shared.Enums;
 
 namespace LGDXRobot2Cloud.Shared.Models.Blazor
 {
@@ -15,7 +16,8 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
     public string? Body { get; set; }
 
     public bool ApiKeyRequired { get; set; } = false;
-    public string? ApiKeyInsertAt { get; set; }
+    public int? ApiKeyInsertLocationId { get; set; } = (int)ApiKeyInsertLocation.Header;
+
     [MaxLength(50)]
     public string? ApiKeyFieldName { get; set; }
     public ApiKeyBlazor? ApiKey { get; set; }
@@ -29,12 +31,19 @@ namespace LGDXRobot2Cloud.Shared.Models.Blazor
     {
       if (ApiKeyRequired)
       {
+        
         if (string.IsNullOrEmpty(ApiKeyFieldName))
         {
-          if (ApiKeyInsertAt == "header")
-            yield return new ValidationResult("The header name is missing.", ["ApiKeyFieldName"]);
-          else
-            yield return new ValidationResult("The key name is missing.", ["ApiKeyFieldName"]);
+          switch (ApiKeyInsertLocationId)
+          {
+            case (int)ApiKeyInsertLocation.Body:
+            case (int)ApiKeyInsertLocation.Query:
+              yield return new ValidationResult("The key name is missing.", ["ApiKeyFieldName"]);
+              break;
+            case (int)ApiKeyInsertLocation.Header:
+              yield return new ValidationResult("The header name is missing.", ["ApiKeyFieldName"]);
+              break;
+          }
         }
         if (ApiKeyId == null)
         {

@@ -1,4 +1,5 @@
 @inherits AbstractForm
+@using LGDXRobot2Cloud.Shared.Enums
 @implements IDisposable
 
 <div class="modal modal-blur fade" id="triggerDetailModal" data-bs-backdrop="static" data-bs-keyboard="false"
@@ -62,9 +63,9 @@
             <div class="mb-3 row">
               <label class="col-3 col-form-label required">Insert Loaction</label>
               <div class="col">
-                <select class="form-select" @onchange="@((e) => HandleApiKeyInsertAt(e.Value ?? string.Empty))">
-                  <option value="header">Header</option>
-                  <option value="body">Body</option>
+                <select class="form-select" value="@Trigger.ApiKeyInsertLocationId" @onchange="@((e) => HandleApiKeyInsertAt(e.Value ?? string.Empty))">
+                  <option value="@((int)ApiKeyInsertLocation.Header)">Header</option>
+                  <option value="@((int)ApiKeyInsertLocation.Body)">Body</option>
                 </select>
                 <small class="form-hint">
                   This indicates where to insert the API Key in the request.
@@ -72,13 +73,14 @@
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="ApiKeyFieldName">@(Trigger.ApiKeyInsertAt == "header" ?
-                "Header Field Name" : "JSON Key Name")</label>
-                <div class="col">
-                  <InputText id="FieldName" @bind-Value="Trigger.ApiKeyFieldName" type="text" class="form-control"
-                    placeholder="@(Trigger.ApiKeyInsertAt == "header" ? "e.g. X-API-Key" : "e.g. key")" />
-                  <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyFieldName)" />
-                </div>
+              <label class="col-3 col-form-label required" for="ApiKeyFieldName">
+                @(Trigger.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Header ? "Header Field Name" : "JSON Key Name")
+              </label>
+              <div class="col">
+                <InputText id="FieldName" @bind-Value="Trigger.ApiKeyFieldName" type="text" class="form-control"
+                  placeholder="@(Trigger.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Header ? "e.g. X-API-Key" : "e.g. key")" />
+                <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyFieldName)" />
+              </div>
               </div>
               <div class="mb-3 row">
               <label class="col-3 col-form-label required">API Key</label>

@@ -2,6 +2,7 @@ using LGDXRobot2Cloud.Shared.Models;
 using LGDXRobot2Cloud.Shared.Models.Blazor;
 using LGDXRobot2Cloud.Shared.Services;
 using LGDXRobot2Cloud.Shared.Utilities;
+using LGDXRobot2Cloud.Shared.Enums;
 
 namespace LGDXRobot2Cloud.UI.Services
 {
