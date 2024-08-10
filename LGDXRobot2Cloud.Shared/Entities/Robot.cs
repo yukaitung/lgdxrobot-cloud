@@ -27,8 +27,10 @@ namespace LGDXRobot2Cloud.Shared.Entities
     [MaxLength(40)]
     public string? CertificateThumbprintBackup { get; set; } = null!;
 
+    [Precision(0)]
     public DateTime CertificateNotBefore { get; set; }
 
+    [Precision(0)]
     public DateTime CertificateNotAfter { get; set; }
 
     [ForeignKey("DefaultNodesCollectionId")]

@@ -7,7 +7,7 @@ namespace LGDXRobot2Cloud.API.Repositories
 {
   public interface IProgressRepository
   {
-    Task<(IEnumerable<Progress>, PaginationMetadata)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved);
+    Task<(IEnumerable<Progress>, PaginationMetadata)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved, bool hideSystem);
     Task<Progress?> GetProgressAsync(int progressId);
     Task<bool> ProgressExistsAsync(int progressId);
     Task AddProgressAsync(Progress progress);
@@ -22,7 +22,7 @@ namespace LGDXRobot2Cloud.API.Repositories
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<(IEnumerable<Progress>, PaginationMetadata)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved)
+    public async Task<(IEnumerable<Progress>, PaginationMetadata)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved, bool hideSystem)
     {
       var query = _context.Progresses as IQueryable<Progress>;
       if (!string.IsNullOrWhiteSpace(name))
@@ -33,6 +33,10 @@ namespace LGDXRobot2Cloud.API.Repositories
       if (hideReserved)
       {
         query = query.Where(t => t.Reserved == false);
+      }
+      if (hideSystem)
+      {
+        query = query.Where(t => t.System == false);
       }
       var itemCount = await query.CountAsync();
       var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);

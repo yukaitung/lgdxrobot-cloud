@@ -2,9 +2,14 @@
 @using LGDXRobot2Cloud.UI.Components.RobotDetail
 @rendermode InteractiveServer
 
-<PageHeader Title="Network">
+<PageHeader Title="Robots">
   <div class="row align-items-center">
     <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="javascript:history.back()">◀ All Robots</a></li>
+        </ol>
+      </div>
       @if (Robot != null)
       {
         <h2 class="page-title">
@@ -12,7 +17,7 @@
         </h2>
         <div class="text-secondary">
           <ul class="list-inline list-inline-dots mb-0">
-            <li class="list-inline-item">@Robot.Address</li>
+            <!--<li class="list-inline-item">@Robot.Address</li>-->
             <li class="list-inline-item">@(Robot.IsOnline ? "Online" : "Offline")</li>
           </ul>
         </div>
@@ -27,16 +32,35 @@
         </div>
       }
     </div>
+    <div class="col-md-auto ms-auto d-print-none">
+      <div class="btn-list">
+        <a href="#" class="btn btn-primary">
+          Pause Task Assignment
+        </a>
+        <a href="#" class="btn btn-danger">
+          Stop This Robot
+        </a>
+      </div>
+    </div>
   </div>
 </PageHeader>
 
 <PageBody>
   <div class="row row-cards">
-    <div class="col-12">
+    <div class="col-8">
       <TasksTable TasksList="Robot?.AssignedTasks" />
     </div>
-    <div class="col-12">
-      <SystemInfoTable RobotSystemInfo="Robot?.RobotSystemInfo"/>
+    <div class="col-4">
+      <RobotDataTable />
+    </div>
+    <div class="col-4">
+    <SystemInfoTable RobotSystemInfo="Robot?.RobotSystemInfo" />
+    </div>
+    <div class="col-4">
+      <RobotDetailTable />
+    </div>
+    <div class="col-4">
+      <CertificateDetail />
     </div>
   </div>
 </PageBody>

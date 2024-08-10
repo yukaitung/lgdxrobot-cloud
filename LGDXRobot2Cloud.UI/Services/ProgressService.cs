@@ -29,7 +29,7 @@ public class ProgressService : IProgressService
 
   public async Task<(IEnumerable<ProgressBlazor>?, PaginationMetadata?)> GetProgressesAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
-    var url = name != null ? $"navigation/progresses?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/progresses?pageNumber={pageNumber}&pageSize={pageSize}";
+    var url = name != null ? $"navigation/progresses?name={name}&pageNumber={pageNumber}&pageSize={pageSize}&hideSystem=true" : $"navigation/progresses?pageNumber={pageNumber}&pageSize={pageSize}&hideSystem=true";
     var response = await _httpClient.GetAsync(url);
     if (response.IsSuccessStatusCode)
     {

@@ -19,15 +19,25 @@
     @foreach (var robot in RobotsList)
     {
       var id = robot.Id;
-      <div class="col-sm-6 col-lg-3">
+      <div class="col-sm-6 col-md-4">
         <div class="card">
-          <div class="card-body">
-            <div class="h1 mb-2">@robot.Name</div>
-            <div>
+          <div class="card-status-top bg-green"></div>
+          <div class="card-body row">
+            <div class="h3"><span class="badge bg-green text-green-fg">Acitve</span></div>
+            <div class="h1">@robot.Name</div>
+            <div class="mt-auto">
               <div>Address: @robot.Address</div>
-              <div>Status: @(robot.IsOnline ? "Online" : "Offline")</div>
-              <a href="@($"/robots/robots/{id}")" class="btn btn-primary mt-2">Manage</a>
+              <div>Assigned Task:</div>
+              <div>Progress:</div>
             </div>
+          </div>
+          <div class="d-flex">
+            <a href="@($"/robots/robots/{id}")" class="card-btn">
+              Manage
+            </a>
+            <a class="card-btn">
+              Quick Action
+            </a>
           </div>
         </div>
       </div>
@@ -39,7 +49,7 @@ else
   <div class="row row-deck row-cards">
     @for (int i = 0; i < 16; i++)
     {
-      <div class="col-sm-6 col-lg-3">
+      <div class="col-sm-6 col-md-4">
         <div class="card">
           <div class="card-body placeholder-glow">
             <div class="placeholder col-12 placeholder-lg mb-3"></div>
