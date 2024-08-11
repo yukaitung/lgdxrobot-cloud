@@ -21,6 +21,10 @@ namespace LGDXRobot2Cloud.Shared.Entities
     [MaxLength(50)]
     public string? Namespace { get; set; }
 
+    public bool IsRealtimeExchange { get; set; }
+
+    public bool IsProtectingHardwareSerialNumber { get; set; }
+
     [MaxLength(40)]
     public string CertificateThumbprint { get; set; } = null!;
 
@@ -39,6 +43,8 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public int? DefaultNodesCollectionId { get; set; }
 
     public RobotSystemInfo? RobotSystemInfo { get; set; }
+
+    public RobotChassisInfo? RobotChassisInfo { get; set; }
 
     public ICollection<AutoTask> AssignedTasks { get; set; } = [];
 

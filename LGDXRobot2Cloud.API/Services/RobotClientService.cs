@@ -116,18 +116,19 @@ namespace LGDXRobot2Cloud.API.Services
         batteries.Item3 = data.Batteries.ElementAt(2);
       if (batteriesCount >= 4)
         batteries.Item4 = data.Batteries.ElementAt(3);
-
+      /*
       var emergencyStopsCount = data.EmergencyStopsEnabled.Count;
       (bool, bool) emergencyStopsEnabled = (false, false);
       if (emergencyStopsCount >= 1)
         emergencyStopsEnabled.Item1 = data.EmergencyStopsEnabled.ElementAt(0);
       if (emergencyStopsCount >= 2)
         emergencyStopsEnabled.Item2 = data.EmergencyStopsEnabled.ElementAt(1);
+      */
 
       return new RobotData {
         Batteries = batteries,
         Position = (data.Position.X, data.Position.Y, data.Position.W),
-        EmergencyStopsEnabled = emergencyStopsEnabled,
+        //EmergencyStopsEnabled = emergencyStopsEnabled,
         Eta = data.NavProgress.Eta,
         Recoveries = data.NavProgress.Recoveries,
         DistanceRemaining = data.NavProgress.DistanceRemaining,

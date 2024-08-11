@@ -12,6 +12,22 @@ service RobotClientService {
 /*
 ** Common
 */
+enum RpcRobotStatus {
+  Idle = 0;
+  Running = 1;
+  Paused = 2;
+  Critical = 3;
+  Charging = 4;
+  Offline = 5;
+}
+
+enum RpcRobotCriticalStatus {
+  HardwareEmergencyStopsEnabled = 0;
+  SoftwareEmergencyStopsEnabled = 2;
+  BatteryLow = 4;
+  MotorDamaged = 8;
+}
+
 enum RpcResultStatus {
   Success = 0;
   Failed = 1;
@@ -21,6 +37,12 @@ message RpcRobotDof {
   double X = 1;
   double Y = 2;
   double W = 3;
+}
+
+message RpcRobotCommand {
+  optional bool SoftwareEmergencyStopsEnable = 1;
+  optional bool PauseTaskAssigement = 2;
+  optional bool RenewCertificate = 3;
 }
 
 message RpcAutoTask {
@@ -35,7 +57,8 @@ message RpcAutoTask {
 message RpcRespond {
   RpcResultStatus Status = 1;
   string Message = 2;
-  optional RpcAutoTask Task = 3;
+  optional RpcRobotCommand Commands = 3;
+  optional RpcAutoTask Task = 4;
 }
 
 /*
@@ -50,6 +73,17 @@ message RpcRobotSystemInfo {
   bool Is32Bit = 6;
 }
 
+message RpcRobotChassisInfo {
+  int32 RobotTypeId = 1;
+  double ChassisLX = 2;
+  double ChassisLY = 3;
+  int32 ChassisWheelCount = 4;
+  double ChassisWheelRadius = 5;
+  int32 BatteryCount = 6;
+  double BatteryMaxVoltage = 7;
+  double BatteryMinVoltage = 8;
+}
+
 message RpcGreet {
   RpcRobotSystemInfo SystemInfo = 1;
 }
@@ -57,6 +91,7 @@ message RpcGreet {
 /*
 ** Exchange
 */
+
 message RpcAutoTaskNavProgress {
   double Eta = 1;
   int32 Recoveries = 2;
@@ -65,11 +100,12 @@ message RpcAutoTaskNavProgress {
 }
 
 message RpcExchange {
-  optional RpcRobotDof Position = 1;
-  optional RpcAutoTaskNavProgress NavProgress = 2;
+  RpcRobotDof Position = 1;
+  RpcAutoTaskNavProgress NavProgress = 2;
   repeated double Batteries = 3;
-  repeated bool EmergencyStopsEnabled = 4;
-  optional bool GetTask = 5;
+  int32 CriticalStatus = 4;
+  bool GetTask = 5;
+  RpcRobotCommand CommandsAck = 6;
 }
 
 message RpcNextToken {

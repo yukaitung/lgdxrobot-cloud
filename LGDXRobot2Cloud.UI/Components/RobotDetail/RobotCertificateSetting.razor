@@ -1,0 +1,30 @@
+@using LGDXRobot2Cloud.Shared.Models.Blazor
+
+<div class="table-responsive">
+  <table class="table card-table table-vcenter text-nowrap datatable">
+    <tbody>
+      <tr>
+        <td>Thumbprint</td>
+        <td>@(Robot != null ? Robot.CertificateThumbprint : "-")</td>
+      </tr>
+      <tr>
+        <td>Valid Start</td>
+        <td>@(Robot != null ? Robot.CertificateNotBefore : "-")</td>
+      </tr>
+      <tr>
+        <td>Valid Till</td>
+        <td>@(Robot != null ? Robot.CertificateNotAfter : "-" )</td>
+      </tr>
+      <tr>
+        <td>Backup Thumbprint</td>
+        <td>@(Robot?.CertificateThumbprintBackup != null ? Robot.CertificateThumbprintBackup : "-")</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+@code
+{
+  [Parameter]
+  public RobotBlazor? Robot { get; set; }
+}

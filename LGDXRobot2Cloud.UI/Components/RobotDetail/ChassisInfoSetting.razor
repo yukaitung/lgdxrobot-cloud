@@ -1,0 +1,54 @@
+@using LGDXRobot2Cloud.Shared.Models.Blazor
+
+<div class="table-responsive">
+  <table class="table card-table table-vcenter text-nowrap datatable">
+    <tbody>
+      <tr>
+        <td>MCU Serial Number</td>
+        <td>@(RobotChassisInfoBlazor != null ? RobotChassisInfoBlazor.McuSerialNumber : "-" )</td>
+      </tr>
+      <tr>
+        <td>Chassis LX</td>
+        <td>@(RobotChassisInfoBlazor != null ? RobotChassisInfoBlazor.ChassisLX + " m" : "-")</td>
+      </tr>
+      <tr>
+        <td>Chassis LY</td>
+        <td>@(RobotChassisInfoBlazor != null ? RobotChassisInfoBlazor.ChassisLY + " m" : "-")</td>
+      </tr>
+      <tr>
+        <td>Chassis Wheel Count</td>
+        <td>@(RobotChassisInfoBlazor != null ? RobotChassisInfoBlazor.ChassisWheelCount : "-")</td>
+      </tr>
+      <tr>
+        <td>Chassis Radius</td>
+        <td>@(RobotChassisInfoBlazor != null ? RobotChassisInfoBlazor.ChassisWheelRadius + " m" : "-")</td>
+      </tr>
+      <tr>
+        <td>Battery Count</td>
+        <td>@(RobotChassisInfoBlazor != null ? RobotChassisInfoBlazor.BatteryCount : "-")</td>
+      </tr>
+      <tr>
+        <td>Battery Maximun Voltage</td>
+        <td>@(RobotChassisInfoBlazor != null ? RobotChassisInfoBlazor.BatteryMaxVoltage + " V" : "-")</td>
+      </tr>
+      <tr>
+        <td>Battert Maximun Voltage</td>
+        <td>@(RobotChassisInfoBlazor != null ? RobotChassisInfoBlazor.BattertMinVoltage + " V" : "-")</td>
+      </tr>
+      <tr>
+        <td>Create Time</td>
+        <td>@(RobotChassisInfoBlazor != null ? RobotChassisInfoBlazor.CreatedAt : "-")</td>
+      </tr>
+      <tr>
+        <td>Last Update Time</td>
+        <td>@(RobotChassisInfoBlazor != null ? RobotChassisInfoBlazor.UpdatedAt : "-")</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+@code
+{
+  [Parameter]
+  public RobotChassisInfoBlazor? RobotChassisInfoBlazor { get; set; }
+}

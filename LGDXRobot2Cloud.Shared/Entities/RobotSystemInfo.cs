@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Shared.Entities
 {
@@ -9,6 +10,12 @@ namespace LGDXRobot2Cloud.Shared.Entities
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
+
+    [MaxLength(100)]
+    public string Motherboard { get; set; } = null!;
+
+    [MaxLength(100)]
+    public string MotherboardSerialNumber { get; set; } = null!;
 
     [MaxLength(100)]
     public string Cpu { get; set; } = null!;
@@ -29,5 +36,11 @@ namespace LGDXRobot2Cloud.Shared.Entities
     public Robot Robot { get; set; } = null!;
 
     public Guid RobotId { get; set; }
+
+    [Precision(3)]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    [Precision(3)]
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
   }
 }

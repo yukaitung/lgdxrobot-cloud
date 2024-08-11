@@ -1,0 +1,57 @@
+@using LGDXRobot2Cloud.UI.Components.Robots
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Robot Setting</h3>
+  </div>
+  <div class="card-body">
+    <ul class="nav nav-bordered">
+      @for (int i = 0; i < Tabs.Count; i++)
+      {
+        var index = i;
+        <li class="nav-item">
+          @if (@CurrentTab == i) 
+          {
+            <button class="nav-link active">@Tabs[i]</button>
+          }
+          else 
+          {
+            <button class="nav-link" @onclick="@(e => HandleTabChange(index))">@Tabs[i]</button>
+          }
+        </li>
+      }
+    </ul>
+
+    @if (CurrentTab == 0)
+    {
+      <div class="mt-4">
+        <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+          <DataAnnotationsValidator />
+          <RobotInformation Robot="Robot"/>
+            <div class="d-flex">
+              <button type="submit" class="btn btn-primary ms-auto">Update</button>
+            </div>
+        </EditForm>
+      </div>
+    }
+    @if (CurrentTab == 1)
+    {
+      <SystemInfoSetting RobotSystemInfo="Robot?.RobotSystemInfo" />
+    }
+    @if (CurrentTab == 2)
+    {
+      <ChassisInfoSetting RobotChassisInfoBlazor="Robot?.RobotChassisInfo" />
+    }
+    @if (CurrentTab == 3)
+    {
+      <RenewRobotCertificate />
+      <RobotCertificateSetting Robot="Robot" />
+      <div class="d-flex mt-3">
+        <button type="button" class="btn btn-primary d-none d-sm-inline-block ms-auto" data-bs-toggle="modal"
+        data-bs-target="#renewCertificateModal">
+          Renew Certificate
+        </button>
+      </div>
+    }
+  </div>
+</div>
