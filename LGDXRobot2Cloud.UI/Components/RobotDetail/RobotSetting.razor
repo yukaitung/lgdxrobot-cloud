@@ -24,15 +24,7 @@
 
     @if (CurrentTab == 0)
     {
-      <div class="mt-4">
-        <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
-          <DataAnnotationsValidator />
-          <RobotInformation Robot="Robot"/>
-            <div class="d-flex">
-              <button type="submit" class="btn btn-primary ms-auto">Update</button>
-            </div>
-        </EditForm>
-      </div>
+      <RobotInfoSetting Robot="Robot" OnUpdated="HandleUpdate" />
     }
     @if (CurrentTab == 1)
     {
@@ -44,7 +36,7 @@
     }
     @if (CurrentTab == 3)
     {
-      <RenewRobotCertificate />
+      <RenewRobotCertificate Robot="Robot" OnUpdated="HandleUpdate" />
       <RobotCertificateSetting Robot="Robot" />
       <div class="d-flex mt-3">
         <button type="button" class="btn btn-primary d-none d-sm-inline-block ms-auto" data-bs-toggle="modal"

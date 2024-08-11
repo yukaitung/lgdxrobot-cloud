@@ -26,7 +26,7 @@
           <ModalSubmitError Display="IsError" Crud="@CrudOperation.Create" />
           @if (currentStep == 0)
           {
-            <RobotInformation Robot="Robot" />
+            <RobotInfo Robot="Robot" />
           }
           else if (currentStep == 1)
           {
@@ -35,7 +35,7 @@
           else if (currentStep == 2)
           {
             <div class="modal-body text-center py-4">
-              <CircleCheck />
+              <SpecialCircleCheck />
               <h3>Robot Added</h3>
               <div class="text-secondary">Please upload the key to the robot and test the connection.</div>
             </div>

@@ -16,7 +16,7 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
     [Parameter]
     public EventCallback<int> OnIdSelected { get; set; }
 
-     [Parameter]
+    [Parameter]
     public EventCallback<int> OnCloneSelected { get; set; }
 
     [Parameter]

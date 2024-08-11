@@ -15,11 +15,16 @@ namespace LGDXRobot2Cloud.UI.Pages
 
     private RobotBlazor? Robot { get; set; }
 
+    public async Task Refresh()
+    {
+      Robot = await RobotService.GetRobotAsync(RobotId);
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
       if (firstRender)
       {
-        Robot = await RobotService.GetRobotAsync(RobotId);
+        await Refresh();
         StateHasChanged();
       }
     }

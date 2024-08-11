@@ -57,6 +57,7 @@ namespace LGDXRobot2Cloud.API.Controllers
         RobotCertificateNotAfter = certificateNotAfter.DateTime
       };
     }
+
     /*
     ** Robot
     */
@@ -88,6 +89,45 @@ namespace LGDXRobot2Cloud.API.Controllers
       robotEntity.CertificateNotBefore = certificates.RobotCertificateNotBefore;
       robotEntity.CertificateNotAfter = certificates.RobotCertificateNotAfter;
       await _robotRepository.AddRobotAsync(robotEntity);
+      await _robotRepository.SaveChangesAsync();
+      var response = new RobotCreateResponseDto
+      {
+        Id = robotEntity.Id,
+        Name = robotEntity.Name,
+        RootCertificate = certificates.RootCertificate,
+        RobotCertificatePrivateKey = certificates.RobotCertificatePrivateKey,
+        RobotCertificatePublicKey = certificates.RobotCertificatePublicKey
+      };
+      return CreatedAtAction(nameof(CreateRobot), response);
+    }
+
+    [HttpPost("{id}/information")]
+    public async Task<ActionResult> UpdateRobot(Guid id, RobotUpdateDto robotDto)
+    {
+      var robotEntity = await _robotRepository.GetRobotAsync(id);
+      if (robotEntity == null)
+        return NotFound();
+      _mapper.Map(robotDto, robotEntity);
+      robotEntity.UpdatedAt = DateTime.UtcNow;
+      await _robotRepository.SaveChangesAsync();
+      return NoContent();
+    }
+
+    [HttpPost("{id}/certificate")]
+    public async Task<ActionResult> RenewCertificate(Guid id, RobotRenewCertificateRenewDto dto)
+    {
+      var robotEntity = await _robotRepository.GetRobotAsync(id);
+      if (robotEntity == null)
+        return NotFound();
+      RobotCertificates certificates = GenerateRobotCertificate(robotEntity.Id);
+      if (dto.RevokeOldCertificate == true)
+        robotEntity.CertificateThumbprintBackup = null;
+      else
+        robotEntity.CertificateThumbprintBackup = robotEntity.CertificateThumbprint;
+      robotEntity.CertificateThumbprint = certificates.RobotCertificateThumbprint;
+      robotEntity.CertificateNotBefore = certificates.RobotCertificateNotBefore;
+      robotEntity.CertificateNotAfter = certificates.RobotCertificateNotAfter;
+      robotEntity.UpdatedAt = DateTime.UtcNow;
       await _robotRepository.SaveChangesAsync();
       var response = new RobotCreateResponseDto
       {

@@ -11,6 +11,8 @@ public interface IRobotService
   Task<(IEnumerable<RobotBlazor>?, PaginationMetadata?)> GetRobotsAsync(string? name = null, int pageNumber = 1, int pageSize = 16);
   Task<RobotBlazor?> GetRobotAsync(string robotId);
   Task<RobotCreateResponseDto?> AddRobotAsync(RobotCreateDto robot);
+  Task<bool> UpdateRobotInformationAsync(string robotId, RobotUpdateDto robot);
+  Task<RobotCreateResponseDto?> RenewRobotCertificateAsync(string robotId, RobotRenewCertificateRenewDto dto);
   Task<bool> DeleteRobotAsync(string robotId);
   Task<string> SearchRobotsAsync(string name);
 }
@@ -56,6 +58,30 @@ public class RobotService : IRobotService
     if (response.IsSuccessStatusCode)
     {
       return await JsonSerializer.DeserializeAsync<RobotCreateResponseDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+    }
+    else
+      return null;
+  }
+
+  public async Task<bool> UpdateRobotInformationAsync(string robotId, RobotUpdateDto robot)
+  {
+    var robotJson = new StringContent(JsonSerializer.Serialize(robot), Encoding.UTF8, "application/json");
+    var response = await _httpClient.PostAsync($"robot/{robotId}/information", robotJson);
+    if (response.IsSuccessStatusCode)
+    {
+      return true;
+    }
+    else
+      return false;
+  }
+
+  public async Task<RobotCreateResponseDto?> RenewRobotCertificateAsync(string robotId, RobotRenewCertificateRenewDto dto)
+  {
+    var json = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json");
+    var response = await _httpClient.PostAsync($"robot/{robotId}/certificate", json);
+    if (response.IsSuccessStatusCode)
+    {
+      return await JsonSerializer.DeserializeAsync<RobotCreateResponseDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);;
     }
     else
       return null;
