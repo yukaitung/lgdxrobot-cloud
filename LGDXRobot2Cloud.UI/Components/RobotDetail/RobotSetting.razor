@@ -45,5 +45,15 @@
         </button>
       </div>
     }
+    @if (CurrentTab == 4)
+    {
+      <div class="mt-3">
+        <RobotDelete Robot="Robot"/>
+        <button type="button" class="btn btn-danger d-none d-sm-inline-block ms-auto" data-bs-toggle="modal"
+        data-bs-target="#robotDeleteModal">
+          Delete Robot
+        </button>
+      </div>
+    }
   </div>
 </div>

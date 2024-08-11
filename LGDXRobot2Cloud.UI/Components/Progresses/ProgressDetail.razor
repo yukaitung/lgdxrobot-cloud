@@ -74,19 +74,19 @@
 @if (Id != null)
 {
   <div class="modal fade" id="progressDeleteModal" tabindex="-1" data-bs-keyboard="false">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="modal-title">Delete Progress</div>
-        <ModalSubmitError Display="IsError" Crud="@CrudOperation.Delete" />
-        <div>The Progress @(Progress.Name != null ? $"\"{Progress.Name}\" (ID: {Progress.Id})" : $"ID: {Progress.Id}") will
-          be deleted.</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" @onclick="HandleDelete">Yes</button>
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="modal-title">Delete Progress</div>
+          <ModalSubmitError Display="IsError" Crud="@CrudOperation.Delete" />
+          <div>The Progress @(Progress.Name != null ? $"\"{Progress.Name}\" (ID: {Progress.Id})" : $"ID: {Progress.Id}") will
+            be deleted.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" @onclick="HandleDelete">Yes</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 }

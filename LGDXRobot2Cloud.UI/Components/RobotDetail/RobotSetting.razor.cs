@@ -12,7 +12,7 @@ public partial class RobotSetting
   public EventCallback OnUpdated { get; set; }
   
   private int CurrentTab { get; set; } = 0;
-  private readonly List<string> Tabs = ["Robot Information", "System Information", "Chassis Information", "Robot Certificate"];
+  private readonly List<string> Tabs = ["Robot Information", "System Information", "Chassis Information", "Robot Certificate", "Delete Robot"];
 
   private void HandleTabChange(int index)
   {
