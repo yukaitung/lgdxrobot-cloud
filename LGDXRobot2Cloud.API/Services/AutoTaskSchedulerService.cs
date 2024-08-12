@@ -1,12 +1,13 @@
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Enums;
-using LGDXRobot2Cloud.Shared.Utilities;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobot2Cloud.API.Services
 {
   public interface IAutoTaskSchedulerService
   {
+    void ClearIgnoreRobot();
     Task<AutoTask?> GetAutoTask(Guid robotId);
     Task<string> AutoTaskAbort(Guid robotId, int taskId, string token);
     Task<(AutoTask?, string)> AutoTaskNext(Guid robotId, int taskId, string token);
@@ -17,14 +18,28 @@ namespace LGDXRobot2Cloud.API.Services
   {
     private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
     private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
+    private static readonly List<Guid> IgnoreRobotIds = [];
     
+    public void ClearIgnoreRobot()
+    {
+      IgnoreRobotIds.Clear();
+    }
+
     public async Task<AutoTask?> GetAutoTask(Guid robotId)
     {
+      if (IgnoreRobotIds.Contains(robotId))
+      {
+        return null;
+      }
       var currentTask = await _autoTaskRepository.GetRunningAutoTaskAsync(robotId) ?? await _autoTaskRepository.AssignAutoTaskAsync(robotId);
       if (currentTask != null)
       {
         var progress = await _progressRepository.GetProgressAsync(currentTask.CurrentProgressId);
         currentTask.CurrentProgress = progress!;
+      }
+      else
+      {
+        IgnoreRobotIds.Add(robotId);
       }
       return currentTask;
     }

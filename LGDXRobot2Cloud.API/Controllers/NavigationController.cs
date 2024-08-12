@@ -5,6 +5,8 @@ using LGDXRobot2Cloud.Shared.Enums;
 using LGDXRobot2Cloud.Shared.Models;
 using LGDXRobot2Cloud.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using LGDXRobot2Cloud.API.Services;
 
 namespace LGDXRobot2Cloud.API.Controllers
 {
@@ -18,6 +20,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     IAutoTaskRepository autoTaskRepository,
     ITriggerRepository triggerRepository,
     IWaypointRepository waypointRepository,
+    IAutoTaskSchedulerService autoTaskSchedulerService,
     IMapper mapper) : ControllerBase
   {
     private readonly IApiKeyRepository _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
@@ -27,6 +30,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
     private readonly ITriggerRepository _triggerRepository = triggerRepository ?? throw new ArgumentNullException(nameof(triggerRepository));
     private readonly IWaypointRepository _waypointRepository = waypointRepository ?? throw new ArgumentNullException(nameof(waypointRepository));
+    private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
     private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     private readonly int maxPageSize = 100;
 
@@ -294,6 +298,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       await _autoTaskRepository.AddAutoTaskAsync(taskEntity);
       await _autoTaskRepository.SaveChangesAsync();
       var returnTask = _mapper.Map<AutoTaskDto>(taskEntity);
+      _autoTaskSchedulerService.ClearIgnoreRobot();
       return CreatedAtAction(nameof(GetTask), new {id = returnTask.Id}, returnTask);
     }
 

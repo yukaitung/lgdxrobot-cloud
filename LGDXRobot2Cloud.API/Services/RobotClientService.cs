@@ -7,6 +7,7 @@ using LGDXRobot2Cloud.Shared.Enums;
 using LGDXRobot2Cloud.Shared.Utilities;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 using static LGDXRobot2Cloud.Protos.RobotClientService;
 
 namespace LGDXRobot2Cloud.API.Services
@@ -14,13 +15,13 @@ namespace LGDXRobot2Cloud.API.Services
   [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
   public class RobotClientService(IAutoTaskSchedulerService autoTaskSchedulerService,
     IAutoTaskDetailRepository autoTaskDetailRepository,
-    IRobotDataService robotDataService,
-    IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientServiceBase
+    IRobotSystemInfoRepository robotSystemInfoRepository,
+    IMemoryCache memoryCache) : RobotClientServiceBase
   {
     private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
     private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
-    private readonly IRobotDataService _robotDataService = robotDataService ?? throw new ArgumentNullException(nameof(robotDataService));
     private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
+    private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
     private static Guid? ValidateRobotClaim(ServerCallContext context)
     {
@@ -174,15 +175,15 @@ namespace LGDXRobot2Cloud.API.Services
       };
     }
 
-    public override async Task<RpcRespond> Exchange(RpcExchange data, ServerCallContext context)
+    public override async Task<RpcRespond> Exchange(RpcExchange request, ServerCallContext context)
     {
       var robotId = ValidateRobotClaim(context);
       if (robotId == null)
         return ValidateRobotClaimFailed();
 
-      _robotDataService.SetRobotData((Guid)robotId, GenerateRobotData(data));
+      _memoryCache.Set($"gRPCRobotData_{robotId}", GenerateRobotData(request), TimeSpan.FromMinutes(5));
       // Get AutoTask
-      if (data.GetTask == true)
+      if (request.GetTask)
       {
         var task = await _autoTaskSchedulerService.GetAutoTask((Guid)robotId);
         var taskDetail = await GenerateTaskDetail(task);

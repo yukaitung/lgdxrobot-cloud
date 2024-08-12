@@ -120,7 +120,7 @@ namespace LGDXRobot2Cloud.API.Controllers
       if (robotEntity == null)
         return NotFound();
       RobotCertificates certificates = GenerateRobotCertificate(robotEntity.Id);
-      if (dto.RevokeOldCertificate == true)
+      if (dto.RevokeOldCertificate)
         robotEntity.CertificateThumbprintBackup = null;
       else
         robotEntity.CertificateThumbprintBackup = robotEntity.CertificateThumbprint;

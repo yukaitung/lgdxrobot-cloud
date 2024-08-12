@@ -38,6 +38,7 @@ builder.Services.AddAuthentication(CertificateAuthenticationDefaults.Authenticat
 		};
 	});
 
+builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -59,7 +60,6 @@ builder.Services.Configure<LgdxRobot2Configuration>(
 
 // Custom Services
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
-builder.Services.AddSingleton<IRobotDataService, RobotDataService>();
 
 // Navigation Repositories
 builder.Services.AddScoped<IFlowRepository, FlowRepository>();
