@@ -93,7 +93,9 @@ message RobotClientGreet {
 }
 
 message RobotClientGreetRespond {
-  string BearerToken = 1;
+  RobotClientResultStatus Status = 1;
+  string Message = 2;
+  string BearerToken = 3;
 }
 
 /*

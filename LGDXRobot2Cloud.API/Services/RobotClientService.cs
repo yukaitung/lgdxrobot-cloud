@@ -13,17 +13,19 @@ using static LGDXRobot2Cloud.Protos.RobotClientService;
 namespace LGDXRobot2Cloud.API.Services;
 
 [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
-public class RobotClientService(IAutoTaskSchedulerService autoTaskSchedulerService,
-  IAutoTaskDetailRepository autoTaskDetailRepository,
-  IRobotSystemInfoRepository robotSystemInfoRepository,
+public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailRepository,
+  IAutoTaskSchedulerService autoTaskSchedulerService,
+  IMapper mapper,
   IMemoryCache memoryCache,
-  IMapper mapper) : RobotClientServiceBase
+  IRobotRepository robotRepository,
+  IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientServiceBase
 {
-  private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
-  private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
-  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+  private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
   private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+  private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository)); 
+  private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
 
   private static Guid? ValidateRobotClaim(ServerCallContext context)
   {
@@ -133,8 +135,20 @@ public class RobotClientService(IAutoTaskSchedulerService autoTaskSchedulerServi
   public override async Task<RobotClientGreetRespond> Greet(RobotClientGreet request, ServerCallContext context)
   {
     var robotId = ValidateRobotClaim(context);
-    //if (robotId == null)
-    //  return ValidateRobotClaimFailed();
+    if (robotId == null)
+      return new RobotClientGreetRespond {
+        Status = RobotClientResultStatus.Failed,
+        Message = "Robot ID is missing in the certificate.",
+        BearerToken = string.Empty
+      };
+
+    var robot = await _robotRepository.GetRobotAsync((Guid)robotId);
+    if (robot == null)
+      return new RobotClientGreetRespond {
+        Status = RobotClientResultStatus.Failed,
+        Message = "Robot not found.",
+        BearerToken = string.Empty
+      };
 
     var incomingSystemInfoEntity = new RobotSystemInfo {
       Cpu = request.SystemInfo.Cpu,
@@ -151,7 +165,18 @@ public class RobotClientService(IAutoTaskSchedulerService autoTaskSchedulerServi
     if (systemInfoEntity == null)
       await _robotSystemInfoRepository.AddRobotSystemInfoAsync(incomingSystemInfoEntity);
     else 
+    {
+      // Hardware Protection
+      if (robot.IsProtectingHardwareSerialNumber && incomingSystemInfoEntity.MotherboardSerialNumber != systemInfoEntity.MotherboardSerialNumber)
+      {
+        return new RobotClientGreetRespond {
+          Status = RobotClientResultStatus.Failed,
+          Message = "Motherboard serial number is mismatched.",
+          BearerToken = string.Empty
+        };
+      }
       _mapper.Map(incomingSystemInfoEntity, systemInfoEntity);
+    }
     await _robotSystemInfoRepository.SaveChangesAsync();
 
     // TODO: Generate RobotClientChassisInfo

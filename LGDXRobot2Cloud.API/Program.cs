@@ -1,12 +1,12 @@
+using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.DbContexts;
-using Microsoft.EntityFrameworkCore;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
 using Microsoft.AspNetCore.Authentication.Certificate;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using LGDXRobot2Cloud.API.Configurations;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
@@ -15,6 +15,8 @@ builder.WebHost.ConfigureKestrel(cfg =>
   cfg.ConfigureHttpsDefaults(ctx => ctx.ClientCertificateMode = ClientCertificateMode.AllowCertificate);
 });
 
+// Authentication
+builder.Services.AddTransient<RobotClientCertificateValidationService>();
 builder.Services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
 	.AddCertificate(cfg =>
 	{
@@ -22,28 +24,36 @@ builder.Services.AddAuthentication(CertificateAuthenticationDefaults.Authenticat
 		cfg.RevocationMode = X509RevocationMode.NoCheck;
 		cfg.Events = new CertificateAuthenticationEvents()
 		{
-			OnCertificateValidated = ctx =>
+			OnCertificateValidated = async ctx =>
 			{
 				string subject = ctx.ClientCertificate.Subject;
 				string guid = subject.Substring(subject.IndexOf("OID.0.9.2342.19200300.100.1.1=") + 30, 36);
-				if (guid == string.Empty)
+				if (guid == string.Empty) 
+				{
 					ctx.Fail("Robot ID not found.");
+					return;
+				}
+				var validationService = ctx.HttpContext.RequestServices.GetService<RobotClientCertificateValidationService>();
+				if (!await validationService!.ValidateRobotClientCertificate(ctx.ClientCertificate, Guid.Parse(guid)))
+				{
+					ctx.Fail("Invalid certificate / Robot not found.");
+					return;
+				}
 				var claims = new [] {
 					new Claim(ClaimTypes.NameIdentifier, guid)
 				};
 				ctx.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ctx.Scheme.Name));
 				ctx.Success();
-				return Task.CompletedTask;
 			}
 		};
 	});
 
+// Services
 builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddGrpc(cfg => cfg.EnableDetailedErrors = true);
-
 var connectionString = builder.Configuration["MySQLConnectionString"];
 var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
 builder.Services.AddDbContext<LgdxContext>(
