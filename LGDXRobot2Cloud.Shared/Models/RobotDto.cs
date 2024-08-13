@@ -14,7 +14,7 @@ namespace LGDXRobot2Cloud.Shared.Models
     public DateTime CertificateNotAfter { get; set; }
     public NodesCollectionListDto? DefaultNodesCollection { get; set; }
     public RobotSystemInfoDto? RobotSystemInfo { get; set; }
-    public RobotChassisInfoDto? RobotChassisInfoDto { get; set; }
+    public RobotChassisInfoDto? RobotChassisInfo { get; set; }
     public ICollection<AutoTaskListDto> AssignedTasks { get; set; } = [];
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

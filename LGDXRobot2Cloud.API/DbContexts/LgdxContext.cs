@@ -1,5 +1,4 @@
 using LGDXRobot2Cloud.Shared.Entities;
-using LGDXRobot2Cloud.Shared.Utilities;
 using LGDXRobot2Cloud.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -21,10 +20,9 @@ namespace LGDXRobot2Cloud.API.DbContexts
     public DbSet<Node> Nodes { get; set; }
     public DbSet<NodesCollection> NodesCollections { get; set; }
     public DbSet<NodesCollectionDetail> NodesCollectionsDetails { get; set; }
-    
     public DbSet<Robot> Robots { get; set; }
-
     public DbSet<RobotSystemInfo> RobotSystemInfos { get; set; }
+    public DbSet<RobotChassisInfo> RobotChassisInfos { get; set; }
 
     // Setting
     public DbSet<ApiKey> ApiKeys { get; set; }

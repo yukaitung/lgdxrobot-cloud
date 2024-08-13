@@ -17,6 +17,7 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
   IAutoTaskSchedulerService autoTaskSchedulerService,
   IMapper mapper,
   IMemoryCache memoryCache,
+  IRobotChassisInfoRepository robotChassisInfoRepository,
   IRobotRepository robotRepository,
   IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientServiceBase
 {
@@ -24,6 +25,7 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
   private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+  private readonly IRobotChassisInfoRepository _robotChassisInfoRepository = robotChassisInfoRepository ?? throw new ArgumentNullException(nameof(robotChassisInfoRepository));
   private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository)); 
   private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
 
@@ -179,7 +181,34 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
     }
     await _robotSystemInfoRepository.SaveChangesAsync();
 
-    // TODO: Generate RobotClientChassisInfo
+    var incomingChassisInfoEntity = new RobotChassisInfo {
+      McuSerialNumber = request.ChassisInfo.McuSerialNumber,
+      ChassisLX = request.ChassisInfo.ChassisLX,
+      ChassisLY = request.ChassisInfo.ChassisLY,
+      ChassisWheelCount = request.ChassisInfo.ChassisWheelCount,
+      ChassisWheelRadius = request.ChassisInfo.ChassisWheelRadius,
+      BatteryCount = request.ChassisInfo.BatteryCount,
+      BatteryMaxVoltage = request.ChassisInfo.BatteryMaxVoltage,
+      BatteryMinVoltage = request.ChassisInfo.BatteryMinVoltage,
+      RobotId = (Guid)robotId
+    };
+    var chassisInfoEntity = await _robotChassisInfoRepository.GetChassisInfoAsync((Guid)robotId);
+    if (chassisInfoEntity == null)
+      await _robotChassisInfoRepository.AddChassisInfoAsync(incomingChassisInfoEntity);
+    else 
+    {
+      // Hardware Protection
+      if (robot.IsProtectingHardwareSerialNumber && incomingChassisInfoEntity.McuSerialNumber != chassisInfoEntity.McuSerialNumber)
+      {
+        return new RobotClientGreetRespond {
+          Status = RobotClientResultStatus.Failed,
+          Message = "MCU serial number is mismatched.",
+          BearerToken = string.Empty
+        };
+      }
+      _mapper.Map(incomingChassisInfoEntity, chassisInfoEntity);
+    }
+    await _robotChassisInfoRepository.SaveChangesAsync();
 
     // TODO: Generate BearerToken
 

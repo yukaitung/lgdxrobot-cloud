@@ -77,7 +77,7 @@ message RobotClientSystemInfo {
 }
 
 message RobotClientChassisInfo {
-  int32 McuSerialNumber = 1;
+  string McuSerialNumber = 1;
   double ChassisLX = 2;
   double ChassisLY = 3;
   int32 ChassisWheelCount = 4;

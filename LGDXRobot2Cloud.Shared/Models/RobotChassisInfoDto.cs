@@ -20,7 +20,7 @@ public class RobotChassisInfoDto
 
   public double BatteryMaxVoltage { get; set; }
 
-  public double BattertMinVoltage { get; set; }
+  public double RobotChassisInfo { get; set; }
 
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     

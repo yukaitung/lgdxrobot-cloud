@@ -8,6 +8,10 @@ namespace LGDXRobot2Cloud.Shared.Models
 
     public bool IsLittleEndian { get; set; }
 
+    public string Motherboard { get; set; } = null!;
+
+    public string MotherboardSerialNumber { get; set; } = null!;
+
     public int RamMiB { get; set; }
 
     public string? Gpu { get; set; }

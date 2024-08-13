@@ -28,7 +28,7 @@ public class RobotChassisInfo
 
   public double BatteryMaxVoltage { get; set; }
 
-  public double BattertMinVoltage { get; set; }
+  public double BatteryMinVoltage { get; set; }
 
   [ForeignKey("RobotId")]
   public Robot Robot { get; set; } = null!;

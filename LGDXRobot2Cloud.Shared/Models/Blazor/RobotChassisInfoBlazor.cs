@@ -18,7 +18,7 @@ public class RobotChassisInfoBlazor
 
   public double BatteryMaxVoltage { get; set; }
 
-  public double BattertMinVoltage { get; set; }
+  public double BatteryMinVoltage { get; set; }
 
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     

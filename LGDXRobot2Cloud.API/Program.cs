@@ -84,6 +84,7 @@ builder.Services.AddScoped<INodeRepository, NodeRepository>();
 builder.Services.AddScoped<INodesCollectionRepository, NodesCollectionRepository>();
 builder.Services.AddScoped<IRobotRepository, RobotRepository>();
 builder.Services.AddScoped<IRobotSystemInfoRepository, RobotSystemInfoRepository>();
+builder.Services.AddScoped<IRobotChassisInfoRepository, RobotChassisInfoRepository>();
 
 // Setting Repositories
 builder.Services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
