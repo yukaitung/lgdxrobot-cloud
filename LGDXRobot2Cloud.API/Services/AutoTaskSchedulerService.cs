@@ -14,23 +14,23 @@ namespace LGDXRobot2Cloud.API.Services
   }
   
   public class AutoTaskSchedulerService(IAutoTaskRepository autoTaskRepository,
-    IProgressRepository progressRepository) : IAutoTaskSchedulerService
+    IProgressRepository progressRepository,
+    IMemoryCache memoryCache) : IAutoTaskSchedulerService
   {
     private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
     private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
-    private static readonly List<Guid> IgnoreRobotIds = [];
+    private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
     
     public void ClearIgnoreRobot()
     {
-      IgnoreRobotIds.Clear();
+      _memoryCache.Remove("IgnoreRobotGetAutoTaskIds");
     }
 
     public async Task<AutoTask?> GetAutoTask(Guid robotId)
     {
-      if (IgnoreRobotIds.Contains(robotId))
-      {
+      _memoryCache.TryGetValue<List<Guid>>("IgnoreRobotGetAutoTaskIds", out var ignoreRobotIds);
+      if (ignoreRobotIds?.Contains(robotId) ?? false)
         return null;
-      }
       var currentTask = await _autoTaskRepository.GetRunningAutoTaskAsync(robotId) ?? await _autoTaskRepository.AssignAutoTaskAsync(robotId);
       if (currentTask != null)
       {
@@ -39,7 +39,9 @@ namespace LGDXRobot2Cloud.API.Services
       }
       else
       {
-        IgnoreRobotIds.Add(robotId);
+        ignoreRobotIds ??= [];
+        ignoreRobotIds.Add(robotId);
+        _memoryCache.Set("IgnoreRobotGetAutoTaskIds", ignoreRobotIds, TimeSpan.FromMinutes(5));
       }
       return currentTask;
     }

@@ -3,16 +3,16 @@ syntax = "proto3";
 option csharp_namespace = "LGDXRobot2Cloud.Protos";
 
 service RobotClientService {
-  rpc Greet (RpcGreet) returns (RpcRespond);
-  rpc Exchange (RpcExchange) returns (RpcRespond);
-  rpc AutoTaskNext (RpcNextToken) returns (RpcRespond);
-  rpc AutoTaskAbort (RpcNextToken) returns (RpcRespond);
+  rpc Greet (RobotClientGreet) returns (RobotClientGreetRespond);
+  rpc Exchange (RobotClientExchange) returns (RobotClientRespond);
+  rpc AutoTaskNext (RobotClientNextToken) returns (RobotClientRespond);
+  rpc AutoTaskAbort (RobotClientNextToken) returns (RobotClientRespond);
 }
 
 /*
 ** Common
 */
-enum RpcRobotStatus {
+enum RobotClientRobotStatus {
   Idle = 0;
   Running = 1;
   Paused = 2;
@@ -21,60 +21,63 @@ enum RpcRobotStatus {
   Offline = 5;
 }
 
-enum RpcRobotCriticalStatus {
+enum RobotClientRobotCriticalStatus {
   HardwareEmergencyStopsEnabled = 0;
   SoftwareEmergencyStopsEnabled = 2;
   BatteryLow = 4;
   MotorDamaged = 8;
 }
 
-enum RpcResultStatus {
+enum RobotClientResultStatus {
   Success = 0;
   Failed = 1;
 }
 
-message RpcRobotDof {
+message RobotClientDof {
   double X = 1;
   double Y = 2;
-  double W = 3;
+  double Rotation = 3;
 }
 
-message RpcRobotCommand {
-  optional bool SoftwareEmergencyStopsEnable = 1;
-  optional bool PauseTaskAssigement = 2;
-  optional bool RenewCertificate = 3;
+message RobotClientRobotCommand {
+  optional bool AbortTask = 1;
+  optional bool SoftwareEmergencyStopsEnable = 2;
+  optional bool PauseTaskAssigement = 3;
+  optional bool RenewCertificate = 4;
 }
 
-message RpcAutoTask {
+message RobotClientAutoTask {
   int32 TaskId = 1;
   string TaskName = 2;
   int32 TaskProgressId = 3;
   string TaskProgressName = 4;
-  repeated RpcRobotDof Waypoints = 5;
+  repeated RobotClientDof Waypoints = 5;
   string NextToken = 6;
 }
 
-message RpcRespond {
-  RpcResultStatus Status = 1;
+message RobotClientRespond {
+  RobotClientResultStatus Status = 1;
   string Message = 2;
-  optional RpcRobotCommand Commands = 3;
-  optional RpcAutoTask Task = 4;
+  optional RobotClientRobotCommand Commands = 3;
+  optional RobotClientAutoTask Task = 4;
 }
 
 /*
 ** Greet
 */
-message RpcRobotSystemInfo {
+message RobotClientSystemInfo {
   string Cpu = 1;
-  bool IsLittleEndian = 2;
-  int32 RamMiB = 3;
-  string Gpu = 4;
-  string Os = 5;
-  bool Is32Bit = 6;
+  string Motherboard = 2;
+  string MotherboardSerialNumber = 3;
+  bool IsLittleEndian = 4;
+  int32 RamMiB = 5;
+  string Gpu = 6;
+  string Os = 7;
+  bool Is32Bit = 8;
 }
 
-message RpcRobotChassisInfo {
-  int32 RobotTypeId = 1;
+message RobotClientChassisInfo {
+  int32 McuSerialNumber = 1;
   double ChassisLX = 2;
   double ChassisLY = 3;
   int32 ChassisWheelCount = 4;
@@ -84,31 +87,36 @@ message RpcRobotChassisInfo {
   double BatteryMinVoltage = 8;
 }
 
-message RpcGreet {
-  RpcRobotSystemInfo SystemInfo = 1;
+message RobotClientGreet {
+  RobotClientSystemInfo SystemInfo = 1;
+  RobotClientChassisInfo ChassisInfo = 2;
+}
+
+message RobotClientGreetRespond {
+  string BearerToken = 1;
 }
 
 /*
 ** Exchange
 */
-
-message RpcAutoTaskNavProgress {
+message RobotClientAutoTaskNavProgress {
   double Eta = 1;
   int32 Recoveries = 2;
   double DistanceRemaining = 3;
   int32 WaypointsRemaining = 4;
 }
 
-message RpcExchange {
-  RpcRobotDof Position = 1;
-  RpcAutoTaskNavProgress NavProgress = 2;
-  repeated double Batteries = 3;
-  int32 CriticalStatus = 4;
-  bool GetTask = 5;
-  RpcRobotCommand CommandsAck = 6;
+message RobotClientExchange {
+  RobotClientRobotStatus Status = 1;
+  RobotClientDof Position = 2;
+  RobotClientAutoTaskNavProgress NavProgress = 3;
+  repeated double Batteries = 4;
+  int32 CriticalStatus = 5;
+  bool GetTask = 6;
+  RobotClientRobotCommand CommandsAck = 7;
 }
 
-message RpcNextToken {
+message RobotClientNextToken {
   int32 TaskId = 1;
   string NextToken = 2;
 }
