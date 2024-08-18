@@ -12,22 +12,6 @@ service RobotClientService {
 /*
 ** Common
 */
-enum RobotClientRobotStatus {
-  Idle = 0;
-  Running = 1;
-  Paused = 2;
-  Critical = 3;
-  Charging = 4;
-  Offline = 5;
-}
-
-enum RobotClientRobotCriticalStatus {
-  HardwareEmergencyStopsEnabled = 0;
-  SoftwareEmergencyStopsEnabled = 2;
-  BatteryLow = 4;
-  MotorDamaged = 8;
-}
-
 enum RobotClientResultStatus {
   Success = 0;
   Failed = 1;
@@ -40,10 +24,10 @@ message RobotClientDof {
 }
 
 message RobotClientRobotCommand {
-  optional bool AbortTask = 1;
-  optional bool SoftwareEmergencyStopsEnable = 2;
-  optional bool PauseTaskAssigement = 3;
-  optional bool RenewCertificate = 4;
+  bool AbortTask = 1;
+  bool SoftwareEmergencyStopsEnable = 2;
+  bool PauseTaskAssigement = 3;
+  bool RenewCertificate = 4;
 }
 
 message RobotClientAutoTask {
@@ -95,12 +79,30 @@ message RobotClientGreet {
 message RobotClientGreetRespond {
   RobotClientResultStatus Status = 1;
   string Message = 2;
-  string BearerToken = 3;
+  string AccessToken = 3;
 }
 
 /*
 ** Exchange
 */
+enum RobotClientRobotStatus {
+  Idle = 0;
+  Running = 1;
+  Stucking = 2;
+  Aborting = 3;
+  Paused = 4;
+  Critical = 5;
+  Charging = 6;
+  Offline = 7;
+}
+
+message RobotClientRobotCriticalStatus {
+  bool HardwareEmergencyStopsEnabled = 1;
+  bool SoftwareEmergencyStopsEnabled = 2;
+  repeated int32 BatteryLow = 3;
+  repeated int32 MotorDamaged = 4;
+}
+
 message RobotClientAutoTaskNavProgress {
   double Eta = 1;
   int32 Recoveries = 2;
@@ -110,14 +112,17 @@ message RobotClientAutoTaskNavProgress {
 
 message RobotClientExchange {
   RobotClientRobotStatus Status = 1;
-  RobotClientDof Position = 2;
-  RobotClientAutoTaskNavProgress NavProgress = 3;
-  repeated double Batteries = 4;
-  int32 CriticalStatus = 5;
+  RobotClientRobotCriticalStatus CriticalStatus = 2;
+  repeated double Batteries = 3;
+  RobotClientDof Position = 4;
+  RobotClientRobotCommand CommandsAck = 5;
   bool GetTask = 6;
-  RobotClientRobotCommand CommandsAck = 7;
+  RobotClientAutoTaskNavProgress NavProgress = 7;
 }
 
+/*
+** AutoTaskNext
+*/
 message RobotClientNextToken {
   int32 TaskId = 1;
   string NextToken = 2;

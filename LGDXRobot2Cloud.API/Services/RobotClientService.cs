@@ -1,22 +1,28 @@
-using System.Security.Claims;
 using AutoMapper;
 using Grpc.Core;
+using LGDXRobot2Cloud.API.Configurations;
+using LGDXRobot2Cloud.API.Constants;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Shared.Entities;
 using LGDXRobot2Cloud.Shared.Enums;
-using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using static LGDXRobot2Cloud.Protos.RobotClientService;
 
 namespace LGDXRobot2Cloud.API.Services;
 
-[Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientJwtScheme)]
 public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailRepository,
   IAutoTaskSchedulerService autoTaskSchedulerService,
   IMapper mapper,
   IMemoryCache memoryCache,
+  IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
   IRobotChassisInfoRepository robotChassisInfoRepository,
   IRobotRepository robotRepository,
   IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientServiceBase
@@ -26,8 +32,9 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
   private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IRobotChassisInfoRepository _robotChassisInfoRepository = robotChassisInfoRepository ?? throw new ArgumentNullException(nameof(robotChassisInfoRepository));
-  private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository)); 
+  private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
   private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
+  private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2SecretConfiguration));
 
   private static Guid? ValidateRobotClaim(ServerCallContext context)
   {
@@ -45,29 +52,6 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
       Status = RobotClientResultStatus.Failed,
       Message = "Robot ID is missing in the certificate."
     };
-  }
-
-  private static RobotClientDof GenerateWaypoint(AutoTaskDetail taskDetail)
-  {
-    if (taskDetail.Waypoint != null)
-    {
-      var waypoint = new RobotClientDof 
-        { X = taskDetail.Waypoint.X, Y = taskDetail.Waypoint.Y, Rotation = taskDetail.Waypoint.Rotation };
-      if (taskDetail.CustomX != null)
-        waypoint.X = (double)taskDetail.CustomX;
-      if (taskDetail.CustomY != null)
-        waypoint.X = (double)taskDetail.CustomY;
-      if (taskDetail.CustomRotation != null)
-        waypoint.X = (double)taskDetail.CustomRotation;
-      return waypoint;
-    }
-    else 
-    {
-      return new RobotClientDof { 
-        X = taskDetail.CustomX != null ? (double)taskDetail.CustomX : 0, 
-        Y = taskDetail.CustomY != null ? (double)taskDetail.CustomY : 0, 
-        Rotation = taskDetail.CustomRotation != null ? (double)taskDetail.CustomRotation : 0 };
-    }
   }
 
   private async Task<RobotClientAutoTask?> GenerateTaskDetail(AutoTask? task)
@@ -102,38 +86,30 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
     };
   }
 
-  static private RobotData GenerateRobotData(RobotClientExchange data)
+  private static RobotClientDof GenerateWaypoint(AutoTaskDetail taskDetail)
   {
-    var batteriesCount = data.Batteries.Count;
-    (double, double, double, double) batteries = (0, 0, 0, 0);
-    if (batteriesCount >= 1)
-      batteries.Item1 = data.Batteries.ElementAt(0);
-    if (batteriesCount >= 2)
-      batteries.Item2 = data.Batteries.ElementAt(1);
-    if (batteriesCount >= 3)
-      batteries.Item3 = data.Batteries.ElementAt(2);
-    if (batteriesCount >= 4)
-      batteries.Item4 = data.Batteries.ElementAt(3);
-    /*
-    var emergencyStopsCount = data.EmergencyStopsEnabled.Count;
-    (bool, bool) emergencyStopsEnabled = (false, false);
-    if (emergencyStopsCount >= 1)
-      emergencyStopsEnabled.Item1 = data.EmergencyStopsEnabled.ElementAt(0);
-    if (emergencyStopsCount >= 2)
-      emergencyStopsEnabled.Item2 = data.EmergencyStopsEnabled.ElementAt(1);
-    */
-
-    return new RobotData {
-      Batteries = batteries,
-      Position = (data.Position.X, data.Position.Y, data.Position.Rotation),
-      //EmergencyStopsEnabled = emergencyStopsEnabled,
-      Eta = data.NavProgress.Eta,
-      Recoveries = data.NavProgress.Recoveries,
-      DistanceRemaining = data.NavProgress.DistanceRemaining,
-      WaypointsRemaining = data.NavProgress.WaypointsRemaining
-    };
+    if (taskDetail.Waypoint != null)
+    {
+      var waypoint = new RobotClientDof 
+        { X = taskDetail.Waypoint.X, Y = taskDetail.Waypoint.Y, Rotation = taskDetail.Waypoint.Rotation };
+      if (taskDetail.CustomX != null)
+        waypoint.X = (double)taskDetail.CustomX;
+      if (taskDetail.CustomY != null)
+        waypoint.X = (double)taskDetail.CustomY;
+      if (taskDetail.CustomRotation != null)
+        waypoint.X = (double)taskDetail.CustomRotation;
+      return waypoint;
+    }
+    else 
+    {
+      return new RobotClientDof { 
+        X = taskDetail.CustomX != null ? (double)taskDetail.CustomX : 0, 
+        Y = taskDetail.CustomY != null ? (double)taskDetail.CustomY : 0, 
+        Rotation = taskDetail.CustomRotation != null ? (double)taskDetail.CustomRotation : 0 };
+    }
   }
 
+  [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientCertificateScheme)]
   public override async Task<RobotClientGreetRespond> Greet(RobotClientGreet request, ServerCallContext context)
   {
     var robotId = ValidateRobotClaim(context);
@@ -141,7 +117,7 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
       return new RobotClientGreetRespond {
         Status = RobotClientResultStatus.Failed,
         Message = "Robot ID is missing in the certificate.",
-        BearerToken = string.Empty
+        AccessToken = string.Empty
       };
 
     var robot = await _robotRepository.GetRobotAsync((Guid)robotId);
@@ -149,7 +125,7 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
       return new RobotClientGreetRespond {
         Status = RobotClientResultStatus.Failed,
         Message = "Robot not found.",
-        BearerToken = string.Empty
+        AccessToken = string.Empty
       };
 
     var incomingSystemInfoEntity = new RobotSystemInfo {
@@ -174,7 +150,7 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
         return new RobotClientGreetRespond {
           Status = RobotClientResultStatus.Failed,
           Message = "Motherboard serial number is mismatched.",
-          BearerToken = string.Empty
+          AccessToken = string.Empty
         };
       }
       _mapper.Map(incomingSystemInfoEntity, systemInfoEntity);
@@ -203,17 +179,28 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
         return new RobotClientGreetRespond {
           Status = RobotClientResultStatus.Failed,
           Message = "MCU serial number is mismatched.",
-          BearerToken = string.Empty
+          AccessToken = string.Empty
         };
       }
       _mapper.Map(incomingChassisInfoEntity, chassisInfoEntity);
     }
     await _robotChassisInfoRepository.SaveChangesAsync();
 
-    // TODO: Generate BearerToken
+    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobot2SecretConfiguration.RobotClientJwtSecret));
+    var credentials = new SigningCredentials(securityKey, _lgdxRobot2SecretConfiguration.RobotClientJwtAlgorithm);
+    var secToken = new JwtSecurityToken(
+      _lgdxRobot2SecretConfiguration.RobotClientJwtIssuer,
+      _lgdxRobot2SecretConfiguration.RobotClientJwtIssuer,
+      [new Claim(ClaimTypes.NameIdentifier, robot.Id.ToString())],
+      DateTime.UtcNow,
+      DateTime.UtcNow.AddMinutes(_lgdxRobot2SecretConfiguration.RobotClientJwtExpireMins),
+      credentials);
+    var token =  new JwtSecurityTokenHandler().WriteToken(secToken);
 
     return new RobotClientGreetRespond {
-      BearerToken = string.Empty
+      Status = RobotClientResultStatus.Success,
+      Message = string.Empty,
+      AccessToken = token
     };
   }
 
@@ -223,7 +210,7 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
     if (robotId == null)
       return ValidateRobotClaimFailed();
 
-    _memoryCache.Set($"gRPCRobotData_{robotId}", GenerateRobotData(request), TimeSpan.FromMinutes(5));
+    _memoryCache.Set($"RobotClientService_RobotData_{robotId}", request, TimeSpan.FromMinutes(5));
 
     // Get AutoTask
     if (request.GetTask)

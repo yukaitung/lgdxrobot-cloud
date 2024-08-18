@@ -1,24 +1,28 @@
 using LGDXRobot2Cloud.API.Configurations;
+using LGDXRobot2Cloud.API.Constants;
 using LGDXRobot2Cloud.API.DbContexts;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
 builder.WebHost.ConfigureKestrel(cfg =>
 {
   cfg.ConfigureHttpsDefaults(ctx => ctx.ClientCertificateMode = ClientCertificateMode.AllowCertificate);
+	cfg.AddServerHeader = false;
 });
 
 // Authentication
 builder.Services.AddTransient<RobotClientCertificateValidationService>();
-builder.Services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
-	.AddCertificate(cfg =>
+builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientCertificateScheme)
+	.AddCertificate(LgdxRobot2AuthenticationSchemes.RobotClientCertificateScheme, cfg =>
 	{
 		cfg.AllowedCertificateTypes = CertificateTypes.All;
 		cfg.RevocationMode = X509RevocationMode.NoCheck;
@@ -47,6 +51,21 @@ builder.Services.AddAuthentication(CertificateAuthenticationDefaults.Authenticat
 			}
 		};
 	});
+builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientJwtScheme)
+	.AddJwtBearer(LgdxRobot2AuthenticationSchemes.RobotClientJwtScheme, cfg =>
+	{
+		cfg.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = true,
+			ValidateAudience = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
+			ValidIssuer = builder.Configuration["LGDXRobot2Secret:RobotClientJwtIssuer"],
+			ValidAudience = builder.Configuration["LGDXRobot2Secret:RobotClientJwtIssuer"],
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LGDXRobot2Secret:RobotClientJwtSecret"] ?? string.Empty)),
+			ClockSkew = TimeSpan.Zero
+		};
+	});
 
 // Services
 builder.Services.AddMemoryCache();
@@ -66,6 +85,9 @@ builder.Services.AddDbContext<LgdxContext>(
 
 builder.Services.Configure<LgdxRobot2Configuration>(
 	builder.Configuration.GetSection("LGDXRobot2")
+);
+builder.Services.Configure<LgdxRobot2SecretConfiguration>(
+	builder.Configuration.GetSection("LGDXRobot2Secret")
 );
 
 // Custom Services
