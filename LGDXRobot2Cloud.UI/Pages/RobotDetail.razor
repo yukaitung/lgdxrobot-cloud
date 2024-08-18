@@ -14,13 +14,9 @@
       {
         <h2 class="page-title">
           @Robot.Name
+          &nbsp;
+          <span class="badge bg-green text-green-fg">Acitve</span>
         </h2>
-        <div class="text-secondary">
-          <ul class="list-inline list-inline-dots mb-0">
-            <!--<li class="list-inline-item">@Robot.Address</li>-->
-            <!--<li class="list-inline-item">@(Robot.IsOnline ? "Online" : "Offline")</li>-->
-          </ul>
-        </div>
       }
       else
       {
@@ -34,10 +30,10 @@
     </div>
     <div class="col-md-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary">
+        <a class="btn btn-primary">
           Pause Task Assignment
         </a>
-        <a href="#" class="btn btn-danger">
+        <a class="btn btn-danger">
           Stop This Robot
         </a>
       </div>

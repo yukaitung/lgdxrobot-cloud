@@ -23,12 +23,12 @@ namespace LGDXRobot2Cloud.API.Services
     
     public void ClearIgnoreRobot()
     {
-      _memoryCache.Remove("IgnoreRobotGetAutoTaskIds");
+      _memoryCache.Remove("AutoTaskSchedulerService_IgnoreRobot");
     }
 
     public async Task<AutoTask?> GetAutoTask(Guid robotId)
     {
-      _memoryCache.TryGetValue<List<Guid>>("IgnoreRobotGetAutoTaskIds", out var ignoreRobotIds);
+      _memoryCache.TryGetValue<HashSet<Guid>>("AutoTaskSchedulerService_IgnoreRobot", out var ignoreRobotIds);
       if (ignoreRobotIds?.Contains(robotId) ?? false)
         return null;
       var currentTask = await _autoTaskRepository.GetRunningAutoTaskAsync(robotId) ?? await _autoTaskRepository.AssignAutoTaskAsync(robotId);
@@ -41,7 +41,7 @@ namespace LGDXRobot2Cloud.API.Services
       {
         ignoreRobotIds ??= [];
         ignoreRobotIds.Add(robotId);
-        _memoryCache.Set("IgnoreRobotGetAutoTaskIds", ignoreRobotIds, TimeSpan.FromMinutes(5));
+        _memoryCache.Set("AutoTaskSchedulerService_IgnoreRobot", ignoreRobotIds, TimeSpan.FromMinutes(5));
       }
       return currentTask;
     }

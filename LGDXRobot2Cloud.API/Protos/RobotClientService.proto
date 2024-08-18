@@ -111,13 +111,12 @@ message RobotClientAutoTaskNavProgress {
 }
 
 message RobotClientExchange {
-  RobotClientRobotStatus Status = 1;
+  RobotClientRobotStatus RobotStatus = 1;
   RobotClientRobotCriticalStatus CriticalStatus = 2;
   repeated double Batteries = 3;
   RobotClientDof Position = 4;
   RobotClientRobotCommand CommandsAck = 5;
-  bool GetTask = 6;
-  RobotClientAutoTaskNavProgress NavProgress = 7;
+  RobotClientAutoTaskNavProgress NavProgress = 6;
 }
 
 /*

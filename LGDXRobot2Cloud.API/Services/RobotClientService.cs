@@ -197,6 +197,11 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
       credentials);
     var token =  new JwtSecurityTokenHandler().WriteToken(secToken);
 
+    _memoryCache.TryGetValue<HashSet<Guid>>("RobotClientService_ActiveRobots", out var activeRobotIds);
+    activeRobotIds ??= [];
+    activeRobotIds.Add((Guid)robotId);
+    _memoryCache.Set("RobotClientService_ActiveRobots", activeRobotIds, TimeSpan.FromDays(1));
+
     return new RobotClientGreetRespond {
       Status = RobotClientResultStatus.Success,
       Message = string.Empty,
@@ -213,7 +218,7 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
     _memoryCache.Set($"RobotClientService_RobotData_{robotId}", request, TimeSpan.FromMinutes(5));
 
     // Get AutoTask
-    if (request.GetTask)
+    if (request.RobotStatus == RobotClientRobotStatus.Idle)
     {
       var task = await _autoTaskSchedulerService.GetAutoTask((Guid)robotId);
       var taskDetail = await GenerateTaskDetail(task);
