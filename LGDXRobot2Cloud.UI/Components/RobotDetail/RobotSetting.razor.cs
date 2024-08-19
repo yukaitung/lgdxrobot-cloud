@@ -1,4 +1,4 @@
-using LGDXRobot2Cloud.Shared.Models.Blazor;
+using LGDXRobot2Cloud.Data.Models.Blazor;
 using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.RobotDetail;

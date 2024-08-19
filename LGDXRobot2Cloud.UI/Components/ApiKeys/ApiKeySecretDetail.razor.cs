@@ -1,6 +1,6 @@
 using AutoMapper;
-using LGDXRobot2Cloud.Shared.Models;
-using LGDXRobot2Cloud.Shared.Models.Blazor;
+using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.Blazor;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;

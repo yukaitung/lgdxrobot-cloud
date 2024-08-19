@@ -1,8 +1,7 @@
-using LGDXRobot2Cloud.API.DbContexts;
-using LGDXRobot2Cloud.Shared.Entities;
-using LGDXRobot2Cloud.Shared.Enums;
-using LGDXRobot2Cloud.Shared.Services;
-using LGDXRobot2Cloud.Shared.Utilities;
+using LGDXRobot2Cloud.Data.DbContexts;
+using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Utilities.Enums;
+using LGDXRobot2Cloud.Utilities.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
@@ -89,7 +88,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<AutoTask?> GetRunningAutoTaskAsync(Guid robotId)
     {
       return await _context.AutoTasks.Where(t => t.AssignedRobotId == robotId)
-        .Where(t => !LgdxUtil.AutoTaskRunningStateList.Contains(t.CurrentProgressId))
+        .Where(t => !LgdxService.AutoTaskRunningStateList.Contains(t.CurrentProgressId))
         .OrderByDescending(t => t.Priority) // In case the robot has multiple running task by mistake 
         .ThenByDescending(t => t.AssignedRobotId)
         .ThenBy(t => t.Id)

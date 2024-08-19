@@ -1,6 +1,6 @@
 using AutoMapper;
-using Entities = LGDXRobot2Cloud.Shared.Entities;
-using Models = LGDXRobot2Cloud.Shared.Models;
+using Entities = LGDXRobot2Cloud.Data.Entities;
+using Models = LGDXRobot2Cloud.Data.Models.DTOs;
 
 namespace LGDXRobot2Cloud.API.Profiles
 {
@@ -9,47 +9,47 @@ namespace LGDXRobot2Cloud.API.Profiles
     public NavigationProfile()
     {
       // Flow
-      CreateMap<Entities.Flow, Models.FlowListDto>();
-      CreateMap<Entities.Flow, Models.FlowDto>();
-      CreateMap<Entities.FlowDetail, Models.FlowDetailDto>();
-      CreateMap<Models.FlowCreateDto, Entities.Flow>();
-      CreateMap<IEnumerable<Models.FlowDetailCreateDto>, ICollection<Entities.FlowDetail>>()
+      CreateMap<Entities.Flow, Models.Responses.FlowListDto>();
+      CreateMap<Entities.Flow, Models.Responses.FlowDto>();
+      CreateMap<Entities.FlowDetail, Models.Responses.FlowDetailDto>();
+      CreateMap<Models.Commands.FlowCreateDto, Entities.Flow>();
+      CreateMap<IEnumerable<Models.Commands.FlowDetailCreateDto>, ICollection<Entities.FlowDetail>>()
         .ConvertUsing<FlowDetailCreateDtoToFlowDetail>();
-      CreateMap<Models.FlowDetailCreateDto, Entities.FlowDetail>();
-      CreateMap<Models.FlowUpdateDto, Entities.Flow>();
-      CreateMap<IEnumerable<Models.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>()
+      CreateMap<Models.Commands.FlowDetailCreateDto, Entities.FlowDetail>();
+      CreateMap<Models.Commands.FlowUpdateDto, Entities.Flow>();
+      CreateMap<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>()
         .ConvertUsing<FlowDetailUpdateDtoToFlowDetail>();
-      CreateMap<Models.FlowDetailUpdateDto, Entities.FlowDetail>();
+      CreateMap<Models.Commands.FlowDetailUpdateDto, Entities.FlowDetail>();
       // Progress
-      CreateMap<Entities.Progress, Models.ProgressDto>();
-      CreateMap<Models.ProgressCreateDto, Entities.Progress>();
-      CreateMap<Models.ProgressUpdateDto, Entities.Progress>();
+      CreateMap<Entities.Progress, Models.Responses.ProgressDto>();
+      CreateMap<Models.Commands.ProgressCreateDto, Entities.Progress>();
+      CreateMap<Models.Commands.ProgressUpdateDto, Entities.Progress>();
       // Tasks
-      CreateMap<Entities.AutoTask, Models.AutoTaskListDto>();
-      CreateMap<Entities.AutoTask, Models.AutoTaskDto>();
-      CreateMap<Models.AutoTaskCreateDto, Entities.AutoTask>();
-      CreateMap<Models.AutoTaskUpdateDto, Entities.AutoTask>();
-      CreateMap<Entities.AutoTaskDetail, Models.AutoTaskDetailDto>();
-      CreateMap<Models.AutoTaskDetailCreateDto, Entities.AutoTaskDetail>();
-      CreateMap<Models.AutoTaskDetailUpdateDto, Entities.AutoTaskDetail>();
+      CreateMap<Entities.AutoTask, Models.Responses.AutoTaskListDto>();
+      CreateMap<Entities.AutoTask, Models.Responses.AutoTaskDto>();
+      CreateMap<Models.Commands.AutoTaskCreateDto, Entities.AutoTask>();
+      CreateMap<Models.Commands.AutoTaskUpdateDto, Entities.AutoTask>();
+      CreateMap<Entities.AutoTaskDetail, Models.Responses.AutoTaskDetailDto>();
+      CreateMap<Models.Commands.AutoTaskDetailCreateDto, Entities.AutoTaskDetail>();
+      CreateMap<Models.Commands.AutoTaskDetailUpdateDto, Entities.AutoTaskDetail>();
       // Trigger
-      CreateMap<Entities.Trigger, Models.TriggerListDto>();
-      CreateMap<Entities.Trigger, Models.TriggerDto>();
-      CreateMap<Models.TriggerCreateDto, Entities.Trigger>();
-      CreateMap<Models.TriggerUpdateDto, Entities.Trigger>();
+      CreateMap<Entities.Trigger, Models.Responses.TriggerListDto>();
+      CreateMap<Entities.Trigger, Models.Responses.TriggerDto>();
+      CreateMap<Models.Commands.TriggerCreateDto, Entities.Trigger>();
+      CreateMap<Models.Commands.TriggerUpdateDto, Entities.Trigger>();
       // Waypoint
-      CreateMap<Entities.Waypoint, Models.WaypointDto>();
-      CreateMap<Models.WaypointCreateDto, Entities.Waypoint>();
-      CreateMap<Models.WaypointUpdateDto, Entities.Waypoint>();
+      CreateMap<Entities.Waypoint, Models.Responses.WaypointDto>();
+      CreateMap<Models.Commands.WaypointCreateDto, Entities.Waypoint>();
+      CreateMap<Models.Commands.WaypointUpdateDto, Entities.Waypoint>();
     }
   }
 
-  public class FlowDetailCreateDtoToFlowDetail : ITypeConverter<IEnumerable<Models.FlowDetailCreateDto>, ICollection<Entities.FlowDetail>>
+  public class FlowDetailCreateDtoToFlowDetail : ITypeConverter<IEnumerable<Models.Commands.FlowDetailCreateDto>, ICollection<Entities.FlowDetail>>
   {
-    public ICollection<Entities.FlowDetail> Convert(IEnumerable<Models.FlowDetailCreateDto> src, ICollection<Entities.FlowDetail> dest, ResolutionContext context)
+    public ICollection<Entities.FlowDetail> Convert(IEnumerable<Models.Commands.FlowDetailCreateDto> src, ICollection<Entities.FlowDetail> dest, ResolutionContext context)
     {
       ICollection<Entities.FlowDetail> result = new List<Entities.FlowDetail>();
-      foreach(Models.FlowDetailCreateDto e in src)
+      foreach(Models.Commands.FlowDetailCreateDto e in src)
       {
         result.Add(context.Mapper.Map<Entities.FlowDetail>(e));
       }
@@ -57,12 +57,12 @@ namespace LGDXRobot2Cloud.API.Profiles
     }
   }
 
-  public class FlowDetailUpdateDtoToFlowDetail : ITypeConverter<IEnumerable<Models.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>
+  public class FlowDetailUpdateDtoToFlowDetail : ITypeConverter<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>
   {
-    public ICollection<Entities.FlowDetail> Convert(IEnumerable<Models.FlowDetailUpdateDto> src, ICollection<Entities.FlowDetail> dest, ResolutionContext context)
+    public ICollection<Entities.FlowDetail> Convert(IEnumerable<Models.Commands.FlowDetailUpdateDto> src, ICollection<Entities.FlowDetail> dest, ResolutionContext context)
     {
       ICollection<Entities.FlowDetail> result = new List<Entities.FlowDetail>();
-      foreach(Models.FlowDetailUpdateDto e in src)
+      foreach(Models.Commands.FlowDetailUpdateDto e in src)
       {
         result.Add(context.Mapper.Map<Entities.FlowDetail>(e));
       }

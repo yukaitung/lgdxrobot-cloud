@@ -1,7 +1,8 @@
 using System.Text.Json;
 using AutoMapper;
-using LGDXRobot2Cloud.Shared.Entities;
-using LGDXRobot2Cloud.Shared.Models;
+using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;

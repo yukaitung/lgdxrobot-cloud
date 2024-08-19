@@ -1,11 +1,11 @@
 using AutoMapper;
 using Grpc.Core;
 using LGDXRobot2Cloud.API.Configurations;
-using LGDXRobot2Cloud.API.Constants;
+using LGDXRobot2Cloud.Utilities.Constants;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Protos;
-using LGDXRobot2Cloud.Shared.Entities;
-using LGDXRobot2Cloud.Shared.Enums;
+using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;

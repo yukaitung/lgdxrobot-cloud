@@ -1,6 +1,6 @@
 using LGDXRobot2Cloud.API.Repositories;
-using LGDXRobot2Cloud.Shared.Entities;
-using LGDXRobot2Cloud.Shared.Enums;
+using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobot2Cloud.API.Services

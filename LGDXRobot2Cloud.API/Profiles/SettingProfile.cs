@@ -1,6 +1,6 @@
 using AutoMapper;
-using Entities = LGDXRobot2Cloud.Shared.Entities;
-using Models = LGDXRobot2Cloud.Shared.Models;
+using Entities = LGDXRobot2Cloud.Data.Entities;
+using Models = LGDXRobot2Cloud.Data.Models.DTOs;
 
 namespace LGDXRobot2Cloud.API.Profiles
 {
@@ -8,11 +8,11 @@ namespace LGDXRobot2Cloud.API.Profiles
   {
     public SettingProfile()
     {
-      CreateMap<Entities.ApiKey, Models.ApiKeyDto>();
-      CreateMap<Models.ApiKeyCreateDto, Entities.ApiKey>();
-      CreateMap<Models.ApiKeyUpdateDto, Entities.ApiKey>();
-      CreateMap<Models.ApiKeySecretDto, Entities.ApiKey>();
-      CreateMap<Entities.ApiKey, Models.ApiKeySecretDto>();
+      CreateMap<Entities.ApiKey, Models.Responses.ApiKeyDto>();
+      CreateMap<Models.Commands.ApiKeyCreateDto, Entities.ApiKey>();
+      CreateMap<Models.Commands.ApiKeyUpdateDto, Entities.ApiKey>();
+      CreateMap<Models.Responses.ApiKeySecretDto, Entities.ApiKey>();
+      CreateMap<Entities.ApiKey, Models.Responses.ApiKeySecretDto>();
     }
   }
 }

@@ -1,4 +1,4 @@
-using LGDXRobot2Cloud.Shared.Services;
+using LGDXRobot2Cloud.Utilities.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 

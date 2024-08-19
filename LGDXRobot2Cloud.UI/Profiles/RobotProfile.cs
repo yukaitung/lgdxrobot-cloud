@@ -1,6 +1,6 @@
 using AutoMapper;
-using Models = LGDXRobot2Cloud.Shared.Models;
-using Blazor = LGDXRobot2Cloud.Shared.Models.Blazor;
+using Models = LGDXRobot2Cloud.Data.Models.DTOs.Commands;
+using Blazor = LGDXRobot2Cloud.Data.Models.Blazor;
 
 namespace LGDXRobot2Cloud.UI.Profiles
 {

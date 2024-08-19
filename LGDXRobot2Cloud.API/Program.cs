@@ -1,6 +1,6 @@
 using LGDXRobot2Cloud.API.Configurations;
-using LGDXRobot2Cloud.API.Constants;
-using LGDXRobot2Cloud.API.DbContexts;
+using LGDXRobot2Cloud.Utilities.Constants;
+using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
 using Microsoft.AspNetCore.Authentication.Certificate;

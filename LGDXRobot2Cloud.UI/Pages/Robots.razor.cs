@@ -2,7 +2,7 @@ using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Shared;
 using LGDXRobot2Cloud.UI.Components.Robots;
 using LGDXRobot2Cloud.UI.Services;
-using LGDXRobot2Cloud.Shared.Services;
+using LGDXRobot2Cloud.Utilities.Services;
 
 namespace LGDXRobot2Cloud.UI.Pages
 {

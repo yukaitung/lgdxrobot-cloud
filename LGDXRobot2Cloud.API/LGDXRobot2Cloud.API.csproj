@@ -20,9 +20,13 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
   </ItemGroup>
+  
+  <ItemGroup>
+		<ProjectReference Include="..\LGDXRobot2Cloud.Utilities\LGDXRobot2Cloud.Utilities.csproj" />
+	</ItemGroup>
 
   <ItemGroup>
-		<ProjectReference Include="..\LGDXRobot2Cloud.Shared\LGDXRobot2Cloud.Shared.csproj" />
+		<ProjectReference Include="..\LGDXRobot2Cloud.Data\LGDXRobot2Cloud.Data.csproj" />
 	</ItemGroup>
 
   <ItemGroup>

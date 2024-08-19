@@ -1,6 +1,6 @@
 using AutoMapper;
-using Entities = LGDXRobot2Cloud.Shared.Entities;
-using Models = LGDXRobot2Cloud.Shared.Models;
+using Entities = LGDXRobot2Cloud.Data.Entities;
+using Models = LGDXRobot2Cloud.Data.Models.DTOs;
 
 namespace LGDXRobot2Cloud.API.Profiles
 {
@@ -9,25 +9,25 @@ namespace LGDXRobot2Cloud.API.Profiles
     public RobotProfile()
     {
       // Robot Management
-      CreateMap<Entities.Robot, Models.RobotListDto>();
-      CreateMap<Entities.Robot, Models.RobotDto>();
-      CreateMap<Models.RobotCreateDto, Entities.Robot>();
-      CreateMap<Models.RobotUpdateDto, Entities.Robot>();
-      CreateMap<Entities.RobotSystemInfo, Models.RobotSystemInfoDto>();
-      CreateMap<Entities.RobotChassisInfo, Models.RobotChassisInfoDto>();
+      CreateMap<Entities.Robot, Models.Responses.RobotListDto>();
+      CreateMap<Entities.Robot, Models.Responses.RobotDto>();
+      CreateMap<Models.Commands.RobotCreateDto, Entities.Robot>();
+      CreateMap<Models.Commands.RobotUpdateDto, Entities.Robot>();
+      CreateMap<Entities.RobotSystemInfo, Models.Responses.RobotSystemInfoDto>();
+      CreateMap<Entities.RobotChassisInfo, Models.Responses.RobotChassisInfoDto>();
       // Nodes
-      CreateMap<Entities.Node, Models.NodeDto>();
-      CreateMap<Models.NodeCreateDto, Entities.Node>();
-      CreateMap<Models.NodeUpdateDto, Entities.Node>();
+      CreateMap<Entities.Node, Models.Responses.NodeDto>();
+      CreateMap<Models.Commands.NodeCreateDto, Entities.Node>();
+      CreateMap<Models.Commands.NodeUpdateDto, Entities.Node>();
       // Nodes Collection
-      CreateMap<Entities.NodesCollection, Models.NodesCollectionListDto>();
-      CreateMap<Entities.NodesCollection, Models.NodesCollectionDto>();
-      CreateMap<Entities.NodesCollectionDetail, Models.NodesCollectionDetailDto>();
-      CreateMap<Models.NodesCollectionCreateDto, Entities.NodesCollection>();
-      CreateMap<Models.NodesCollectionUpdateDto, Entities.NodesCollection>();
-      CreateMap<Models.NodesCollectionDetailDto, Entities.NodesCollection>();
-      CreateMap<Models.NodesCollectionDetailCreateDto, Entities.NodesCollectionDetail>();
-      CreateMap<Models.NodesCollectionDetailUpdateDto, Entities.NodesCollectionDetail>();
+      CreateMap<Entities.NodesCollection, Models.Responses.NodesCollectionListDto>();
+      CreateMap<Entities.NodesCollection, Models.Responses.NodesCollectionDto>();
+      CreateMap<Entities.NodesCollectionDetail, Models.Responses.NodesCollectionDetailDto>();
+      CreateMap<Models.Commands.NodesCollectionCreateDto, Entities.NodesCollection>();
+      CreateMap<Models.Commands.NodesCollectionUpdateDto, Entities.NodesCollection>();
+      CreateMap<Models.Responses.NodesCollectionDetailDto, Entities.NodesCollection>();
+      CreateMap<Models.Commands.NodesCollectionDetailCreateDto, Entities.NodesCollectionDetail>();
+      CreateMap<Models.Commands.NodesCollectionDetailUpdateDto, Entities.NodesCollectionDetail>();
     }
   }
 }
