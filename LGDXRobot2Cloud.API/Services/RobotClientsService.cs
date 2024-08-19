@@ -13,19 +13,19 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using static LGDXRobot2Cloud.Protos.RobotClientService;
+using static LGDXRobot2Cloud.Protos.RobotClientsService;
 
 namespace LGDXRobot2Cloud.API.Services;
 
-[Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientJwtScheme)]
-public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailRepository,
+[Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme)]
+public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailRepository,
   IAutoTaskSchedulerService autoTaskSchedulerService,
   IMapper mapper,
   IMemoryCache memoryCache,
   IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
   IRobotChassisInfoRepository robotChassisInfoRepository,
   IRobotRepository robotRepository,
-  IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientServiceBase
+  IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientsServiceBase
 {
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
@@ -46,20 +46,20 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
     return Guid.Parse(robotClaim.Value);
   }
 
-  private static RobotClientRespond ValidateRobotClaimFailed()
+  private static RobotClientsRespond ValidateRobotClaimFailed()
   {
-    return new RobotClientRespond {
-      Status = RobotClientResultStatus.Failed,
+    return new RobotClientsRespond {
+      Status = RobotClientsResultStatus.Failed,
       Message = "Robot ID is missing in the certificate."
     };
   }
 
-  private async Task<RobotClientAutoTask?> GenerateTaskDetail(AutoTask? task)
+  private async Task<RobotClientsAutoTask?> GenerateTaskDetail(AutoTask? task)
   {
     if (task == null)
       return null;
 
-    List<RobotClientDof> waypoints = [];
+    List<RobotClientsDof> waypoints = [];
     if (task.CurrentProgressId == (int)ProgressState.PreMoving)
     {
       var firstTaskDetail = await _autoTaskDetailRepository.GetAutoTaskFirstDetailAsync(task.Id);
@@ -76,7 +76,7 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
       }
     }
 
-    return new RobotClientAutoTask {
+    return new RobotClientsAutoTask {
       TaskId = task.Id,
       TaskName = task.Name ?? string.Empty,
       TaskProgressId = task.CurrentProgressId,
@@ -86,11 +86,11 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
     };
   }
 
-  private static RobotClientDof GenerateWaypoint(AutoTaskDetail taskDetail)
+  private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
   {
     if (taskDetail.Waypoint != null)
     {
-      var waypoint = new RobotClientDof 
+      var waypoint = new RobotClientsDof 
         { X = taskDetail.Waypoint.X, Y = taskDetail.Waypoint.Y, Rotation = taskDetail.Waypoint.Rotation };
       if (taskDetail.CustomX != null)
         waypoint.X = (double)taskDetail.CustomX;
@@ -102,28 +102,28 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
     }
     else 
     {
-      return new RobotClientDof { 
+      return new RobotClientsDof { 
         X = taskDetail.CustomX != null ? (double)taskDetail.CustomX : 0, 
         Y = taskDetail.CustomY != null ? (double)taskDetail.CustomY : 0, 
         Rotation = taskDetail.CustomRotation != null ? (double)taskDetail.CustomRotation : 0 };
     }
   }
 
-  [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientCertificateScheme)]
-  public override async Task<RobotClientGreetRespond> Greet(RobotClientGreet request, ServerCallContext context)
+  [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme)]
+  public override async Task<RobotClientsGreetRespond> Greet(RobotClientsGreet request, ServerCallContext context)
   {
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
-      return new RobotClientGreetRespond {
-        Status = RobotClientResultStatus.Failed,
+      return new RobotClientsGreetRespond {
+        Status = RobotClientsResultStatus.Failed,
         Message = "Robot ID is missing in the certificate.",
         AccessToken = string.Empty
       };
 
     var robot = await _robotRepository.GetRobotAsync((Guid)robotId);
     if (robot == null)
-      return new RobotClientGreetRespond {
-        Status = RobotClientResultStatus.Failed,
+      return new RobotClientsGreetRespond {
+        Status = RobotClientsResultStatus.Failed,
         Message = "Robot not found.",
         AccessToken = string.Empty
       };
@@ -147,8 +147,8 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
       // Hardware Protection
       if (robot.IsProtectingHardwareSerialNumber && incomingSystemInfoEntity.MotherboardSerialNumber != systemInfoEntity.MotherboardSerialNumber)
       {
-        return new RobotClientGreetRespond {
-          Status = RobotClientResultStatus.Failed,
+        return new RobotClientsGreetRespond {
+          Status = RobotClientsResultStatus.Failed,
           Message = "Motherboard serial number is mismatched.",
           AccessToken = string.Empty
         };
@@ -176,8 +176,8 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
       // Hardware Protection
       if (robot.IsProtectingHardwareSerialNumber && incomingChassisInfoEntity.McuSerialNumber != chassisInfoEntity.McuSerialNumber)
       {
-        return new RobotClientGreetRespond {
-          Status = RobotClientResultStatus.Failed,
+        return new RobotClientsGreetRespond {
+          Status = RobotClientsResultStatus.Failed,
           Message = "MCU serial number is mismatched.",
           AccessToken = string.Empty
         };
@@ -186,58 +186,58 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
     }
     await _robotChassisInfoRepository.SaveChangesAsync();
 
-    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobot2SecretConfiguration.RobotClientJwtSecret));
-    var credentials = new SigningCredentials(securityKey, _lgdxRobot2SecretConfiguration.RobotClientJwtAlgorithm);
+    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobot2SecretConfiguration.RobotClientsJwtSecret));
+    var credentials = new SigningCredentials(securityKey, _lgdxRobot2SecretConfiguration.RobotClientsJwtAlgorithm);
     var secToken = new JwtSecurityToken(
-      _lgdxRobot2SecretConfiguration.RobotClientJwtIssuer,
-      _lgdxRobot2SecretConfiguration.RobotClientJwtIssuer,
+      _lgdxRobot2SecretConfiguration.RobotClientsJwtIssuer,
+      _lgdxRobot2SecretConfiguration.RobotClientsJwtIssuer,
       [new Claim(ClaimTypes.NameIdentifier, robot.Id.ToString())],
       DateTime.UtcNow,
-      DateTime.UtcNow.AddMinutes(_lgdxRobot2SecretConfiguration.RobotClientJwtExpireMins),
+      DateTime.UtcNow.AddMinutes(_lgdxRobot2SecretConfiguration.RobotClientsJwtExpireMins),
       credentials);
     var token =  new JwtSecurityTokenHandler().WriteToken(secToken);
 
-    _memoryCache.TryGetValue<HashSet<Guid>>("RobotClientService_ActiveRobots", out var activeRobotIds);
+    _memoryCache.TryGetValue<HashSet<Guid>>("RobotClientsService_ActiveRobots", out var activeRobotIds);
     activeRobotIds ??= [];
     activeRobotIds.Add((Guid)robotId);
-    _memoryCache.Set("RobotClientService_ActiveRobots", activeRobotIds, TimeSpan.FromDays(1));
+    _memoryCache.Set("RobotClientsService_ActiveRobots", activeRobotIds, TimeSpan.FromDays(1));
 
-    return new RobotClientGreetRespond {
-      Status = RobotClientResultStatus.Success,
+    return new RobotClientsGreetRespond {
+      Status = RobotClientsResultStatus.Success,
       Message = string.Empty,
       AccessToken = token
     };
   }
 
-  public override async Task<RobotClientRespond> Exchange(RobotClientExchange request, ServerCallContext context)
+  public override async Task<RobotClientsRespond> Exchange(RobotClientsExchange request, ServerCallContext context)
   {
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
 
-    _memoryCache.Set($"RobotClientService_RobotData_{robotId}", request, TimeSpan.FromMinutes(5));
+    _memoryCache.Set($"RobotClientsService_RobotData_{robotId}", request, TimeSpan.FromMinutes(5));
 
     // Get AutoTask
-    if (request.RobotStatus == RobotClientRobotStatus.Idle)
+    if (request.RobotStatus == RobotClientsRobotStatus.Idle)
     {
       var task = await _autoTaskSchedulerService.GetAutoTask((Guid)robotId);
       var taskDetail = await GenerateTaskDetail(task);
-      return new RobotClientRespond {
-        Status = RobotClientResultStatus.Success,
+      return new RobotClientsRespond {
+        Status = RobotClientsResultStatus.Success,
         Message = string.Empty,
         Task = taskDetail
       };
     }
     else
     {
-      return new RobotClientRespond {
-        Status = RobotClientResultStatus.Success,
+      return new RobotClientsRespond {
+        Status = RobotClientsResultStatus.Success,
         Message = string.Empty,
       };
     }
   }
 
-  public override async Task<RobotClientRespond> AutoTaskNext(RobotClientNextToken request, ServerCallContext context)
+  public override async Task<RobotClientsRespond> AutoTaskNext(RobotClientsNextToken request, ServerCallContext context)
   {
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
@@ -245,22 +245,22 @@ public class RobotClientService(IAutoTaskDetailRepository autoTaskDetailReposito
 
     var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNext((Guid)robotId, request.TaskId, request.NextToken);
     var taskDetail = await GenerateTaskDetail(task);
-    return new RobotClientRespond {
-      Status = errorMessage == string.Empty ? RobotClientResultStatus.Success : RobotClientResultStatus.Failed,
+    return new RobotClientsRespond {
+      Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
       Message = errorMessage,
       Task = taskDetail
     };
   }
 
-  public override async Task<RobotClientRespond> AutoTaskAbort(RobotClientNextToken request, ServerCallContext context)
+  public override async Task<RobotClientsRespond> AutoTaskAbort(RobotClientsNextToken request, ServerCallContext context)
   {
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
 
     var result = await _autoTaskSchedulerService.AutoTaskAbort((Guid)robotId, request.TaskId, request.NextToken);
-    return new RobotClientRespond {
-      Status = result == string.Empty ? RobotClientResultStatus.Success : RobotClientResultStatus.Failed,
+    return new RobotClientsRespond {
+      Status = result == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
       Message = result
     };
   }

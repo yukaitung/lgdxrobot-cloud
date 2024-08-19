@@ -20,9 +20,9 @@ builder.WebHost.ConfigureKestrel(cfg =>
 });
 
 // Authentication
-builder.Services.AddTransient<RobotClientCertificateValidationService>();
-builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientCertificateScheme)
-	.AddCertificate(LgdxRobot2AuthenticationSchemes.RobotClientCertificateScheme, cfg =>
+builder.Services.AddTransient<RobotClientsCertificateValidationService>();
+builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme)
+	.AddCertificate(LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme, cfg =>
 	{
 		cfg.AllowedCertificateTypes = CertificateTypes.All;
 		cfg.RevocationMode = X509RevocationMode.NoCheck;
@@ -37,8 +37,8 @@ builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientCe
 					ctx.Fail("Robot ID not found.");
 					return;
 				}
-				var validationService = ctx.HttpContext.RequestServices.GetService<RobotClientCertificateValidationService>();
-				if (!await validationService!.ValidateRobotClientCertificate(ctx.ClientCertificate, Guid.Parse(guid)))
+				var validationService = ctx.HttpContext.RequestServices.GetService<RobotClientsCertificateValidationService>();
+				if (!await validationService!.ValidateRobotClientsCertificate(ctx.ClientCertificate, Guid.Parse(guid)))
 				{
 					ctx.Fail("Invalid certificate / Robot not found.");
 					return;
@@ -51,8 +51,8 @@ builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientCe
 			}
 		};
 	});
-builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientJwtScheme)
-	.AddJwtBearer(LgdxRobot2AuthenticationSchemes.RobotClientJwtScheme, cfg =>
+builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme)
+	.AddJwtBearer(LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme, cfg =>
 	{
 		cfg.TokenValidationParameters = new TokenValidationParameters
 		{
@@ -60,9 +60,9 @@ builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientJw
 			ValidateAudience = true,
 			ValidateLifetime = true,
 			ValidateIssuerSigningKey = true,
-			ValidIssuer = builder.Configuration["LGDXRobot2Secret:RobotClientJwtIssuer"],
-			ValidAudience = builder.Configuration["LGDXRobot2Secret:RobotClientJwtIssuer"],
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LGDXRobot2Secret:RobotClientJwtSecret"] ?? string.Empty)),
+			ValidIssuer = builder.Configuration["LGDXRobot2Secret:RobotClientsJwtIssuer"],
+			ValidAudience = builder.Configuration["LGDXRobot2Secret:RobotClientsJwtIssuer"],
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LGDXRobot2Secret:RobotClientsJwtSecret"] ?? string.Empty)),
 			ClockSkew = TimeSpan.Zero
 		};
 	});
@@ -128,6 +128,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGrpcService<RobotClientService>();
+app.MapGrpcService<RobotClientsService>();
 
 app.Run();

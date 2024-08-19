@@ -3,9 +3,9 @@ using Entities = LGDXRobot2Cloud.Shared.Entities;
 
 namespace LGDXRobot2Cloud.API.Profiles;
 
-public class RobotClientProfile : Profile
+public class RobotClientsProfile : Profile
 {
-  public RobotClientProfile()
+  public RobotClientsProfile()
   {
     CreateMap<Entities.RobotSystemInfo, Entities.RobotSystemInfo>()
       .ForMember(m => m.Id, opt => opt.Ignore())

@@ -2,54 +2,54 @@ syntax = "proto3";
 
 option csharp_namespace = "LGDXRobot2Cloud.Protos";
 
-service RobotClientService {
-  rpc Greet (RobotClientGreet) returns (RobotClientGreetRespond);
-  rpc Exchange (RobotClientExchange) returns (RobotClientRespond);
-  rpc AutoTaskNext (RobotClientNextToken) returns (RobotClientRespond);
-  rpc AutoTaskAbort (RobotClientNextToken) returns (RobotClientRespond);
+service RobotClientsService {
+  rpc Greet (RobotClientsGreet) returns (RobotClientsGreetRespond);
+  rpc Exchange (RobotClientsExchange) returns (RobotClientsRespond);
+  rpc AutoTaskNext (RobotClientsNextToken) returns (RobotClientsRespond);
+  rpc AutoTaskAbort (RobotClientsNextToken) returns (RobotClientsRespond);
 }
 
 /*
 ** Common
 */
-enum RobotClientResultStatus {
+enum RobotClientsResultStatus {
   Success = 0;
   Failed = 1;
 }
 
-message RobotClientDof {
+message RobotClientsDof {
   double X = 1;
   double Y = 2;
   double Rotation = 3;
 }
 
-message RobotClientRobotCommand {
+message RobotClientsRobotCommand {
   bool AbortTask = 1;
   bool SoftwareEmergencyStopsEnable = 2;
   bool PauseTaskAssigement = 3;
   bool RenewCertificate = 4;
 }
 
-message RobotClientAutoTask {
+message RobotClientsAutoTask {
   int32 TaskId = 1;
   string TaskName = 2;
   int32 TaskProgressId = 3;
   string TaskProgressName = 4;
-  repeated RobotClientDof Waypoints = 5;
+  repeated RobotClientsDof Waypoints = 5;
   string NextToken = 6;
 }
 
-message RobotClientRespond {
-  RobotClientResultStatus Status = 1;
+message RobotClientsRespond {
+  RobotClientsResultStatus Status = 1;
   string Message = 2;
-  optional RobotClientRobotCommand Commands = 3;
-  optional RobotClientAutoTask Task = 4;
+  optional RobotClientsRobotCommand Commands = 3;
+  optional RobotClientsAutoTask Task = 4;
 }
 
 /*
 ** Greet
 */
-message RobotClientSystemInfo {
+message RobotClientsSystemInfo {
   string Cpu = 1;
   string Motherboard = 2;
   string MotherboardSerialNumber = 3;
@@ -60,7 +60,7 @@ message RobotClientSystemInfo {
   bool Is32Bit = 8;
 }
 
-message RobotClientChassisInfo {
+message RobotClientsChassisInfo {
   string McuSerialNumber = 1;
   double ChassisLX = 2;
   double ChassisLY = 3;
@@ -71,13 +71,13 @@ message RobotClientChassisInfo {
   double BatteryMinVoltage = 8;
 }
 
-message RobotClientGreet {
-  RobotClientSystemInfo SystemInfo = 1;
-  RobotClientChassisInfo ChassisInfo = 2;
+message RobotClientsGreet {
+  RobotClientsSystemInfo SystemInfo = 1;
+  RobotClientsChassisInfo ChassisInfo = 2;
 }
 
-message RobotClientGreetRespond {
-  RobotClientResultStatus Status = 1;
+message RobotClientsGreetRespond {
+  RobotClientsResultStatus Status = 1;
   string Message = 2;
   string AccessToken = 3;
 }
@@ -85,7 +85,7 @@ message RobotClientGreetRespond {
 /*
 ** Exchange
 */
-enum RobotClientRobotStatus {
+enum RobotClientsRobotStatus {
   Idle = 0;
   Running = 1;
   Stucking = 2;
@@ -96,33 +96,33 @@ enum RobotClientRobotStatus {
   Offline = 7;
 }
 
-message RobotClientRobotCriticalStatus {
+message RobotClientsRobotCriticalStatus {
   bool HardwareEmergencyStopsEnabled = 1;
   bool SoftwareEmergencyStopsEnabled = 2;
   repeated int32 BatteryLow = 3;
   repeated int32 MotorDamaged = 4;
 }
 
-message RobotClientAutoTaskNavProgress {
+message RobotClientsAutoTaskNavProgress {
   double Eta = 1;
   int32 Recoveries = 2;
   double DistanceRemaining = 3;
   int32 WaypointsRemaining = 4;
 }
 
-message RobotClientExchange {
-  RobotClientRobotStatus RobotStatus = 1;
-  RobotClientRobotCriticalStatus CriticalStatus = 2;
+message RobotClientsExchange {
+  RobotClientsRobotStatus RobotStatus = 1;
+  RobotClientsRobotCriticalStatus CriticalStatus = 2;
   repeated double Batteries = 3;
-  RobotClientDof Position = 4;
-  RobotClientRobotCommand CommandsAck = 5;
-  RobotClientAutoTaskNavProgress NavProgress = 6;
+  RobotClientsDof Position = 4;
+  RobotClientsRobotCommand CommandsAck = 5;
+  RobotClientsAutoTaskNavProgress NavProgress = 6;
 }
 
 /*
 ** AutoTaskNext
 */
-message RobotClientNextToken {
+message RobotClientsNextToken {
   int32 TaskId = 1;
   string NextToken = 2;
 }
