@@ -13,11 +13,7 @@
 
   <ItemGroup>
 		<ProjectReference Include="..\LGDXRobot2Cloud.Utilities\LGDXRobot2Cloud.Utilities.csproj" />
+    <ProjectReference Include="..\LGDXRobot2Cloud.Data\LGDXRobot2Cloud.Data.csproj" />
 	</ItemGroup>
-
-  <ItemGroup>
-		<ProjectReference Include="..\LGDXRobot2Cloud.Data\LGDXRobot2Cloud.Data.csproj" />
-	</ItemGroup>
-
 
 </Project>
