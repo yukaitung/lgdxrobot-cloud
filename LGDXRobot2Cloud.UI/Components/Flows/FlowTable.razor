@@ -76,9 +76,9 @@
     }
   </div>
   <!-- Footer -->
-  @if (PaginationMetadata != null && FlowsList != null && FlowsList.Count() > 0)
+  @if (PaginationHelper != null && FlowsList != null && FlowsList.Count() > 0)
   {
-    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="FlowsList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="FlowsList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

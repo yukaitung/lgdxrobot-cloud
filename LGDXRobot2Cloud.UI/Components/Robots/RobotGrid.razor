@@ -73,9 +73,9 @@ else
 }
 
 <div class="mt-3">
-  @if (PaginationMetadata != null && RobotsList != null && RobotsList.Count() > 0)
+  @if (PaginationHelper != null && RobotsList != null && RobotsList.Count() > 0)
   {
-    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="RobotsList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="RobotsList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

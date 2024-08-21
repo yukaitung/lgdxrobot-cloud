@@ -2,14 +2,14 @@ using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using LGDXRobot2Cloud.Utilities.Enums;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IAutoTaskService
 {
-  Task<(IEnumerable<AutoTaskBlazor>?, PaginationMetadata?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<(IEnumerable<AutoTaskBlazor>?, PaginationHelper?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10);
   Task<AutoTaskBlazor?> GetAutoTaskAsync(int autoTaskId);
   Task<AutoTaskBlazor?> AddAutoTaskAsync(AutoTaskCreateDto autoTask);
   Task<bool> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateDto autoTask);
@@ -27,7 +27,7 @@ public class AutoTaskService : IAutoTaskService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<AutoTaskBlazor>?, PaginationMetadata?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<AutoTaskBlazor>?, PaginationHelper?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     StringBuilder url = new($"navigation/tasks?pageNumber={pageNumber}&pageSize={pageSize}");
     if (showProgressId != null)
@@ -37,10 +37,10 @@ public class AutoTaskService : IAutoTaskService
     var response = await _httpClient.GetAsync(url.ToString());
     if (response.IsSuccessStatusCode)
     {
-      var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
+      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
       var tasks = await JsonSerializer.DeserializeAsync<IEnumerable<AutoTaskBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (tasks, paginationMetadata);
+      return (tasks, PaginationHelper);
     }
     else
     {

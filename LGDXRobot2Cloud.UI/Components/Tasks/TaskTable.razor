@@ -89,9 +89,9 @@
     }
   </div>
   <!-- Footer -->
-  @if (PaginationMetadata != null && TasksList != null && TasksList.Count() > 0)
+  @if (PaginationHelper != null && TasksList != null && TasksList.Count() > 0)
   {
-    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="TasksList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="TasksList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

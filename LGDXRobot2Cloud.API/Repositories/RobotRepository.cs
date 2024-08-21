@@ -1,14 +1,14 @@
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Enums;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories;
 
 public interface IRobotRepository
 {
-  Task<(IEnumerable<Robot>, PaginationMetadata)> GetRobotsAsync(string? name, int pageNumber, int pageSize);
+  Task<(IEnumerable<Robot>, PaginationHelper)> GetRobotsAsync(string? name, int pageNumber, int pageSize);
   Task<Robot?> GetRobotAsync(Guid robotId);
   Task<Robot?> GetRobotSimpleAsync(Guid robotId);
   Task AddRobotAsync(Robot robot);
@@ -20,7 +20,7 @@ public class RobotRepository(LgdxContext context) : IRobotRepository
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-  public async Task<(IEnumerable<Robot>, PaginationMetadata)> GetRobotsAsync(string? name, int pageNumber, int pageSize)
+  public async Task<(IEnumerable<Robot>, PaginationHelper)> GetRobotsAsync(string? name, int pageNumber, int pageSize)
   {
     var query = _context.Robots as IQueryable<Robot>;
     if (!string.IsNullOrEmpty(name))
@@ -29,12 +29,12 @@ public class RobotRepository(LgdxContext context) : IRobotRepository
       query = query.Where(r => r.Name.Contains(name));
     }
     var itemCount = await query.CountAsync();
-    var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
+    var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
     var robots = await query.OrderBy(r => r.Id)
       .Skip(pageSize * (pageNumber - 1))
       .Take(pageSize)
       .ToListAsync();
-    return (robots, paginationMetadata);
+    return (robots, PaginationHelper);
   }
 
   public async Task<Robot?> GetRobotAsync(Guid robotId)

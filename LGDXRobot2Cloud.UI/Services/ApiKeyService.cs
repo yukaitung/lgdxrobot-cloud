@@ -3,13 +3,13 @@ using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IApiKeyService
 {
-  Task<(IEnumerable<ApiKeyBlazor>?, PaginationMetadata?)> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<(IEnumerable<ApiKeyBlazor>?, PaginationHelper?)> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10);
   Task<ApiKeyBlazor?> GetApiKeyAsync(int apiKeyId);
   Task<ApiKeyBlazor?> AddApiKeyAsync(ApiKeyCreateDto apiKey);
   Task<bool> UpdateApiKeyAsync(int apiKeyId, ApiKeyUpdateDto apiKey);
@@ -30,16 +30,16 @@ public class ApiKeyService : IApiKeyService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true};
   }
 
-  public async Task<(IEnumerable<ApiKeyBlazor>?, PaginationMetadata?)> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<ApiKeyBlazor>?, PaginationHelper?)> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"setting/secret/apikeys?isThirdParty={isThirdParty}&name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"setting/secret/apikeys?isThirdParty={isThirdParty}&pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
     if (response.IsSuccessStatusCode)
     {
-      var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
+      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
       var apiKeys = await JsonSerializer.DeserializeAsync<IEnumerable<ApiKeyBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (apiKeys, paginationMetadata);
+      return (apiKeys, PaginationHelper);
     }
     else
     {

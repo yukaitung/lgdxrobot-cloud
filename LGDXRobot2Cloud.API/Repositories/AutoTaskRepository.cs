@@ -1,14 +1,14 @@
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Enums;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
   public interface IAutoTaskRepository
   {
-    Task<(IEnumerable<AutoTask>, PaginationMetadata)> GetAutoTasksAsync(string? name, int? showProgressId, bool? showRunningTasks, int pageNumber, int pageSize);
+    Task<(IEnumerable<AutoTask>, PaginationHelper)> GetAutoTasksAsync(string? name, int? showProgressId, bool? showRunningTasks, int pageNumber, int pageSize);
     Task<AutoTask?> GetAutoTaskAsync(int autoTaskId);
     Task AddAutoTaskAsync(AutoTask autoTask);
     void DeleteAutoTask(AutoTask autoTask);
@@ -24,7 +24,7 @@ namespace LGDXRobot2Cloud.API.Repositories
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<(IEnumerable<AutoTask>, PaginationMetadata)> GetAutoTasksAsync(string? name, int? showProgressId, bool? showRunningTasks, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<AutoTask>, PaginationHelper)> GetAutoTasksAsync(string? name, int? showProgressId, bool? showRunningTasks, int pageNumber, int pageSize)
     {
       var query = _context.AutoTasks as IQueryable<AutoTask>;
       if (!string.IsNullOrWhiteSpace(name))
@@ -37,7 +37,7 @@ namespace LGDXRobot2Cloud.API.Repositories
       if (showRunningTasks == true)
         query = query.Where(t => t.CurrentProgressId > (int)ProgressState.Aborted);
       var itemCount = await query.CountAsync();
-      var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
+      var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
       var autoTasks = await query.OrderByDescending(t => t.Priority)
         .ThenBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))
@@ -46,7 +46,7 @@ namespace LGDXRobot2Cloud.API.Repositories
         .Include(t => t.AssignedRobot)
         .Include(t => t.CurrentProgress)
         .ToListAsync();
-      return (autoTasks, paginationMetadata);
+      return (autoTasks, PaginationHelper);
     }
 
     public async Task<AutoTask?> GetAutoTaskAsync(int autoTaskId)
@@ -88,7 +88,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<AutoTask?> GetRunningAutoTaskAsync(Guid robotId)
     {
       return await _context.AutoTasks.Where(t => t.AssignedRobotId == robotId)
-        .Where(t => !LgdxService.AutoTaskRunningStateList.Contains(t.CurrentProgressId))
+        .Where(t => !LgdxHelper.AutoTaskRunningStateList.Contains(t.CurrentProgressId))
         .OrderByDescending(t => t.Priority) // In case the robot has multiple running task by mistake 
         .ThenByDescending(t => t.AssignedRobotId)
         .ThenBy(t => t.Id)

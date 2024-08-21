@@ -2,13 +2,13 @@ using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface INodeService
 {
-  Task<(IEnumerable<NodeBlazor>?, PaginationMetadata?)> GetNodesAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<(IEnumerable<NodeBlazor>?, PaginationHelper?)> GetNodesAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
   Task<NodeBlazor?> GetNodeAsync(int nodeId);
   Task<NodeBlazor?> AddNodeAsync(NodeCreateDto node);
   Task<bool> UpdateNodeAsync(int nodeId, NodeUpdateDto node);
@@ -27,16 +27,16 @@ public class NodeService : INodeService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<NodeBlazor>?, PaginationMetadata?)> GetNodesAsync(string? name, int pageNumber, int pageSize)
+  public async Task<(IEnumerable<NodeBlazor>?, PaginationHelper?)> GetNodesAsync(string? name, int pageNumber, int pageSize)
   {
     var url = name != null ? $"robot/nodes?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot/nodes?pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
     if (response.IsSuccessStatusCode)
     {
-      var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
+      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
       var nodes = await JsonSerializer.DeserializeAsync<IEnumerable<NodeBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (nodes, paginationMetadata);
+      return (nodes, PaginationHelper);
     }
     else
     {

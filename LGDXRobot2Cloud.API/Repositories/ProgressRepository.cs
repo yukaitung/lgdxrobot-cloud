@@ -1,13 +1,13 @@
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
   public interface IProgressRepository
   {
-    Task<(IEnumerable<Progress>, PaginationMetadata)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved, bool hideSystem);
+    Task<(IEnumerable<Progress>, PaginationHelper)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved, bool hideSystem);
     Task<Progress?> GetProgressAsync(int progressId);
     Task<bool> ProgressExistsAsync(int progressId);
     Task AddProgressAsync(Progress progress);
@@ -22,7 +22,7 @@ namespace LGDXRobot2Cloud.API.Repositories
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<(IEnumerable<Progress>, PaginationMetadata)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved, bool hideSystem)
+    public async Task<(IEnumerable<Progress>, PaginationHelper)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved, bool hideSystem)
     {
       var query = _context.Progresses as IQueryable<Progress>;
       if (!string.IsNullOrWhiteSpace(name))
@@ -39,12 +39,12 @@ namespace LGDXRobot2Cloud.API.Repositories
         query = query.Where(t => t.System == false);
       }
       var itemCount = await query.CountAsync();
-      var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
+      var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
       var progresses = await query.OrderBy(a => a.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .ToListAsync();
-      return (progresses, paginationMetadata);
+      return (progresses, PaginationHelper);
     }
     
     public async Task<Progress?> GetProgressAsync(int progressId)

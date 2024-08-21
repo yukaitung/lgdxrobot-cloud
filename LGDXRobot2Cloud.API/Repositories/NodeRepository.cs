@@ -1,13 +1,13 @@
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
   public interface INodeRepository
   {
-    Task<(IEnumerable<Node>, PaginationMetadata)> GetNodesAsync(string? name, int pageNumber, int pageSize);
+    Task<(IEnumerable<Node>, PaginationHelper)> GetNodesAsync(string? name, int pageNumber, int pageSize);
     Task<Node?> GetNodeAsync(int nodeId);
     Task AddNodeAsync(Node node);
     void DeleteNode(Node node);
@@ -21,7 +21,7 @@ namespace LGDXRobot2Cloud.API.Repositories
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<(IEnumerable<Node>, PaginationMetadata)> GetNodesAsync(string? name, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<Node>, PaginationHelper)> GetNodesAsync(string? name, int pageNumber, int pageSize)
     {
       var query = _context.Nodes as IQueryable<Node>;
       if (!string.IsNullOrWhiteSpace(name))
@@ -30,12 +30,12 @@ namespace LGDXRobot2Cloud.API.Repositories
         query = query.Where(n => n.Name.Contains(name));
       }
       var itemCount = await query.CountAsync();
-      var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
+      var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
       var nodes = await query.OrderBy(n => n.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .ToListAsync();
-      return (nodes, paginationMetadata);
+      return (nodes, PaginationHelper);
     }
     
     public async Task<Node?> GetNodeAsync(int nodeId)

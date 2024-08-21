@@ -1,4 +1,4 @@
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
@@ -7,7 +7,7 @@ namespace LGDXRobot2Cloud.UI.Shared
   public partial class TablePagination
   {
     [Parameter]
-    public required PaginationMetadata PaginationMetadata { get; set; }
+    public required PaginationHelper PaginationHelper { get; set; }
 
     [Parameter]
     public int ItemCount { get; set; }
@@ -25,7 +25,7 @@ namespace LGDXRobot2Cloud.UI.Shared
 
     public override async Task SetParametersAsync(ParameterView parameters) 
     {
-      if (parameters.TryGetValue<PaginationMetadata>(nameof(PaginationMetadata), out var value))
+      if (parameters.TryGetValue<PaginationHelper>(nameof(PaginationHelper), out var value))
       {
         var pageCount = value.PageCount;
         var currentPage = value.CurrentPage;

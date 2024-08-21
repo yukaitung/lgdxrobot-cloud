@@ -81,9 +81,9 @@
     }
   </div>
   <!-- Footer -->
-  @if (PaginationMetadata != null && ApiKeyList != null && ApiKeyList.Count() > 0)
+  @if (PaginationHelper != null && ApiKeyList != null && ApiKeyList.Count() > 0)
   {
-    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="ApiKeyList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="ApiKeyList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

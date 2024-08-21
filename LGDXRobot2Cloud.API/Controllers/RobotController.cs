@@ -66,8 +66,8 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult<IEnumerable<RobotListDto>>> GetRobots(string? name, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (robots, paginationMetadata) = await _robotRepository.GetRobotsAsync(name, pageNumber, pageSize);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+      var (robots, PaginationHelper) = await _robotRepository.GetRobotsAsync(name, pageNumber, pageSize);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
       return Ok(_mapper.Map<IEnumerable<RobotListDto>>(robots));
     }
 
@@ -159,8 +159,8 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult<IEnumerable<NodeDto>>> GetNodes(string? name, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (nodes, paginationMetadata) = await _nodeRepository.GetNodesAsync(name, pageNumber, pageSize);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+      var (nodes, PaginationHelper) = await _nodeRepository.GetNodesAsync(name, pageNumber, pageSize);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
       return Ok(_mapper.Map<IEnumerable<NodeDto>>(nodes));
     }
 
@@ -213,8 +213,8 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult<IEnumerable<NodesCollectionListDto>>> GetNodesCollections(string? name, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (nodesCollections, paginationMetadata) = await _nodesCollectionRepository.GetNodesCollectionsAsync(name, pageNumber, pageSize);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+      var (nodesCollections, PaginationHelper) = await _nodesCollectionRepository.GetNodesCollectionsAsync(name, pageNumber, pageSize);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
       return Ok(_mapper.Map<IEnumerable<NodesCollectionListDto>>(nodesCollections));
     }
 

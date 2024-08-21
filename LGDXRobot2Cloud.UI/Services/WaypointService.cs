@@ -2,13 +2,13 @@ using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IWaypointService
 {
-  Task<(IEnumerable<WaypointBlazor>?, PaginationMetadata?)> GetWaypointsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<(IEnumerable<WaypointBlazor>?, PaginationHelper?)> GetWaypointsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
   Task<WaypointBlazor?> GetWaypointAsync(int waypointId);
   Task<WaypointBlazor?> AddWaypointAsync(WaypointCreateDto waypoint);
   Task<bool> UpdateWaypointAsync(int waypointId, WaypointUpdateDto waypoint);
@@ -27,16 +27,16 @@ public class WaypointService : IWaypointService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
   
-  public async Task<(IEnumerable<WaypointBlazor>?, PaginationMetadata?)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
+  public async Task<(IEnumerable<WaypointBlazor>?, PaginationHelper?)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
   {
     var url = name != null ? $"navigation/waypoints?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/waypoints?pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
     if (response.IsSuccessStatusCode)
     {
-      var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
+      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
       var waypoints = await JsonSerializer.DeserializeAsync<IEnumerable<WaypointBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (waypoints, paginationMetadata);
+      return (waypoints, PaginationHelper);
     }
     else
     {

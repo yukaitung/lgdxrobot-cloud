@@ -2,13 +2,13 @@ using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IFlowService
 {
-  Task<(IEnumerable<FlowBlazor>?, PaginationMetadata?)> GetFlowsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<(IEnumerable<FlowBlazor>?, PaginationHelper?)> GetFlowsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
   Task<FlowBlazor?> GetFlowAsync(int flowId);
   Task<FlowBlazor?> AddFlowAsync(FlowCreateDto flow);
   Task<bool> UpdateFlowAsync(int flowId, FlowUpdateDto flow);
@@ -27,16 +27,16 @@ public class FlowService : IFlowService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<FlowBlazor>?, PaginationMetadata?)> GetFlowsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<FlowBlazor>?, PaginationHelper?)> GetFlowsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"navigation/flows?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/flows?pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
     if (response.IsSuccessStatusCode)
     {
-      var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
+      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
       var flows = await JsonSerializer.DeserializeAsync<IEnumerable<FlowBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (flows, paginationMetadata);
+      return (flows, PaginationHelper);
     }
     else
     {

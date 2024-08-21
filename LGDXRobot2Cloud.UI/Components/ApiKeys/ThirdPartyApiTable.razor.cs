@@ -1,5 +1,5 @@
 using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -14,7 +14,7 @@ namespace LGDXRobot2Cloud.UI.Components.ApiKeys
     public EventCallback<int> OnIdSelected { get; set; }
 
     private List<ApiKeyBlazor>? ApiKeyList { get; set; }
-    private PaginationMetadata? PaginationMetadata { get; set; }
+    private PaginationHelper? PaginationHelper { get; set; }
     private int CurrentPage { get; set; } = 1;
     private int PageSize { get; set; } = 10;
     private string DataSearch { get; set; } = string.Empty;
@@ -29,7 +29,7 @@ namespace LGDXRobot2Cloud.UI.Components.ApiKeys
         PageSize = 1;
       var data = await ApiKeyService.GetApiKeysAsync(true, DataSearch, 1, PageSize);
       ApiKeyList = data.Item1?.ToList();
-      PaginationMetadata = data.Item2;
+      PaginationHelper = data.Item2;
     }
 
     protected override async Task HandleSearch()
@@ -38,7 +38,7 @@ namespace LGDXRobot2Cloud.UI.Components.ApiKeys
         return;
       var data = await ApiKeyService.GetApiKeysAsync(true, DataSearch, 1, PageSize);
       ApiKeyList = data.Item1?.ToList();
-      PaginationMetadata = data.Item2;
+      PaginationHelper = data.Item2;
       LastDataSearch = DataSearch;
     }
 
@@ -60,11 +60,11 @@ namespace LGDXRobot2Cloud.UI.Components.ApiKeys
       if (pageNum == CurrentPage)
         return;
       CurrentPage = pageNum;
-      if (pageNum > PaginationMetadata?.PageCount || pageNum < 1)
+      if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
         return;
       var data = await ApiKeyService.GetApiKeysAsync(true, DataSearch, pageNum, PageSize);
       ApiKeyList = data.Item1?.ToList();
-      PaginationMetadata = data.Item2;
+      PaginationHelper = data.Item2;
     }
 
     public override async Task Refresh(bool deleteOpt = false)
@@ -73,7 +73,7 @@ namespace LGDXRobot2Cloud.UI.Components.ApiKeys
         CurrentPage--;
       var data = await ApiKeyService.GetApiKeysAsync(true, DataSearch, CurrentPage, PageSize);
       ApiKeyList = data.Item1?.ToList();
-      PaginationMetadata = data.Item2;
+      PaginationHelper = data.Item2;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

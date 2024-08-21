@@ -82,9 +82,9 @@
     }
   </div>
   <!-- Footer -->
-  @if (PaginationMetadata != null && WaypointsList != null && WaypointsList.Count() > 0)
+  @if (PaginationHelper != null && WaypointsList != null && WaypointsList.Count() > 0)
   {
-    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="WaypointsList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="WaypointsList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

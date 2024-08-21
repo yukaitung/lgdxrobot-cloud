@@ -42,8 +42,8 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult<IEnumerable<FlowListDto>>> GetFlows(string? name, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (flows, paginationMetadata) = await _flowRepository.GetFlowsAsync(name, pageNumber, pageSize);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+      var (flows, PaginationHelper) = await _flowRepository.GetFlowsAsync(name, pageNumber, pageSize);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
       return Ok(_mapper.Map<IEnumerable<FlowListDto>>(flows));
     }
 
@@ -181,8 +181,8 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult<IEnumerable<ProgressDto>>> GetProgresses(string? name, int pageNumber = 1, int pageSize = 10, bool hideReserved = false, bool hideSystem = false)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (progresses, paginationMetadata) = await _progressRepository.GetProgressesAsync(name, pageNumber, pageSize, hideReserved, hideSystem);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+      var (progresses, PaginationHelper) = await _progressRepository.GetProgressesAsync(name, pageNumber, pageSize, hideReserved, hideSystem);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
       return Ok(_mapper.Map<IEnumerable<ProgressDto>>(progresses));
     }
 
@@ -239,8 +239,8 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult<IEnumerable<AutoTaskListDto>>> GetTasks(string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (tasks, paginationMetadata) = await _autoTaskRepository.GetAutoTasksAsync(name, showProgressId, showRunningTasks, pageNumber, pageSize);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+      var (tasks, PaginationHelper) = await _autoTaskRepository.GetAutoTasksAsync(name, showProgressId, showRunningTasks, pageNumber, pageSize);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
       return Ok(_mapper.Map<IEnumerable<AutoTaskListDto>>(tasks));
     }
 
@@ -375,8 +375,8 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult<IEnumerable<TriggerListDto>>> GetTriggers(string? name, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (triggers, paginationMetadata) = await _triggerRepository.GetTriggersAsync(name, pageNumber, pageSize);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+      var (triggers, PaginationHelper) = await _triggerRepository.GetTriggersAsync(name, pageNumber, pageSize);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
       return Ok(_mapper.Map<IEnumerable<TriggerListDto>>(triggers));
     }
 
@@ -445,8 +445,8 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult<IEnumerable<WaypointDto>>> GetWaypoints(string? name, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (waypoints, paginationMetadata) = await _waypointRepository.GetWaypointsAsync(name, pageNumber, pageSize);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+      var (waypoints, PaginationHelper) = await _waypointRepository.GetWaypointsAsync(name, pageNumber, pageSize);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
       return Ok(_mapper.Map<IEnumerable<WaypointDto>>(waypoints));
     }
 

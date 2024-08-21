@@ -76,9 +76,9 @@
     }
   </div>
   <!-- Footer -->
-  @if (PaginationMetadata != null && NodesCollectionsList != null && NodesCollectionsList.Count() > 0)
+  @if (PaginationHelper != null && NodesCollectionsList != null && NodesCollectionsList.Count() > 0)
   {
-    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="NodesCollectionsList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="NodesCollectionsList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

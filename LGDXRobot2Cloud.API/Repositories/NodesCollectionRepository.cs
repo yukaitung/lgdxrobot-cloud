@@ -1,13 +1,13 @@
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
   public interface INodesCollectionRepository
   {
-    Task<(IEnumerable<NodesCollection>, PaginationMetadata)> GetNodesCollectionsAsync(string? name, int pageNumber, int pageSize);
+    Task<(IEnumerable<NodesCollection>, PaginationHelper)> GetNodesCollectionsAsync(string? name, int pageNumber, int pageSize);
     Task<NodesCollection?> GetNodesCollectionAsync(int nodesCollectionId);
     Task AddNodesCollectionAsync(NodesCollection nodesCollection);
     void DeleteNodesCollection(NodesCollection nodesCollection);
@@ -18,7 +18,7 @@ namespace LGDXRobot2Cloud.API.Repositories
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<(IEnumerable<NodesCollection>, PaginationMetadata)> GetNodesCollectionsAsync(string? name, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<NodesCollection>, PaginationHelper)> GetNodesCollectionsAsync(string? name, int pageNumber, int pageSize)
     {
       var query = _context.NodesCollections as IQueryable<NodesCollection>;
       if (!string.IsNullOrEmpty(name))
@@ -27,12 +27,12 @@ namespace LGDXRobot2Cloud.API.Repositories
         query = query.Where(n => n.Name.Contains(name));
       }
       var itemCount = await query.CountAsync();
-      var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
+      var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
       var nodesCollections = await query.OrderBy(n => n.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .ToListAsync();
-      return (nodesCollections, paginationMetadata);
+      return (nodesCollections, PaginationHelper);
     }
     
     public async Task<NodesCollection?> GetNodesCollectionAsync(int nodesCollectionId)

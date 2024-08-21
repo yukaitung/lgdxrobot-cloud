@@ -2,13 +2,13 @@ using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface ITriggerService
 {
-  Task<(IEnumerable<TriggerBlazor>?, PaginationMetadata?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<(IEnumerable<TriggerBlazor>?, PaginationHelper?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
   Task<TriggerBlazor?> GetTriggerAsync(int triggerId);
   Task<TriggerBlazor?> AddTriggerAsync(TriggerCreateDto trigger);
   Task<bool> UpdateTriggerAsync(int triggerId, TriggerUpdateDto trigger);
@@ -27,16 +27,16 @@ public class TriggerService : ITriggerService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<TriggerBlazor>?, PaginationMetadata?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<TriggerBlazor>?, PaginationHelper?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"navigation/triggers?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/triggers?pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
     if (response.IsSuccessStatusCode)
     {
-      var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
+      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
       var triggers = await JsonSerializer.DeserializeAsync<IEnumerable<TriggerBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (triggers, paginationMetadata);
+      return (triggers, PaginationHelper);
     }
     else
     {

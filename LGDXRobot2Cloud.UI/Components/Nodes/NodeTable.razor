@@ -80,9 +80,9 @@
     }
   </div>
   <!-- Footer -->
-  @if (PaginationMetadata != null && NodesList != null && NodesList.Count() > 0)
+  @if (PaginationHelper != null && NodesList != null && NodesList.Count() > 0)
   {
-    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="NodesList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="NodesList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

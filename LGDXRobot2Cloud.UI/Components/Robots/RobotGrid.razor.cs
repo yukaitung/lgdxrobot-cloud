@@ -1,5 +1,5 @@
 using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -11,7 +11,7 @@ namespace LGDXRobot2Cloud.UI.Components.Robots
     public required IRobotService RobotService { get; set; }
 
     private List<RobotBlazor>? RobotsList { get; set; }
-    private PaginationMetadata? PaginationMetadata { get; set; }
+    private PaginationHelper? PaginationHelper { get; set; }
     private int CurrentPage { get; set; } = 1;
     private int PageSize { get; set; } = 16;
     private string DataSearch { get; set; } = string.Empty;
@@ -23,7 +23,7 @@ namespace LGDXRobot2Cloud.UI.Components.Robots
         return;
       var data = await RobotService.GetRobotsAsync(DataSearch, 1, PageSize);
       RobotsList = data.Item1?.ToList();
-      PaginationMetadata = data.Item2;
+      PaginationHelper = data.Item2;
       LastDataSearch = DataSearch;
     }
 
@@ -40,11 +40,11 @@ namespace LGDXRobot2Cloud.UI.Components.Robots
       if (pageNum == CurrentPage)
         return;
       CurrentPage = pageNum;
-      if (pageNum > PaginationMetadata?.PageCount || pageNum < 1)
+      if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
         return;
       var data = await RobotService.GetRobotsAsync(DataSearch, pageNum, PageSize);
       RobotsList = data.Item1?.ToList();
-      PaginationMetadata = data.Item2;
+      PaginationHelper = data.Item2;
     }
 
     public async Task Refresh(bool deleteOpt = false)
@@ -53,7 +53,7 @@ namespace LGDXRobot2Cloud.UI.Components.Robots
         CurrentPage--;
       var data = await RobotService.GetRobotsAsync(DataSearch, CurrentPage, PageSize);
       RobotsList = data.Item1?.ToList();
-      PaginationMetadata = data.Item2;
+      PaginationHelper = data.Item2;
       StateHasChanged();
     }
 

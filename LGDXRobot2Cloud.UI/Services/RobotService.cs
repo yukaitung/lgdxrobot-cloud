@@ -3,13 +3,13 @@ using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IRobotService
 {
-  Task<(IEnumerable<RobotBlazor>?, PaginationMetadata?)> GetRobotsAsync(string? name = null, int pageNumber = 1, int pageSize = 16);
+  Task<(IEnumerable<RobotBlazor>?, PaginationHelper?)> GetRobotsAsync(string? name = null, int pageNumber = 1, int pageSize = 16);
   Task<RobotBlazor?> GetRobotAsync(string robotId);
   Task<RobotCreateResponseDto?> AddRobotAsync(RobotCreateDto robot);
   Task<bool> UpdateRobotInformationAsync(string robotId, RobotUpdateDto robot);
@@ -28,16 +28,16 @@ public class RobotService : IRobotService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<RobotBlazor>?, PaginationMetadata?)> GetRobotsAsync(string? name, int pageNumber, int pageSize)
+  public async Task<(IEnumerable<RobotBlazor>?, PaginationHelper?)> GetRobotsAsync(string? name, int pageNumber, int pageSize)
   {
     var url = name != null ? $"robot?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot?pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
     if (response.IsSuccessStatusCode)
     {
-      var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
+      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
       var robots = await JsonSerializer.DeserializeAsync<IEnumerable<RobotBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (robots, paginationMetadata);
+      return (robots, PaginationHelper);
     }
     else
     {

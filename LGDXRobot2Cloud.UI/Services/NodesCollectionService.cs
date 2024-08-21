@@ -2,13 +2,13 @@ using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface INodesCollectionService
 {
-  Task<(IEnumerable<NodesCollectionBlazor>?, PaginationMetadata?)> GetNodesCollectionsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<(IEnumerable<NodesCollectionBlazor>?, PaginationHelper?)> GetNodesCollectionsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
   Task<NodesCollectionBlazor?> GetNodesCollectionAsync(int nodesCollectionId);
   Task<NodesCollectionBlazor?> AddNodesCollectionAsync(NodesCollectionCreateDto nodesCollection);
   Task<bool> UpdateNodesCollectionAsync(int nodesCollectionId, NodesCollectionUpdateDto nodesCollection);
@@ -26,16 +26,16 @@ public class NodesCollectionService : INodesCollectionService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<NodesCollectionBlazor>?, PaginationMetadata?)> GetNodesCollectionsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<NodesCollectionBlazor>?, PaginationHelper?)> GetNodesCollectionsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"robot/collections?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot/collections?pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
     if (response.IsSuccessStatusCode)
     {
-      var paginationMetadataJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var paginationMetadata = JsonSerializer.Deserialize<PaginationMetadata>(paginationMetadataJson, _jsonSerializerOptions);
+      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
       var nodesCollections = await JsonSerializer.DeserializeAsync<IEnumerable<NodesCollectionBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (nodesCollections, paginationMetadata);
+      return (nodesCollections, PaginationHelper);
     }
     else
     {

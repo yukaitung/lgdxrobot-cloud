@@ -1,13 +1,13 @@
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Utilities.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Repositories
 {
   public interface IApiKeyRepository
   {
-    Task<(IEnumerable<ApiKey>, PaginationMetadata)> GetApiKeysAsync(string? name, bool isThirdParty, int pageNumber, int pageSize);
+    Task<(IEnumerable<ApiKey>, PaginationHelper)> GetApiKeysAsync(string? name, bool isThirdParty, int pageNumber, int pageSize);
     Task<ApiKey?> GetApiKeyAsync(int apiKeyId);
     Task AddApiKeyAsync(ApiKey apiKey);
     void DeleteApiKey(ApiKey apiKey);
@@ -18,7 +18,7 @@ namespace LGDXRobot2Cloud.API.Repositories
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<(IEnumerable<ApiKey>, PaginationMetadata)> GetApiKeysAsync(string? name, bool isThirdParty, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<ApiKey>, PaginationHelper)> GetApiKeysAsync(string? name, bool isThirdParty, int pageNumber, int pageSize)
     {
       var query = _context.ApiKeys as IQueryable<ApiKey>;
       query = query.Where(a => a.IsThirdParty == isThirdParty);
@@ -28,12 +28,12 @@ namespace LGDXRobot2Cloud.API.Repositories
         query = query.Where(a => a.Name.Contains(name));
       }
       var itemCount = await query.CountAsync();
-      var paginationMetadata = new PaginationMetadata(itemCount, pageNumber, pageSize);
+      var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
       var apiKeys = await query.OrderBy(a => a.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .ToListAsync();
-      return (apiKeys, paginationMetadata);
+      return (apiKeys, PaginationHelper);
     }
 
     public async Task<ApiKey?> GetApiKeyAsync(int apiKeyId)

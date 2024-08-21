@@ -78,9 +78,9 @@
     }
   </div>
   <!-- Footer -->
-  @if (PaginationMetadata != null && TriggersList != null && TriggersList.Count() > 0)
+  @if (PaginationHelper != null && TriggersList != null && TriggersList.Count() > 0)
   {
-    <TablePagination PaginationMetadata="PaginationMetadata" ItemCount="TriggersList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="TriggersList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

@@ -35,8 +35,8 @@ namespace LGDXRobot2Cloud.API.Controllers
     public async Task<ActionResult<IEnumerable<ApiKeyDto>>> GetApiKeys(string? name, bool isThirdParty = false, int pageNumber = 1, int pageSize = 10)
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (apiKeys, paginationMetadata) = await _apiKeyRepository.GetApiKeysAsync(name, isThirdParty, pageNumber, pageSize);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+      var (apiKeys, PaginationHelper) = await _apiKeyRepository.GetApiKeysAsync(name, isThirdParty, pageNumber, pageSize);
+      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
       return Ok(_mapper.Map<IEnumerable<ApiKeyDto>>(apiKeys));
     }
 
