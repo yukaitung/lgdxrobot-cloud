@@ -88,7 +88,7 @@ message RobotClientsGreetRespond {
 enum RobotClientsRobotStatus {
   Idle = 0;
   Running = 1;
-  Stucking = 2;
+  Stuck = 2;
   Aborting = 3;
   Paused = 4;
   Critical = 5;

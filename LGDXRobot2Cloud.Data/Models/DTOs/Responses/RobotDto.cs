@@ -1,3 +1,5 @@
+using LGDXRobot2Cloud.Utilities.Enums;
+
 namespace LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 
 public class RobotDto
@@ -5,7 +7,7 @@ public class RobotDto
   public Guid Id { get; set; }
   public string Name { get; set; } = null!;
   public string Address { get; set; } = null!;
-  public int RobotStatusId { get; set; }
+  public RobotStatus RobotStatus { get; set; }
   public bool IsRealtimeExchange { get; set; }
   public bool IsProtectingHardwareSerialNumber { get; set; }
   public string CertificateThumbprint { get; set; } = null!;

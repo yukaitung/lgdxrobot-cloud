@@ -18,19 +18,19 @@ using static LGDXRobot2Cloud.Protos.RobotClientsService;
 namespace LGDXRobot2Cloud.API.Services;
 
 [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme)]
-public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailRepository,
+public class RobotClientsService(IActiveRobotService activeRobotService,
+  IAutoTaskDetailRepository autoTaskDetailRepository,
   IAutoTaskSchedulerService autoTaskSchedulerService,
   IMapper mapper,
-  IMemoryCache memoryCache,
   IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
   IRobotChassisInfoRepository robotChassisInfoRepository,
   IRobotRepository robotRepository,
   IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientsServiceBase
 {
+  private readonly IActiveRobotService _activeRobotService = activeRobotService ?? throw new ArgumentNullException(nameof(activeRobotService));
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
   private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IRobotChassisInfoRepository _robotChassisInfoRepository = robotChassisInfoRepository ?? throw new ArgumentNullException(nameof(robotChassisInfoRepository));
   private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
   private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
@@ -197,10 +197,7 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
       credentials);
     var token =  new JwtSecurityTokenHandler().WriteToken(secToken);
 
-    _memoryCache.TryGetValue<HashSet<Guid>>("RobotClientsService_ActiveRobots", out var activeRobotIds);
-    activeRobotIds ??= [];
-    activeRobotIds.Add((Guid)robotId);
-    _memoryCache.Set("RobotClientsService_ActiveRobots", activeRobotIds, TimeSpan.FromDays(1));
+    _activeRobotService.AddRobot((Guid)robotId);
 
     return new RobotClientsGreetRespond {
       Status = RobotClientsResultStatus.Success,
@@ -215,7 +212,7 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
     if (robotId == null)
       return ValidateRobotClaimFailed();
 
-    _memoryCache.Set($"RobotClientsService_RobotData_{robotId}", request, TimeSpan.FromMinutes(5));
+    _activeRobotService.SetRobotData((Guid)robotId, request);
 
     // Get AutoTask
     if (request.RobotStatus == RobotClientsRobotStatus.Idle)
