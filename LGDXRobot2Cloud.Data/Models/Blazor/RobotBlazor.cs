@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Utilities.Enums;
 
 namespace LGDXRobot2Cloud.Data.Models.Blazor;
 
@@ -8,6 +9,8 @@ public class RobotBlazor
   [Required]
   public string Name { get; set; } = null!;
   public string? Address { get; set; }
+  public RobotStatus RobotStatus { get; set; } = RobotStatus.Offline;
+  public IEnumerable<double> Batteries { get; set; } = [];
   public string? Namespace { get; set; }
   public int RobotStatusId { get; set; }
   public bool IsRealtimeExchange { get; set; }

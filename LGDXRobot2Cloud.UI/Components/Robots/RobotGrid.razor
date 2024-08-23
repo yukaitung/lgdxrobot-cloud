@@ -21,14 +21,31 @@
       var id = robot.Id;
       <div class="col-sm-6 col-md-4">
         <div class="card">
-          <div class="card-status-top bg-green"></div>
+          <RobotCardTop RobotStatus="@robot.RobotStatus" />
           <div class="card-body row">
-            <div class="h3"><span class="badge bg-green text-green-fg">Acitve</span></div>
-            <div class="h1">@robot.Name</div>
+            <div class="d-flex">
+              <h2 style="display: table;">@robot.Name</h2>
+              <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@robot.RobotStatus" /></h2>
+            </div>
             <div class="mt-auto">
-              <div>Address: @robot.Address</div>
-              <div>Assigned Task:</div>
-              <div>Progress:</div>
+              <div>Address: @(robot.Address ?? "-")</div>
+              <div>Namespace: @(robot.Namespace ?? "-")</div>
+              <div>Batteries:
+              @if (robot.Batteries.Count() > 0)
+              {
+                @for (int i = 0; i < robot.Batteries.Count(); i++)
+                {
+                  @(' ')
+                  <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
+                    @(robot.Batteries.ElementAt(i) + " V")
+                  </span>
+                }
+              }
+              else
+              {
+                <span class="badge badge-outline">Unavailable</span>
+              }
+              </div>
             </div>
           </div>
           <div class="d-flex">

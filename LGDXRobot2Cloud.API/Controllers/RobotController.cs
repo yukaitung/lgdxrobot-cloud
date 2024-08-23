@@ -9,17 +9,22 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
 using LGDXRobot2Cloud.API.Configurations;
+using LGDXRobot2Cloud.API.Services;
+using LGDXRobot2Cloud.Utilities.Enums;
+using LGDXRobot2Cloud.Protos;
 
 namespace LGDXRobot2Cloud.API.Controllers
 {
   [ApiController]
   [Route("[controller]")]
-  public class RobotController(INodeRepository nodeRepository,
+  public class RobotController(IActiveRobotService activeRobotService,
+    INodeRepository nodeRepository,
     INodesCollectionRepository nodesCollectionRepository,
     IRobotRepository robotRepository,
     IMapper mapper,
     IOptionsSnapshot<LgdxRobot2Configuration> options) : ControllerBase
   {
+    private readonly IActiveRobotService _activeRobotService = activeRobotService ?? throw new ArgumentNullException(nameof(activeRobotService));
     private readonly INodeRepository _nodeRepository = nodeRepository ?? throw new ArgumentException(nameof(nodeRepository));
     private readonly INodesCollectionRepository _nodesCollectionRepository = nodesCollectionRepository ?? throw new ArgumentException(nameof(nodesCollectionRepository));
     private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
@@ -34,6 +39,22 @@ namespace LGDXRobot2Cloud.API.Controllers
       required public string RobotCertificateThumbprint { get; set; }
       required public DateTime RobotCertificateNotBefore { get; set; }
       required public DateTime RobotCertificateNotAfter { get; set; }
+    }
+
+    private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
+    {
+      return robotStatus switch
+      {
+        RobotClientsRobotStatus.Idle => RobotStatus.Idle,
+        RobotClientsRobotStatus.Running => RobotStatus.Running,
+        RobotClientsRobotStatus.Stuck => RobotStatus.Stuck,
+        RobotClientsRobotStatus.Aborting => RobotStatus.Aborting,
+        RobotClientsRobotStatus.Paused => RobotStatus.Paused,
+        RobotClientsRobotStatus.Critical => RobotStatus.Critical,
+        RobotClientsRobotStatus.Charging => RobotStatus.Charging,
+        RobotClientsRobotStatus.Offline => RobotStatus.Offline,
+        _ => RobotStatus.Offline,
+      };
     }
 
     private RobotCertificates GenerateRobotCertificate(Guid robotId)
@@ -67,8 +88,23 @@ namespace LGDXRobot2Cloud.API.Controllers
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
       var (robots, PaginationHelper) = await _robotRepository.GetRobotsAsync(name, pageNumber, pageSize);
+      var activeRobotsData = _activeRobotService.GetRobotsDataBrief();
       Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
-      return Ok(_mapper.Map<IEnumerable<RobotListDto>>(robots));
+
+      var robotsDto = _mapper.Map<IEnumerable<RobotListDto>>(robots);
+      if (activeRobotsData != null)
+      {
+        for (int i = 0; i < robotsDto.Count(); i++)
+        {
+          if (activeRobotsData.TryGetValue(robotsDto.ElementAt(i).Id, out var data))
+          {
+            robotsDto.ElementAt(i).RobotStatus = ConvertRobotStatus(data.RobotStatus);
+            robotsDto.ElementAt(i).Batteries = data.Batteries;
+          }
+        }
+      }
+      
+      return Ok(robotsDto);
     }
 
     [HttpGet("{id}", Name = "GetRobot")]

@@ -6,11 +6,10 @@ public class RobotListDto
 {
   public Guid Id { get; set; }
   public string Name { get; set; } = null!;
-  public RobotStatus RobotStatus { get; set; }
+  public RobotStatus RobotStatus { get; set; } = RobotStatus.Offline;
+  public IEnumerable<double> Batteries { get; set; } = [];
   public string? Address { get; set; }
-  public int? AssignedTaskId { get; set; }
-  public string? AssignedTaskName { get; set; }
-  public ProgressState? AssignedTaskProgressState { get; set; }
+  public string? Namespace { get; set; }
   public DateTime CreatedAt { get; set; }
   public DateTime UpdatedAt { get; set; }
 }

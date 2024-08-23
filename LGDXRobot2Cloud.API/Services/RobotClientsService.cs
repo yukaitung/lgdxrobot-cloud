@@ -7,7 +7,6 @@ using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -51,6 +50,20 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
     return new RobotClientsRespond {
       Status = RobotClientsResultStatus.Failed,
       Message = "Robot ID is missing in the certificate."
+    };
+  }
+
+  // TODO: Validate in authorisation
+  private bool ValidateActiveRobot(Guid robotId)
+  {
+    return _activeRobotService.IsRobotActive(robotId);
+  }
+
+  private static RobotClientsRespond ValidateActiveRobotFailed()
+  {
+    return new RobotClientsRespond {
+      Status = RobotClientsResultStatus.Failed,
+      Message = "Robot ID is inactive."
     };
   }
 
@@ -211,6 +224,8 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
+    if (!ValidateActiveRobot((Guid)robotId))
+      return ValidateActiveRobotFailed();
 
     _activeRobotService.SetRobotData((Guid)robotId, request);
 
@@ -239,6 +254,8 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
+    if (!ValidateActiveRobot((Guid)robotId))
+      return ValidateActiveRobotFailed();
 
     var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNext((Guid)robotId, request.TaskId, request.NextToken);
     var taskDetail = await GenerateTaskDetail(task);
@@ -254,6 +271,8 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
+    if (!ValidateActiveRobot((Guid)robotId))
+      return ValidateActiveRobotFailed();
 
     var result = await _autoTaskSchedulerService.AutoTaskAbort((Guid)robotId, request.TaskId, request.NextToken);
     return new RobotClientsRespond {
