@@ -25,9 +25,9 @@ message RobotClientsDof {
 
 message RobotClientsRobotCommand {
   bool AbortTask = 1;
-  bool SoftwareEmergencyStopsEnable = 2;
-  bool PauseTaskAssigement = 3;
-  bool RenewCertificate = 4;
+  bool RenewCertificate = 2;
+  bool SoftwareEmergencyStop = 3;
+  bool PauseTaskAssigement = 4;
 }
 
 message RobotClientsAutoTask {
@@ -97,8 +97,8 @@ enum RobotClientsRobotStatus {
 }
 
 message RobotClientsRobotCriticalStatus {
-  bool HardwareEmergencyStopsEnabled = 1;
-  bool SoftwareEmergencyStopsEnabled = 2;
+  bool HardwareEmergencyStopEnabled = 1;
+  bool SoftwareEmergencyStopEnabled = 2;
   repeated int32 BatteryLow = 3;
   repeated int32 MotorDamaged = 4;
 }
@@ -115,8 +115,7 @@ message RobotClientsExchange {
   RobotClientsRobotCriticalStatus CriticalStatus = 2;
   repeated double Batteries = 3;
   RobotClientsDof Position = 4;
-  RobotClientsRobotCommand CommandsAck = 5;
-  RobotClientsAutoTaskNavProgress NavProgress = 6;
+  RobotClientsAutoTaskNavProgress NavProgress = 5;
 }
 
 /*

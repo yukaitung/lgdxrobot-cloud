@@ -1,5 +1,7 @@
 @page "/robots/robots/{RobotId}"
 @using LGDXRobot2Cloud.UI.Components.RobotDetail
+@using LGDXRobot2Cloud.UI.Components.Robots
+@using LGDXRobot2Cloud.Utilities.Enums
 @rendermode InteractiveServer
 
 <PageHeader Title="Robots">
@@ -15,7 +17,7 @@
         <h2 class="page-title">
           @Robot.Name
           &nbsp;
-          <span class="badge bg-green text-green-fg">Acitve</span>
+          <RobotStatusBadge RobotStatus="@Robot.RobotStatus" />
         </h2>
       }
       else
@@ -28,16 +30,19 @@
         </div>
       }
     </div>
-    <div class="col-md-auto ms-auto d-print-none">
-      <div class="btn-list">
-        <a class="btn btn-primary">
-          Pause Task Assignment
-        </a>
-        <a class="btn btn-danger">
-          Stop This Robot
-        </a>
+    @if (Robot != null && Robot.RobotStatus != RobotStatus.Offline)
+    {
+      <div class="col-md-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement">
+            @(Robot.IsPauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")
+          </a>
+          <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop">
+            @(Robot.IsSoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
+          </a>
+        </div>
       </div>
-    </div>
+    }
   </div>
 </PageHeader>
 
@@ -54,3 +59,6 @@
     </div>
   </div>
 </PageBody>
+
+<PauseTaskAssigement Robot="Robot" />
+<SoftwareEmergencyStop Robot="Robot" />

@@ -17,7 +17,7 @@ using static LGDXRobot2Cloud.Protos.RobotClientsService;
 namespace LGDXRobot2Cloud.API.Services;
 
 [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme)]
-public class RobotClientsService(IActiveRobotService activeRobotService,
+public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
   IAutoTaskDetailRepository autoTaskDetailRepository,
   IAutoTaskSchedulerService autoTaskSchedulerService,
   IMapper mapper,
@@ -26,7 +26,7 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
   IRobotRepository robotRepository,
   IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientsServiceBase
 {
-  private readonly IActiveRobotService _activeRobotService = activeRobotService ?? throw new ArgumentNullException(nameof(activeRobotService));
+  private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService ?? throw new ArgumentNullException(nameof(OnlineRobotsService));
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
   private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -54,16 +54,16 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
   }
 
   // TODO: Validate in authorisation
-  private bool ValidateActiveRobot(Guid robotId)
+  private bool ValidateOnlineRobots(Guid robotId)
   {
-    return _activeRobotService.IsRobotActive(robotId);
+    return _onlineRobotsService.IsRobotOnline(robotId);
   }
 
-  private static RobotClientsRespond ValidateActiveRobotFailed()
+  private static RobotClientsRespond ValidateOnlineRobotsFailed()
   {
     return new RobotClientsRespond {
       Status = RobotClientsResultStatus.Failed,
-      Message = "Robot ID is inactive."
+      Message = "The robot is offline."
     };
   }
 
@@ -210,7 +210,7 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
       credentials);
     var token =  new JwtSecurityTokenHandler().WriteToken(secToken);
 
-    _activeRobotService.AddRobot((Guid)robotId);
+    _onlineRobotsService.AddRobot((Guid)robotId);
 
     return new RobotClientsGreetRespond {
       Status = RobotClientsResultStatus.Success,
@@ -224,10 +224,10 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
-    if (!ValidateActiveRobot((Guid)robotId))
-      return ValidateActiveRobotFailed();
+    if (!ValidateOnlineRobots((Guid)robotId))
+      return ValidateOnlineRobotsFailed();
 
-    _activeRobotService.SetRobotData((Guid)robotId, request);
+    _onlineRobotsService.SetRobotData((Guid)robotId, request);
 
     // Get AutoTask
     if (request.RobotStatus == RobotClientsRobotStatus.Idle)
@@ -237,6 +237,7 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
         Message = string.Empty,
+        Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
         Task = taskDetail
       };
     }
@@ -245,6 +246,7 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
         Message = string.Empty,
+        Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
       };
     }
   }
@@ -254,14 +256,15 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
-    if (!ValidateActiveRobot((Guid)robotId))
-      return ValidateActiveRobotFailed();
+    if (!ValidateOnlineRobots((Guid)robotId))
+      return ValidateOnlineRobotsFailed();
 
     var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNext((Guid)robotId, request.TaskId, request.NextToken);
     var taskDetail = await GenerateTaskDetail(task);
     return new RobotClientsRespond {
       Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
       Message = errorMessage,
+      Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
       Task = taskDetail
     };
   }
@@ -271,13 +274,14 @@ public class RobotClientsService(IActiveRobotService activeRobotService,
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
-    if (!ValidateActiveRobot((Guid)robotId))
-      return ValidateActiveRobotFailed();
+    if (!ValidateOnlineRobots((Guid)robotId))
+      return ValidateOnlineRobotsFailed();
 
     var result = await _autoTaskSchedulerService.AutoTaskAbort((Guid)robotId, request.TaskId, request.NextToken);
     return new RobotClientsRespond {
       Status = result == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
-      Message = result
+      Message = result,
+      Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
     };
   }
 }

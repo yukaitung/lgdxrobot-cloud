@@ -92,7 +92,7 @@ builder.Services.Configure<LgdxRobot2SecretConfiguration>(
 
 // Custom Services
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
-builder.Services.AddScoped<IActiveRobotService, ActiveRobotService>();
+builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
 
 // Navigation Repositories
 builder.Services.AddScoped<IFlowRepository, FlowRepository>();

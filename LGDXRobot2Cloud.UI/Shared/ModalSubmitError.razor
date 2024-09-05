@@ -3,22 +3,34 @@
 @if (Display)
 {
   <div class="alert alert-danger" role="alert">
-    <div class="d-flex">
-      <div class="me-2">
-        <XIcon />
-      </div>
-      <div>
-        Something went wrong while @switch (Crud) {
-          case CrudOperation.Create:
-            <span>creating</span>
-            break;
-          case CrudOperation.Update:
-            <span>updating</span>
-            break;
-          case CrudOperation.Delete:
-            <span>deleting</span>
-            break;
-        } your data, please try again later.
+  <div class="d-flex">
+    <div class="me-2">
+      <XIcon />
+    </div>
+    <div>
+      @if (Crud != null)
+        {
+          <span>
+            Something went wrong while @switch (Crud)
+            {
+              case CrudOperation.Create:
+                <span>creating</span>
+                break;
+              case CrudOperation.Update:
+                <span>updating</span>
+                break;
+              case CrudOperation.Delete:
+                <span>deleting</span>
+                break;
+            } your data, please try again later.
+          </span>
+        }
+        else 
+        {
+          <span>
+            Something went wrong while processing your request.
+          </span>
+        }
       </div>
     </div>
   </div>
@@ -30,5 +42,5 @@
   public bool Display { get; set; }
 
   [Parameter]
-  public CrudOperation Crud { get; set; }
+  public CrudOperation? Crud { get; set; }
 }

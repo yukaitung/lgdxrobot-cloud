@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 using LGDXRobot2Cloud.Data.Models.Blazor;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using LGDXRobot2Cloud.Data.Models.DTOs.Requests;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -12,6 +13,8 @@ public interface IRobotService
   Task<(IEnumerable<RobotBlazor>?, PaginationHelper?)> GetRobotsAsync(string? name = null, int pageNumber = 1, int pageSize = 16);
   Task<RobotBlazor?> GetRobotAsync(string robotId);
   Task<RobotCreateResponseDto?> AddRobotAsync(RobotCreateDto robot);
+  Task<bool> UpdateSoftwareEmergencyStop(string robotId, bool enable);
+  Task<bool> UpdatePauseTaskAssigement(string robotId, bool enable);
   Task<bool> UpdateRobotInformationAsync(string robotId, RobotUpdateDto robot);
   Task<RobotCreateResponseDto?> RenewRobotCertificateAsync(string robotId, RobotRenewCertificateRenewDto dto);
   Task<bool> DeleteRobotAsync(string robotId);
@@ -64,16 +67,27 @@ public class RobotService : IRobotService
       return null;
   }
 
+  public async Task<bool> UpdateSoftwareEmergencyStop(string robotId, bool enable)
+  {
+    EnableDto data = new() { Enable = enable };
+    var dataJson = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
+    var response = await _httpClient.PostAsync($"robot/{robotId}/emergencystop", dataJson);
+    return response.IsSuccessStatusCode;
+  }
+
+  public async Task<bool> UpdatePauseTaskAssigement(string robotId, bool enable)
+  {
+    EnableDto data = new() { Enable = enable };
+    var dataJson = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
+    var response = await _httpClient.PostAsync($"robot/{robotId}/pausetaskassigement", dataJson);
+    return response.IsSuccessStatusCode;
+  }
+
   public async Task<bool> UpdateRobotInformationAsync(string robotId, RobotUpdateDto robot)
   {
     var robotJson = new StringContent(JsonSerializer.Serialize(robot), Encoding.UTF8, "application/json");
     var response = await _httpClient.PostAsync($"robot/{robotId}/information", robotJson);
-    if (response.IsSuccessStatusCode)
-    {
-      return true;
-    }
-    else
-      return false;
+    return response.IsSuccessStatusCode;
   }
 
   public async Task<RobotCreateResponseDto?> RenewRobotCertificateAsync(string robotId, RobotRenewCertificateRenewDto dto)

@@ -1,3 +1,5 @@
+@using LGDXRobot2Cloud.Utilities.Enums
+
 <div class="card p-3 mb-3">
   <div class="d-flex justify-content-center">
     <div class="text-secondary">
@@ -52,13 +54,16 @@
             <a href="@($"/robots/robots/{id}")" class="card-btn">
               Manage
             </a>
-            <a class="card-btn dropdown-toggle" data-bs-toggle="dropdown" style="cursor: pointer;">
-              Quick Action
-            </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item">Pause Task Assignment</a>
-              <a class="dropdown-item">Stop This Robot</a>
-            </div>
+            @if (robot.RobotStatus != RobotStatus.Offline)
+            {
+              <a class="card-btn dropdown-toggle" data-bs-toggle="dropdown" style="cursor: pointer;" @onclick="(e) => HandleRobotSelect(robot)">
+                Quick Action
+              </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement">@(robot.IsPauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")</a>
+                <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop">@(robot.IsSoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")</a>
+              </div>
+            }      
           </div>
         </div>
       </div>
@@ -96,3 +101,6 @@ else
       OnPageChange="HandlePageChange" />
   }
 </div>
+
+<PauseTaskAssigement Robot="SelectedRobot" />
+<SoftwareEmergencyStop Robot="SelectedRobot" />

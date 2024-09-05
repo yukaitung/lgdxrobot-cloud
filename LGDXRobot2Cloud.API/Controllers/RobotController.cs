@@ -2,6 +2,7 @@ using System.Text.Json;
 using AutoMapper;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,14 @@ namespace LGDXRobot2Cloud.API.Controllers
 {
   [ApiController]
   [Route("[controller]")]
-  public class RobotController(IActiveRobotService activeRobotService,
+  public class RobotController(IOnlineRobotsService OnlineRobotsService,
     INodeRepository nodeRepository,
     INodesCollectionRepository nodesCollectionRepository,
     IRobotRepository robotRepository,
     IMapper mapper,
     IOptionsSnapshot<LgdxRobot2Configuration> options) : ControllerBase
   {
-    private readonly IActiveRobotService _activeRobotService = activeRobotService ?? throw new ArgumentNullException(nameof(activeRobotService));
+    private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService ?? throw new ArgumentNullException(nameof(OnlineRobotsService));
     private readonly INodeRepository _nodeRepository = nodeRepository ?? throw new ArgumentException(nameof(nodeRepository));
     private readonly INodesCollectionRepository _nodesCollectionRepository = nodesCollectionRepository ?? throw new ArgumentException(nameof(nodesCollectionRepository));
     private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
@@ -88,18 +89,20 @@ namespace LGDXRobot2Cloud.API.Controllers
     {
       pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
       var (robots, PaginationHelper) = await _robotRepository.GetRobotsAsync(name, pageNumber, pageSize);
-      var activeRobotsData = _activeRobotService.GetRobotsDataBrief();
+      var OnlineRobotssData = _onlineRobotsService.GetRobotsData(robots.Select(r => r.Id).ToList());
       Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
 
       var robotsDto = _mapper.Map<IEnumerable<RobotListDto>>(robots);
-      if (activeRobotsData != null)
+      if (OnlineRobotssData != null)
       {
         for (int i = 0; i < robotsDto.Count(); i++)
         {
-          if (activeRobotsData.TryGetValue(robotsDto.ElementAt(i).Id, out var data))
+          if (OnlineRobotssData.TryGetValue(robotsDto.ElementAt(i).Id, out var data))
           {
-            robotsDto.ElementAt(i).RobotStatus = ConvertRobotStatus(data.RobotStatus);
-            robotsDto.ElementAt(i).Batteries = data.Batteries;
+            robotsDto.ElementAt(i).RobotStatus = ConvertRobotStatus(data.Data.RobotStatus);
+            robotsDto.ElementAt(i).Batteries = data.Data.Batteries;
+            robotsDto.ElementAt(i).IsSoftwareEmergencyStop = data.Commands.SoftwareEmergencyStop;
+            robotsDto.ElementAt(i).IsPauseTaskAssigement = data.Commands.PauseTaskAssigement;
           }
         }
       }
@@ -113,7 +116,18 @@ namespace LGDXRobot2Cloud.API.Controllers
       var robot = await _robotRepository.GetRobotAsync(id);
       if (robot == null)
         return NotFound();
-      return Ok(_mapper.Map<RobotDto>(robot));
+
+      var robotsDto = _mapper.Map<RobotDto>(robot);
+      var OnlineRobotssData = _onlineRobotsService.GetRobotData(robot.Id);
+      if (OnlineRobotssData != null && OnlineRobotssData.TryGetValue(robot.Id, out var data))
+      {
+        robotsDto.RobotStatus = ConvertRobotStatus(data.Data.RobotStatus);
+        robotsDto.Batteries = data.Data.Batteries;
+        robotsDto.IsSoftwareEmergencyStop = data.Commands.SoftwareEmergencyStop;
+        robotsDto.IsPauseTaskAssigement = data.Commands.PauseTaskAssigement;
+      }
+
+      return Ok(robotsDto);
     }
 
     [HttpPost(Name = "CreateRobot")]
@@ -136,6 +150,26 @@ namespace LGDXRobot2Cloud.API.Controllers
         RobotCertificatePublicKey = certificates.RobotCertificatePublicKey
       };
       return CreatedAtAction(nameof(CreateRobot), response);
+    }
+
+    [HttpPost("{id}/emergencystop")]
+    public ActionResult UpdateSoftwareEmergencyStop(Guid id, EnableDto data)
+    {
+      if (_onlineRobotsService.UpdateSoftwareEmergencyStop(id, data.Enable))
+      {
+        return NoContent();
+      }
+      return BadRequest("Robot is offline or not found.");
+    }
+
+    [HttpPost("{id}/pausetaskassigement")]
+    public ActionResult UpdatePauseTaskAssigement(Guid id, EnableDto data)
+    {
+      if (_onlineRobotsService.UpdatePauseTaskAssigement(id, data.Enable))
+      {
+        return NoContent();
+      }
+      return BadRequest("Robot is offline or not found.");
     }
 
     [HttpPost("{id}/information")]

@@ -16,6 +16,7 @@ namespace LGDXRobot2Cloud.UI.Components.Robots
     private int PageSize { get; set; } = 16;
     private string DataSearch { get; set; } = string.Empty;
     private string LastDataSearch { get; set; } = string.Empty;
+    private RobotBlazor? SelectedRobot { get; set; }
 
     protected async Task HandleSearch()
     {
@@ -55,6 +56,11 @@ namespace LGDXRobot2Cloud.UI.Components.Robots
       RobotsList = data.Item1?.ToList();
       PaginationHelper = data.Item2;
       StateHasChanged();
+    }
+
+    protected void HandleRobotSelect(RobotBlazor robot)
+    {
+      SelectedRobot = robot;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

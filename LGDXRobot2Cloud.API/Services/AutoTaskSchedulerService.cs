@@ -15,11 +15,13 @@ namespace LGDXRobot2Cloud.API.Services
   
   public class AutoTaskSchedulerService(IAutoTaskRepository autoTaskRepository,
     IProgressRepository progressRepository,
-    IMemoryCache memoryCache) : IAutoTaskSchedulerService
+    IMemoryCache memoryCache,
+    IOnlineRobotsService onlineRobotsService) : IAutoTaskSchedulerService
   {
     private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
     private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
     private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+    private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
     
     public void ClearIgnoreRobot()
     {
@@ -28,6 +30,8 @@ namespace LGDXRobot2Cloud.API.Services
 
     public async Task<AutoTask?> GetAutoTask(Guid robotId)
     {
+      if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+        return null;
       _memoryCache.TryGetValue<HashSet<Guid>>("AutoTaskSchedulerService_IgnoreRobot", out var ignoreRobotIds);
       if (ignoreRobotIds?.Contains(robotId) ?? false)
         return null;
