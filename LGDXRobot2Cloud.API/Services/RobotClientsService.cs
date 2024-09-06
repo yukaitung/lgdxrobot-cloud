@@ -95,7 +95,7 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
       TaskProgressId = task.CurrentProgressId,
       TaskProgressName = task.CurrentProgress.Name ?? string.Empty,
       Waypoints = { waypoints },
-      NextToken = task.NextToken
+      NextToken = task.NextToken ?? string.Empty,
     };
   }
 

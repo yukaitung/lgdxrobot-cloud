@@ -65,17 +65,12 @@ namespace LGDXRobot2Cloud.API.Services
     {
       var task = await _autoTaskRepository.AutoTaskNextAsync(robotId, taskId, token);
       if (task == null)
+      {
         return (null, "Task not found / Invalid token.");
-      if (task.CurrentProgressId == (int)ProgressState.Completed)
-      {
-        return (null, "");
       }
-      else
-      {
-        var progress = await _progressRepository.GetProgressAsync(task.CurrentProgressId);
-        task.CurrentProgress = progress!;
-        return (task, "");
-      }
+      var progress = await _progressRepository.GetProgressAsync(task.CurrentProgressId);
+      task.CurrentProgress = progress!;
+      return (task, "");
     }
   }
 }
