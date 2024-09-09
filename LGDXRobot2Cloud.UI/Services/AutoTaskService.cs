@@ -14,6 +14,7 @@ public interface IAutoTaskService
   Task<AutoTaskBlazor?> AddAutoTaskAsync(AutoTaskCreateDto autoTask);
   Task<bool> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateDto autoTask);
   Task<bool> DeleteAutoTaskAsync(int autoTaskId);
+  Task<bool> AbortAutoTaskAsync(int autoTaskId);
 }
 
 public class AutoTaskService : IAutoTaskService
@@ -77,6 +78,12 @@ public class AutoTaskService : IAutoTaskService
   public async Task<bool> DeleteAutoTaskAsync(int autoTaskId)
   {
     var response = await _httpClient.DeleteAsync($"navigation/tasks/{autoTaskId}");
+    return response.IsSuccessStatusCode;
+  }
+
+  public async Task<bool> AbortAutoTaskAsync(int autoTaskId)
+  {
+    var response = await _httpClient.PostAsync($"navigation/tasks/{autoTaskId}/abort", null);
     return response.IsSuccessStatusCode;
   }
 }

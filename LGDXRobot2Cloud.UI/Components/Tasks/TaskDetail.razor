@@ -1,4 +1,5 @@
 @using LGDXRobot2Cloud.UI.Shared.Icons
+@using LGDXRobot2Cloud.Utilities.Enums
 @inherits AbstractForm
 
 <div class="modal modal-blur fade" id="taskDetailModal" data-bs-backdrop="static" data-bs-keyboard="false"
@@ -271,6 +272,12 @@
               </button>
             }
           }
+          else if (Task.CurrentProgress.Id != (int)ProgressState.Completed && Task.CurrentProgress.Id != (int)ProgressState.Aborted)
+          {
+            <button type="button" class="btn btn-danger ms-auto" data-bs-toggle="modal" data-bs-target="#taskAbortModal">
+              Abort
+            </button>
+          }
         </div>
       </EditForm>
     </div>
@@ -280,19 +287,39 @@
 @if (Id != null)
 {
   <div class="modal fade" id="taskDeleteModal" tabindex="-1" data-bs-keyboard="false">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="modal-title">Delete Task</div>
-        <ModalSubmitError Display="IsError" Crud="@CrudOperation.Delete" />
-        <div>The Task @(Task.Name != null ? $"\"{Task.Name}\" (ID: {Task.Id})" : $"ID: {Task.Id}") will be deleted.
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="modal-title">Delete Task</div>
+          <ModalSubmitError Display="IsError" Crud="@CrudOperation.Delete" />
+          <div>The Task @(Task.Name != null ? $"\"{Task.Name}\" (ID: {Task.Id})" : $"ID: {Task.Id}") will be deleted.
+          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" @onclick="HandleDelete">Yes</button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" @onclick="HandleDelete">Yes</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}
+
+@if (!IsEditable())
+{
+  <div class="modal fade" id="taskAbortModal" tabindex="-1" data-bs-keyboard="false">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="modal-title">Abort Task</div>
+          <ModalSubmitError Display="IsError" />
+          <div>The Task @(Task.Name != null ? $"\"{Task.Name}\" (ID: {Task.Id})" : $"ID: {Task.Id}") will be aborted.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" @onclick="HandleAbort">Yes</button>
+        </div>
+      </div>
+    </div>
+  </div>
 }

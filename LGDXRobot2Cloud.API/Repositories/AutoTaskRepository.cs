@@ -18,6 +18,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     Task<AutoTask?> GetRunningAutoTaskAsync(Guid robotId);
     Task<AutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token);
     Task<AutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token);
+    Task<AutoTask?> AutoTaskAbortManualAsync(int taskId);
   }
   
   public class AutoTaskRepository(LgdxContext context) : IAutoTaskRepository
@@ -107,6 +108,15 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<AutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token)
     {
       var result = await _context.AutoTasks.FromSql($"CALL auto_task_abort({robotId}, {taskId}, {token});").ToListAsync();
+      if (result.Count > 0)
+        return result[0];
+      else
+        return null;
+    }
+
+    public async Task<AutoTask?> AutoTaskAbortManualAsync(int taskId)
+    {
+      var result = await _context.AutoTasks.FromSql($"CALL auto_task_abort_manual({taskId});").ToListAsync();
       if (result.Count > 0)
         return result[0];
       else

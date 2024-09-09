@@ -159,6 +159,46 @@ BEGIN
   END IF;
 END //
 
+-- Manual Abort Auto Task (Aborted by user)
+DROP PROCEDURE IF EXISTS auto_task_abort_manual //
+CREATE PROCEDURE auto_task_abort_manual (
+  IN pTaskId INT
+)
+BEGIN
+  DECLARE pTaskCount INT;
+  DECLARE pTaskAborted INT DEFAULT 0;
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    START TRANSACTION;
+    ROLLBACK;
+    RESIGNAL;
+  END;
+
+  START TRANSACTION;
+  SELECT COUNT(*) INTO pTaskCount
+    FROM `Navigation.AutoTasks` AS T
+    WHERE T.`Id` = pTaskId
+    LIMIT 1 FOR UPDATE NOWAIT;
+  
+  IF pTaskCount = 1 THEN
+    UPDATE `Navigation.AutoTasks`
+      SET  `CurrentProgressId`    = 4
+          ,`CurrentProgressOrder` = NULL
+          ,`NextToken`            = NULL
+          ,`UpdatedAt`            = UTC_TIMESTAMP(6)
+      WHERE `Id` = pTaskId;
+    SET pTaskAborted = 1;
+  END IF;
+  COMMIT;
+
+  IF pTaskAborted = 1 THEN
+    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = pTaskId;
+  ELSE
+    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = NULL;
+  END IF;
+END //
+
 -- Remove Auto Task
 DROP PROCEDURE IF EXISTS auto_task_delete //
 CREATE PROCEDURE auto_task_delete (

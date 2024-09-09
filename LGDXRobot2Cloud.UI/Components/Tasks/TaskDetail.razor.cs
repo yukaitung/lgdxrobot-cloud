@@ -197,6 +197,22 @@ namespace LGDXRobot2Cloud.UI.Components.Tasks
       }
     }
 
+    protected async Task HandleAbort()
+    {
+      if (Id != null)
+      {
+        var success = await AutoTaskService.AbortAutoTaskAsync((int)Id);
+        if (success)
+        {
+          // DO NOT REVERSE THE ORDER
+          await JSRuntime.InvokeVoidAsync("CloseModal", "taskAbortModal");
+          //await OnSubmitDone.InvokeAsync(((int)Id, Task.Name, CrudOperation.Delete));
+        }
+        else
+          IsError = true;
+      }
+    }
+
     public override async Task SetParametersAsync(ParameterView parameters)
     {
       parameters.SetParameterProperties(this);

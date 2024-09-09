@@ -34,7 +34,7 @@ public class OnlineRobotsService(IMemoryCache memoryCache) : IOnlineRobotsServic
 
   static private bool GenerateUnresolvableCriticalStatus(RobotClientsRobotCriticalStatus criticalStatus)
   {
-    if (criticalStatus.HardwareEmergencyStopEnabled ||
+    if (criticalStatus.HardwareEmergencyStop ||
         criticalStatus.BatteryLow.Count > 0 ||
         criticalStatus.MotorDamaged.Count > 0) 
         {

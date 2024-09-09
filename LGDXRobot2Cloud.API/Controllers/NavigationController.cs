@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using LGDXRobot2Cloud.API.Services;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
+using LGDXRobot2Cloud.Utilities.Helpers;
 
 namespace LGDXRobot2Cloud.API.Controllers
 {
@@ -360,10 +361,24 @@ namespace LGDXRobot2Cloud.API.Controllers
       var task = await _autoTaskRepository.GetAutoTaskAsync(id);
       if (task == null)
         return NotFound();
-      if (task.CurrentProgressId != (int)ProgressState.Waiting && task.CurrentProgressId != (int)ProgressState.Template)
-        return BadRequest("Cannot delete the task not in Waiting status.");
+      if (task.CurrentProgressId != (int)ProgressState.Template)
+        return BadRequest("Only task template can be deleted.");
       _autoTaskRepository.DeleteAutoTask(task);
       await _autoTaskRepository.SaveChangesAsync();
+      return NoContent();
+    }
+
+    [HttpPost("tasks/{id}/abort")]
+    public async Task<ActionResult> AbortTask(int id)
+    {
+      var task = await _autoTaskRepository.GetAutoTaskAsync(id);
+      if (task == null)
+        return NotFound();
+      if (task.CurrentProgressId == (int)ProgressState.Template || 
+          task.CurrentProgressId == (int)ProgressState.Completed || 
+          task.CurrentProgressId == (int)ProgressState.Aborted)
+        return BadRequest("Cannot abort the task not in running status.");
+      await _autoTaskRepository.AutoTaskAbortManualAsync(task.Id);
       return NoContent();
     }
 
