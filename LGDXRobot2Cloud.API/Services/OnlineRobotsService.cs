@@ -22,6 +22,7 @@ public interface IOnlineRobotsService
   RobotClientsRobotCommand? GetRobotCommands(Guid robotId);
 
   bool IsRobotOnline(Guid robotId);
+  bool UpdateAbortTask(Guid robotId, bool enable);
   bool UpdateSoftwareEmergencyStop(Guid robotId, bool enable);
   bool UpdatePauseTaskAssigement(Guid robotId, bool enable);
   bool GetPauseAutoTaskAssignment(Guid robotId);
@@ -110,6 +111,21 @@ public class OnlineRobotsService(IMemoryCache memoryCache) : IOnlineRobotsServic
   {
     _memoryCache.TryGetValue<HashSet<Guid>>(OnlineRobotssKey, out var OnlineRobotsIds);
     return OnlineRobotsIds != null && OnlineRobotsIds.Contains(robotId);
+  }
+
+  public bool UpdateAbortTask(Guid robotId, bool enable)
+  {
+    _memoryCache.TryGetValue<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}", out var robotDataComposite);
+    if (robotDataComposite != null) 
+    {
+      robotDataComposite.Commands.AbortTask = enable;
+      _memoryCache.Set($"OnlineRobotsService_RobotData_{robotId}", robotDataComposite);
+      return true;
+    }
+    else 
+    {
+      return false;
+    }
   }
 
   public bool UpdateSoftwareEmergencyStop(Guid robotId, bool enable)

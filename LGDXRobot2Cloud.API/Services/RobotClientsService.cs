@@ -277,11 +277,15 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
     if (!ValidateOnlineRobots((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
-    var result = await _autoTaskSchedulerService.AutoTaskAbort((Guid)robotId, request.TaskId, request.NextToken);
+    _onlineRobotsService.UpdateAbortTask((Guid)robotId, false);
+
+    var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskAbort((Guid)robotId, request.TaskId, request.NextToken);
+    var taskDetail = await GenerateTaskDetail(task);
     return new RobotClientsRespond {
-      Status = result == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
-      Message = result,
+      Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
+      Message = errorMessage,
       Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+      Task = taskDetail
     };
   }
 }

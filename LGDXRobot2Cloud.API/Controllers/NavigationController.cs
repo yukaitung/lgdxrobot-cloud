@@ -22,6 +22,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     ITriggerRepository triggerRepository,
     IWaypointRepository waypointRepository,
     IAutoTaskSchedulerService autoTaskSchedulerService,
+    IOnlineRobotsService onlineRobotsService,
     IMapper mapper) : ControllerBase
   {
     private readonly IApiKeyRepository _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
@@ -32,6 +33,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     private readonly ITriggerRepository _triggerRepository = triggerRepository ?? throw new ArgumentNullException(nameof(triggerRepository));
     private readonly IWaypointRepository _waypointRepository = waypointRepository ?? throw new ArgumentNullException(nameof(waypointRepository));
     private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
+    private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
     private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     private readonly int maxPageSize = 100;
 
@@ -378,6 +380,13 @@ namespace LGDXRobot2Cloud.API.Controllers
           task.CurrentProgressId == (int)ProgressState.Completed || 
           task.CurrentProgressId == (int)ProgressState.Aborted)
         return BadRequest("Cannot abort the task not in running status.");
+      if (task.CurrentProgressId != (int)ProgressState.Waiting && 
+          task.AssignedRobotId != null && 
+          _onlineRobotsService.UpdateAbortTask((Guid)task.AssignedRobotId!, true))
+      {
+        // If the robot is online, abort the task from the robot
+        return NoContent();
+      }
       await _autoTaskRepository.AutoTaskAbortManualAsync(task.Id);
       return NoContent();
     }
