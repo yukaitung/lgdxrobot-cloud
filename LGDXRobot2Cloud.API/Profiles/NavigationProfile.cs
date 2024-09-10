@@ -12,10 +12,12 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Entities.Flow, Models.Responses.FlowListDto>();
       CreateMap<Entities.Flow, Models.Responses.FlowDto>();
       CreateMap<Entities.FlowDetail, Models.Responses.FlowDetailDto>();
-      CreateMap<Models.Commands.FlowCreateDto, Entities.Flow>();
-      CreateMap<IEnumerable<Models.Commands.FlowDetailCreateDto>, ICollection<Entities.FlowDetail>>()
-        .ConvertUsing<FlowDetailCreateDtoToFlowDetail>();
-      CreateMap<Models.Commands.FlowDetailCreateDto, Entities.FlowDetail>();
+
+      CreateMap<Models.Commands.FlowCreateDto, Models.Commands.FlowUpdateDto>();
+      CreateMap<IEnumerable<Models.Commands.FlowDetailCreateDto>, IEnumerable<Models.Commands.FlowDetailUpdateDto>>()
+        .ConvertUsing<FlowDetailCreateDtoToFlowDetailUpdateDto>();
+      CreateMap<Models.Commands.FlowDetailCreateDto, Models.Commands.FlowDetailUpdateDto>();
+      
       CreateMap<Models.Commands.FlowUpdateDto, Entities.Flow>();
       CreateMap<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>()
         .ConvertUsing<FlowDetailUpdateDtoToFlowDetail>();
@@ -44,14 +46,14 @@ namespace LGDXRobot2Cloud.API.Profiles
     }
   }
 
-  public class FlowDetailCreateDtoToFlowDetail : ITypeConverter<IEnumerable<Models.Commands.FlowDetailCreateDto>, ICollection<Entities.FlowDetail>>
+  public class FlowDetailCreateDtoToFlowDetailUpdateDto : ITypeConverter<IEnumerable<Models.Commands.FlowDetailCreateDto>, IEnumerable<Models.Commands.FlowDetailUpdateDto>>
   {
-    public ICollection<Entities.FlowDetail> Convert(IEnumerable<Models.Commands.FlowDetailCreateDto> src, ICollection<Entities.FlowDetail> dest, ResolutionContext context)
+    public IEnumerable<Models.Commands.FlowDetailUpdateDto> Convert(IEnumerable<Models.Commands.FlowDetailCreateDto> src, IEnumerable<Models.Commands.FlowDetailUpdateDto> dest, ResolutionContext context)
     {
-      ICollection<Entities.FlowDetail> result = new List<Entities.FlowDetail>();
+      IEnumerable<Models.Commands.FlowDetailUpdateDto> result = [];
       foreach(Models.Commands.FlowDetailCreateDto e in src)
       {
-        result.Add(context.Mapper.Map<Entities.FlowDetail>(e));
+        result = result.Append(context.Mapper.Map<Models.Commands.FlowDetailUpdateDto>(e));
       }
       return result;
     }
@@ -61,7 +63,7 @@ namespace LGDXRobot2Cloud.API.Profiles
   {
     public ICollection<Entities.FlowDetail> Convert(IEnumerable<Models.Commands.FlowDetailUpdateDto> src, ICollection<Entities.FlowDetail> dest, ResolutionContext context)
     {
-      ICollection<Entities.FlowDetail> result = new List<Entities.FlowDetail>();
+      ICollection<Entities.FlowDetail> result = [];
       foreach(Models.Commands.FlowDetailUpdateDto e in src)
       {
         result.Add(context.Mapper.Map<Entities.FlowDetail>(e));
