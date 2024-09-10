@@ -41,60 +41,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     /*
     ** Progress
     */
-    [HttpGet("progresses")]
-    public async Task<ActionResult<IEnumerable<ProgressDto>>> GetProgresses(string? name, int pageNumber = 1, int pageSize = 10, bool hideReserved = false, bool hideSystem = false)
-    {
-      pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (progresses, PaginationHelper) = await _progressRepository.GetProgressesAsync(name, pageNumber, pageSize, hideReserved, hideSystem);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
-      return Ok(_mapper.Map<IEnumerable<ProgressDto>>(progresses));
-    }
-
-    [HttpGet("progresses/{id}", Name = "GetProgress")]
-    public async Task<ActionResult<Progress>> GetProgress(int id)
-    {
-      var progress = await _progressRepository.GetProgressAsync(id);
-      if (progress == null)
-        return NotFound();
-      return Ok(_mapper.Map<ProgressDto>(progress));
-    }
-
-    [HttpPost("progresses")]
-    public async Task<ActionResult> CreateProgress(ProgressCreateDto progressDto)
-    {
-      var progressEntity = _mapper.Map<Progress>(progressDto);
-      await _progressRepository.AddProgressAsync(progressEntity);
-      await _progressRepository.SaveChangesAsync();
-      var returnProgress = _mapper.Map<ProgressDto>(progressEntity);
-      return CreatedAtRoute(nameof(GetProgress), new { id = returnProgress.Id }, returnProgress);
-    }
-
-    [HttpPut("progresses/{id}")]
-    public async Task<ActionResult> UpdateProgress(int id, ProgressUpdateDto progressDto)
-    {
-      var progressEntity = await _progressRepository.GetProgressAsync(id);
-      if (progressEntity == null)
-        return NotFound();
-      if (progressEntity.System)
-        return BadRequest("Cannot update system defined progress.");
-      _mapper.Map(progressDto, progressEntity);
-      progressEntity.UpdatedAt = DateTime.UtcNow;
-      await _progressRepository.SaveChangesAsync();
-      return NoContent();
-    }
-
-    [HttpDelete("progresses/{id}")]
-    public async Task<ActionResult> DeleteProgress(int id)
-    {
-      var progress = await _progressRepository.GetProgressAsync(id);
-      if (progress == null)
-        return NotFound();
-      if (progress.System)
-        return BadRequest("Cannot delete system defined progress.");
-      _progressRepository.DeleteProgress(progress);
-      await _progressRepository.SaveChangesAsync();
-      return NoContent();
-    }
+    
 
     /*
     ** Task

@@ -31,7 +31,8 @@ namespace LGDXRobot2Cloud.API.Repositories
       var itemCount = await query.CountAsync();
       var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
       // Does not include FlowDetails to reduce load
-      var flows = await query.OrderBy(t => t.Id)
+      var flows = await query.AsNoTracking()
+        .OrderBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .ToListAsync();

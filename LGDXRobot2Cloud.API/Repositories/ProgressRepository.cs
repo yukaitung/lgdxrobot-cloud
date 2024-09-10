@@ -32,15 +32,16 @@ namespace LGDXRobot2Cloud.API.Repositories
       }
       if (hideReserved)
       {
-        query = query.Where(t => t.Reserved == false);
+        query = query.Where(t => !t.Reserved);
       }
       if (hideSystem)
       {
-        query = query.Where(t => t.System == false);
+        query = query.Where(t => !t.System);
       }
       var itemCount = await query.CountAsync();
       var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
-      var progresses = await query.OrderBy(a => a.Id)
+      var progresses = await query.AsNoTracking()
+        .OrderBy(a => a.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .ToListAsync();
