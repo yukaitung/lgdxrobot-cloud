@@ -39,7 +39,8 @@ namespace LGDXRobot2Cloud.API.Repositories
         query = query.Where(t => t.CurrentProgressId > (int)ProgressState.Aborted);
       var itemCount = await query.CountAsync();
       var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
-      var autoTasks = await query.OrderByDescending(t => t.Priority)
+      var autoTasks = await query.AsNoTracking()
+        .OrderByDescending(t => t.Priority)
         .ThenBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)

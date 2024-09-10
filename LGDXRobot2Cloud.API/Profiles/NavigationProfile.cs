@@ -12,12 +12,8 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Entities.Flow, Models.Responses.FlowListDto>();
       CreateMap<Entities.Flow, Models.Responses.FlowDto>();
       CreateMap<Entities.FlowDetail, Models.Responses.FlowDetailDto>();
-
       CreateMap<Models.Commands.FlowCreateDto, Models.Commands.FlowUpdateDto>();
-      CreateMap<IEnumerable<Models.Commands.FlowDetailCreateDto>, IEnumerable<Models.Commands.FlowDetailUpdateDto>>()
-        .ConvertUsing<FlowDetailCreateDtoToFlowDetailUpdateDto>();
       CreateMap<Models.Commands.FlowDetailCreateDto, Models.Commands.FlowDetailUpdateDto>();
-      
       CreateMap<Models.Commands.FlowUpdateDto, Entities.Flow>();
       CreateMap<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>()
         .ConvertUsing<FlowDetailUpdateDtoToFlowDetail>();
@@ -29,10 +25,10 @@ namespace LGDXRobot2Cloud.API.Profiles
       // Tasks
       CreateMap<Entities.AutoTask, Models.Responses.AutoTaskListDto>();
       CreateMap<Entities.AutoTask, Models.Responses.AutoTaskDto>();
-      CreateMap<Models.Commands.AutoTaskCreateDto, Entities.AutoTask>();
+      CreateMap<Models.Commands.AutoTaskCreateDto, Models.Commands.AutoTaskUpdateDto>();
       CreateMap<Models.Commands.AutoTaskUpdateDto, Entities.AutoTask>();
       CreateMap<Entities.AutoTaskDetail, Models.Responses.AutoTaskDetailDto>();
-      CreateMap<Models.Commands.AutoTaskDetailCreateDto, Entities.AutoTaskDetail>();
+      CreateMap<Models.Commands.AutoTaskDetailCreateDto, Models.Commands.AutoTaskDetailUpdateDto>();
       CreateMap<Models.Commands.AutoTaskDetailUpdateDto, Entities.AutoTaskDetail>();
       // Trigger
       CreateMap<Entities.Trigger, Models.Responses.TriggerListDto>();
@@ -43,19 +39,6 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Entities.Waypoint, Models.Responses.WaypointDto>();
       CreateMap<Models.Commands.WaypointCreateDto, Entities.Waypoint>();
       CreateMap<Models.Commands.WaypointUpdateDto, Entities.Waypoint>();
-    }
-  }
-
-  public class FlowDetailCreateDtoToFlowDetailUpdateDto : ITypeConverter<IEnumerable<Models.Commands.FlowDetailCreateDto>, IEnumerable<Models.Commands.FlowDetailUpdateDto>>
-  {
-    public IEnumerable<Models.Commands.FlowDetailUpdateDto> Convert(IEnumerable<Models.Commands.FlowDetailCreateDto> src, IEnumerable<Models.Commands.FlowDetailUpdateDto> dest, ResolutionContext context)
-    {
-      IEnumerable<Models.Commands.FlowDetailUpdateDto> result = [];
-      foreach(Models.Commands.FlowDetailCreateDto e in src)
-      {
-        result = result.Append(context.Mapper.Map<Models.Commands.FlowDetailUpdateDto>(e));
-      }
-      return result;
     }
   }
 

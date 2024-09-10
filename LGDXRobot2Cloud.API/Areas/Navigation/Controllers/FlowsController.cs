@@ -44,7 +44,7 @@ public class FlowsController(
     return Ok(_mapper.Map<FlowDto>(flow));
   }
 
-  private async Task<(Flow?, string)> IsValidFlow(FlowUpdateDto flowDto)
+  private async Task<(Flow?, string)> ValidateFlow(FlowUpdateDto flowDto)
   {
     var flowEntity = _mapper.Map<Flow>(flowDto);
     HashSet<int> progressIds = [];
@@ -89,7 +89,7 @@ public class FlowsController(
   [HttpPost("")]
   public async Task<ActionResult> CreateFlow(FlowCreateDto flowDto)
   {
-    var (flowEntity, error) = await IsValidFlow(_mapper.Map<FlowUpdateDto>(flowDto));
+    var (flowEntity, error) = await ValidateFlow(_mapper.Map<FlowUpdateDto>(flowDto));
     if (flowEntity == null)
       return BadRequest(error);
     await _flowRepository.AddFlowAsync(flowEntity);
@@ -113,7 +113,7 @@ public class FlowsController(
       if(detailId != null && !detailIds.Contains((int)detailId))
         return BadRequest($"The Flow Detail ID {(int)detailId} is belongs to other Flow.");
     }
-    var (newFlowEntity, error) = await IsValidFlow(flowDto);
+    var (newFlowEntity, error) = await ValidateFlow(flowDto);
     if (newFlowEntity == null)
       return BadRequest(error);
     _mapper.Map(flowDto, flowEntity);
