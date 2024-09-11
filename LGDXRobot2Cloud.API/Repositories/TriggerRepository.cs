@@ -31,7 +31,8 @@ namespace LGDXRobot2Cloud.API.Repositories
       }
       var itemCount = await query.CountAsync();
       var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
-      var triggers = await query.OrderBy(t => t.Id)
+      var triggers = await query.AsNoTracking()
+        .OrderBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .ToListAsync();
@@ -62,7 +63,8 @@ namespace LGDXRobot2Cloud.API.Repositories
 
     public async Task<Dictionary<int, Trigger>> GetTriggersDictFromListAsync(IEnumerable<int> triggerIds)
     {
-      return await _context.Triggers.Where(p => triggerIds.Contains(p.Id))
+      return await _context.Triggers.AsNoTracking()
+        .Where(p => triggerIds.Contains(p.Id))
         .Include(t => t.ApiKey)
         .ToDictionaryAsync(t => t.Id, t => t);
     }
