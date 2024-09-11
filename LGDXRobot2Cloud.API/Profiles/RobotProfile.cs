@@ -23,10 +23,10 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Entities.NodesCollection, Models.Responses.NodesCollectionListDto>();
       CreateMap<Entities.NodesCollection, Models.Responses.NodesCollectionDto>();
       CreateMap<Entities.NodesCollectionDetail, Models.Responses.NodesCollectionDetailDto>();
-      CreateMap<Models.Commands.NodesCollectionCreateDto, Entities.NodesCollection>();
+      CreateMap<Models.Commands.NodesCollectionCreateDto, Models.Commands.NodesCollectionUpdateDto>();
       CreateMap<Models.Commands.NodesCollectionUpdateDto, Entities.NodesCollection>();
       CreateMap<Models.Responses.NodesCollectionDetailDto, Entities.NodesCollection>();
-      CreateMap<Models.Commands.NodesCollectionDetailCreateDto, Entities.NodesCollectionDetail>();
+      CreateMap<Models.Commands.NodesCollectionDetailCreateDto, Models.Commands.NodesCollectionDetailUpdateDto>();
       CreateMap<Models.Commands.NodesCollectionDetailUpdateDto, Entities.NodesCollectionDetail>();
     }
   }

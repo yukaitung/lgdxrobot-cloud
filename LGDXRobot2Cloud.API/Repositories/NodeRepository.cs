@@ -61,8 +61,7 @@ namespace LGDXRobot2Cloud.API.Repositories
 
     public async Task<Dictionary<int, Node>> GetNodesDictFromListAsync(IEnumerable<int> nodeIds)
     {
-      return await _context.Nodes.AsNoTracking()
-        .Where(n => nodeIds.Contains(n.Id))
+      return await _context.Nodes.Where(n => nodeIds.Contains(n.Id))
         .ToDictionaryAsync(n => n.Id, n => n);
     }
   }
