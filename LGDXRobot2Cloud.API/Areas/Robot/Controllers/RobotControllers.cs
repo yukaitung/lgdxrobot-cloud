@@ -26,10 +26,10 @@ public class RobotController(
   IOptionsSnapshot<LgdxRobot2Configuration> options,
   IRobotRepository robotRepository) : ControllerBase
 {
-  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-  private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService ?? throw new ArgumentNullException(nameof(OnlineRobotsService));
-  private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = options.Value ?? throw new ArgumentNullException(nameof(options));
+  private readonly IMapper _mapper = mapper;
+  private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
+  private readonly IRobotRepository _robotRepository = robotRepository;
+  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = options.Value;
 
   public record RobotCertificates 
   {

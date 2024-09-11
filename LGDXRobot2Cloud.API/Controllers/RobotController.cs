@@ -42,56 +42,7 @@ namespace LGDXRobot2Cloud.API.Controllers
     /*
     ** Nodes
     */
-    [HttpGet("nodes")]
-    public async Task<ActionResult<IEnumerable<NodeDto>>> GetNodes(string? name, int pageNumber = 1, int pageSize = 10)
-    {
-      pageSize = (pageSize > maxPageSize) ? maxPageSize : pageSize;
-      var (nodes, PaginationHelper) = await _nodeRepository.GetNodesAsync(name, pageNumber, pageSize);
-      Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
-      return Ok(_mapper.Map<IEnumerable<NodeDto>>(nodes));
-    }
-
-    [HttpGet("nodes/{id}", Name = "GetNode")]
-    public async Task<ActionResult<NodeDto>> GetNode(int id)
-    {
-      var node = await _nodeRepository.GetNodeAsync(id);
-      if (node == null)
-        return NotFound();
-      return Ok(_mapper.Map<NodeDto>(node));
-    }
-
-    [HttpPost("nodes")]
-    public async Task<ActionResult> CreateNode(NodeCreateDto nodeDto)
-    {
-      var nodeEntity = _mapper.Map<Node>(nodeDto);
-      await _nodeRepository.AddNodeAsync(nodeEntity);
-      await _nodeRepository.SaveChangesAsync();
-      var returnNode = _mapper.Map<NodeDto>(nodeEntity);
-      return CreatedAtAction(nameof(GetNode), new { id = returnNode.Id }, returnNode);
-    }
-
-    [HttpPut("nodes/{id}")]
-    public async Task<ActionResult> UpdateNode(int id, NodeUpdateDto nodeDto)
-    {
-      var nodeEntity = await _nodeRepository.GetNodeAsync(id);
-      if (nodeEntity == null)
-        return NotFound();
-      _mapper.Map(nodeDto, nodeEntity);
-      nodeEntity.UpdatedAt = DateTime.UtcNow;
-      await _nodeRepository.SaveChangesAsync();
-      return NoContent();
-    }
-
-    [HttpDelete("nodes/{id}")]
-    public async Task<ActionResult> DeleteNode(int id)
-    {
-      var node = await _nodeRepository.GetNodeAsync(id);
-      if (node == null)
-        return NotFound();
-      _nodeRepository.DeleteNode(node);
-      await _nodeRepository.SaveChangesAsync();
-      return NoContent();
-    }
+    
 
     /*
     ** Nodes Collection
