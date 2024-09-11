@@ -30,7 +30,8 @@ public class RobotRepository(LgdxContext context) : IRobotRepository
     }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
-    var robots = await query.OrderBy(r => r.Id)
+    var robots = await query.AsNoTracking()
+      .OrderBy(r => r.Id)
       .Skip(pageSize * (pageNumber - 1))
       .Take(pageSize)
       .ToListAsync();
