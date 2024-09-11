@@ -13,6 +13,7 @@ namespace LGDXRobot2Cloud.API.Areas.Navigation.Controllers;
 [ApiController]
 [Area("Navigation")]
 [Route("[area]/[controller]")]
+
 public class FlowsController(
   IFlowRepository flowRepository,
   IMapper mapper,
