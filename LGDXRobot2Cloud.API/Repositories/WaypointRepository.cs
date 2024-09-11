@@ -32,7 +32,8 @@ namespace LGDXRobot2Cloud.API.Repositories
       }
       var itemCount = await query.CountAsync();
       var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
-      var waypoints = await query.OrderBy(a => a.Id)
+      var waypoints = await query.AsNoTracking()
+        .OrderBy(a => a.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
         .ToListAsync();
@@ -66,7 +67,7 @@ namespace LGDXRobot2Cloud.API.Repositories
 
     public async Task<Dictionary<int, Waypoint>> GetWaypointsDictFromListAsync(IEnumerable<int> waypointIds)
     {
-      return await _context.Waypoints.Where(w => waypointIds.Contains(w.Id)).ToDictionaryAsync(w => w.Id, w => w);
+      return await _context.Waypoints.AsNoTracking().Where(w => waypointIds.Contains(w.Id)).ToDictionaryAsync(w => w.Id, w => w);
     }
   }
 }

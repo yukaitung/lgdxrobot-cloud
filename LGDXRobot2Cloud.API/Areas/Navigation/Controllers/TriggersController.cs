@@ -18,8 +18,7 @@ public class TriggersController(
   IApiKeyRepository _apiKeyRepository,
   IMapper mapper,
   IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
-  ITriggerRepository triggerRepository
-) : ControllerBase
+  ITriggerRepository triggerRepository) : ControllerBase
 {
   private readonly IApiKeyRepository _apiKeyRepository = _apiKeyRepository;
   private readonly IMapper _mapper = mapper;
