@@ -1,4 +1,4 @@
-using LGDXRobot2Cloud.UI;
+using LGDXRobot2Cloud.UI.Components;
 using LGDXRobot2Cloud.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +9,8 @@ builder.Services.AddRazorComponents()
 
 // Add API
 var configureAction = (HttpClient client) => 
-    { client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? throw new Exception("The Lgdxobot2CloudApiUrl is missing.")); };
+    { client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? string.Empty); };
+    
 // Navigation
 builder.Services.AddHttpClient<IAutoTaskService, AutoTaskService>(configureAction);
 builder.Services.AddHttpClient<IFlowService, FlowService>(configureAction);

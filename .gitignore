@@ -491,3 +491,5 @@ secrets.json
 
 # Keep until db design is stable
 */Migrations
+
+LGDXRobot2Cloud.UI.Backup
