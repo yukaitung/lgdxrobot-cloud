@@ -6,7 +6,7 @@ namespace LGDXRobot2Cloud.UI.Profiles
 {
   public class NavigationProfile : Profile
   {
-    public NavigationProfile()
+    /*public NavigationProfile()
     {
       // Flow
       CreateMap<Blazor.FlowBlazor, Models.FlowCreateDto>();
@@ -27,6 +27,6 @@ namespace LGDXRobot2Cloud.UI.Profiles
       // Waypoint
       CreateMap<Blazor.WaypointBlazor, Models.WaypointCreateDto>();
       CreateMap<Blazor.WaypointBlazor, Models.WaypointUpdateDto>();
-    }
+    }*/
   }
 }

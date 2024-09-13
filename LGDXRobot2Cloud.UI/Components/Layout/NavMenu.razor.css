@@ -1,13 +1,10 @@
 @media (min-width: 992px) {
   .navbar-vertical.navbar-expand-lg {
     top: 3.5rem;
+    overflow-y: hidden;
   }
 
   .sidebar-item {
     display: none;
   }
-}
-
-.sidebar-logo {
-  min-height: 3rem;
 }

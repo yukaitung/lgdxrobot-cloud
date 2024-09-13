@@ -6,12 +6,12 @@ namespace LGDXRobot2Cloud.UI.Profiles
 {
   public class SettingProfile : Profile
   {
-    public SettingProfile()
+    /*public SettingProfile()
     {
       // API Key
       CreateMap<Blazor.ApiKeyBlazor, Models.Commands.ApiKeyCreateDto>();
       CreateMap<Blazor.ApiKeyBlazor, Models.Commands.ApiKeyUpdateDto>();
       CreateMap<Blazor.ApiKeySecretBlazor, Models.Responses.ApiKeySecretDto>();
-    }
+    }*/
   }
 }
