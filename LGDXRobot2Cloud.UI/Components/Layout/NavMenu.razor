@@ -1,4 +1,6 @@
-﻿<aside class="navbar navbar-vertical navbar-expand-lg">
+﻿@using LGDXRobot2Cloud.UI.Constants;
+
+<aside class="navbar navbar-vertical navbar-expand-lg">
 	<div class="container-fluid">
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
 			aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,42 +28,42 @@
 				</NavItem>
 				<NavDropdown title="Navigation" href="navigation">
 					<div class="dropdown-menu-column">
-						<NavLink class="dropdown-item" href="navigation/map">
+						<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Map.Index">
 							Map
 						</NavLink>
-						<NavLink class="dropdown-item" href="navigation/tasks">
+						<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Tasks.Index">
 							Tasks
 						</NavLink>
-						<NavLink class="dropdown-item" href="navigation/waypoints">
+						<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Waypoints.Index">
 							Waypoints
 						</NavLink>
-						<NavLink class="dropdown-item" href="navigation/flows">
+						<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Flows.Index">
 							Flows
 						</NavLink>
-						<NavLink class="dropdown-item" href="navigation/triggers">
+						<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Triggers.Index">
 							Triggers
 						</NavLink>
-						<NavLink class="dropdown-item" href="navigation/progresses">
+						<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Progresses.Index">
 							Progresses
 						</NavLink>
 					</div>
 				</NavDropdown>
 				<NavDropdown title="Robot" href="robot">
 					<div class="dropdown-menu-column">
-						<NavLink class="dropdown-item" href="robot/robots">
+						<NavLink class="dropdown-item" href="@AppRoutes.Robot.Robots.Index">
 							Robots
 						</NavLink>
-						<NavLink class="dropdown-item" href="robot/nodes">
+						<NavLink class="dropdown-item" href="@AppRoutes.Robot.Nodes.Index">
 							Nodes
 						</NavLink>
-						<NavLink class="dropdown-item" href="robot/collections">
+						<NavLink class="dropdown-item" href="@AppRoutes.Robot.NodesCollections.Index">
 							Nodes Collections
 						</NavLink>
 					</div>
 				</NavDropdown>
 				<NavDropdown title="Setting" href="setting">
 					<div class="dropdown-menu-column">
-						<NavLink class="dropdown-item" href="/setting/apikeys">
+						<NavLink class="dropdown-item" href="@AppRoutes.Setting.ApiKeys.Index">
 							API Keys
 						</NavLink>
 					</div>
