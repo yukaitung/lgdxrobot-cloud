@@ -484,7 +484,7 @@ $RECYCLE.BIN/
 *.swp
 
 # Js Library
-*/wwwroot/lib
+*/wwwroot/libs
 
 # Secret file
 secrets.json

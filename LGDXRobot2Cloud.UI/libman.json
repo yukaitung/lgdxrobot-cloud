@@ -5,12 +5,15 @@
     {
       "provider": "jsdelivr",
       "library": "@tabler/core@1.0.0-beta21",
-      "destination": "wwwroot/lib/tabler"
+      "destination": "wwwroot/libs/tabler",
+      "files":[
+        "dist/**"
+      ]
     },
     {
       "provider": "jsdelivr",
       "library": "@tabler/icons-webfont@latest",
-      "destination": "wwwroot/lib/tabler-icons",
+      "destination": "wwwroot/libs/tabler-icons",
       "files": [
         "dist/tabler-icons.min.css",
         "dist/fonts/*"

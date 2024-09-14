@@ -1,0 +1,128 @@
+@attribute [Route(AppRoutes.Robot.NodesCollections.Create)]
+@attribute [Route(AppRoutes.Robot.NodesCollections.Detail)]
+@using LGDXRobot2Cloud.UI.Components.Shared.Modals
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Id != null ? "Edit Nodes Collection" : "Create Nodes Collection")">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="@AppRoutes.Robot.NodesCollections.Index">◀ Return</a></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        @(Id != null ? "Edit Nodes Collection" : "Create Nodes Collection")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Nodes Collection Detail</h3>
+    </div>
+    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+      <DataAnnotationsValidator />
+      <div class="card-body">
+        <SubmitErrorModal Display="@IsError" />
+        <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">ID</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@NodesCollection.Id</div>
+            </div>
+          </div>
+        }
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="Name">Name</label>
+          <div class="col">
+            <InputText id="Name" @bind-Value="NodesCollection.Name" type="text" class="form-control" />
+            <ValidationMessage class="invalid-feedback" For="@(() => NodesCollection.Name)" />
+          </div>
+        </div>
+        <label class="form-label required">Nodes Collection Detail</label>
+        <div class="invalid-feedback" style="display: block;">@_editContext.GetValidationMessages(() => NodesCollection.Nodes).FirstOrDefault()</div>
+        <table class="table table-vcenter text-nowrap datatable">
+          <thead>
+            <tr>
+              <th class="w-1">@(Id != null ? "Id" : "Order")</th>
+              <th>Nodes</th>
+              <th class="w-1"><!-- Action --></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (int i = 0; i < NodesCollection.Nodes.Count(); i++)
+            {
+              var index = i;
+              var nodesCollectionDetail = NodesCollection.Nodes[i];
+              <tr>
+                <td>
+                  @if (nodesCollectionDetail.Id != null) {
+                    @nodesCollectionDetail.Id
+                  }
+                  else if(Id == null) {
+                    @(index + 1)
+                  }
+                </td>
+                <td>
+                  <InputSelect id="@(AdvanceSelectElements[0] + i.ToString())" class="form-control"
+                    @bind-Value="nodesCollectionDetail.NodeId">
+                    @if (nodesCollectionDetail.NodeName != null)
+                    {
+                      <option value="@nodesCollectionDetail.NodeId">@nodesCollectionDetail.NodeName</option>
+                    }
+                  </InputSelect>
+                </td>
+                <td>
+                  <button type="button"
+                    class="btn btn-ghost-danger btn-icon @(NodesCollection.Nodes.Count <= 1 ? "disabled" : "")"
+                    @onclick="e => TaskRemoveStep(index)">
+                    <i class="ti ti-trash" style="font-size: 16px;"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <div class="row">
+          <button type="button" class="btn btn-secondary w-8 mx-auto mb-3" @onclick="TaskAddStep">
+            Add A Step
+          </button>
+        </div>
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Create Time</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@NodesCollection.CreatedAt</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Last Update Time</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@NodesCollection.UpdatedAt</div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="card-footer d-flex">
+          @if (Id != null)
+          {
+            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+              Delete
+            </a>
+          }
+          <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+        </div>
+    </EditForm>
+  </div>
+</PageBody>
+
+@if (Id != null)
+{
+  <DeleteEntryModal EntryName="Node Collection" OnDelete="HandleDelete" />
+}

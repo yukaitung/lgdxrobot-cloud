@@ -12,7 +12,7 @@
       "http": {
         "commandName": "Project",
         "dotnetRunMessages": true,
-        "launchBrowser": true,
+        "launchBrowser": false,
         "applicationUrl": "http://*:5103",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development"
@@ -21,7 +21,7 @@
       "https": {
         "commandName": "Project",
         "dotnetRunMessages": true,
-        "launchBrowser": true,
+        "launchBrowser": false,
         "applicationUrl": "https://*:7088;http://*:5103",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development"
@@ -29,7 +29,7 @@
       },
       "IIS Express": {
         "commandName": "IISExpress",
-        "launchBrowser": true,
+        "launchBrowser": false,
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development"
         }

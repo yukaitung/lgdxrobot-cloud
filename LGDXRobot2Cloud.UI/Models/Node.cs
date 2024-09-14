@@ -16,6 +16,8 @@ public class Node
 
   [MaxLength(200)]
   public string? Arguments { get; set; }
+
   public DateTime CreatedAt { get; set; }
+  
   public DateTime UpdatedAt { get; set; }
 }

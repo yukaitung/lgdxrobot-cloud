@@ -1,0 +1,23 @@
+@attribute [Route(AppRoutes.Robot.NodesCollections.Index)]
+@using LGDXRobot2Cloud.UI.Components.Pages.Robot.NodesCollections.Components;
+@rendermode InteractiveServer
+
+<PageHeader Title="Nodes Collections">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Nodes Collections
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <a href="@AppRoutes.Robot.NodesCollections.Create" type="button" class="btn btn-primary">
+        Create Nodes Collection
+      </a>
+    </div>
+  </div>
+</PageHeader>
+
+
+<PageBody>
+  <NodesCollectionTable />
+</PageBody>

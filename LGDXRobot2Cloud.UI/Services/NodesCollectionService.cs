@@ -1,16 +1,16 @@
 using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.Blazor;
+using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface INodesCollectionService
 {
-  Task<(IEnumerable<NodesCollectionBlazor>?, PaginationHelper?)> GetNodesCollectionsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<NodesCollectionBlazor?> GetNodesCollectionAsync(int nodesCollectionId);
-  Task<NodesCollectionBlazor?> AddNodesCollectionAsync(NodesCollectionCreateDto nodesCollection);
+  Task<(IEnumerable<NodesCollection>?, PaginationHelper?)> GetNodesCollectionsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<NodesCollection?> GetNodesCollectionAsync(int nodesCollectionId);
+  Task<bool> AddNodesCollectionAsync(NodesCollectionCreateDto nodesCollection);
   Task<bool> UpdateNodesCollectionAsync(int nodesCollectionId, NodesCollectionUpdateDto nodesCollection);
   Task<bool> DeleteNodesCollectionAsync(int nodesCollectionId);
 }
@@ -26,7 +26,7 @@ public class NodesCollectionService : INodesCollectionService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<NodesCollectionBlazor>?, PaginationHelper?)> GetNodesCollectionsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<NodesCollection>?, PaginationHelper?)> GetNodesCollectionsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"robot/collections?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot/collections?pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
@@ -34,7 +34,7 @@ public class NodesCollectionService : INodesCollectionService
     {
       var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
       var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var nodesCollections = await JsonSerializer.DeserializeAsync<IEnumerable<NodesCollectionBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      var nodesCollections = await JsonSerializer.DeserializeAsync<IEnumerable<NodesCollection>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       return (nodesCollections, PaginationHelper);
     }
     else
@@ -43,23 +43,18 @@ public class NodesCollectionService : INodesCollectionService
     }
   }
 
-  public async Task<NodesCollectionBlazor?> GetNodesCollectionAsync(int nodesCollectionId)
+  public async Task<NodesCollection?> GetNodesCollectionAsync(int nodesCollectionId)
   {
     var response = await _httpClient.GetAsync($"robot/collections/{nodesCollectionId}");
-    var nodesCollection = await JsonSerializer.DeserializeAsync<NodesCollectionBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+    var nodesCollection = await JsonSerializer.DeserializeAsync<NodesCollection>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
     return nodesCollection;
   }
 
-  public async Task<NodesCollectionBlazor?> AddNodesCollectionAsync(NodesCollectionCreateDto nodesCollection)
+  public async Task<bool> AddNodesCollectionAsync(NodesCollectionCreateDto nodesCollection)
   {
     var nodesCollectionJson = new StringContent(JsonSerializer.Serialize(nodesCollection), Encoding.UTF8, "application/json");
     var response = await _httpClient.PostAsync("robot/collections", nodesCollectionJson);
-    if (response.IsSuccessStatusCode)
-    {
-      return await JsonSerializer.DeserializeAsync<NodesCollectionBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    }
-    else
-      return null;
+    return response.IsSuccessStatusCode;
   }
 
   public async Task<bool> UpdateNodesCollectionAsync(int nodesCollectionId, NodesCollectionUpdateDto nodesCollection)

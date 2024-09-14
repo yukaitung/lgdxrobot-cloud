@@ -47,6 +47,8 @@ public static class AppRoutes
     public static class NodesCollections
     {
       public const string Index = "/robot/collections";
+      public const string Create = "/robot/collections/create";
+      public const string Detail = "/robot/collections/{Id:int}";
     }
   }
 

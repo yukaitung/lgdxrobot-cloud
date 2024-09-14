@@ -4,7 +4,7 @@
 <div class="card">
   <!-- Header -->
   <div class="card-header">
-    <h3 class="card-title">Nodes</h3>
+    <h3 class="card-title">Nodes Collections</h3>
   </div>
   <!-- Filter -->
   <div class="card-body border-bottom py-3">
@@ -42,47 +42,43 @@
         <tr>
           <th class="w-1">ID</th>
           <th>Name</th>
-          <th>Process Name</th>
-          <th class="w-100">Arguments</th>
-          <th>Create Time</th>
-          <th>Last Update Time</th>
+          <th class="w-1">Create Time</th>
+          <th class="w-1">Last Update Time</th>
           <th class="w-1"><!-- Action --></th>
         </tr>
       </thead>
       <tbody>
-        @if (Nodes != null)
+        @if (NodesCollectionsList != null)
         {
-          @foreach (var node in Nodes)
+          @foreach (var nodesCollection in NodesCollectionsList)
           {
-            var nodeId = node.Id;
+            var nodesCollectionId = nodesCollection.Id;
             <tr>
-              <td>@node.Id</td>
-              <td>@node.Name</td>
-              <td>@node.ProcessName</td>
-              <td>@node.Arguments</td>
-              <td>@node.CreatedAt</td>
-              <td>@node.UpdatedAt</td>
+              <td>@nodesCollection.Id</td>
+              <td>@nodesCollection.Name</td>
+              <td>@nodesCollection.CreatedAt</td>
+              <td>@nodesCollection.UpdatedAt</td>
               <td class="text-end">
-                <a href="@(AppRoutes.Robot.Nodes.Index + $"/{nodeId}")" class="page-link link-primary">Edit</a>
+                <a href="@(AppRoutes.Robot.NodesCollections.Index + $"/{nodesCollectionId}")" class="page-link link-primary">Edit</a>
               </td>
             </tr>
           }
         }
         else
         {
-          <TableLoading Columns="7" />
+          <TableLoading Columns="5" />
         }
       </tbody>
     </table>
-    @if (Nodes != null && Nodes.Count() == 0)
+    @if (NodesCollectionsList != null && NodesCollectionsList.Count() == 0)
     {
       <TableEmpty />
     }
   </div>
   <!-- Footer -->
-  @if (PaginationHelper != null && Nodes != null && Nodes.Count() > 0)
+  @if (PaginationHelper != null && NodesCollectionsList != null && NodesCollectionsList.Count() > 0)
   {
-    <TablePagination PaginationHelper="PaginationHelper" ItemCount="Nodes.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="NodesCollectionsList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>
