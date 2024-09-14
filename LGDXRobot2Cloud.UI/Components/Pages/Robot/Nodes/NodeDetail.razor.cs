@@ -28,9 +28,9 @@ public partial class NodeDetail
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
   private bool IsError { get; set; } = false;
 
-  private async Task HandleValidSubmit()
+  protected async Task HandleValidSubmit()
   {
-    bool success = false;
+    bool success;
     
     if (Id != null)
       // Update
@@ -45,8 +45,16 @@ public partial class NodeDetail
       IsError = true;
   }
 
-  private void HandleDelete()
+  protected async Task HandleDelete()
   {
+    if (Id == null)
+      return;
+      
+    var success = await NodeService.DeleteNodeAsync((int)Id);
+    if (success)
+      NavigationManager.NavigateTo(AppRoutes.Robot.Nodes.Index);
+    else
+      IsError = true;
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)

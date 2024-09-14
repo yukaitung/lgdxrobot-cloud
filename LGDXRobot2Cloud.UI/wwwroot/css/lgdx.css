@@ -6,7 +6,7 @@
 }
 
 .ts-dropdown .active {
-  background-color: rgba(var(--tblr-secondary-rgb),.08);
+  /*background-color: rgba(var(--tblr-secondary-rgb),.08);*/
 }
 
 /* Tom select input-sm */

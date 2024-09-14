@@ -1,0 +1,36 @@
+<div class="card-footer d-flex align-items-center">
+  <p class="m-0 text-secondary">Showing
+    <span>@((PaginationHelper.CurrentPage - 1) * PaginationHelper.PageSize + 1)</span> to
+    <span>@((PaginationHelper.CurrentPage - 1) * PaginationHelper.PageSize + ItemCount)</span> of
+    <span>@PaginationHelper.ItemCount</span> entries
+  </p>
+  <ul class="pagination m-0 ms-auto">
+    <li class="page-item @(PaginationHelper.CurrentPage == 1 ? "disabled" : "")"
+      @onclick="@(e => HandlePageChange(PaginationHelper.CurrentPage - 1))">
+      <button class="page-link">
+        <i class="ti ti-chevron-left"></i>
+      </button>
+    </li>
+    @foreach (var index in RenderPage)
+    {
+      var i = index;
+      @if (i != 1 && i - 1 != LastIndex) 
+      {
+        <li class="page-item">
+          <button class="page-link" disabled="true">...</button>
+        </li>
+      }
+      <li class="page-item @(PaginationHelper.CurrentPage == i ? "active" : "")"
+        @onclick="@(e => HandlePageChange(i))">
+        <button class="page-link">@i</button>
+      </li>
+      LastIndex = i;
+    }
+    <li class="page-item @(PaginationHelper.CurrentPage == PaginationHelper.PageCount ? "disabled" : "")"
+      @onclick="@(e => HandlePageChange(PaginationHelper.CurrentPage + 1))">
+      <button class="page-link">
+        <i class="ti ti-chevron-right"></i>
+      </button>
+    </li>
+  </ul>
+</div>

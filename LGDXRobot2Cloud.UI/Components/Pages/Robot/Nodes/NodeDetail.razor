@@ -1,9 +1,9 @@
 @attribute [Route(AppRoutes.Robot.Nodes.Create)]
 @attribute [Route(AppRoutes.Robot.Nodes.Detail)]
-@using LGDXRobot2Cloud.UI.Components.Shared.Models
+@using LGDXRobot2Cloud.UI.Components.Shared.Modals
 @rendermode InteractiveServer
 
-<PageHeader Title="Create Node">
+<PageHeader Title="@(Id != null ? "Edit Node" : "Create Node")">
   <div class="row align-items-center">
     <div class="col">
       <div class="mb-1">
@@ -12,7 +12,7 @@
         </ol>
       </div>
       <h2 class="page-title">
-        Create Node
+        @(Id != null ? "Edit Node" : "Create Node")
       </h2>
     </div>
   </div>
@@ -69,17 +69,27 @@
             </div>
           </div>
           <div class="mb-3 row">
-            <label class="col-3 col-form-label">Last Update Time</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@Node.UpdatedAt</div>
-            </div>
+          <label class="col-3 col-form-label">Last Update Time</label>
+          <div class="col">
+            <div class="col form-control-plaintext">@Node.UpdatedAt</div>
           </div>
+        </div>
         }
       </div>
-      <div class="card-footer text-end">
-        <button type="submit" class="btn btn-primary">Create</button>
+      <div class="card-footer d-flex">
+        @if (Id != null)
+        {
+          <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            Delete
+          </a>
+        }
+        <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
       </div>
     </EditForm>
   </div>
-
 </PageBody>
+
+@if (Id != null)
+{
+  <DeleteEntryModal EntryName="Node" OnDelete="HandleDelete" />
+}
