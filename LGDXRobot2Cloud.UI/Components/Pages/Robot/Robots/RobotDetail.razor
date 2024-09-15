@@ -1,0 +1,86 @@
+@attribute [Route(AppRoutes.Robot.Robots.Detail)]
+@using LGDXRobot2Cloud.Utilities.Enums
+@using LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components
+@rendermode InteractiveServer
+
+<PageHeader Title="Robots">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="@AppRoutes.Robot.Robots.Index">◀ Return</a></li>
+        </ol>
+      </div>
+      @if (Robot != null)
+      {
+        <h2 class="page-title">
+          @Robot.Name
+          &nbsp;
+          <RobotStatusBadge RobotStatus="@Robot.RobotStatus" />
+        </h2>
+      }
+      else
+      {
+        <div class="placeholder-glow">
+          <div class="placeholder col-2 placeholder-lg"></div>
+          <div class="text-secondary">
+            <div class="placeholder col-1"></div>
+          </div>
+        </div>
+      }
+    </div>
+    @if (Robot != null && Robot.RobotStatus != RobotStatus.Offline)
+    {
+      <div class="col-md-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement">
+            @(Robot.IsPauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")
+          </a>
+          <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop">
+            @(Robot.IsSoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="row row-cards">
+    <div class="col-8">
+      <TasksTable TasksList="@Robot?.AssignedTasks" />
+    </div>
+    <div class="col-4">
+      <RobotDataTable />
+    </div>
+    <div class="col-12">
+      <RobotInformationCard Robot="@Robot" />
+    </div>
+    <div class="col-6">
+      <SystemInformationCard RobotSystemInfo="@Robot?.RobotSystemInfo" />
+    </div>
+    <div class="col-6">
+      <ChassisInformationCard RobotChassisInfo="@Robot?.RobotChassisInfo" />
+    </div>
+    <div class="col-12">
+      <RobotCertificateCard Robot="@Robot" />
+    </div>
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Delete Robot</h3>
+        </div>
+        <div class="card-body">
+          <button type="button" class="btn btn-danger d-none d-sm-inline-block ms-auto" data-bs-toggle="modal"
+            data-bs-target="#deleteModal">
+            Delete Robot
+          </button>
+        </div>
+        <DeleteEntryModal EntryName="Robot" OnDelete="HandleDelete" />
+      </div>
+    </div>
+  </div>
+</PageBody>
+
+<PauseTaskAssigementModel Robot="@Robot" />
+<SoftwareEmergencyStopModel Robot="@Robot" />

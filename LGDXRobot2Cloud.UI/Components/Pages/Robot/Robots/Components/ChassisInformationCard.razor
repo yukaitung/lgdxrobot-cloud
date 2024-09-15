@@ -1,0 +1,59 @@
+@using LGDXRobot2Cloud.UI.Models;
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Chassis Information</h3>
+  </div>
+  <div class="table-responsive">
+    <table class="table card-table table-vcenter text-nowrap datatable">
+      <tbody>
+        <tr>
+          <td>MCU Serial Number</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.McuSerialNumber : "-")</td>
+        </tr>
+        <tr>
+          <td>Chassis LX</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisLX + " m" : "-")</td>
+        </tr>
+        <tr>
+          <td>Chassis LY</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisLY + " m" : "-")</td>
+        </tr>
+        <tr>
+          <td>Chassis Wheel Count</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisWheelCount : "-")</td>
+        </tr>
+        <tr>
+          <td>Chassis Radius</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisWheelRadius + " m" : "-")</td>
+        </tr>
+        <tr>
+          <td>Battery Count</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.BatteryCount : "-")</td>
+        </tr>
+        <tr>
+          <td>Battery Maximun Voltage</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.BatteryMaxVoltage + " V" : "-")</td>
+        </tr>
+        <tr>
+          <td>Battert Maximun Voltage</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.BatteryMinVoltage + " V" : "-")</td>
+        </tr>
+        <tr>
+          <td>Create Time</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.CreatedAt : "-")</td>
+        </tr>
+        <tr>
+          <td>Last Update Time</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.UpdatedAt : "-")</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@code
+{
+  [Parameter]
+  public RobotChassisInfo? RobotChassisInfo { get; set; }
+}
