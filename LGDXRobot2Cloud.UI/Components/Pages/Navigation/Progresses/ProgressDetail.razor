@@ -1,0 +1,79 @@
+@attribute [Route(AppRoutes.Navigation.Progresses.Create)]
+@attribute [Route(AppRoutes.Navigation.Progresses.Detail)]
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Id != null ? "Edit Progress" : "Create Progress")">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Progresses.Index">◀ Return</a></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        @(Id != null ? "Edit Progress" : "Create Progress")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Node Detail</h3>
+    </div>
+    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+      <DataAnnotationsValidator />
+      <div class="card-body">
+        <SubmitErrorModal Display="@IsError" />
+        <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">ID</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Progress.Id</div>
+            </div>
+          </div>
+        }
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="Name">Name</label>
+          <div class="col">
+            <InputText id="Name" @bind-Value="Progress.Name" type="text" class="form-control"
+                placeholder="Your progress name" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Progress.Name)" />
+          </div>
+        </div>
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Create Time</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Progress.CreatedAt</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Last Update Time</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Progress.UpdatedAt</div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="card-footer d-flex">
+        @if (Id != null)
+        {
+          <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            Delete
+          </a>
+        }
+        <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+      </div>
+    </EditForm>
+  </div>
+</PageBody>
+
+@if (Id != null)
+{
+  <DeleteEntryModal EntryName="Progress" OnDelete="HandleDelete" />
+}

@@ -7,51 +7,50 @@ using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Nodes;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Progresses;
 
-public partial class NodeDetail : ComponentBase
+public sealed partial class ProgressDetail : ComponentBase
 {
   [Inject]
-  public NavigationManager NavigationManager { get; set; } = default!;
+  public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
-  public required INodeService NodeService { get; set; }
+  public required IProgressService ProgressService { get; set; }
 
   [Inject]
   public required IMapper Mapper { get; set; }
 
   [Parameter]
-  public int? Id { get; set; } = null;
+  public int? Id { get; set; }
 
-  private Node Node { get; set; } = null!;
+  private Progress Progress { get; set; } = null!;
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
   private bool IsError { get; set; } = false;
 
-  protected async Task HandleValidSubmit()
+  public async Task HandleValidSubmit()
   {
     bool success;
-    
+
     if (Id != null)
       // Update
-      success = await NodeService.UpdateNodeAsync((int)Id, Mapper.Map<NodeUpdateDto>(Node));
+      success = await ProgressService.UpdateProgressAsync((int)Id, Mapper.Map<ProgressUpdateDto>(Progress));
     else
-      // Create
-      success = await NodeService.AddNodeAsync(Mapper.Map<NodeCreateDto>(Node));
-    
+      success = await ProgressService.AddProgressAsync(Mapper.Map<ProgressCreateDto>(Progress));
+
     if (success)
-      NavigationManager.NavigateTo(AppRoutes.Robot.Nodes.Index);
+      NavigationManager.NavigateTo(AppRoutes.Navigation.Progresses.Index);
     else
       IsError = true;
   }
 
-  protected async Task HandleDelete()
+  public async Task HandleDelete()
   {
     if (Id != null)
     {
-      var success = await NodeService.DeleteNodeAsync((int)Id);
+      var success = await ProgressService.DeleteProgressAsync((int)Id);
       if (success)
-        NavigationManager.NavigateTo(AppRoutes.Robot.Nodes.Index);
+        NavigationManager.NavigateTo(AppRoutes.Navigation.Progresses.Index);
       else
         IsError = true;
     }
@@ -64,17 +63,17 @@ public partial class NodeDetail : ComponentBase
     {
       if (_id != null)
       {
-        var node = await NodeService.GetNodeAsync((int)_id);
-        if (node != null) {
-          Node = node;
-          _editContext = new EditContext(Node);
+        var progress = await ProgressService.GetProgressAsync((int)_id);
+        if (progress != null) {
+          Progress = progress;
+          _editContext = new EditContext(progress);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }
       }
       else
       {
-        Node = new Node();
-        _editContext = new EditContext(Node);
+        Progress = new Progress();
+        _editContext = new EditContext(Progress);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }

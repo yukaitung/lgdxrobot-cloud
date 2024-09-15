@@ -1,0 +1,22 @@
+@attribute [Route(AppRoutes.Navigation.Progresses.Index)]
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Progresses.Components;
+@rendermode InteractiveServer
+
+<PageHeader Title="Progresses">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Progresses
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <a href="@AppRoutes.Navigation.Progresses.Create" type="button" class="btn btn-primary">
+        Create Progress
+      </a>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <ProgressesTable />
+</PageBody>

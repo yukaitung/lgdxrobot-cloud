@@ -1,16 +1,16 @@
 using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.Blazor;
+using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IProgressService
 {
-  Task<(IEnumerable<ProgressBlazor>?, PaginationHelper?)> GetProgressesAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<ProgressBlazor?> GetProgressAsync(int progressId);
-  Task<ProgressBlazor?> AddProgressAsync(ProgressCreateDto progress);
+  Task<(IEnumerable<Progress>?, PaginationHelper?)> GetProgressesAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<Progress?> GetProgressAsync(int progressId);
+  Task<bool> AddProgressAsync(ProgressCreateDto progress);
   Task<bool> UpdateProgressAsync(int progressId, ProgressUpdateDto progress);
   Task<bool> DeleteProgressAsync(int progressId);
   Task<string> SearchProgressesAsync(string name);
@@ -27,7 +27,7 @@ public class ProgressService : IProgressService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<ProgressBlazor>?, PaginationHelper?)> GetProgressesAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<Progress>?, PaginationHelper?)> GetProgressesAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"navigation/progresses?name={name}&pageNumber={pageNumber}&pageSize={pageSize}&hideSystem=true" : $"navigation/progresses?pageNumber={pageNumber}&pageSize={pageSize}&hideSystem=true";
     var response = await _httpClient.GetAsync(url);
@@ -35,7 +35,7 @@ public class ProgressService : IProgressService
     {
       var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
       var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var progresses = await JsonSerializer.DeserializeAsync<IEnumerable<ProgressBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      var progresses = await JsonSerializer.DeserializeAsync<IEnumerable<Progress>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       return (progresses, PaginationHelper);
     }
     else
@@ -44,23 +44,18 @@ public class ProgressService : IProgressService
     }
   }
 
-  public async Task<ProgressBlazor?> GetProgressAsync(int progressId)
+  public async Task<Progress?> GetProgressAsync(int progressId)
   {
     var response = await _httpClient.GetAsync($"navigation/progresses/{progressId}");
-    var progress = await JsonSerializer.DeserializeAsync<ProgressBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+    var progress = await JsonSerializer.DeserializeAsync<Progress>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
     return progress;
   }
 
-  public async Task<ProgressBlazor?> AddProgressAsync(ProgressCreateDto progress)
+  public async Task<bool> AddProgressAsync(ProgressCreateDto progress)
   {
     var progressJson = new StringContent(JsonSerializer.Serialize(progress), Encoding.UTF8, "application/json");
     var response = await _httpClient.PostAsync("navigation/progresses", progressJson);
-    if (response.IsSuccessStatusCode)
-    {
-      return await JsonSerializer.DeserializeAsync<ProgressBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    }
-    else
-      return null;
+    return response.IsSuccessStatusCode;
   }
 
   public async Task<bool> UpdateProgressAsync(int progressId, ProgressUpdateDto progress)

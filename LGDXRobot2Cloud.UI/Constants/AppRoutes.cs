@@ -29,6 +29,8 @@ public static class AppRoutes
     public static class Progresses
     {
       public const string Index = "/navigation/progresses";
+      public const string Create = "/navigation/progresses/create";
+      public const string Detail = "/navigation/progresses/{Id:int}";
     }
   }
 
