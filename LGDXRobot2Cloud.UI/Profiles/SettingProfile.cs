@@ -1,17 +1,18 @@
 using AutoMapper;
-using Models = LGDXRobot2Cloud.Data.Models.DTOs;
-using Blazor = LGDXRobot2Cloud.Data.Models.Blazor;
+using LGDXRobot2Cloud.UI.Models;
+using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 
 namespace LGDXRobot2Cloud.UI.Profiles
 {
   public class SettingProfile : Profile
   {
-    /*public SettingProfile()
+    public SettingProfile()
     {
       // API Key
-      CreateMap<Blazor.ApiKeyBlazor, Models.Commands.ApiKeyCreateDto>();
-      CreateMap<Blazor.ApiKeyBlazor, Models.Commands.ApiKeyUpdateDto>();
-      CreateMap<Blazor.ApiKeySecretBlazor, Models.Responses.ApiKeySecretDto>();
-    }*/
+      CreateMap<ApiKey, ApiKeyCreateDto>();
+      CreateMap<ApiKey, ApiKeyUpdateDto>();
+      CreateMap<ApiKeySecret, ApiKeySecretDto>();
+    }
   }
 }

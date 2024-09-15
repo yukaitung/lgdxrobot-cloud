@@ -57,6 +57,9 @@ public static class AppRoutes
     public static class ApiKeys
     {
       public const string Index = "/setting/apikeys";
+      public const string Create = "/setting/apikeys/create";
+      public const string Detail = "/setting/apikeys/{Id:int}";
+      public const string SecretDetail = "/setting/apikeys/{Id:int}/secret";
     }
   }
 }

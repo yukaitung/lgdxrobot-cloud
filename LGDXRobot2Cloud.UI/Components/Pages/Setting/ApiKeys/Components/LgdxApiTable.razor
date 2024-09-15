@@ -1,9 +1,10 @@
+
 @inherits AbstractTable
 
 <div class="card">
   <!-- Header -->
   <div class="card-header">
-    <h3 class="card-title">Nodes</h3>
+    <h3 class="card-title">LGDXRobot2 API Keys</h3>
   </div>
   <!-- Filter -->
   <div class="card-body border-bottom py-3">
@@ -41,47 +42,43 @@
         <tr>
           <th class="w-1">ID</th>
           <th>Name</th>
-          <th>Process Name</th>
-          <th class="w-100">Arguments</th>
-          <th>Create Time</th>
-          <th>Last Update Time</th>
+          <th class="w-1">Create Time</th>
+          <th class="w-1">Last Update Time</th>
           <th class="w-1"><!-- Action --></th>
         </tr>
       </thead>
       <tbody>
-        @if (Nodes != null)
+        @if (ApiKeyList != null)
         {
-          @foreach (var node in Nodes)
+          @foreach (var apiKey in ApiKeyList)
           {
-            var nodeId = node.Id;
+            var apiKeyId = apiKey.Id;
             <tr>
-              <td>@node.Id</td>
-              <td>@node.Name</td>
-              <td>@node.ProcessName</td>
-              <td>@node.Arguments</td>
-              <td>@node.CreatedAt</td>
-              <td>@node.UpdatedAt</td>
+              <td>@apiKey.Id</td>
+              <td>@apiKey.Name</td>
+              <td>@apiKey.CreatedAt</td>
+              <td>@apiKey.UpdatedAt</td>
               <td class="text-end">
-                <a href="@(AppRoutes.Robot.Nodes.Index + $"/{nodeId}")" class="page-link link-primary">Edit</a>
+                <a href="@(AppRoutes.Setting.ApiKeys.Index + $"/{apiKeyId}")" class="page-link link-primary">Edit</a>
               </td>
             </tr>
           }
         }
         else
         {
-          <TableLoading Columns="7" />
+          <TableLoading Columns="5" />
         }
       </tbody>
     </table>
-    @if (Nodes != null && Nodes.Count() == 0)
+    @if (ApiKeyList != null && ApiKeyList.Count() == 0)
     {
       <TableEmpty />
     }
   </div>
   <!-- Footer -->
-  @if (PaginationHelper != null && Nodes != null && Nodes.Count() > 0)
+  @if (PaginationHelper != null && ApiKeyList != null && ApiKeyList.Count() > 0)
   {
-    <TablePagination PaginationHelper="PaginationHelper" ItemCount="Nodes.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="ApiKeyList.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

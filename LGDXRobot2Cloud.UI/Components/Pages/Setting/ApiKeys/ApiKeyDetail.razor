@@ -1,0 +1,181 @@
+@attribute [Route(AppRoutes.Setting.ApiKeys.Detail)]
+@attribute [Route(AppRoutes.Setting.ApiKeys.Create)]
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Id != null ? "Edit API Key" : "Create API Key")">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="@AppRoutes.Setting.ApiKeys.Index">◀ Return</a></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        @(Id != null ? "Edit API Key" : "Create API Key")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="row row-cards">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">API Key Detail</h3>
+        </div>
+        <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+          <DataAnnotationsValidator />
+          <div class="card-body">
+            <SubmitErrorModal Display="@IsError" />
+            <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+            @if (Id != null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label">ID</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@ApiKey.Id</div>
+                </div>
+              </div>
+            }
+            @if (Id == null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label required">API Key Category</label>
+                <div class="col">
+                  <select class="form-select" @onchange="@((e) => HandleApiKeyKindChanged(e.Value ?? string.Empty))">
+                    <option value="false">LGDXRobot2 API Key</option>
+                    <option value="true">Third-Party API Key</option>
+                  </select>
+                  <small class="form-hint">
+                    An LGDXRobot2 API Key grants access to LGDXRobot2 services for your services, 
+                    while a Third-Party API Key is for accessing Third-Party services for LGDXRobot2 services. 
+                    This choice is permanent once made.
+                  </small>
+                </div>
+              </div>
+            }
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="Key-Name">Name</label>
+              <div class="col">
+                <InputText id="Key-Name" @bind-Value="ApiKey.Name" type="text" class="form-control"
+                  placeholder="Your API Key name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => ApiKey.Name)" />
+              </div>
+            </div>
+            @if (Id == null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label @(ApiKey.IsThirdParty ? "required" : "")" for="Key-Key">Secret</label>
+                <div class="col">
+                  @if (ApiKey.IsThirdParty)
+                  {
+                    <InputText id="Key-Key" @bind-Value="ApiKey.Secret" type="text" class="form-control"
+                      placeholder="API Key secret" />
+                    <ValidationMessage class="invalid-feedback" For="@(() => ApiKey.Secret)" />
+                  }
+                  else
+                  {
+                    <div class="col form-control-plaintext">Generated automatically</div>
+                  }
+                </div>
+              </div>
+            }
+            @if (Id != null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label">Create Time</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@ApiKey.CreatedAt</div>
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label">Last Update Time</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@ApiKey.UpdatedAt</div>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="card-footer d-flex">
+            @if (Id != null)
+            {
+              <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                Delete
+              </a>
+            }
+            <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+          </div>
+        </EditForm>
+      </div>
+    </div>
+    
+
+    @if (Id != null)
+    {
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">API Key Secret</h3>
+          </div>
+          <EditForm EditContext="@_editContextSecret" OnValidSubmit="HandleSetSecret">
+            <DataAnnotationsValidator />
+            <div class="card-body">
+              <SubmitErrorModal Display="@IsError" />
+              <ValidationErrorModal Display="@_editContextSecret.GetValidationMessages().Any()" />
+              @if (Id != null)
+              {
+                <div class="mb-3 row">
+                  <label class="col-3 col-form-label">ID</label>
+                  <div class="col">
+                    <div class="col form-control-plaintext">@Id</div>
+                  </div>
+                </div>
+              }
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label" for="Key-Secret">Secret</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">
+                    @if (GetApiKeySecret == null)
+                    {
+                      <button type="button" class="page-link link-primary" @onclick="HandleGetSecret">Press here to show secret</button>
+                    }
+                    else
+                    {
+                      <span>@GetApiKeySecret.Secret</span>
+                    }
+                    <small class="form-hint">
+                      By pressing the button, an audit log will be created.
+                    </small>
+                  </div>
+                </div>
+              </div>
+              @if (ApiKey.IsThirdParty)
+              {
+                <div class="mb-3 row">
+                  <label class="col-3 col-form-label required" for="Update-Key-Secre">Update Secret</label>
+                  <div class="col">
+                    <InputText id="Update-Key-Secret" @bind-Value="UpdateApiKeySecret.Secret" type="text" class="form-control"
+                    placeholder="New API Key secret" />
+                    <ValidationMessage class="invalid-feedback" For="@(() => UpdateApiKeySecret.Secret)" />
+                  </div>
+                </div>
+              }
+            </div>
+            @if (ApiKey.IsThirdParty)
+            {
+              <div class="card-footer d-flex">
+                <button type="submit" class="btn btn-primary ms-auto">Update</button>
+              </div>
+            }
+          </EditForm>
+        </div>
+      </div>
+    }
+  </div>
+</PageBody>
+
+@if (Id != null)
+{
+  <DeleteEntryModal EntryName="API Key" OnDelete="HandleDelete" />
+}
