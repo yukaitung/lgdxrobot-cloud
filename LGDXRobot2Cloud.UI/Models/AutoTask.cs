@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.UI.Models;
 
-public class AutoTask
+public class AutoTask : IValidatableObject
 {
   public int Id { get; set; }
 
@@ -33,4 +33,16 @@ public class AutoTask
   public DateTime CreatedAt { get; set; }
   
   public DateTime UpdatedAt { get; set; }
+
+  public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+  {
+    if (Details.Count == 0 || (Details.Count == 1 && 
+          Details[0].CustomX == null && 
+          Details[0].CustomY == null && 
+          Details[0].CustomRotation == null && 
+          Details[0].WaypointId == null))
+    {
+      yield return new ValidationResult("At least one wayopint is required.", [nameof(Details)]);
+    }
+  }
 }

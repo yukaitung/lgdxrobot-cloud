@@ -55,6 +55,7 @@
           <thead>
             <tr>
               <th class="w-1">@(Id != null ? "Id" : "Order")</th>
+              <th class="w-1"></th>
               <th><label class="required">Progress Name</label></th>
               <th><label class="required">Proceed Condition</label></th>
               <th>Begin Trigger</th>
@@ -75,6 +76,14 @@
                   else if(Id == null) {
                     @(index + 1)
                   }
+                </td>
+                <td>
+                  <button type="button" class="btn btn-ghost-secondary btn-icon @(i < 1 ? "disabled" : "")" @onclick="e => FlowStepMoveUp(index)">
+                    <i class="ti ti-arrow-up" style="font-size: 16px;"></i>
+                  </button>
+                  <button type="button" class="btn btn-ghost-secondary btn-icon @(i >= Flow.FlowDetails.Count() - 1 ? "disabled" : "")"  @onclick="e => FlowStepMoveDown(index)">
+                    <i class="ti ti-arrow-down" style="font-size: 16px;"></i>
+                  </button>
                 </td>
                 <td>
                   <InputSelect id="@(AdvanceSelectElements[0] + i.ToString())" class="form-control" @bind-Value="flowDetail.ProgressId">
@@ -107,23 +116,9 @@
                   </InputSelect>
                 </td>
                 <td>
-                  <div class="d-flex flex-row justify-content-between">
-                    <div class="">
-                      <button type="button" class="btn btn-ghost-secondary btn-icon @(i < 1 ? "disabled" : "")" @onclick="e => FlowStepMoveUp(index)">
-                        <i class="ti ti-arrow-up" style="font-size: 16px;"></i>
-                      </button>
-                    </div>
-                    <div class="">
-                      <button type="button" class="btn btn-ghost-danger btn-icon @(Flow.FlowDetails.Count() <= 1 ? "disabled" : "")" @onclick="e => FlowRemoveStep(index)">
-                        <i class="ti ti-trash" style="font-size: 16px;"></i>
-                      </button>
-                    </div>
-                    <div class="">
-                      <button type="button" class="btn btn-ghost-secondary btn-icon @(i >= Flow.FlowDetails.Count() - 1 ? "disabled" : "")"  @onclick="e => FlowStepMoveDown(index)">
-                        <i class="ti ti-arrow-down" style="font-size: 16px;"></i>
-                      </button>
-                    </div>
-                  </div>
+                  <button type="button" class="btn btn-ghost-danger btn-icon @(Flow.FlowDetails.Count() <= 1 ? "disabled" : "")" @onclick="e => FlowRemoveStep(index)">
+                    <i class="ti ti-trash" style="font-size: 16px;"></i>
+                  </button>
                 </td>
               </tr>
             }

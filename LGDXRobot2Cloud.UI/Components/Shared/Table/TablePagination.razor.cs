@@ -1,7 +1,7 @@
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
 
-namespace LGDXRobot2Cloud.UI.Components.Shared.Components.Table;
+namespace LGDXRobot2Cloud.UI.Components.Shared.Table;
 
 public partial class TablePagination
 {

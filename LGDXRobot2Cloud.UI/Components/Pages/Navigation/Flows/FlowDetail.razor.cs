@@ -161,7 +161,7 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     {
       var success = await FlowService.DeleteFlowAsync((int)Id);
       if (success)
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Flows.Index);
+        NavigationManager.NavigateTo(AppRoutes.Navigation.Flows.Index);
       else
         IsError = true;
     }

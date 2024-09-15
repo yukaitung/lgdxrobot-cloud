@@ -13,6 +13,8 @@ public static class AppRoutes
     public static class Tasks
     {
       public const string Index = "/navigation/tasks";
+      public const string Create = "/navigation/tasks/create";
+      public const string Detail = "/navigation/tasks/{Id:int}";
     }
     public static class Waypoints
     {

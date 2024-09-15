@@ -1,4 +1,4 @@
-using LGDXRobot2Cloud.UI.Components.Shared.Components.Table;
+using LGDXRobot2Cloud.UI.Components.Shared.Table;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;

@@ -1,0 +1,72 @@
+@attribute [Route(AppRoutes.Navigation.Tasks.Index)]
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Tasks.Components
+@using LGDXRobot2Cloud.Utilities.Enums
+@rendermode InteractiveServer
+
+<PageHeader Title="Tasks">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Tasks
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <a href="@AppRoutes.Navigation.Tasks.Create" type="button" class="btn btn-primary">
+        Create Task
+      </a>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <ul class="nav nav-bordered mb-4">
+    @for (int i = 0; i < Tabs.Count; i++)
+    {
+      var index = i;
+      <li class="nav-item">
+        @if (@CurrentTab == i) 
+        {
+          <button class="nav-link active">@Tabs[i]</button>
+        }
+        else 
+        {
+          <button class="nav-link" @onclick="@(e => HandleTabChange(index))">@Tabs[i]</button>
+        }
+      </li>
+    }
+  </ul>
+
+  @if (CurrentTab == 0)
+  {
+    <div class="row row-cards">
+      <div class="col-12">
+        <TasksTable Title="Running Tasks" ShowRunningTasks="true" />
+      </div>
+      <div class="col-12">
+        <TasksTable Title="Waiting Queue" ShowProgressId="@ProgressState.Waiting" />
+      </div>
+    </div>
+  }
+  else if (CurrentTab == 1)
+  {
+    <TasksTable Title="Completed Tasks" ShowProgressId="@ProgressState.Completed" />
+  }
+  else if (CurrentTab == 2)
+  {
+    <TasksTable Title="Aborted Tasks" ShowProgressId="@ProgressState.Aborted" />
+  }
+  else if (CurrentTab == 3)
+  {
+    <TasksTable Title="Task Templates" ShowProgressId="@ProgressState.Template" />
+  }
+</PageBody>
+
+@code {
+  private int CurrentTab { get; set; } = 0;
+  private readonly List<string> Tabs = ["Ongoing Tasks", "Completed Tasks", "Aborted Tasks", "Task Templates"];
+
+  public void HandleTabChange(int index)
+  {
+    CurrentTab = index;
+  }
+}
