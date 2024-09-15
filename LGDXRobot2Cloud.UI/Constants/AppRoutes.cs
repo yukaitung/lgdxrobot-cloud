@@ -23,6 +23,8 @@ public static class AppRoutes
     public static class Flows
     {
       public const string Index = "/navigation/flows";
+      public const string Create = "/navigation/flows/create";
+      public const string Detail = "/navigation/flows/{Id:int}";
     }
     public static class Triggers
     {

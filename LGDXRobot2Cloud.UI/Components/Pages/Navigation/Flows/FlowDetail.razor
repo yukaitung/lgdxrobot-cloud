@@ -1,0 +1,171 @@
+@attribute [Route(AppRoutes.Navigation.Flows.Create)]
+@attribute [Route(AppRoutes.Navigation.Flows.Detail)]
+@using LGDXRobot2Cloud.Utilities.Enums
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Id != null ? "Edit Flow" : "Create Flow")">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Flows.Index">◀ Return</a></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        @(Id != null ? "Edit Flow" : "Create Flow")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Flow Detail</h3>
+    </div>
+    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+      <DataAnnotationsValidator />
+      <div class="card-body">
+        <SubmitErrorModal Display="@IsError" />
+        <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">ID</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Flow.Id</div>
+            </div>
+          </div>
+        }
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="Name">Name</label>
+          <div class="col">
+            <InputText id="Name" @bind-Value="Flow.Name" type="text" class="form-control"
+              placeholder="Your flow name" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Flow.Name)" />
+          </div>
+        </div>
+        <label class="form-label required">Flow Detail</label>
+        <div class="invalid-feedback" style="display: block;">@_editContext.GetValidationMessages(() => Flow.FlowDetails).FirstOrDefault()</div>
+        <InformationModal>
+          1. The "Moving" progress should be included in the flow.<br />
+          2. An external API call is required for using "API" as proceed condition.
+        </InformationModal>
+        <table class="table table-vcenter text-nowrap datatable">
+          <thead>
+            <tr>
+              <th class="w-1">@(Id != null ? "Id" : "Order")</th>
+              <th><label class="required">Progress Name</label></th>
+              <th><label class="required">Proceed Condition</label></th>
+              <th>Begin Trigger</th>
+              <th>Complete Trigger</th>
+              <th class="w-1"><!-- Action --></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (int i = 0; i < Flow.FlowDetails.Count(); i++)
+            {
+              var index = i;
+              var flowDetail = Flow.FlowDetails[i];
+              <tr>
+                <td>
+                  @if (flowDetail.Id != null) {
+                    @flowDetail.Id
+                  }
+                  else if(Id == null) {
+                    @(index + 1)
+                  }
+                </td>
+                <td>
+                  <InputSelect id="@(AdvanceSelectElements[0] + i.ToString())" class="form-control" @bind-Value="flowDetail.ProgressId">
+                    @if (flowDetail.ProgressName != null)
+                    {
+                      <option value="@flowDetail.ProgressId">@flowDetail.ProgressName</option>
+                    }
+                  </InputSelect>
+                </td>
+                <td>
+                  <select class="form-select form-select" value="@flowDetail.AutoTaskNextControllerId" @onchange="@((e) => HandleProceedConditionChange(index, e.Value ?? string.Empty))">
+                    <option value="@((int)AutoTaskNextController.API)">Robot</option>
+                    <option value="@((int)AutoTaskNextController.Robot)">API</option>
+                  </select>
+                </td>
+                <td>
+                  <InputSelect id="@(AdvanceSelectElements[1] + i.ToString())" class="form-control" @bind-Value="flowDetail.StartTriggerId">
+                    @if (flowDetail.StartTriggerName != null)
+                    {
+                      <option value="@flowDetail.StartTriggerId">@flowDetail.StartTriggerName</option>
+                    }
+                  </InputSelect>
+                </td>
+                <td>
+                  <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control form-control" @bind-Value="flowDetail.EndTriggerId">
+                    @if (flowDetail.EndTriggerName != null)
+                    {
+                      <option value="@flowDetail.EndTriggerId">@flowDetail.EndTriggerName</option>
+                    }
+                  </InputSelect>
+                </td>
+                <td>
+                  <div class="d-flex flex-row justify-content-between">
+                    <div class="">
+                      <button type="button" class="btn btn-ghost-secondary btn-icon @(i < 1 ? "disabled" : "")" @onclick="e => FlowStepMoveUp(index)">
+                        <i class="ti ti-arrow-up" style="font-size: 16px;"></i>
+                      </button>
+                    </div>
+                    <div class="">
+                      <button type="button" class="btn btn-ghost-danger btn-icon @(Flow.FlowDetails.Count() <= 1 ? "disabled" : "")" @onclick="e => FlowRemoveStep(index)">
+                        <i class="ti ti-trash" style="font-size: 16px;"></i>
+                      </button>
+                    </div>
+                    <div class="">
+                      <button type="button" class="btn btn-ghost-secondary btn-icon @(i >= Flow.FlowDetails.Count() - 1 ? "disabled" : "")"  @onclick="e => FlowStepMoveDown(index)">
+                        <i class="ti ti-arrow-down" style="font-size: 16px;"></i>
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <div class="row">
+          <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="FlowAddStep">
+            Add A Step
+          </button>
+        </div>
+        @if (Id != null)
+        {
+          <div class="modal-body">
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">Create Time</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@Flow.CreatedAt</div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">Last Update Time</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@Flow.UpdatedAt</div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="card-footer d-flex">
+        @if (Id != null)
+        {
+          <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            Delete
+          </a>
+        }
+        <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+      </div>
+    </EditForm>
+  </div>
+</PageBody>
+
+@if (Id != null)
+{
+  <DeleteEntryModal EntryName="Flow" OnDelete="HandleDelete" />
+}

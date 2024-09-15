@@ -1,0 +1,22 @@
+@attribute [Route(AppRoutes.Navigation.Flows.Index)]
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Flows.Components
+@rendermode InteractiveServer
+
+<PageHeader Title="Flows">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Flows
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <a href="@AppRoutes.Navigation.Flows.Create" type="button" class="btn btn-primary">
+        Create Flow
+      </a>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <FlowsTable />
+</PageBody>

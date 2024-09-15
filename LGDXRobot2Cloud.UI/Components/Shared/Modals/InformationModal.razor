@@ -1,0 +1,13 @@
+<div class="alert alert-info" role="alert">
+  <div class="d-flex">
+    <i class="ti ti-info-circle me-2" style="font-size: 24px;"></i>
+    <div>
+      @ChildContent
+    </div>
+  </div>
+</div>
+
+@code {
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+}
