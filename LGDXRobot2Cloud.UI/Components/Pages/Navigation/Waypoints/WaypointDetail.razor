@@ -1,0 +1,103 @@
+@attribute [Route(AppRoutes.Navigation.Waypoints.Create)]
+@attribute [Route(AppRoutes.Navigation.Waypoints.Detail)]
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Id != null ? "Edit Waypoint" : "Create Waypoint")">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Waypoints.Index">◀ Return</a></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        @(Id != null ? "Edit Waypoint" : "Create Waypoint")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Trigger Detail</h3>
+    </div>
+    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+      <DataAnnotationsValidator />
+      <div class="card-body">
+        <SubmitErrorModal Display="@IsError" />
+        <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">ID</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Waypoint.Id</div>
+            </div>
+          </div>
+        }
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="Name">Name</label>
+          <div class="col">
+            <InputText id="Name" @bind-Value="Waypoint.Name" type="text" class="form-control"
+              placeholder="Your waypoint name" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Waypoint.Name)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="X">X (m)</label>
+          <div class="col">
+            <InputNumber id="X" @bind-Value="Waypoint.X" type="number" step="any" class="form-control"
+              placeholder="X position" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Waypoint.X)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="Y">Y (m)</label>
+          <div class="col">
+            <InputNumber id="Y" @bind-Value="Waypoint.Y" type="number" step="any" class="form-control"
+              placeholder="Y position" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Waypoint.Y)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="W">Rotation (rad)</label>
+          <div class="col">
+            <InputNumber id="W" @bind-Value="Waypoint.Rotation" type="number" step="any" class="form-control"
+              placeholder="Rotation" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Waypoint.Rotation)" />
+          </div>
+        </div>
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Create Time</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Waypoint.CreatedAt</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Last Update Time</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Waypoint.UpdatedAt</div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="card-footer d-flex">
+        @if (Id != null)
+        {
+          <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            Delete
+          </a>
+        }
+        <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+      </div>
+    </EditForm>
+  </div>
+</PageBody>
+
+@if (Id != null)
+{
+  <DeleteEntryModal EntryName="Waypoint" OnDelete="HandleDelete" />
+}

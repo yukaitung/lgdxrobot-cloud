@@ -25,8 +25,8 @@ namespace LGDXRobot2Cloud.UI.Profiles
       CreateMap<Trigger, TriggerCreateDto>();
       CreateMap<Trigger, TriggerUpdateDto>();
       // Waypoint
-      //CreateMap<Blazor.WaypointBlazor, Models.WaypointCreateDto>();
-      //CreateMap<Blazor.WaypointBlazor, Models.WaypointUpdateDto>();
+      CreateMap<Waypoint, WaypointCreateDto>();
+      CreateMap<Waypoint, WaypointUpdateDto>();
     }
   }
 }

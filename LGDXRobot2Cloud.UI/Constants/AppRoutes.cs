@@ -17,6 +17,8 @@ public static class AppRoutes
     public static class Waypoints
     {
       public const string Index = "/navigation/waypoints";
+      public const string Create = "/navigation/waypoints/create";
+      public const string Detail = "/navigation/waypoints/{Id:int}";
     }
     public static class Flows
     {

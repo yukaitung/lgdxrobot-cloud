@@ -1,0 +1,22 @@
+@attribute [Route(AppRoutes.Navigation.Waypoints.Index)]
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Waypoints.Components
+@rendermode InteractiveServer
+
+<PageHeader Title="Waypoints">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Waypoints
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <a href="@AppRoutes.Navigation.Waypoints.Create" type="button" class="btn btn-primary">
+        Create Waypoint
+      </a>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <WaypointsTable />
+</PageBody>
