@@ -4,14 +4,14 @@ using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.NodesCollections.Components;
-public partial class NodesCollectionTable : AbstractTable
+public sealed partial class NodesCollectionTable : AbstractTable
 {
   [Inject]
   public required INodesCollectionService NodesCollectionService { get; set; }
 
   private List<NodesCollection>? NodesCollectionsList { get; set; }
   
-  protected override async Task HandlePageSizeChange(int number)
+  public override async Task HandlePageSizeChange(int number)
   {
     PageSize = number;
     if (PageSize > 100)
@@ -23,7 +23,7 @@ public partial class NodesCollectionTable : AbstractTable
     PaginationHelper = data.Item2;
   }
 
-  protected override async Task HandleSearch()
+  public override async Task HandleSearch()
   {
     if (LastDataSearch == DataSearch)
       return;
@@ -33,7 +33,7 @@ public partial class NodesCollectionTable : AbstractTable
     LastDataSearch = DataSearch;
   }
 
-  protected override async Task HandleClearSearch()
+  public override async Task HandleClearSearch()
   {
     if (DataSearch == string.Empty && LastDataSearch == string.Empty)
       return;
@@ -41,7 +41,7 @@ public partial class NodesCollectionTable : AbstractTable
     await HandleSearch();
   }
 
-  protected override async Task HandlePageChange(int pageNum)
+  public override async Task HandlePageChange(int pageNum)
   {
     if (pageNum == CurrentPage)
       return;

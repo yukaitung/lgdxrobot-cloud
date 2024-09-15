@@ -20,7 +20,7 @@ public interface IRobotService
   Task<bool> DeleteRobotAsync(string robotId);
   Task<string> SearchRobotsAsync(string name);
 }
-public class RobotService : IRobotService
+public sealed class RobotService : IRobotService
 {
   public readonly HttpClient _httpClient;
   public readonly JsonSerializerOptions _jsonSerializerOptions;

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Flows.Components;
 
-public partial class FlowsTable : AbstractTable
+public sealed partial class FlowsTable : AbstractTable
 {
   [Inject]
   public required IFlowService FlowService { get; set; }
@@ -15,7 +15,7 @@ public partial class FlowsTable : AbstractTable
 
   private List<Flow>? FlowsList { get; set; }
   
-  protected override async Task HandlePageSizeChange(int number)
+  public override async Task HandlePageSizeChange(int number)
   {
     PageSize = number;
     if (PageSize > 100)
@@ -27,7 +27,7 @@ public partial class FlowsTable : AbstractTable
     PaginationHelper = data.Item2;
   }
 
-  protected override async Task HandleSearch()
+  public override async Task HandleSearch()
   {
     if (LastDataSearch == DataSearch)
       return;
@@ -37,7 +37,7 @@ public partial class FlowsTable : AbstractTable
     LastDataSearch = DataSearch;
   }
 
-  protected override async Task HandleClearSearch()
+  public override async Task HandleClearSearch()
   {
     if (DataSearch == string.Empty && LastDataSearch == string.Empty)
       return;
@@ -45,7 +45,7 @@ public partial class FlowsTable : AbstractTable
     await HandleSearch();
   }
 
-  protected override async Task HandlePageChange(int pageNum)
+  public override async Task HandlePageChange(int pageNum)
   {
     if (pageNum == CurrentPage)
       return;

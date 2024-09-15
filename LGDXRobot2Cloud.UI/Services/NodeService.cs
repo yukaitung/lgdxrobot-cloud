@@ -16,7 +16,7 @@ public interface INodeService
   Task<string> SearchNodesAsync(string name);
 }
 
-public class NodeService : INodeService
+public sealed class NodeService : INodeService
 {
   public readonly HttpClient _httpClient;
   public readonly JsonSerializerOptions _jsonSerializerOptions;

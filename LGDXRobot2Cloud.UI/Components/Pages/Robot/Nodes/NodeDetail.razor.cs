@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Nodes;
 
-public partial class NodeDetail : ComponentBase
+public sealed partial class NodeDetail : ComponentBase
 {
   [Inject]
   public NavigationManager NavigationManager { get; set; } = default!;
@@ -28,7 +28,7 @@ public partial class NodeDetail : ComponentBase
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
   private bool IsError { get; set; } = false;
 
-  protected async Task HandleValidSubmit()
+  public async Task HandleValidSubmit()
   {
     bool success;
     
@@ -45,7 +45,7 @@ public partial class NodeDetail : ComponentBase
       IsError = true;
   }
 
-  protected async Task HandleDelete()
+  public async Task HandleDelete()
   {
     if (Id != null)
     {

@@ -14,7 +14,7 @@ public sealed partial class WaypointsTable : AbstractTable
 
   private List<Waypoint>? WaypointsList { get; set; }
   
-  protected override async Task HandlePageSizeChange(int number)
+  public override async Task HandlePageSizeChange(int number)
   {
     PageSize = number;
     if (PageSize > 100)
@@ -26,7 +26,7 @@ public sealed partial class WaypointsTable : AbstractTable
     PaginationHelper = data.Item2;
   }
 
-  protected override async Task HandleSearch()
+  public override async Task HandleSearch()
   {
     if (LastDataSearch == DataSearch)
       return;
@@ -36,7 +36,7 @@ public sealed partial class WaypointsTable : AbstractTable
     LastDataSearch = DataSearch;
   }
 
-  protected override async Task HandleClearSearch()
+  public override async Task HandleClearSearch()
   {
     if (DataSearch == string.Empty && LastDataSearch == string.Empty)
       return;
@@ -44,7 +44,7 @@ public sealed partial class WaypointsTable : AbstractTable
     await HandleSearch();
   }
 
-  protected override async Task HandlePageChange(int pageNum)
+  public override async Task HandlePageChange(int pageNum)
   {
     if (pageNum == CurrentPage)
       return;

@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Nodes.Components;
 
-public partial class NodeTable : AbstractTable
+public sealed partial class NodeTable : AbstractTable
 {
   [Inject]
   public required INodeService NodeService { get; set; }
 
   private List<Node>? Nodes { get; set; }
   
-  protected override async Task HandlePageSizeChange(int number)
+  public override async Task HandlePageSizeChange(int number)
   {
     PageSize = number;
     if (PageSize > 100)
@@ -24,7 +24,7 @@ public partial class NodeTable : AbstractTable
     PaginationHelper = data.Item2;
   }
 
-  protected override async Task HandleSearch()
+  public override async Task HandleSearch()
   {
     if (LastDataSearch == DataSearch)
       return;
@@ -34,7 +34,7 @@ public partial class NodeTable : AbstractTable
     LastDataSearch = DataSearch;
   }
 
-  protected override async Task HandleClearSearch()
+  public override async Task HandleClearSearch()
   {
     if (DataSearch == string.Empty && LastDataSearch == string.Empty)
       return;
@@ -42,7 +42,7 @@ public partial class NodeTable : AbstractTable
     await HandleSearch();
   }
 
-  protected override async Task HandlePageChange(int pageNum)
+  public override async Task HandlePageChange(int pageNum)
   {
     if (pageNum == CurrentPage)
       return;

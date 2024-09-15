@@ -10,7 +10,7 @@ using LGDXRobot2Cloud.UI.Constants;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots;
 
-public partial class CreateRobot
+public sealed partial class CreateRobot
 {
   [Inject]
   public required IRobotService RobotService { get; set; }
@@ -30,7 +30,7 @@ public partial class CreateRobot
   public readonly List<string> stepHeadings = ["Information", "Download Cerificates", "Complete"];
   private int currentStep = 0;
 
-  protected async Task HandleValidSubmit()
+  public async Task HandleValidSubmit()
   {
     if (currentStep == 0)
     {

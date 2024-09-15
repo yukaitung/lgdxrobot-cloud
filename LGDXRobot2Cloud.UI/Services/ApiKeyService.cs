@@ -19,7 +19,7 @@ public interface IApiKeyService
   Task<string> SearchApiKeysAsync(string name);
 }
 
-public class ApiKeyService : IApiKeyService
+public sealed class ApiKeyService : IApiKeyService
 {
   public readonly HttpClient _httpClient;
   public readonly JsonSerializerOptions _jsonSerializerOptions;

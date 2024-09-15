@@ -17,7 +17,7 @@ public interface IAutoTaskService
   Task<bool> AbortAutoTaskAsync(int autoTaskId);
 }
 
-public class AutoTaskService : IAutoTaskService
+public sealed class AutoTaskService : IAutoTaskService
 {
   public readonly HttpClient _httpClient;
   public readonly JsonSerializerOptions _jsonSerializerOptions;

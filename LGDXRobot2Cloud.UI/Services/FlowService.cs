@@ -16,7 +16,7 @@ public interface IFlowService
   Task<string> SearchFlowsAsync(string name);
 }
 
-public class FlowService : IFlowService
+public sealed class FlowService : IFlowService
 {
   public readonly HttpClient _httpClient;
   public readonly JsonSerializerOptions _jsonSerializerOptions;

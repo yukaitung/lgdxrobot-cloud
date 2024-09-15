@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components;
 
-public partial class RenewRobotCertificate
+public sealed partial class RenewRobotCertificate
 {
   [Inject]
   public required IRobotService RobotService { get; set; }
@@ -20,10 +20,10 @@ public partial class RenewRobotCertificate
   private bool RevokeOldCertificate { get; set; } = false;
   private bool IsError { get; set; } = false;
 
-  private readonly List<string> stepHeadings = ["Begin", "Download Cerificates", "Complete"];
+  public readonly List<string> stepHeadings = ["Begin", "Download Cerificates", "Complete"];
   private int currentStep = 0;
 
-  protected async Task HandleSubmit()
+  public async Task HandleSubmit()
   {
     if (currentStep == 0)
     {

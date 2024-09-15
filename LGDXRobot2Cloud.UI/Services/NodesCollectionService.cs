@@ -15,7 +15,7 @@ public interface INodesCollectionService
   Task<bool> DeleteNodesCollectionAsync(int nodesCollectionId);
 }
 
-public class NodesCollectionService : INodesCollectionService
+public sealed class NodesCollectionService : INodesCollectionService
 {
   public readonly HttpClient _httpClient;
   public readonly JsonSerializerOptions _jsonSerializerOptions;

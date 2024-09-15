@@ -11,10 +11,10 @@ public abstract class AbstractTable : ComponentBase
   protected string DataSearch { get; set; } = string.Empty;
   protected string LastDataSearch { get; set; } = string.Empty;
 
-  protected abstract Task HandlePageSizeChange(int number);
-  protected abstract Task HandleSearch();
-  protected abstract Task HandleClearSearch();
-  protected abstract Task HandlePageChange(int pageNum);
+  public abstract Task HandlePageSizeChange(int number);
+  public abstract Task HandleSearch();
+  public abstract Task HandleClearSearch();
+  public abstract Task HandlePageChange(int pageNum);
   public abstract Task Refresh(bool deleteOpt = false);
 
   protected override async Task OnAfterRenderAsync(bool firstRender)

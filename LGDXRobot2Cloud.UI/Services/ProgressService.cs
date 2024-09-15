@@ -16,7 +16,7 @@ public interface IProgressService
   Task<string> SearchProgressesAsync(string name);
 }
 
-public class ProgressService : IProgressService
+public sealed class ProgressService : IProgressService
 {
   public readonly HttpClient _httpClient;
   public readonly JsonSerializerOptions _jsonSerializerOptions;

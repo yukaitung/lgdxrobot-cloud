@@ -16,7 +16,7 @@ public interface ITriggerService
   Task<string> SearchTriggersAsync(string name);
 }
 
-public class TriggerService : ITriggerService
+public sealed class TriggerService : ITriggerService
 {
   public readonly HttpClient _httpClient;
   public readonly JsonSerializerOptions _jsonSerializerOptions;

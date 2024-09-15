@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Shared.Table;
 
-public partial class TablePagination
+public sealed partial class TablePagination
 {
   [Parameter]
   public required PaginationHelper PaginationHelper { get; set; }
@@ -17,7 +17,7 @@ public partial class TablePagination
   private SortedSet<int> RenderPage { get; set; } = [];
   private int LastIndex { get; set; } = 0;
     
-  private async Task HandlePageChange(int pageNum)
+  public async Task HandlePageChange(int pageNum)
   {
     await OnPageChange.InvokeAsync(pageNum);
   }

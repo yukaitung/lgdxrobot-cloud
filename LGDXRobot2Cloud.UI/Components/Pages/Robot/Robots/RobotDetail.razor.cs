@@ -3,7 +3,7 @@ using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots;
-public partial class RobotDetail
+public sealed partial class RobotDetail
 {
   [Parameter]
   public string Id { get; set; } = string.Empty;
@@ -16,7 +16,7 @@ public partial class RobotDetail
 
   private Models.Robot? Robot { get; set; }
 
-  protected async Task HandleDelete()
+  public async Task HandleDelete()
   {
     var success = await RobotService.DeleteRobotAsync(Robot!.Id.ToString());
     if (success)

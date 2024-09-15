@@ -16,7 +16,7 @@ public interface IWaypointService
   Task<string> SearchWaypointsAsync(string name);
 }
 
-public class WaypointService : IWaypointService
+public sealed class WaypointService : IWaypointService
 {
   public readonly HttpClient _httpClient;
   public readonly JsonSerializerOptions _jsonSerializerOptions;
