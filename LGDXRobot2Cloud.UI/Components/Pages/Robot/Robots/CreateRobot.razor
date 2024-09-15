@@ -1,0 +1,74 @@
+@attribute [Route(AppRoutes.Robot.Robots.Create)]
+@using LGDXRobot2Cloud.Utilities.Enums
+@using LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components
+@rendermode InteractiveServer
+
+<PageHeader Title="Create Robot">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="@AppRoutes.Robot.Robots.Index">◀ Return</a></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        Create Robot
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Robot Detail</h3>
+    </div>
+    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+      <DataAnnotationsValidator />
+      <div class="card-body">
+        <div class="mb-3 row">
+          <ul class="steps steps-counter">
+            @for (int i = 0; i < stepHeadings.Count(); i++)
+            {
+              <li class="step-item @(currentStep == i ? "active" : "")">@stepHeadings[i]</li>
+            }
+          </ul>
+        </div>
+        <SubmitErrorModal Display="@IsError" />
+        <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+        @if (currentStep == 0)
+        {
+          <RobotInfo Robot="Robot" />
+        }
+        else if (currentStep == 1)
+        {
+          <RobotCertificateKey RobotCertificates="RobotCertificates" />
+        }
+        else if (currentStep == 2)
+        {
+          <div class="text-center py-4 d-flex-column">
+            <div class="mb-4 row">
+              <i class="ti ti-circle-check text-primary" style="font-size: 64px;"></i>
+            </div>
+            <h3>Robot Added</h3>
+            <div class="text-secondary">Please upload the key to the robot and test the connection.</div>
+          </div>
+        }
+      </div>
+      <div class="card-footer d-flex">
+        @if (currentStep < stepHeadings.Count() - 1)
+        {
+          <button type="submit" class="btn btn-primary ms-auto">
+            Next
+          </button>
+        }
+        else
+        {
+          <button type="submit" class="btn btn-primary ms-auto">
+            Done
+          </button>
+        }
+      </div>
+    </EditForm>
+  </div>
+</PageBody>

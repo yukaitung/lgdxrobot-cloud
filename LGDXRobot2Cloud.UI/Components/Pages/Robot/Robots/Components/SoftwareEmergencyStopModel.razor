@@ -1,0 +1,43 @@
+@using LGDXRobot2Cloud.Utilities.Enums
+
+@if (Robot != null)
+{
+  <div class="modal fade modal-blur" id="softwareEmergencyStop" tabindex="-1" data-bs-keyboard="false">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-status @(Robot.IsSoftwareEmergencyStop ? "bg-primary" : "bg-danger")"></div>
+        <div class="modal-body text-center py-4 d-flex flex-column">
+          @if (Robot.IsSoftwareEmergencyStop) {
+            <i class="ti ti-circle-check text-primary mb-2" style="font-size: 48px;"></i>
+          }
+          else {
+            <i class="ti ti-alert-triangle text-danger mb-2" style="font-size: 48px;"></i>
+          }
+          <h3>@(Robot.IsSoftwareEmergencyStop ? "Resuming Robot" : "Stopping Robot")</h3>
+          <div class="text-secondary">
+            <SubmitErrorModal Display="IsError" />
+            <div class="text-secondary">
+              @(Robot.IsSoftwareEmergencyStop ?
+                $"The robot {Robot.Name} will be resumed." :
+                $"The robot {Robot.Name} will be stopped.")
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100">
+            <div class="row">
+              <div class="col">
+                <button type="button" class="btn w-100" data-bs-dismiss="modal">Cancel</button>
+              </div>
+              <div class="col">
+                <button type="button" class="btn w-100 @(Robot.IsSoftwareEmergencyStop ? "btn-primary" : "btn-danger")" @onclick="HandleRequest">Yes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
