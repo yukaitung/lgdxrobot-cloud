@@ -1,17 +1,17 @@
+using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.Requests;
+using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.UI.Models;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
-using LGDXRobot2Cloud.Data.Models.Blazor;
-using LGDXRobot2Cloud.Utilities.Helpers;
-using LGDXRobot2Cloud.Data.Models.DTOs.Requests;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IRobotService
 {
-  Task<(IEnumerable<RobotBlazor>?, PaginationHelper?)> GetRobotsAsync(string? name = null, int pageNumber = 1, int pageSize = 16);
-  Task<RobotBlazor?> GetRobotAsync(string robotId);
+  Task<(IEnumerable<Robot>?, PaginationHelper?)> GetRobotsAsync(string? name = null, int pageNumber = 1, int pageSize = 16);
+  Task<Robot?> GetRobotAsync(string robotId);
   Task<RobotCreateResponseDto?> AddRobotAsync(RobotCreateDto robot);
   Task<bool> UpdateSoftwareEmergencyStop(string robotId, bool enable);
   Task<bool> UpdatePauseTaskAssigement(string robotId, bool enable);
@@ -31,7 +31,7 @@ public class RobotService : IRobotService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<RobotBlazor>?, PaginationHelper?)> GetRobotsAsync(string? name, int pageNumber, int pageSize)
+  public async Task<(IEnumerable<Robot>?, PaginationHelper?)> GetRobotsAsync(string? name, int pageNumber, int pageSize)
   {
     var url = name != null ? $"robot?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot?pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
@@ -39,7 +39,7 @@ public class RobotService : IRobotService
     {
       var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
       var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var robots = await JsonSerializer.DeserializeAsync<IEnumerable<RobotBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      var robots = await JsonSerializer.DeserializeAsync<IEnumerable<Robot>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       return (robots, PaginationHelper);
     }
     else
@@ -48,10 +48,10 @@ public class RobotService : IRobotService
     }
   }
 
-  public async Task<RobotBlazor?> GetRobotAsync(string robotId)
+  public async Task<Robot?> GetRobotAsync(string robotId)
   {
     var response = await _httpClient.GetAsync($"robot/{robotId}");
-    var robot = await JsonSerializer.DeserializeAsync<RobotBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+    var robot = await JsonSerializer.DeserializeAsync<Robot>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
     return robot;
   }
   

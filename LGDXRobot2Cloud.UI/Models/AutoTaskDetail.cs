@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LGDXRobot2Cloud.Data.Models.Blazor;
-
-public class AutoTaskDetailBlazor
+namespace LGDXRobot2Cloud.UI.Models;
+public class AutoTaskDetail
 {
   public int? Id { get; set; }
 
@@ -12,7 +11,7 @@ public class AutoTaskDetailBlazor
 
   public double? CustomRotation { get; set; }
 
-  public WaypointBlazor? Waypoint { get; set; }
+  public Waypoint? Waypoint { get; set; }
 
   [Required]
   public int? WaypointId { get; set; }

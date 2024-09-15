@@ -17,10 +17,10 @@ namespace LGDXRobot2Cloud.UI.Profiles
       CreateMap<Progress, ProgressCreateDto>();
       CreateMap<Progress, ProgressUpdateDto>();
       // Tasks
-      //CreateMap<Blazor.AutoTaskBlazor, Models.AutoTaskCreateDto>();
-      //CreateMap<Blazor.AutoTaskDetailBlazor, Models.AutoTaskDetailCreateDto>();
-      //CreateMap<Blazor.AutoTaskBlazor, Models.AutoTaskUpdateDto>();
-      //CreateMap<Blazor.AutoTaskDetailBlazor, Models.AutoTaskDetailUpdateDto>();
+      CreateMap<AutoTask, AutoTaskCreateDto>();
+      CreateMap<AutoTaskDetail, AutoTaskDetailCreateDto>();
+      CreateMap<AutoTask, AutoTaskUpdateDto>();
+      CreateMap<AutoTaskDetail, AutoTaskDetailUpdateDto>();
       // Triggers
       CreateMap<Trigger, TriggerCreateDto>();
       CreateMap<Trigger, TriggerUpdateDto>();

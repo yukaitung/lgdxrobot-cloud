@@ -1,6 +1,6 @@
-namespace LGDXRobot2Cloud.Data.Models.Blazor;
+namespace LGDXRobot2Cloud.UI.Models;
 
-public class RobotChassisInfoBlazor
+public class RobotChassisInfo
 {
   public int Id { get; set; }
 

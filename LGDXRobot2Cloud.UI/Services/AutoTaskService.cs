@@ -1,17 +1,17 @@
 using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.Blazor;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using LGDXRobot2Cloud.Utilities.Enums;
+using LGDXRobot2Cloud.UI.Models;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IAutoTaskService
 {
-  Task<(IEnumerable<AutoTaskBlazor>?, PaginationHelper?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<AutoTaskBlazor?> GetAutoTaskAsync(int autoTaskId);
-  Task<AutoTaskBlazor?> AddAutoTaskAsync(AutoTaskCreateDto autoTask);
+  Task<(IEnumerable<AutoTask>?, PaginationHelper?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<AutoTask?> GetAutoTaskAsync(int autoTaskId);
+  Task<bool> AddAutoTaskAsync(AutoTaskCreateDto autoTask);
   Task<bool> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateDto autoTask);
   Task<bool> DeleteAutoTaskAsync(int autoTaskId);
   Task<bool> AbortAutoTaskAsync(int autoTaskId);
@@ -28,7 +28,7 @@ public class AutoTaskService : IAutoTaskService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<AutoTaskBlazor>?, PaginationHelper?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<AutoTask>?, PaginationHelper?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     StringBuilder url = new($"navigation/tasks?pageNumber={pageNumber}&pageSize={pageSize}");
     if (showProgressId != null)
@@ -40,7 +40,7 @@ public class AutoTaskService : IAutoTaskService
     {
       var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
       var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var tasks = await JsonSerializer.DeserializeAsync<IEnumerable<AutoTaskBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      var tasks = await JsonSerializer.DeserializeAsync<IEnumerable<AutoTask>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       return (tasks, PaginationHelper);
     }
     else
@@ -49,23 +49,18 @@ public class AutoTaskService : IAutoTaskService
     }
   }
   
-  public async Task<AutoTaskBlazor?> GetAutoTaskAsync(int autoTaskId)
+  public async Task<AutoTask?> GetAutoTaskAsync(int autoTaskId)
   {
     var response = await _httpClient.GetAsync($"navigation/tasks/{autoTaskId}");
-    var task = await JsonSerializer.DeserializeAsync<AutoTaskBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+    var task = await JsonSerializer.DeserializeAsync<AutoTask>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
     return task;
   }
 
-  public async Task<AutoTaskBlazor?> AddAutoTaskAsync(AutoTaskCreateDto autoTask)
+  public async Task<bool> AddAutoTaskAsync(AutoTaskCreateDto autoTask)
   {
     var taskJson = new StringContent(JsonSerializer.Serialize(autoTask), Encoding.UTF8, "application/json");
     var response = await _httpClient.PostAsync("navigation/tasks", taskJson);
-    if (response.IsSuccessStatusCode)
-    {
-      return await JsonSerializer.DeserializeAsync<AutoTaskBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    }
-    else
-      return null;
+    return response.IsSuccessStatusCode;
   }
 
   public async Task<bool> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateDto autoTask)
