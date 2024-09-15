@@ -1,0 +1,22 @@
+@attribute [Route(AppRoutes.Navigation.Triggers.Index)]
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Triggers.Components
+@rendermode InteractiveServer
+
+<PageHeader Title="Triggers">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Triggers
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <a href="@AppRoutes.Navigation.Triggers.Create" type="button" class="btn btn-primary">
+        Create Trigger
+      </a>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <TriggersTable />
+</PageBody>

@@ -25,6 +25,8 @@ public static class AppRoutes
     public static class Triggers
     {
       public const string Index = "/navigation/triggers";
+      public const string Create = "/navigation/triggers/create";
+      public const string Detail = "/navigation/triggers/{Id:int}";
     }
     public static class Progresses
     {

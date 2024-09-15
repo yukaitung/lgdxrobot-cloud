@@ -1,0 +1,143 @@
+@attribute [Route(AppRoutes.Navigation.Triggers.Create)]
+@attribute [Route(AppRoutes.Navigation.Triggers.Detail)]
+@using LGDXRobot2Cloud.Utilities.Enums
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Id != null ? "Edit Trigger" : "Create Trigger")">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Triggers.Index">◀ Return</a></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        @(Id != null ? "Edit Trigger" : "Create Trigger")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Trigger Detail</h3>
+    </div>
+    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+      <DataAnnotationsValidator />
+      <div class="card-body">
+        <SubmitErrorModal Display="@IsError" />
+        <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">ID</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Trigger.Id</div>
+            </div>
+          </div>
+        }
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="Name">Name</label>
+          <div class="col">
+            <InputText id="Name" @bind-Value="Trigger.Name" type="text" class="form-control"
+              placeholder="Your trigger name" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Trigger.Name)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="URL">URL</label>
+          <div class="col">
+            <InputText id="URL" @bind-Value="Trigger.Url" type="text" class="form-control"
+              placeholder="The service URL being called" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Trigger.Url)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label" for="Body">Body</label>
+          <div class="col">
+            <InputTextArea id="Body" @bind-Value="Trigger.Body" class="form-control" rows="3"
+              placeholder="Request body (JSON format is recommended)"></InputTextArea>
+            <ValidationMessage class="invalid-feedback" For="@(() => Trigger.Body)" />
+          </div>
+        </div>
+        <div class="row">
+          <label class="col-3 col-form-label pt-0"></label>
+          <div class="col">
+            <label class="form-check">
+              <input class="form-check-input" type="checkbox" @bind="Trigger.ApiKeyRequired">
+              <span class="form-check-label">The API endpoint requires an API Key</span>
+            </label>
+          </div>
+        </div>
+        @if (Trigger.ApiKeyRequired)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required">Insert Loaction</label>
+            <div class="col">
+              <select class="form-select" value="@Trigger.ApiKeyInsertLocationId" @onchange="@((e) => HandleApiKeyInsertAt(e.Value ?? string.Empty))">
+                <option value="@((int)ApiKeyInsertLocation.Header)">Header</option>
+                <option value="@((int)ApiKeyInsertLocation.Body)">Body</option>
+              </select>
+              <small class="form-hint">
+                This indicates where to insert the API Key in the request.
+              </small>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label required" for="ApiKeyFieldName">
+              @(Trigger.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Header ? "Header Field Name" : "JSON Key Name")
+            </label>
+            <div class="col">
+              <InputText id="FieldName" @bind-Value="Trigger.ApiKeyFieldName" type="text" class="form-control"
+                placeholder="@(Trigger.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Header ? "e.g. X-API-Key" : "e.g. key")" />
+              <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyFieldName)" />
+            </div>
+            </div>
+            <div class="mb-3 row">
+            <label class="col-3 col-form-label required">API Key</label>
+            <div class="col">
+              <InputSelect id="ApiKeyId" class="form-control" @bind-Value="Trigger.ApiKeyId"
+                placeholder="Search the name of API Key">
+                @if (Trigger.ApiKeyName != null)
+                {
+                  <option value="@Trigger.ApiKeyId">@Trigger.ApiKeyName</option>
+                }
+              </InputSelect>
+              <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyId)" />
+            </div>
+          </div>
+        }
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Create Time</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Trigger.CreatedAt</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+          <label class="col-3 col-form-label">Last Update Time</label>
+          <div class="col">
+            <div class="col form-control-plaintext">@Trigger.UpdatedAt</div>
+          </div>
+        </div>
+        }
+      </div>
+      <div class="card-footer d-flex">
+        @if (Id != null)
+        {
+          <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            Delete
+          </a>
+        }
+        <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+      </div>
+    </EditForm>
+  </div>
+</PageBody>
+
+@if (Id != null)
+{
+  <DeleteEntryModal EntryName="Progress" OnDelete="HandleDelete" />
+}

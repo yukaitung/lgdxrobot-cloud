@@ -1,16 +1,16 @@
 using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.Blazor;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using LGDXRobot2Cloud.UI.Models;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface ITriggerService
 {
-  Task<(IEnumerable<TriggerBlazor>?, PaginationHelper?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<TriggerBlazor?> GetTriggerAsync(int triggerId);
-  Task<TriggerBlazor?> AddTriggerAsync(TriggerCreateDto trigger);
+  Task<(IEnumerable<Trigger>?, PaginationHelper?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<Trigger?> GetTriggerAsync(int triggerId);
+  Task<bool> AddTriggerAsync(TriggerCreateDto trigger);
   Task<bool> UpdateTriggerAsync(int triggerId, TriggerUpdateDto trigger);
   Task<bool> DeleteTriggerAsync(int triggerId);
   Task<string> SearchTriggersAsync(string name);
@@ -27,7 +27,7 @@ public class TriggerService : ITriggerService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<(IEnumerable<TriggerBlazor>?, PaginationHelper?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<Trigger>?, PaginationHelper?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"navigation/triggers?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/triggers?pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
@@ -35,7 +35,7 @@ public class TriggerService : ITriggerService
     {
       var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
       var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var triggers = await JsonSerializer.DeserializeAsync<IEnumerable<TriggerBlazor>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      var triggers = await JsonSerializer.DeserializeAsync<IEnumerable<Trigger>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
       return (triggers, PaginationHelper);
     }
     else
@@ -44,23 +44,18 @@ public class TriggerService : ITriggerService
     }
   }
 
-  public async Task<TriggerBlazor?> GetTriggerAsync(int triggerId)
+  public async Task<Trigger?> GetTriggerAsync(int triggerId)
   {
     var response = await _httpClient.GetAsync($"navigation/triggers/{triggerId}");
-    var trigger = await JsonSerializer.DeserializeAsync<TriggerBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+    var trigger = await JsonSerializer.DeserializeAsync<Trigger>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
     return trigger;
   }
 
-  public async Task<TriggerBlazor?> AddTriggerAsync(TriggerCreateDto trigger)
+  public async Task<bool> AddTriggerAsync(TriggerCreateDto trigger)
   {
     var triggerJson = new StringContent(JsonSerializer.Serialize(trigger), Encoding.UTF8, "application/json");
     var response = await _httpClient.PostAsync("navigation/triggers", triggerJson);
-    if (response.IsSuccessStatusCode)
-    {
-      return await JsonSerializer.DeserializeAsync<TriggerBlazor>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    }
-    else
-      return null;
+    return response.IsSuccessStatusCode;
   }
 
   public async Task<bool> UpdateTriggerAsync(int triggerId, TriggerUpdateDto trigger)
