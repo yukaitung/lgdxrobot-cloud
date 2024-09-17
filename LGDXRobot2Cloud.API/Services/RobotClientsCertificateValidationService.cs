@@ -12,9 +12,9 @@ public class RobotClientsCertificateValidationService(IRobotRepository robotRepo
     var robot = await _robotRepository.GetRobotSimpleAsync(robotId);
     if (robot == null)
       return false;
-    if (robot.CertificateThumbprint == clientCertificate.Thumbprint)
+    if (robot.Certificate.Thumbprint == clientCertificate.Thumbprint)
       return true;
-    if (robot.CertificateThumbprintBackup == clientCertificate.Thumbprint)
+    if (robot.Certificate.ThumbprintBackup == clientCertificate.Thumbprint)
       return true;
     return false;
   }

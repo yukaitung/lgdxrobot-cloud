@@ -25,17 +25,7 @@ public class Robot
 
   public bool IsProtectingHardwareSerialNumber { get; set; }
 
-  [MaxLength(40)]
-  public string CertificateThumbprint { get; set; } = null!;
-
-  [MaxLength(40)]
-  public string? CertificateThumbprintBackup { get; set; } = null!;
-
-  [Precision(0)]
-  public DateTime CertificateNotBefore { get; set; }
-
-  [Precision(0)]
-  public DateTime CertificateNotAfter { get; set; }
+  public RobotCertificate Certificate { get; set; } = null!;
 
   [ForeignKey("DefaultNodesCollectionId")]
   public NodesCollection? DefaultNodesCollection { get; set; }

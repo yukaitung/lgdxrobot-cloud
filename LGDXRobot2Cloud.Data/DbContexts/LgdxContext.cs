@@ -21,6 +21,7 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : DbContext(opti
   public DbSet<NodesCollection> NodesCollections { get; set; }
   public DbSet<NodesCollectionDetail> NodesCollectionsDetails { get; set; }
   public DbSet<Robot> Robots { get; set; }
+  public DbSet<RobotCertificate> RobotCertificates { get; set; }
   public DbSet<RobotSystemInfo> RobotSystemInfos { get; set; }
   public DbSet<RobotChassisInfo> RobotChassisInfos { get; set; }
 
@@ -60,6 +61,12 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : DbContext(opti
       .WithOne(e => e.Robot)
       .HasForeignKey<RobotChassisInfo>(e => e.RobotId)
       .IsRequired(false);
+    // One Robot has one RobotCertificate
+    modelBuilder.Entity<Robot>()
+      .HasOne(e => e.Certificate)
+      .WithOne(e => e.Robot)
+      .HasForeignKey<RobotCertificate>(e => e.RobotId)
+      .IsRequired();
     // One Flow has many FlowDetails
     modelBuilder.Entity<Flow>()
       .HasMany(e => e.FlowDetails)

@@ -111,6 +111,7 @@ builder.Services.AddScoped<IRobotChassisInfoRepository, RobotChassisInfoReposito
 
 // Setting Repositories
 builder.Services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
+builder.Services.AddScoped<IRobotCertificateRepository, RobotCertificateRepository>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

@@ -6,9 +6,5 @@ public class RobotCreateResponseDto
 
   public string Name { get; set; } = null!;
 
-  public string RootCertificate { get; set; } = null!;
-
-  public string RobotCertificatePrivateKey { get; set; } = null!;
-
-  public string RobotCertificatePublicKey { get; set; } = null!;
+  public RobotCertificateIssueDto Certificate { get; set; } = null!;
 }

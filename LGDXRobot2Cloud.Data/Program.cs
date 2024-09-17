@@ -13,7 +13,11 @@ builder.Services.AddDbContext<LgdxContext>(
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
 );
-builder.Services.AddHostedService<SqlScriptRunner>();
+
+bool runSql = bool.Parse(builder.Configuration["runSql"] ?? "false");
+if (runSql)
+    builder.Services.AddHostedService<SqlScriptRunner>();
 
 var app = builder.Build();
+
 app.Run();

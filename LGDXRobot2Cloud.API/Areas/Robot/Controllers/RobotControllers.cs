@@ -10,9 +10,8 @@ using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
+using LGDXRobot2Cloud.Data.Entities;
 
 namespace LGDXRobot2Cloud.API.Areas.Robot.Controllers;
 
@@ -24,22 +23,14 @@ public class RobotController(
   IMapper mapper,
   IOnlineRobotsService OnlineRobotsService,
   IOptionsSnapshot<LgdxRobot2Configuration> options,
-  IRobotRepository robotRepository) : ControllerBase
+  IRobotRepository robotRepository,
+  IRobotCertificateRepository robotCertificateRepository) : ControllerBase
 {
   private readonly IMapper _mapper = mapper;
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
   private readonly IRobotRepository _robotRepository = robotRepository;
+  private readonly IRobotCertificateRepository _robotCertificateRepository = robotCertificateRepository;
   private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = options.Value;
-
-  public record RobotCertificates 
-  {
-    required public string RootCertificate { get; set; }
-    required public string RobotCertificatePrivateKey { get; set; }
-    required public string RobotCertificatePublicKey { get; set; }
-    required public string RobotCertificateThumbprint { get; set; }
-    required public DateTime RobotCertificateNotBefore { get; set; }
-    required public DateTime RobotCertificateNotAfter { get; set; }
-  }
 
   private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
   {
@@ -54,29 +45,6 @@ public class RobotController(
       RobotClientsRobotStatus.Charging => RobotStatus.Charging,
       RobotClientsRobotStatus.Offline => RobotStatus.Offline,
       _ => RobotStatus.Offline,
-    };
-  }
-
-  private RobotCertificates GenerateRobotCertificate(Guid robotId)
-  {
-    X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
-    store.Open(OpenFlags.OpenExistingOnly);
-    X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobot2Configuration.RootCertificateSN);
-
-    var certificateNotBefore = DateTime.UtcNow;
-    var certificateNotAfter = DateTimeOffset.UtcNow.AddDays(_lgdxRobot2Configuration.RobotCertificateValidDay);
-
-    var rsa = RSA.Create();
-    var certificateRequest = new CertificateRequest("CN=LGDXRobot2 Robot Certificate for " + robotId.ToString() + ",OID.0.9.2342.19200300.100.1.1=" + robotId.ToString(), rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-    var certificate = certificateRequest.Create(rootCertificate, certificateNotBefore, certificateNotAfter, RandomNumberGenerator.GetBytes(20));
-
-    return new RobotCertificates {
-      RootCertificate = rootCertificate.ExportCertificatePem(),
-      RobotCertificatePrivateKey = new string(PemEncoding.Write("PRIVATE KEY", rsa.ExportPkcs8PrivateKey())),
-      RobotCertificatePublicKey = certificate.ExportCertificatePem(),
-      RobotCertificateThumbprint = certificate.Thumbprint,
-      RobotCertificateNotBefore = certificateNotBefore,
-      RobotCertificateNotAfter = certificateNotAfter.DateTime
     };
   }
 
@@ -131,19 +99,23 @@ public class RobotController(
   {
     var robotEntity = _mapper.Map<Entities.Robot>(robotDto);
     robotEntity.Id = Guid.NewGuid();
-    RobotCertificates certificates = GenerateRobotCertificate(robotEntity.Id);
-    robotEntity.CertificateThumbprint = certificates.RobotCertificateThumbprint;
-    robotEntity.CertificateNotBefore = certificates.RobotCertificateNotBefore;
-    robotEntity.CertificateNotAfter = certificates.RobotCertificateNotAfter;
+    CertificateDetail certificates = _robotCertificateRepository.GenerateRobotCertificate(robotEntity.Id);
+    robotEntity.Certificate = new RobotCertificate {
+      Thumbprint = certificates.RobotCertificateThumbprint,
+      NotBefore = certificates.RobotCertificateNotBefore,
+      NotAfter = certificates.RobotCertificateNotAfter
+    };
     await _robotRepository.AddRobotAsync(robotEntity);
     await _robotRepository.SaveChangesAsync();
     var response = new RobotCreateResponseDto
     {
       Id = robotEntity.Id,
       Name = robotEntity.Name,
-      RootCertificate = certificates.RootCertificate,
-      RobotCertificatePrivateKey = certificates.RobotCertificatePrivateKey,
-      RobotCertificatePublicKey = certificates.RobotCertificatePublicKey
+      Certificate = new RobotCertificateIssueDto {
+        RootCertificate = certificates.RootCertificate,
+        RobotCertificatePrivateKey = certificates.RobotCertificatePrivateKey,
+        RobotCertificatePublicKey = certificates.RobotCertificatePublicKey
+      }
     };
     return CreatedAtAction(nameof(CreateRobot), response);
   }
@@ -178,33 +150,6 @@ public class RobotController(
     robotEntity.UpdatedAt = DateTime.UtcNow;
     await _robotRepository.SaveChangesAsync();
     return NoContent();
-  }
-
-  [HttpPost("{id}/certificate")]
-  public async Task<ActionResult> RenewCertificate(Guid id, RobotRenewCertificateRenewDto dto)
-  {
-    var robotEntity = await _robotRepository.GetRobotAsync(id);
-    if (robotEntity == null)
-      return NotFound();
-    RobotCertificates certificates = GenerateRobotCertificate(robotEntity.Id);
-    if (dto.RevokeOldCertificate)
-      robotEntity.CertificateThumbprintBackup = null;
-    else
-      robotEntity.CertificateThumbprintBackup = robotEntity.CertificateThumbprint;
-    robotEntity.CertificateThumbprint = certificates.RobotCertificateThumbprint;
-    robotEntity.CertificateNotBefore = certificates.RobotCertificateNotBefore;
-    robotEntity.CertificateNotAfter = certificates.RobotCertificateNotAfter;
-    robotEntity.UpdatedAt = DateTime.UtcNow;
-    await _robotRepository.SaveChangesAsync();
-    var response = new RobotCreateResponseDto
-    {
-      Id = robotEntity.Id,
-      Name = robotEntity.Name,
-      RootCertificate = certificates.RootCertificate,
-      RobotCertificatePrivateKey = certificates.RobotCertificatePrivateKey,
-      RobotCertificatePublicKey = certificates.RobotCertificatePublicKey
-    };
-    return CreatedAtAction(nameof(CreateRobot), response);
   }
 
   [HttpDelete("{id}")]
