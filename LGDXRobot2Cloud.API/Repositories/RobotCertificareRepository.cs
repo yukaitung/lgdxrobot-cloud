@@ -24,6 +24,7 @@ public interface IRobotCertificateRepository
   CertificateDetail GenerateRobotCertificate(Guid robotId);
   Task<(IEnumerable<RobotCertificate>, PaginationHelper)> GetRobotCertificatesAsync(int pageNumber, int pageSize);
   Task<RobotCertificate?> GetRobotCertificateAsync(Guid robotCertificateId);
+  Task<RobotCertificate?> GetRobotCertificateFromRobotIdAsync(Guid robotId);
   Task AddRobotCertificateAsync(RobotCertificate robotCertificate);
   void DeleteRobotCertificateAsync(RobotCertificate robotCertificate);
   Task<bool> SaveChangesAsync();
@@ -75,6 +76,11 @@ public class RobotCertificateRepository(
   public async Task<RobotCertificate?> GetRobotCertificateAsync(Guid robotCertificateId)
   {
     return await _context.RobotCertificates.FirstOrDefaultAsync(a => a.Id == robotCertificateId);
+  }
+
+  public async Task<RobotCertificate?> GetRobotCertificateFromRobotIdAsync(Guid robotId)
+  {
+    return await _context.RobotCertificates.FirstOrDefaultAsync(a => a.RobotId == robotId);
   }
 
   public async Task AddRobotCertificateAsync(RobotCertificate robotCertificate)

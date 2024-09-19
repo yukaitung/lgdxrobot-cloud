@@ -20,7 +20,7 @@
     readonly>@RobotCertificates!.RobotCertificatePrivateKey</textarea>
   <div class="input-group mb-2">
     <input id="RobotPrivateKeyFileName" type="text" class="form-control" placeholder="File name for Robot Private Key"
-      value="@(RobotCertificates!.Name).key">
+      value="@(RobotCertificates!.RobotName).key">
     <button class="btn" type="button" onclick="downloadCertificate(1)">Download</button>
   </div>
 </div>
@@ -30,7 +30,7 @@
     readonly>@RobotCertificates!.RobotCertificatePublicKey</textarea>
   <div class="input-group mb-2">
     <input id="RobotPublicKeyFileName" type="text" class="form-control" placeholder="File name for Robot Public Key"
-      value="@(RobotCertificates!.Name).crt">
+      value="@(RobotCertificates!.RobotName).crt">
     <button class="btn" type="button" onclick="downloadCertificate(2)">Download</button>
   </div>
 </div>
@@ -68,5 +68,5 @@
 @code
 {
   [Parameter]
-  public RobotCreateResponseDto? RobotCertificates { get; set; }
+  public RobotCertificateIssueDto? RobotCertificates { get; set; }
 }

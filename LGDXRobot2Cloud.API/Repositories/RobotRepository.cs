@@ -42,6 +42,7 @@ public class RobotRepository(LgdxContext context) : IRobotRepository
   {
     return await _context.Robots.Where(r => r.Id == robotId)
       .Include(r => r.DefaultNodesCollection)
+      .Include(r => r.Certificate)
       .Include(r => r.RobotSystemInfo)
       .Include(r => r.RobotChassisInfo)
       .Include(r => r.AssignedTasks)

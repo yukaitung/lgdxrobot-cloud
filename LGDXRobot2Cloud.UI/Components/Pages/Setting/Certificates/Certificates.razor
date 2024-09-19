@@ -1,0 +1,17 @@
+@attribute [Route(AppRoutes.Setting.Certificates.Index)]
+@using LGDXRobot2Cloud.UI.Components.Pages.Setting.Certificates.Components
+@rendermode InteractiveServer
+
+<PageHeader Title="Robot Certificates">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Robot Certificates
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <CertificatesTable />
+</PageBody>

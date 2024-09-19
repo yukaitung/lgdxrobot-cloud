@@ -25,6 +25,7 @@ builder.Services.AddHttpClient<IRobotService, RobotService>(configureAction);
 
 // Setting
 builder.Services.AddHttpClient<IApiKeyService, ApiKeyService>(configureAction);
+builder.Services.AddHttpClient<IRobotCertificateService, RobotCertificateService>(configureAction);
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

@@ -73,5 +73,12 @@ public static class AppRoutes
       public const string Detail = "/setting/apikeys/{Id:int}";
       public const string SecretDetail = "/setting/apikeys/{Id:int}/secret";
     }
+
+    public static class Certificates
+    {
+      public const string Index = "/setting/certificates";
+      public const string Detail = "/setting/certificates/{Id}";
+      public const string Renew = "/setting/certificates/{Id}/renew";
+    }
   }
 }

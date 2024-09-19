@@ -7,30 +7,39 @@
       <tbody>
         <tr>
           <td>Thumbprint</td>
-          <td>@(Robot != null ? Robot.CertificateThumbprint : "-")</td>
+          <td>@(RobotCertificate != null ? RobotCertificate.Thumbprint : "-")</td>
         </tr>
         <tr>
           <td>Valid Start</td>
-          <td>@(Robot != null ? Robot.CertificateNotBefore : "-")</td>
+          <td>@(RobotCertificate != null ? RobotCertificate.NotBefore : "-")</td>
         </tr>
         <tr>
           <td>Valid Till</td>
-          <td>@(Robot != null ? Robot.CertificateNotAfter : "-")</td>
+          <td>@(RobotCertificate != null ? RobotCertificate.NotAfter : "-")</td>
         </tr>
         <tr>
           <td>Backup Thumbprint</td>
-          <td>@(Robot?.CertificateThumbprintBackup != null ? Robot.CertificateThumbprintBackup : "-")</td>
+          <td>@(RobotCertificate?.ThumbprintBackup != null ? RobotCertificate.ThumbprintBackup : "-")</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <div class="card-footer d-flex">
-    <a class="btn btn-primary ms-auto">Review Certificate</a>
-  </div>
+  @if (RobotCertificate != null)
+  {
+    <div class="card-footer d-flex">
+      <a href="@(AppRoutes.Setting.Certificates.Index + $"/{@RobotCertificate.Id}/renew?return={NavigationManager.ToBaseRelativePath(NavigationManager.Uri)}")" class="btn btn-primary">
+        Renew Certificate
+      </a>
+    </div>
+  }
+  
 </div>
 
 @code
 {
+  [Inject]
+  public required NavigationManager NavigationManager { get; set; } = default!;
+
   [Parameter]
-  public Models.Robot? Robot { get; set; }
+  public Models.RobotCertificate? RobotCertificate { get; set; }
 }

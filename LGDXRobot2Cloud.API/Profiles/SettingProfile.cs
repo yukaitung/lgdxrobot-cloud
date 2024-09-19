@@ -14,6 +14,7 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Models.Responses.ApiKeySecretDto, Entities.ApiKey>();
       CreateMap<Entities.ApiKey, Models.Responses.ApiKeySecretDto>();
 
+      CreateMap<Entities.RobotCertificate, Models.Responses.RobotCertificateListDto>();
       CreateMap<Entities.RobotCertificate, Models.Responses.RobotCertificateDto>();
     }
   }

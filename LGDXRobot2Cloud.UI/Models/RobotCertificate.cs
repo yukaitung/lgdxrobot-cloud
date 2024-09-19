@@ -1,6 +1,6 @@
-namespace LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+namespace LGDXRobot2Cloud.UI.Models;
 
-public class RobotCertificateDto
+public class RobotCertificate
 {
   public Guid Id { get; set; }
 

@@ -107,15 +107,13 @@ public class RobotController(
     };
     await _robotRepository.AddRobotAsync(robotEntity);
     await _robotRepository.SaveChangesAsync();
-    var response = new RobotCreateResponseDto
+    var response = new RobotCertificateIssueDto
     {
-      Id = robotEntity.Id,
-      Name = robotEntity.Name,
-      Certificate = new RobotCertificateIssueDto {
-        RootCertificate = certificates.RootCertificate,
-        RobotCertificatePrivateKey = certificates.RobotCertificatePrivateKey,
-        RobotCertificatePublicKey = certificates.RobotCertificatePublicKey
-      }
+      RobotId = robotEntity.Id,
+      RobotName = robotEntity.Name,
+      RootCertificate = certificates.RootCertificate,
+      RobotCertificatePrivateKey = certificates.RobotCertificatePrivateKey,
+      RobotCertificatePublicKey = certificates.RobotCertificatePublicKey
     };
     return CreatedAtAction(nameof(CreateRobot), response);
   }

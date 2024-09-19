@@ -3,18 +3,18 @@ using LGDXRobot2Cloud.API.Repositories;
 
 namespace LGDXRobot2Cloud.API.Services;
 
-public class RobotClientsCertificateValidationService(IRobotRepository robotRepository)
+public class RobotClientsCertificateValidationService(IRobotCertificateRepository robotCertificateRepository)
 {
-  private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
+  private readonly IRobotCertificateRepository _robotCertificateRepository = robotCertificateRepository;
 
   public async Task<bool> ValidateRobotClientsCertificate(X509Certificate2 clientCertificate, Guid robotId)
   {
-    var robot = await _robotRepository.GetRobotSimpleAsync(robotId);
-    if (robot == null)
+    var certificate = await _robotCertificateRepository.GetRobotCertificateFromRobotIdAsync(robotId);
+    if (certificate == null)
       return false;
-    if (robot.Certificate.Thumbprint == clientCertificate.Thumbprint)
+    if (certificate.Thumbprint == clientCertificate.Thumbprint)
       return true;
-    if (robot.Certificate.ThumbprintBackup == clientCertificate.Thumbprint)
+    if (certificate.ThumbprintBackup == clientCertificate.Thumbprint)
       return true;
     return false;
   }

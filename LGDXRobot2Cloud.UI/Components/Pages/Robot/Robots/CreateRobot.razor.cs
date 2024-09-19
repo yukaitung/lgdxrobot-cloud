@@ -22,7 +22,7 @@ public sealed partial class CreateRobot
   public required IMapper Mapper { get; set; }
 
   private Model.Robot Robot { get; set; } = null!;
-  private RobotCreateResponseDto? RobotCertificates { get; set; }
+  private RobotCertificateIssueDto? RobotCertificates { get; set; }
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
   private bool IsError { get; set; } = false;

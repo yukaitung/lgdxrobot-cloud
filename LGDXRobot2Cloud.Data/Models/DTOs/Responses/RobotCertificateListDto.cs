@@ -1,12 +1,8 @@
 namespace LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 
-public class RobotCertificateDto
+public class RobotCertificateListDto
 {
   public Guid Id { get; set; }
-
-  public Guid? RobotId { get; set; }
-
-  public string? RobotName { get; set; } = null!;
   
   public string Thumbprint { get; set; } = null!;
 
@@ -15,8 +11,4 @@ public class RobotCertificateDto
   public DateTime NotBefore { get; set; }
 
   public DateTime NotAfter { get; set; }
-
-  public DateTime CreatedAt { get; set; }
-
-  public DateTime UpdatedAt { get; set; }
 }

@@ -13,10 +13,7 @@ public class RobotDto
   public bool IsPauseTaskAssigement { get; set; }
   public bool IsRealtimeExchange { get; set; }
   public bool IsProtectingHardwareSerialNumber { get; set; }
-  public string CertificateThumbprint { get; set; } = null!;
-  public string? CertificateThumbprintBackup { get; set; } = null!;
-  public DateTime CertificateNotBefore { get; set; }
-  public DateTime CertificateNotAfter { get; set; }
+  public RobotCertificateDto Certificate { get; set; } = null!;
   public NodesCollectionListDto? DefaultNodesCollection { get; set; }
   public RobotSystemInfoDto? RobotSystemInfo { get; set; }
   public RobotChassisInfoDto? RobotChassisInfo { get; set; }
