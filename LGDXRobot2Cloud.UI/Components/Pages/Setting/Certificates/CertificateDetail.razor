@@ -82,7 +82,7 @@
             </div>
           </div>
           <div class="card-footer d-flex">
-            <a href="@(AppRoutes.Setting.Certificates.Index + $"/{@RobotCertificate.Id}/renew?return={NavigationManager.ToBaseRelativePath(NavigationManager.Uri)}")" class="btn btn-primary">
+            <a href="@(AppRoutes.Setting.Certificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
               Renew Certificate
             </a>
           </div>

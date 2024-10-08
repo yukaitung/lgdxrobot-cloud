@@ -1,3 +1,5 @@
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+
 <div class="card">
   <div class="card-header">
     <h3 class="card-title">Certificate Detail</h3>
@@ -27,7 +29,7 @@
   @if (RobotCertificate != null)
   {
     <div class="card-footer d-flex">
-      <a href="@(AppRoutes.Setting.Certificates.Index + $"/{@RobotCertificate.Id}/renew?return={NavigationManager.ToBaseRelativePath(NavigationManager.Uri)}")" class="btn btn-primary">
+      <a href="@(AppRoutes.Setting.Certificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
         Renew Certificate
       </a>
     </div>
@@ -40,6 +42,22 @@
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
+  [Inject]
+  public ProtectedSessionStorage ProtectedSessionStorage { get; set; } = default!;
+
   [Parameter]
   public Models.RobotCertificate? RobotCertificate { get; set; }
+
+  string RedirectUrl { get; set; } = string.Empty;
+
+  public async Task SetRedirectUrl()
+  {
+    await ProtectedSessionStorage.SetAsync("redirectUrl", RedirectUrl);
+  }
+
+  protected override Task OnInitializedAsync()
+  {
+    RedirectUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+    return base.OnInitializedAsync();
+  }
 }

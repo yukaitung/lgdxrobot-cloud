@@ -1,9 +1,10 @@
 using AutoMapper;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
-using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
-using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Setting.Certificates;
 
@@ -14,6 +15,9 @@ public sealed partial class CertificateRenew
 
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
+
+  [Inject]
+  public ProtectedSessionStorage ProtectedSessionStorage { get; set; } = default!;
 
   [Inject]
   public required IMapper Mapper { get; set; }
@@ -50,21 +54,9 @@ public sealed partial class CertificateRenew
     }
     else 
     {
-      NavigationManager.NavigateTo(ReturnPath);
+      var redirect = await ProtectedSessionStorage.GetAsync<string>("redirectUrl");
+      string uri = redirect.Value ?? AppRoutes.Setting.Certificates.Index;
+      NavigationManager.NavigateTo(uri);
     }
-  }
-
-  public override async Task SetParametersAsync(ParameterView parameters)
-  {
-    parameters.SetParameterProperties(this);
-    if (parameters.TryGetValue<string?>(nameof(Id), out var _id))
-    {
-      var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-      if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("Return", out var param))
-      {
-        ReturnPath = param[0] ?? string.Empty;
-      }
-    }
-    await base.SetParametersAsync(ParameterView.Empty);
   }
 }
