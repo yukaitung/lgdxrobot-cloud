@@ -19,4 +19,6 @@ public class RobotSystemInfoDto
   public string Os { get; set; } = null!;
 
   public bool Is32Bit { get; set; }
+
+  public string McuSerialNumber { get; set; } = null!;
 }

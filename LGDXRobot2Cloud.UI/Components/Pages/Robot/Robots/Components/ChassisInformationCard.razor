@@ -7,10 +7,7 @@
   <div class="table-responsive">
     <table class="table card-table table-vcenter text-nowrap datatable">
       <tbody>
-        <tr>
-          <td>MCU Serial Number</td>
-          <td>@(RobotChassisInfo != null ? RobotChassisInfo.McuSerialNumber : "-")</td>
-        </tr>
+        
         <tr>
           <td>Chassis LX</td>
           <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisLX + " m" : "-")</td>
@@ -24,7 +21,7 @@
           <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisWheelCount : "-")</td>
         </tr>
         <tr>
-          <td>Chassis Radius</td>
+          <td>Chassis Wheel Radius</td>
           <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisWheelRadius + " m" : "-")</td>
         </tr>
         <tr>
@@ -36,7 +33,7 @@
           <td>@(RobotChassisInfo != null ? RobotChassisInfo.BatteryMaxVoltage + " V" : "-")</td>
         </tr>
         <tr>
-          <td>Battert Maximun Voltage</td>
+          <td>Battery Maximun Voltage</td>
           <td>@(RobotChassisInfo != null ? RobotChassisInfo.BatteryMinVoltage + " V" : "-")</td>
         </tr>
         <tr>

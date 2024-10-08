@@ -3,13 +3,13 @@ public class RobotChassisInfoDto
 {
   public int Id { get; set; }
 
-  public string McuSerialNumber { get; set; } = null!;
-
   public int RobotTypeId { get; set; }
 
   public double ChassisLX { get; set; }
 
   public double ChassisLY { get; set; }
+
+  public double ChassisLR { get; set; }
 
   public int ChassisWheelCount { get; set; }
 

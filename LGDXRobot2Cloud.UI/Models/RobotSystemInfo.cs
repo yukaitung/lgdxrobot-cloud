@@ -20,6 +20,8 @@ public class RobotSystemInfo
 
   public bool Is32Bit { get; set; }
 
+  public string McuSerialNumber { get; set; } = null!;
+
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
   
   public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

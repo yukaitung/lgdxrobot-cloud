@@ -32,6 +32,9 @@ public class RobotSystemInfo
 
   public bool Is32Bit { get; set; }
 
+  [MaxLength(100)]
+  public string McuSerialNumber { get; set; } = null!;
+
   [ForeignKey("RobotId")]
   public Robot Robot { get; set; } = null!;
 

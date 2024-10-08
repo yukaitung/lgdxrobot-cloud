@@ -4,8 +4,6 @@ public class RobotChassisInfo
 {
   public int Id { get; set; }
 
-  public string McuSerialNumber { get; set; } = null!;
-
   public double ChassisLX { get; set; }
 
   public double ChassisLY { get; set; }

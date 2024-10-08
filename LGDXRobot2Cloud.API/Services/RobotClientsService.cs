@@ -149,7 +149,8 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
       RamMiB =  request.SystemInfo.RamMiB,
       Gpu =  request.SystemInfo.Gpu,
       Os =  request.SystemInfo.Os,
-      Is32Bit =  request.SystemInfo.Is32Bit,
+      Is32Bit = request.SystemInfo.Is32Bit,
+      McuSerialNumber = request.SystemInfo.McuSerialNumber,
       RobotId = (Guid)robotId
     };
     var systemInfoEntity = await _robotSystemInfoRepository.GetRobotSystemInfoAsync((Guid)robotId);
@@ -162,7 +163,15 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
       {
         return new RobotClientsGreetRespond {
           Status = RobotClientsResultStatus.Failed,
-          Message = "Motherboard serial number is mismatched.",
+          Message = "Motherboard serial number is mismatch.",
+          AccessToken = string.Empty
+        };
+      }
+      if (robot.IsProtectingHardwareSerialNumber && incomingSystemInfoEntity.McuSerialNumber != systemInfoEntity.McuSerialNumber)
+      {
+        return new RobotClientsGreetRespond {
+          Status = RobotClientsResultStatus.Failed,
+          Message = "MCU serial number is mismatch.",
           AccessToken = string.Empty
         };
       }
@@ -171,7 +180,6 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
     await _robotSystemInfoRepository.SaveChangesAsync();
 
     var incomingChassisInfoEntity = new RobotChassisInfo {
-      McuSerialNumber = request.ChassisInfo.McuSerialNumber,
       ChassisLX = request.ChassisInfo.ChassisLX,
       ChassisLY = request.ChassisInfo.ChassisLY,
       ChassisWheelCount = request.ChassisInfo.ChassisWheelCount,
@@ -186,15 +194,6 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
       await _robotChassisInfoRepository.AddChassisInfoAsync(incomingChassisInfoEntity);
     else 
     {
-      // Hardware Protection
-      if (robot.IsProtectingHardwareSerialNumber && incomingChassisInfoEntity.McuSerialNumber != chassisInfoEntity.McuSerialNumber)
-      {
-        return new RobotClientsGreetRespond {
-          Status = RobotClientsResultStatus.Failed,
-          Message = "MCU serial number is mismatched.",
-          AccessToken = string.Empty
-        };
-      }
       _mapper.Map(incomingChassisInfoEntity, chassisInfoEntity);
     }
     await _robotChassisInfoRepository.SaveChangesAsync();
