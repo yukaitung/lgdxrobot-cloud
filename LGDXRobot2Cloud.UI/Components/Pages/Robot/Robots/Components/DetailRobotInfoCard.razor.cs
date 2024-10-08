@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components;
 
-public sealed partial class RobotInformationCard
+public sealed partial class DetailRobotInfoCard
 {
   [Inject]
   public required IRobotService RobotService { get; set; }

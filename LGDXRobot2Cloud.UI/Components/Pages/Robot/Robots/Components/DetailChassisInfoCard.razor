@@ -1,12 +1,12 @@
 <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">Robot Information</h3>
-    </div>
-    <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit">
+  <div class="card-header">
+    <h3 class="card-title">Chassis Information</h3>
+  </div>
+  <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <div class="card-body">
       <SubmitErrorModal Display="@IsError" />
-      <RobotInfoForm Robot="@Robot"/>
+      <RobotChassisInfoForm RobotChassisInfo="@RobotChassisInfo"/>
     </div>
     <div class="card-footer d-flex">
       <button type="submit" class="btn btn-primary ms-auto">Update</button>

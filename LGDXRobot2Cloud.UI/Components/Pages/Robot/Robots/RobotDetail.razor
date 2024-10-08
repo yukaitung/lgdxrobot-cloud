@@ -48,36 +48,59 @@
 <PageBody>
   <div class="row row-cards">
     <div class="col-8">
-      <TasksTable TasksList="@Robot?.AssignedTasks" />
+      <DetailTasksCard TasksList="@Robot?.AssignedTasks" />
     </div>
     <div class="col-4">
-      <RobotDataTable />
+      <DetailRobotDataCard />
     </div>
     <div class="col-12">
-      <RobotInformationCard Robot="@Robot" />
-    </div>
-    <div class="col-6">
-      <SystemInformationCard RobotSystemInfo="@Robot?.RobotSystemInfo" />
-    </div>
-    <div class="col-6">
-      <ChassisInformationCard RobotChassisInfo="@Robot?.RobotChassisInfo" />
-    </div>
-    <div class="col-12">
-      <RobotCertificateCard RobotCertificate="@Robot?.Certificate" />
-    </div>
-    <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Delete Robot</h3>
+      <ul class="nav nav-bordered mb-4">
+        @for (int i = 0; i < Tabs.Count; i++)
+        {
+          var index = i;
+          <li class="nav-item">
+            @if (@CurrentTab == i) 
+            {
+              <button class="nav-link active">@Tabs[i]</button>
+            }
+            else 
+            {
+              <button class="nav-link" @onclick="@(e => HandleTabChange(index))">@Tabs[i]</button>
+            }
+          </li>
+        }
+      </ul>
+      @if (CurrentTab == 0)
+      {
+        <DetailRobotInfoCard Robot="@Robot" />
+      }
+      else if (CurrentTab == 1)
+      {
+        <DetailSystemInfoCard RobotSystemInfo="@Robot?.RobotSystemInfo" />
+      }
+      else if (CurrentTab == 2)
+      {
+        <DetailChassisInfoCard RobotChassisInfo="@Robot?.RobotChassisInfo" />
+      }
+      else if (CurrentTab == 3)
+      {
+        <DetailRobotCertificateCard RobotCertificate="@Robot?.Certificate" />
+      }
+      else if (CurrentTab == 4)
+      {
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Delete Robot</h3>
+          </div>
+          <div class="card-body">
+            <button type="button" class="btn btn-danger d-none d-sm-inline-block ms-auto" data-bs-toggle="modal"
+              data-bs-target="#deleteModal">
+              Delete Robot
+            </button>
+          </div>
+          <DeleteEntryModal EntryName="Robot" OnDelete="HandleDelete" />
         </div>
-        <div class="card-body">
-          <button type="button" class="btn btn-danger d-none d-sm-inline-block ms-auto" data-bs-toggle="modal"
-            data-bs-target="#deleteModal">
-            Delete Robot
-          </button>
-        </div>
-        <DeleteEntryModal EntryName="Robot" OnDelete="HandleDelete" />
-      </div>
+      }
     </div>
   </div>
 </PageBody>

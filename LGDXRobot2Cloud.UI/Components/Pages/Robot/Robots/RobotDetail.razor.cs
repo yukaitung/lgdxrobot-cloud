@@ -16,6 +16,14 @@ public sealed partial class RobotDetail
 
   private Models.Robot? Robot { get; set; }
 
+  private int CurrentTab { get; set; } = 0;
+  private readonly List<string> Tabs = ["Robot", "System", "Chassis", "Certificate", "Delete Robot"];
+
+  public void HandleTabChange(int index)
+  {
+    CurrentTab = index;
+  }
+
   public async Task HandleDelete()
   {
     var success = await RobotService.DeleteRobotAsync(Robot!.Id.ToString());

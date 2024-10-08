@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components;
 
-public partial class TasksTable
+public partial class DetailTasksCard
 {
   [Parameter]
   public ICollection<AutoTask>? TasksList { get; set; }
