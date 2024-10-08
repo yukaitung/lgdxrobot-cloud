@@ -1,4 +1,5 @@
 using AutoMapper;
+using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
@@ -16,6 +17,9 @@ public sealed partial class DetailChassisInfoCard
   public required IMapper Mapper { get; set; }
 
   [Parameter]
+  public Models.Robot? Robot { get; set; }
+
+  [Parameter]
   public RobotChassisInfo? RobotChassisInfo { get; set; }
 
   private bool IsError { get; set; } = false;
@@ -25,9 +29,9 @@ public sealed partial class DetailChassisInfoCard
 
   public async Task HandleValidSubmit()
   {
-    //bool success = await RobotService.UpdateRobotInformationAsync(Robot!.Id.ToString(), Mapper.Map<RobotUpdateDto>(Robot));
-    //if (!success)
-    //  IsError = true;
+    bool success = await RobotService.UpdateRobotChassisInfoAsync(Robot!.Id.ToString(), Mapper.Map<RobotChassisInfoUpdateDto>(RobotChassisInfo));
+    if (!success)
+      IsError = true;
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)

@@ -44,7 +44,7 @@ public sealed partial class CreateRobot
     {
       RobotCreateDto robot = new() {
         RobotInfo = Mapper.Map<RobotCreateInfoDto>(Robot),
-        RobotChassisInfo = Mapper.Map<RobotCreateChassisInfo>(RobotChassisInfo)
+        RobotChassisInfo = Mapper.Map<RobotCreateChassisInfoDto>(RobotChassisInfo)
       };
       var success = await RobotService.AddRobotAsync(robot);
       if (success != null)

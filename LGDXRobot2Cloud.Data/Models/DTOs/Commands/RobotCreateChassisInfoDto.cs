@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 
-public class RobotCreateChassisInfo
+public class RobotCreateChassisInfoDto
 {
   [Required]
   public int RobotTypeId { get; set; }

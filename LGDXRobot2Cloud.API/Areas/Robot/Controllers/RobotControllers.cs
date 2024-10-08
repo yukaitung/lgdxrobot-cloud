@@ -24,12 +24,14 @@ public class RobotController(
   IOnlineRobotsService OnlineRobotsService,
   IOptionsSnapshot<LgdxRobot2Configuration> options,
   IRobotRepository robotRepository,
-  IRobotCertificateRepository robotCertificateRepository) : ControllerBase
+  IRobotCertificateRepository robotCertificateRepository,
+  IRobotChassisInfoRepository robotChassisInfoRepository) : ControllerBase
 {
   private readonly IMapper _mapper = mapper;
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
   private readonly IRobotRepository _robotRepository = robotRepository;
   private readonly IRobotCertificateRepository _robotCertificateRepository = robotCertificateRepository;
+  private readonly IRobotChassisInfoRepository _robotChassisInfoRepository = robotChassisInfoRepository;
   private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = options.Value;
 
   private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
@@ -120,7 +122,7 @@ public class RobotController(
     return CreatedAtAction(nameof(CreateRobot), response);
   }
 
-  [HttpPost("{id}/emergencystop")]
+  [HttpPatch("{id}/emergencystop")]
   public ActionResult UpdateSoftwareEmergencyStop(Guid id, EnableDto data)
   {
     if (_onlineRobotsService.UpdateSoftwareEmergencyStop(id, data.Enable))
@@ -130,7 +132,7 @@ public class RobotController(
     return BadRequest("Robot is offline or not found.");
   }
 
-  [HttpPost("{id}/pausetaskassigement")]
+  [HttpPatch("{id}/pausetaskassigement")]
   public ActionResult UpdatePauseTaskAssigement(Guid id, EnableDto data)
   {
     if (_onlineRobotsService.UpdatePauseTaskAssigement(id, data.Enable))
@@ -140,7 +142,7 @@ public class RobotController(
     return BadRequest("Robot is offline or not found.");
   }
 
-  [HttpPost("{id}/information")]
+  [HttpPut("{id}/information")]
   public async Task<ActionResult> UpdateRobot(Guid id, RobotUpdateDto robotDto)
   {
     var robotEntity = await _robotRepository.GetRobotAsync(id);
@@ -149,6 +151,17 @@ public class RobotController(
     _mapper.Map(robotDto, robotEntity);
     robotEntity.UpdatedAt = DateTime.UtcNow;
     await _robotRepository.SaveChangesAsync();
+    return NoContent();
+  }
+
+  [HttpPut("{id}/chassis")]
+  public async Task<ActionResult> UpdateRobotChassisInfo(Guid id, RobotChassisInfoUpdateDto robotChassisInfoDto)
+  {
+    var robotChassisInfoEntity = await _robotChassisInfoRepository.GetChassisInfoAsync(id);
+    if (robotChassisInfoEntity == null)
+      return NotFound();
+    _mapper.Map(robotChassisInfoDto, robotChassisInfoEntity);
+    await _robotChassisInfoRepository.SaveChangesAsync();
     return NoContent();
   }
 

@@ -16,7 +16,7 @@ public interface IRobotService
   Task<bool> UpdateSoftwareEmergencyStop(string robotId, bool enable);
   Task<bool> UpdatePauseTaskAssigement(string robotId, bool enable);
   Task<bool> UpdateRobotInformationAsync(string robotId, RobotUpdateDto robot);
-  //Task<RobotCertificateIssueDto?> RenewRobotCertificateAsync(string robotId, RobotRenewCertificateRenewDto dto);
+  Task<bool> UpdateRobotChassisInfoAsync(string robotId, RobotChassisInfoUpdateDto robot);
   Task<bool> DeleteRobotAsync(string robotId);
   Task<string> SearchRobotsAsync(string name);
 }
@@ -72,7 +72,7 @@ public sealed class RobotService : IRobotService
   {
     EnableDto data = new() { Enable = enable };
     var dataJson = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync($"robot/{robotId}/emergencystop", dataJson);
+    var response = await _httpClient.PatchAsync($"robot/{robotId}/emergencystop", dataJson);
     return response.IsSuccessStatusCode;
   }
 
@@ -80,28 +80,23 @@ public sealed class RobotService : IRobotService
   {
     EnableDto data = new() { Enable = enable };
     var dataJson = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync($"robot/{robotId}/pausetaskassigement", dataJson);
+    var response = await _httpClient.PatchAsync($"robot/{robotId}/pausetaskassigement", dataJson);
     return response.IsSuccessStatusCode;
   }
 
   public async Task<bool> UpdateRobotInformationAsync(string robotId, RobotUpdateDto robot)
   {
     var robotJson = new StringContent(JsonSerializer.Serialize(robot), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync($"robot/{robotId}/information", robotJson);
+    var response = await _httpClient.PutAsync($"robot/{robotId}/information", robotJson);
     return response.IsSuccessStatusCode;
   }
 
-  /*public async Task<RobotCreateResponseDto?> RenewRobotCertificateAsync(string robotId, RobotRenewCertificateRenewDto dto)
+  public async Task<bool> UpdateRobotChassisInfoAsync(string robotId, RobotChassisInfoUpdateDto robot)
   {
-    var json = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync($"robot/{robotId}/certificate", json);
-    if (response.IsSuccessStatusCode)
-    {
-      return await JsonSerializer.DeserializeAsync<RobotCreateResponseDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);;
-    }
-    else
-      return null;
-  }*/
+    var robotJson = new StringContent(JsonSerializer.Serialize(robot), Encoding.UTF8, "application/json");
+    var response = await _httpClient.PutAsync($"robot/{robotId}/chassis", robotJson);
+    return response.IsSuccessStatusCode;
+  }
 
   public async Task<bool> DeleteRobotAsync(string robotId)
   {

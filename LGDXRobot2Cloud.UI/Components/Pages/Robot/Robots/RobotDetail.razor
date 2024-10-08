@@ -48,7 +48,7 @@
 <PageBody>
   <div class="row row-cards">
     <div class="col-8">
-      <DetailTasksCard TasksList="@Robot?.AssignedTasks" />
+      <DetailTasksCard TasksList="Robot?.AssignedTasks" />
     </div>
     <div class="col-4">
       <DetailRobotDataCard />
@@ -72,19 +72,19 @@
       </ul>
       @if (CurrentTab == 0)
       {
-        <DetailRobotInfoCard Robot="@Robot" />
+        <DetailRobotInfoCard Robot="Robot" />
       }
       else if (CurrentTab == 1)
       {
-        <DetailSystemInfoCard RobotSystemInfo="@Robot?.RobotSystemInfo" />
+        <DetailSystemInfoCard RobotSystemInfo="Robot?.RobotSystemInfo" />
       }
       else if (CurrentTab == 2)
       {
-        <DetailChassisInfoCard RobotChassisInfo="@Robot?.RobotChassisInfo" />
+        <DetailChassisInfoCard  Robot="Robot" RobotChassisInfo="Robot?.RobotChassisInfo" />
       }
       else if (CurrentTab == 3)
       {
-        <DetailRobotCertificateCard RobotCertificate="@Robot?.Certificate" />
+        <DetailRobotCertificateCard RobotCertificate="Robot?.Certificate" />
       }
       else if (CurrentTab == 4)
       {
@@ -105,5 +105,5 @@
   </div>
 </PageBody>
 
-<PauseTaskAssigementModel Robot="@Robot" />
-<SoftwareEmergencyStopModel Robot="@Robot" />
+<PauseTaskAssigementModel Robot="Robot" />
+<SoftwareEmergencyStopModel Robot="Robot" />
