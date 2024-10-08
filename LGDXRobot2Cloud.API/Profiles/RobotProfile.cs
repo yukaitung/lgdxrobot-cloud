@@ -11,7 +11,8 @@ namespace LGDXRobot2Cloud.API.Profiles
       // Robot Management
       CreateMap<Entities.Robot, Models.Responses.RobotListDto>();
       CreateMap<Entities.Robot, Models.Responses.RobotDto>();
-      CreateMap<Models.Commands.RobotCreateDto, Entities.Robot>();
+      CreateMap<Models.Commands.RobotCreateInfoDto, Entities.Robot>();
+      CreateMap<Models.Commands.RobotCreateChassisInfo, Entities.RobotChassisInfo>();
       CreateMap<Models.Commands.RobotUpdateDto, Entities.Robot>();
       CreateMap<Entities.RobotSystemInfo, Models.Responses.RobotSystemInfoDto>();
       CreateMap<Entities.RobotChassisInfo, Models.Responses.RobotChassisInfoDto>();

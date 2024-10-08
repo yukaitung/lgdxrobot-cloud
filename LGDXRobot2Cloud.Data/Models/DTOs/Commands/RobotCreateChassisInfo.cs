@@ -1,11 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LGDXRobot2Cloud.UI.Models;
+namespace LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 
-public class RobotChassisInfo
+public class RobotCreateChassisInfo
 {
-  public int Id { get; set; }
-
   [Required]
   public int RobotTypeId { get; set; }
 
@@ -29,8 +27,4 @@ public class RobotChassisInfo
 
   [Required]
   public double BatteryMinVoltage { get; set; }
-
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
-  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

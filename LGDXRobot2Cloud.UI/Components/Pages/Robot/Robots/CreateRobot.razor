@@ -38,13 +38,17 @@
         <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
         @if (currentStep == 0)
         {
-          <RobotInfo Robot="Robot" />
+          <RobotInfoForm Robot="Robot" />
         }
-        else if (currentStep == 1)
+        @if (currentStep == 1)
+        {
+          <RobotChassisInfoForm RobotChassisInfo="RobotChassisInfo" />
+        }
+        else if (currentStep == 2)
         {
           <RobotCertificateKey RobotCertificates="RobotCertificates" />
         }
-        else if (currentStep == 2)
+        else if (currentStep == 3)
         {
           <div class="text-center py-4 d-flex-column">
             <div class="mb-4 row">

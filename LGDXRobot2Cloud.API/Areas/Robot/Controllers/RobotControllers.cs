@@ -97,7 +97,7 @@ public class RobotController(
   [HttpPost(Name = "CreateRobot")]
   public async Task<ActionResult> CreateRobot(RobotCreateDto robotDto)
   {
-    var robotEntity = _mapper.Map<Entities.Robot>(robotDto);
+    var robotEntity = _mapper.Map<Entities.Robot>(robotDto.RobotInfo);
     robotEntity.Id = Guid.NewGuid();
     CertificateDetail certificates = _robotCertificateRepository.GenerateRobotCertificate(robotEntity.Id);
     robotEntity.Certificate = new RobotCertificate {
@@ -105,6 +105,8 @@ public class RobotController(
       NotBefore = certificates.RobotCertificateNotBefore,
       NotAfter = certificates.RobotCertificateNotAfter
     };
+    var robotChassisInfoEntity = _mapper.Map<RobotChassisInfo>(robotDto.RobotChassisInfo);
+    robotEntity.RobotChassisInfo = robotChassisInfoEntity;
     await _robotRepository.AddRobotAsync(robotEntity);
     await _robotRepository.SaveChangesAsync();
     var response = new RobotCertificateIssueDto
