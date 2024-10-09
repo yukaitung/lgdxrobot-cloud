@@ -54,6 +54,17 @@
           </div>
         </div>
         <div class="mb-3 row">
+          <label class="col-3 col-form-label required">Method</label>
+          <div class="col">
+            <select class="form-select" value="@Trigger.HttpMethodId" @onchange="@((e) => HandleHttpMethod(e.Value ?? string.Empty))">
+              @foreach (TriggerHttpMethod method in Enum.GetValues(typeof(TriggerHttpMethod)))
+              {
+                <option value="@((int) method)">@(method.ToEnumMember())</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="mb-3 row">
           <label class="col-3 col-form-label" for="Body">Body</label>
           <div class="col">
             <InputTextArea id="Body" @bind-Value="Trigger.Body" class="form-control" rows="3"
@@ -76,8 +87,10 @@
             <label class="col-3 col-form-label required">Insert Loaction</label>
             <div class="col">
               <select class="form-select" value="@Trigger.ApiKeyInsertLocationId" @onchange="@((e) => HandleApiKeyInsertAt(e.Value ?? string.Empty))">
-                <option value="@((int)ApiKeyInsertLocation.Header)">Header</option>
-                <option value="@((int)ApiKeyInsertLocation.Body)">Body</option>
+                @foreach (ApiKeyInsertLocation location in Enum.GetValues(typeof(ApiKeyInsertLocation)))
+                {
+                  <option value="@((int) location)">@(location.ToEnumMember())</option>
+                }
               </select>
               <small class="form-hint">
                 This indicates where to insert the API Key in the request.

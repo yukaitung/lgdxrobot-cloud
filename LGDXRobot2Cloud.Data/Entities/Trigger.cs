@@ -19,6 +19,8 @@ public class Trigger
   [Required]
   public string Url { get; set; } = null!;
 
+  public int HttpMethodId { get; set; }
+
   public string? Body { get; set; }
 
   public int? ApiKeyInsertLocationId { get; set; }

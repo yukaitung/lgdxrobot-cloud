@@ -15,11 +15,13 @@ public class Trigger : IValidatableObject
   [MaxLength(200)]
   public string Url { get; set; } = null!;
 
+  public int HttpMethodId { get; set; } = 1;
+
   public string? Body { get; set; }
 
   public bool ApiKeyRequired { get; set; } = false;
 
-  public int? ApiKeyInsertLocationId { get; set; } = (int)ApiKeyInsertLocation.Header;
+  public int? ApiKeyInsertLocationId { get; set; } = 1;
 
   [MaxLength(50)]
   public string? ApiKeyFieldName { get; set; }
@@ -44,7 +46,6 @@ public class Trigger : IValidatableObject
         switch (ApiKeyInsertLocationId)
         {
           case (int)ApiKeyInsertLocation.Body:
-          case (int)ApiKeyInsertLocation.Query:
             yield return new ValidationResult("The key name is missing.", [nameof(ApiKeyFieldName)]);
             break;
           case (int)ApiKeyInsertLocation.Header:

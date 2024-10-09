@@ -7,7 +7,7 @@ public class RobotChassisInfo
   public int Id { get; set; }
 
   [Required]
-  public int RobotTypeId { get; set; }
+  public int LgdxRobotTypeId { get; set; } = 1;
 
   [Required]
   public double ChassisLX { get; set; }

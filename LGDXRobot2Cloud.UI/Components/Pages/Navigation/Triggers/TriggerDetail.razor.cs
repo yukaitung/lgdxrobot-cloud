@@ -39,6 +39,11 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
   private readonly string SelectId = "ApiKeyId";
 
   // Form
+  public void HandleHttpMethod(object args)
+  {
+    Trigger.HttpMethodId = int.Parse(args.ToString() ?? string.Empty);
+  }
+
   public void HandleApiKeyInsertAt(object args)
   {
     Trigger.ApiKeyInsertLocationId = int.Parse(args.ToString() ?? string.Empty);

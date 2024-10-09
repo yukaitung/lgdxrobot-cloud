@@ -1,14 +1,16 @@
-@using LGDXRobot2Cloud.UI.Models;
+@using LGDXRobot2Cloud.UI.Models
+@using LGDXRobot2Cloud.Utilities.Enums
 
 @if (RobotChassisInfo != null)
 {
   <div class="mb-3 row">
     <label class="col-3 col-form-label required">Robot Type</label>
     <div class="col">
-      <select class="form-select" value="@RobotChassisInfo.RobotTypeId" @onchange="@((e) => HandleRobotTypeId(e.Value ?? string.Empty))">
-        <option value="0">LGDXRobot2</option>
-        <option value="1">Virtual Robot</option>
-        <option value="2">Other</option>
+      <select class="form-select" value="@RobotChassisInfo.LgdxRobotTypeId" @onchange="@((e) => HandleLgdxRobotTypeId(e.Value ?? string.Empty))">
+        @foreach (LgdxRobotType robotType in Enum.GetValues(typeof(LgdxRobotType)))
+        {
+          <option value="@((int) robotType)">@(robotType.ToEnumMember())</option>
+        }
       </select>
     </div>
   </div>
@@ -68,8 +70,8 @@
   [Parameter]
   public RobotChassisInfo? RobotChassisInfo { get; set; }
 
-  public void HandleRobotTypeId(object args)
+  public void HandleLgdxRobotTypeId(object args)
   {
-    RobotChassisInfo!.RobotTypeId = int.Parse(args.ToString() ?? string.Empty);
+    RobotChassisInfo!.LgdxRobotTypeId = int.Parse(args.ToString() ?? string.Empty);
   }
 } 

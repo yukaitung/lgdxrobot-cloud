@@ -5,7 +5,7 @@ namespace LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 public class RobotChassisInfoUpdateDto
 {
   [Required]
-  public int RobotTypeId { get; set; }
+  public int LgdxRobotTypeId { get; set; }
 
   [Required]
   public double ChassisLX { get; set; }
