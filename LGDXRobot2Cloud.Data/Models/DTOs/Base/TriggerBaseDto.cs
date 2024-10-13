@@ -15,6 +15,8 @@ public class TriggerBaseDto
   public int HttpMethodId { get; set; }
 
   public string? Body { get; set; }
+
+  public bool SkipOnFailure { get; set; }
   
   public int? ApiKeyInsertLocationId { get; set; }
 

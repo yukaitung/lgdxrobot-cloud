@@ -7,6 +7,7 @@ public class TriggerDto
   public string Url { get; set; } = null!;
   public int HttpMethodId { get; set; }
   public string? Body { get; set; }
+  public bool SkipOnFailure { get; set; }
   public int? ApiKeyInsertLocationId { get; set; }
   public string? ApiKeyFieldName { get; set; }
   public ApiKeyDto? ApiKey { get; set; }

@@ -19,6 +19,8 @@ public class Trigger : IValidatableObject
 
   public string? Body { get; set; }
 
+  public bool SkipOnFailure { get; set; }
+
   public bool ApiKeyRequired { get; set; } = false;
 
   public int? ApiKeyInsertLocationId { get; set; } = 1;

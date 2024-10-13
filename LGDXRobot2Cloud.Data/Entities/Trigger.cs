@@ -23,6 +23,8 @@ public class Trigger
 
   public string? Body { get; set; }
 
+  public bool SkipOnFailure { get; set; }
+
   public int? ApiKeyInsertLocationId { get; set; }
 
   [MaxLength(50)]

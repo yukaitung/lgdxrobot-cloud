@@ -72,6 +72,15 @@
             <ValidationMessage class="invalid-feedback" For="@(() => Trigger.Body)" />
           </div>
         </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label pt-0" for="SkipOnFailure">Skip On Failure</label>
+          <div class="col">
+            <label class="form-check">
+              <InputCheckbox id="SkipOnFailure" class="form-check-input" @bind-Value="Trigger.SkipOnFailure"  />
+              <span class="form-check-label">Skip this trigger if API call failed after retry</span>
+            </label>
+          </div>
+        </div>
         <div class="row">
           <label class="col-3 col-form-label pt-0"></label>
           <div class="col">
