@@ -67,9 +67,16 @@
         <div class="mb-3 row">
           <label class="col-3 col-form-label" for="Body">Body</label>
           <div class="col">
+              @foreach (TriggerPresetValue preset in Enum.GetValues(typeof(TriggerPresetValue)))
+              {
+                <button class="btn btn-sm me-1 mb-2" type="button" onclick="AddTextInSelection(@("'((" + (int) preset + "))'"), document.getElementById('Body'))">@(preset.ToEnumMember())</button>
+              }
             <InputTextArea id="Body" @bind-Value="Trigger.Body" class="form-control" rows="3"
               placeholder="Request body (JSON format is recommended)"></InputTextArea>
             <ValidationMessage class="invalid-feedback" For="@(() => Trigger.Body)" />
+            <small class="form-hint">
+              Press buttons above for preset value, no quote is required for assign a preset value on value field.
+            </small>
           </div>
         </div>
         <div class="mb-3 row">
@@ -114,6 +121,12 @@
               <InputText id="FieldName" @bind-Value="Trigger.ApiKeyFieldName" type="text" class="form-control"
                 placeholder="@(Trigger.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Header ? "e.g. X-API-Key" : "e.g. key")" />
               <ValidationMessage class="invalid-feedback" For="@(() => Trigger.ApiKeyFieldName)" />
+              @if (Trigger.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Body)
+              {
+                <small class="form-hint">
+                  This will be ignored if the request body is not in JSON format.
+                </small>
+              }
             </div>
             </div>
             <div class="mb-3 row">

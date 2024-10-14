@@ -4,6 +4,11 @@ function CloseModal(modalId) {
   modal.hide();
 }
 
+function AddTextInSelection(newText, el = document.activeElement) {
+  const [start, end] = [el.selectionStart, el.selectionEnd];
+  el.setRangeText(newText, start, end, 'select');
+}
+
 /*
 .NET Methods
 */
