@@ -24,7 +24,8 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
   IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
   IRobotChassisInfoRepository robotChassisInfoRepository,
   IRobotRepository robotRepository,
-  IRobotSystemInfoRepository robotSystemInfoRepository) : RobotClientsServiceBase
+  IRobotSystemInfoRepository robotSystemInfoRepository,
+  ITriggerService triggerService) : RobotClientsServiceBase
 {
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService ?? throw new ArgumentNullException(nameof(OnlineRobotsService));
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
@@ -34,6 +35,7 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
   private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
   private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2SecretConfiguration));
+  private readonly ITriggerService _triggerService = triggerService;
 
   private static Guid? ValidateRobotClaim(ServerCallContext context)
   {
@@ -179,24 +181,14 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
     }
     await _robotSystemInfoRepository.SaveChangesAsync();
 
-    var incomingChassisInfoEntity = new RobotChassisInfo {
-      ChassisLX = request.ChassisInfo.ChassisLX,
-      ChassisLY = request.ChassisInfo.ChassisLY,
-      ChassisWheelCount = request.ChassisInfo.ChassisWheelCount,
-      ChassisWheelRadius = request.ChassisInfo.ChassisWheelRadius,
-      BatteryCount = request.ChassisInfo.BatteryCount,
-      BatteryMaxVoltage = request.ChassisInfo.BatteryMaxVoltage,
-      BatteryMinVoltage = request.ChassisInfo.BatteryMinVoltage,
-      RobotId = (Guid)robotId
-    };
-    var chassisInfoEntity = await _robotChassisInfoRepository.GetChassisInfoAsync((Guid)robotId);
-    if (chassisInfoEntity == null)
-      await _robotChassisInfoRepository.AddChassisInfoAsync(incomingChassisInfoEntity);
-    else 
-    {
-      _mapper.Map(incomingChassisInfoEntity, chassisInfoEntity);
+    var robotChassisInfo = await _robotChassisInfoRepository.GetChassisInfoAsync((Guid)robotId);
+    if (robotChassisInfo == null) {
+      return new RobotClientsGreetRespond {
+          Status = RobotClientsResultStatus.Failed,
+          Message = "Robot chassis information is missing.",
+          AccessToken = string.Empty
+        };
     }
-    await _robotChassisInfoRepository.SaveChangesAsync();
 
     var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobot2SecretConfiguration.RobotClientsJwtSecret));
     var credentials = new SigningCredentials(securityKey, _lgdxRobot2SecretConfiguration.RobotClientsJwtAlgorithm);
@@ -207,14 +199,23 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
       DateTime.UtcNow,
       DateTime.UtcNow.AddMinutes(_lgdxRobot2SecretConfiguration.RobotClientsJwtExpireMins),
       credentials);
-    var token =  new JwtSecurityTokenHandler().WriteToken(secToken);
+    var token = new JwtSecurityTokenHandler().WriteToken(secToken);
 
     _onlineRobotsService.AddRobot((Guid)robotId);
 
     return new RobotClientsGreetRespond {
       Status = RobotClientsResultStatus.Success,
       Message = string.Empty,
-      AccessToken = token
+      AccessToken = token,
+      ChassisInfo = new RobotClientsChassisInfo {
+        ChassisLX = robotChassisInfo.ChassisLX,
+        ChassisLY = robotChassisInfo.ChassisLY,
+        ChassisWheelCount = robotChassisInfo.ChassisWheelCount,
+        ChassisWheelRadius = robotChassisInfo.ChassisWheelRadius,
+        BatteryCount = robotChassisInfo.BatteryCount,
+        BatteryMaxVoltage = robotChassisInfo.BatteryMaxVoltage,
+        BatteryMinVoltage = robotChassisInfo.BatteryMinVoltage
+      }
     };
   }
 
@@ -232,6 +233,15 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
     if (request.RobotStatus == RobotClientsRobotStatus.Idle)
     {
       var task = await _autoTaskSchedulerService.GetAutoTask((Guid)robotId);
+
+      if (task != null) 
+      {
+        var flowDetail = await _triggerService.GetFlowDetailWithStartTriggerAsync(task.FlowId, (int) task.CurrentProgressOrder!);
+        if (flowDetail != null && flowDetail.StartTrigger != null) {
+          var success = _triggerService.TriggerApiAsync(flowDetail.StartTrigger, task);
+        }
+      }
+      
       var taskDetail = await GenerateTaskDetail(task);
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
@@ -259,6 +269,15 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
       return ValidateOnlineRobotsFailed();
 
     var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNext((Guid)robotId, request.TaskId, request.NextToken);
+
+    if (task != null) 
+    {
+      var flowDetail = await _triggerService.GetFlowDetailWithStartTriggerAsync(task.FlowId, (int) task.CurrentProgressOrder!);
+      if (flowDetail != null && flowDetail.StartTrigger != null) {
+        var success = _triggerService.TriggerApiAsync(flowDetail.StartTrigger, task);
+      }
+    }
+
     var taskDetail = await GenerateTaskDetail(task);
     return new RobotClientsRespond {
       Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,

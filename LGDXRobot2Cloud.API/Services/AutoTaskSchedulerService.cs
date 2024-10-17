@@ -22,7 +22,7 @@ namespace LGDXRobot2Cloud.API.Services
     private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
     private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
     private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
-    
+
     public void ClearIgnoreRobot()
     {
       _memoryCache.Remove("AutoTaskSchedulerService_IgnoreRobot");
