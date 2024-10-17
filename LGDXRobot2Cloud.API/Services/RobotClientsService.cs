@@ -17,27 +17,25 @@ using static LGDXRobot2Cloud.Protos.RobotClientsService;
 namespace LGDXRobot2Cloud.API.Services;
 
 [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme)]
-public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
-  IAutoTaskDetailRepository autoTaskDetailRepository,
+public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailRepository,
   IAutoTaskSchedulerService autoTaskSchedulerService,
   IMapper mapper,
+  IOnlineRobotsService OnlineRobotsService,
   IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
   IRobotChassisInfoRepository robotChassisInfoRepository,
   IRobotRepository robotRepository,
   IRobotSystemInfoRepository robotSystemInfoRepository,
-  ITriggerService triggerService,
-  IFlowDetailRepository flowDetailRepository) : RobotClientsServiceBase
+  IFlowTriggersService flowTriggersService) : RobotClientsServiceBase
 {
-  private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService ?? throw new ArgumentNullException(nameof(OnlineRobotsService));
-  private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
-  private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
-  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-  private readonly IRobotChassisInfoRepository _robotChassisInfoRepository = robotChassisInfoRepository ?? throw new ArgumentNullException(nameof(robotChassisInfoRepository));
-  private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
-  private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
-  private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2SecretConfiguration));
-  private readonly IFlowDetailRepository _flowDetailRepository = flowDetailRepository;
-  private readonly ITriggerService _triggerService = triggerService;
+  private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository;
+  private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService;
+  private readonly IMapper _mapper = mapper;
+  private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
+  private readonly IRobotChassisInfoRepository _robotChassisInfoRepository = robotChassisInfoRepository;
+  private readonly IRobotRepository _robotRepository = robotRepository;
+  private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository;
+  private readonly IFlowTriggersService _flowTriggersService = flowTriggersService;
+  private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value;
 
   private static Guid? ValidateRobotClaim(ServerCallContext context)
   {
@@ -71,7 +69,7 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
     };
   }
 
-  private async Task<RobotClientsAutoTask?> GenerateTaskDetail(AutoTask? task)
+  private async Task<RobotClientsAutoTask?> GenerateTaskDetail(AutoTask? task, FlowDetail? flowDetail)
   {
     if (task == null)
       return null;
@@ -93,13 +91,20 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
       }
     }
 
+    string nextToken = task.NextToken ?? string.Empty;
+    if (flowDetail?.AutoTaskNextControllerId != (int) AutoTaskNextController.Robot)
+    {
+      // API has the control
+      nextToken = string.Empty;
+    }
+
     return new RobotClientsAutoTask {
       TaskId = task.Id,
       TaskName = task.Name ?? string.Empty,
       TaskProgressId = task.CurrentProgressId,
       TaskProgressName = task.CurrentProgress.Name ?? string.Empty,
       Waypoints = { waypoints },
-      NextToken = task.NextToken ?? string.Empty,
+      NextToken = nextToken,
     };
   }
 
@@ -235,18 +240,10 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
     if (request.RobotStatus == RobotClientsRobotStatus.Idle)
     {
       var task = await _autoTaskSchedulerService.GetAutoTask((Guid)robotId);
-
-      if (task != null) 
-      {
-        // Trigger
-        var flowDetail = await _flowDetailRepository.GetFlowDetailAsync(task.FlowId, (int) task.CurrentProgressOrder!);
-        if (flowDetail != null && flowDetail.Trigger != null) 
-        {
-          var success = _triggerService.TriggerApiAsync(flowDetail.Trigger, task);
-        }
-      }
+      var flowDetail = await _flowTriggersService.GetFlowDetailAsync(task);
+      var success = await _flowTriggersService.InitiateTriggerAsync(task, flowDetail);
       
-      var taskDetail = await GenerateTaskDetail(task);
+      var taskDetail = await GenerateTaskDetail(task, flowDetail);
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
         Message = string.Empty,
@@ -273,18 +270,10 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
       return ValidateOnlineRobotsFailed();
 
     var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNext((Guid)robotId, request.TaskId, request.NextToken);
+    var flowDetail = await _flowTriggersService.GetFlowDetailAsync(task);
+    var success = await _flowTriggersService.InitiateTriggerAsync(task, flowDetail);
 
-    if (task != null) 
-    {
-      // Trigger
-      var flowDetail = await _flowDetailRepository.GetFlowDetailAsync(task.FlowId, (int) task.CurrentProgressOrder!);
-      if (flowDetail != null && flowDetail.Trigger != null) 
-      {
-        var success = _triggerService.TriggerApiAsync(flowDetail.Trigger, task);
-      }
-    }
-
-    var taskDetail = await GenerateTaskDetail(task);
+    var taskDetail = await GenerateTaskDetail(task, flowDetail);
     return new RobotClientsRespond {
       Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
       Message = errorMessage,
@@ -304,7 +293,7 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
     _onlineRobotsService.UpdateAbortTask((Guid)robotId, false);
 
     var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskAbort((Guid)robotId, request.TaskId, request.NextToken);
-    var taskDetail = await GenerateTaskDetail(task);
+    var taskDetail = await GenerateTaskDetail(task, null);
     return new RobotClientsRespond {
       Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
       Message = errorMessage,

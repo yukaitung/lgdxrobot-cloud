@@ -6,14 +6,17 @@ using Newtonsoft.Json.Linq;
 
 namespace LGDXRobot2Cloud.API.Services;
 
-public interface ITriggerService
+public interface IFlowTriggersService
 {
-  Task<bool> TriggerApiAsync(Trigger trigger, AutoTask task);
+  Task<FlowDetail?> GetFlowDetailAsync(AutoTask? task);
+  Task<bool> InitiateTriggerAsync(AutoTask? task, FlowDetail? flowDetail);
 }
 
-public class TriggerService(HttpClient httpClient) : ITriggerService
+public class FlowTriggersService(HttpClient httpClient,
+  IFlowDetailRepository flowDetailRepository) : IFlowTriggersService
 {
   private readonly HttpClient _httpClient = httpClient;
+  private readonly IFlowDetailRepository _flowDetailRepository = flowDetailRepository;
   
   private static string GeneratePresetValue(int i, AutoTask task)
   {
@@ -72,23 +75,34 @@ public class TriggerService(HttpClient httpClient) : ITriggerService
     return s.ToString();
   }
 
-  public async Task<bool> TriggerApiAsync(Trigger trigger, AutoTask task)
+  public async Task<FlowDetail?> GetFlowDetailAsync(AutoTask? task)
   {
+    if (task == null)
+      return null;
+    return await _flowDetailRepository.GetFlowDetailAsync(task.FlowId, (int) task.CurrentProgressOrder!);
+  }
+
+  public async Task<bool> InitiateTriggerAsync(AutoTask? task, FlowDetail? flowDetail)
+  {
+    if (task == null || flowDetail == null || flowDetail.Trigger == null)
+      return true; // Success because no error
+    var trigger = flowDetail.Trigger;
+
     bool result = true;
     var body = GenerateBody(trigger.Body ?? string.Empty, task);
     Console.WriteLine(body);
     var bodyJson = JObject.Parse(body);
     
-    // API Key
+    // Add API Key
     if (trigger.ApiKeyId != null)
     {
       switch (trigger.ApiKeyInsertLocationId)
       {
         case (int) ApiKeyInsertLocation.Header:
-          _httpClient.DefaultRequestHeaders.Add(trigger.ApiKeyFieldName ?? "A", trigger.ApiKey?.Secret);
+          _httpClient.DefaultRequestHeaders.Add(trigger.ApiKeyFieldName ?? "Key", trigger.ApiKey?.Secret);
           break;
         case (int) ApiKeyInsertLocation.Body:
-          bodyJson.Add(trigger.ApiKeyFieldName ?? "A", trigger.ApiKey?.Secret);
+          bodyJson.Add(trigger.ApiKeyFieldName ?? "Key", trigger.ApiKey?.Secret);
           break;
       }
     }
