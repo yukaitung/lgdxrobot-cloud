@@ -25,7 +25,8 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
   IRobotChassisInfoRepository robotChassisInfoRepository,
   IRobotRepository robotRepository,
   IRobotSystemInfoRepository robotSystemInfoRepository,
-  ITriggerService triggerService) : RobotClientsServiceBase
+  ITriggerService triggerService,
+  IFlowDetailRepository flowDetailRepository) : RobotClientsServiceBase
 {
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService ?? throw new ArgumentNullException(nameof(OnlineRobotsService));
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
@@ -35,6 +36,7 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
   private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
   private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository ?? throw new ArgumentNullException(nameof(robotSystemInfoRepository));
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2SecretConfiguration));
+  private readonly IFlowDetailRepository _flowDetailRepository = flowDetailRepository;
   private readonly ITriggerService _triggerService = triggerService;
 
   private static Guid? ValidateRobotClaim(ServerCallContext context)
@@ -236,9 +238,11 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
 
       if (task != null) 
       {
-        var flowDetail = await _triggerService.GetFlowDetailWithStartTriggerAsync(task.FlowId, (int) task.CurrentProgressOrder!);
-        if (flowDetail != null && flowDetail.StartTrigger != null) {
-          var success = _triggerService.TriggerApiAsync(flowDetail.StartTrigger, task);
+        // Trigger
+        var flowDetail = await _flowDetailRepository.GetFlowDetailAsync(task.FlowId, (int) task.CurrentProgressOrder!);
+        if (flowDetail != null && flowDetail.Trigger != null) 
+        {
+          var success = _triggerService.TriggerApiAsync(flowDetail.Trigger, task);
         }
       }
       
@@ -272,9 +276,11 @@ public class RobotClientsService(IOnlineRobotsService OnlineRobotsService,
 
     if (task != null) 
     {
-      var flowDetail = await _triggerService.GetFlowDetailWithStartTriggerAsync(task.FlowId, (int) task.CurrentProgressOrder!);
-      if (flowDetail != null && flowDetail.StartTrigger != null) {
-        var success = _triggerService.TriggerApiAsync(flowDetail.StartTrigger, task);
+      // Trigger
+      var flowDetail = await _flowDetailRepository.GetFlowDetailAsync(task.FlowId, (int) task.CurrentProgressOrder!);
+      if (flowDetail != null && flowDetail.Trigger != null) 
+      {
+        var success = _triggerService.TriggerApiAsync(flowDetail.Trigger, task);
       }
     }
 

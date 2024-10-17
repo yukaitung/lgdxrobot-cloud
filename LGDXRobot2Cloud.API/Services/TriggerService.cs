@@ -8,17 +8,13 @@ namespace LGDXRobot2Cloud.API.Services;
 
 public interface ITriggerService
 {
-  Task<FlowDetail?> GetFlowDetailWithStartTriggerAsync(int flowId, int order);
-  Task<FlowDetail?> GetFlowDetailWithEndTriggerAsync(int flowId, int order);
   Task<bool> TriggerApiAsync(Trigger trigger, AutoTask task);
 }
 
-public class TriggerService(HttpClient httpClient,
-  IFlowDetailRepository flowDetailRepository) : ITriggerService
+public class TriggerService(HttpClient httpClient) : ITriggerService
 {
   private readonly HttpClient _httpClient = httpClient;
-  private readonly IFlowDetailRepository _flowDetailRepository = flowDetailRepository;
-
+  
   private static string GeneratePresetValue(int i, AutoTask task)
   {
     return i switch
@@ -74,16 +70,6 @@ public class TriggerService(HttpClient httpClient,
     while (i < body.Length)
       s.Append(body[i++]);
     return s.ToString();
-  }
-
-  public Task<FlowDetail?> GetFlowDetailWithStartTriggerAsync(int flowId, int order)
-  {
-    return _flowDetailRepository.GetFlowDetailAsync(flowId, order, true);
-  }
-
-  public Task<FlowDetail?> GetFlowDetailWithEndTriggerAsync(int flowId, int order)
-  {
-    return _flowDetailRepository.GetFlowDetailAsync(flowId, order, false);
   }
 
   public async Task<bool> TriggerApiAsync(Trigger trigger, AutoTask task)

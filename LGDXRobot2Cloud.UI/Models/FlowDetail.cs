@@ -19,23 +19,18 @@ public class FlowDetail : IValidatableObject
 
   public int AutoTaskNextControllerId { get; set; } = (int)AutoTaskNextController.Robot;
 
-  public Trigger? StartTrigger { get; set; }
+  public Trigger? Trigger { get; set; }
 
-  public int? StartTriggerId { get; set; }
+  public int? TriggerId { get; set; }
 
-  public string? StartTriggerName { get; set; }
+  public string? TriggerName { get; set; }
 
-  public Trigger? EndTrigger { get; set; }
-
-  public int? EndTriggerId { get; set; }
-
-  public string? EndTriggerName { get; set; }
   
   public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
   {
-    if (AutoTaskNextControllerId == (int)AutoTaskNextController.API && StartTriggerId == null)
+    if (AutoTaskNextControllerId == (int)AutoTaskNextController.API && TriggerId == null)
     {
-      yield return new ValidationResult("The Begin Trigger is requried for condition in API.", [nameof(StartTriggerId)]);
+      yield return new ValidationResult("The Begin Trigger is requried for condition in API.", [nameof(TriggerId)]);
     }
   }
 }

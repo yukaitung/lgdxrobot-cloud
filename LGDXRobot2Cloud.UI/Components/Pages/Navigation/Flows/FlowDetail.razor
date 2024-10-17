@@ -56,10 +56,9 @@
             <tr>
               <th class="w-1">@(Id != null ? "Id" : "Order")</th>
               <th class="w-1"></th>
-              <th><label class="required">Progress Name</label></th>
-              <th><label class="required">Proceed Condition</label></th>
-              <th>Begin Trigger</th>
-              <th>Complete Trigger</th>
+              <th class="w-25">Progress Name</th>
+              <th>Proceed Condition</th>
+              <th class="w-25">Trigger</th>
               <th class="w-1"><!-- Action --></th>
             </tr>
           </thead>
@@ -102,18 +101,10 @@
                   </select>
                 </td>
                 <td>
-                  <InputSelect id="@(AdvanceSelectElements[1] + i.ToString())" class="form-control" @bind-Value="flowDetail.StartTriggerId">
-                    @if (flowDetail.StartTriggerName != null)
+                  <InputSelect id="@(AdvanceSelectElements[1] + i.ToString())" class="form-control" @bind-Value="flowDetail.TriggerId">
+                    @if (flowDetail.TriggerName != null)
                     {
-                      <option value="@flowDetail.StartTriggerId">@flowDetail.StartTriggerName</option>
-                    }
-                  </InputSelect>
-                </td>
-                <td>
-                  <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control form-control" @bind-Value="flowDetail.EndTriggerId">
-                    @if (flowDetail.EndTriggerName != null)
-                    {
-                      <option value="@flowDetail.EndTriggerId">@flowDetail.EndTriggerName</option>
+                      <option value="@flowDetail.TriggerId">@flowDetail.TriggerName</option>
                     }
                   </InputSelect>
                 </td>

@@ -19,15 +19,10 @@ public class FlowDetail
 
   public int AutoTaskNextControllerId { get; set; }
 
-  [ForeignKey("StartTriggerId")]
-  public Trigger? StartTrigger { get; set; }
+  [ForeignKey("TriggerId")]
+  public Trigger? Trigger { get; set; }
 
-  public int? StartTriggerId { get; set; }
-
-  [ForeignKey("EndTriggerId")]
-  public Trigger? EndTrigger { get; set; }
-
-  public int? EndTriggerId { get; set; }
+  public int? TriggerId { get; set; }
 
   [ForeignKey("FlowId")]
   public Flow Flow { get; set; } = null!;

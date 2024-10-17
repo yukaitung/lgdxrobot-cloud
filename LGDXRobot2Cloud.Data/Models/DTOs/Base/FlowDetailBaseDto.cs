@@ -13,6 +13,5 @@ public class FlowDetailBaseDto
   [Required]
   public int AutoTaskNextControllerId { get; set; }
   
-  public int? StartTriggerId { get; set; }
-  public int? EndTriggerId { get; set; }
+  public int? TriggerId { get; set; }
 }

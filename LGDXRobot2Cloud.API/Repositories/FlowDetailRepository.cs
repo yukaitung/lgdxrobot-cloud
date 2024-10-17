@@ -6,24 +6,18 @@ namespace LGDXRobot2Cloud.API.Repositories;
 
 public interface IFlowDetailRepository
 {
-  Task<FlowDetail?> GetFlowDetailAsync(int flowId, int order, bool startTrigger);
+  Task<FlowDetail?> GetFlowDetailAsync(int flowId, int order);
 }
 
 public class FlowDetailRepository(LgdxContext context) : IFlowDetailRepository
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-  public async Task<FlowDetail?> GetFlowDetailAsync(int flowId, int order, bool startTrigger = true)
+  public async Task<FlowDetail?> GetFlowDetailAsync(int flowId, int order)
   {
-    if (startTrigger)
-      return await _context.FlowDetails.Where(fd => fd.FlowId == flowId && fd.Order == order)
-        .Include(f => f.StartTrigger)
-        .ThenInclude(st => st!.ApiKey)
-        .FirstOrDefaultAsync();
-    else
-      return await _context.FlowDetails.Where(fd => fd.FlowId == flowId && fd.Order == order)
-        .Include(f => f.EndTrigger)
-        .ThenInclude(et => et!.ApiKey)
-        .FirstOrDefaultAsync();
+    return await _context.FlowDetails.Where(fd => fd.FlowId == flowId && fd.Order == order)
+      .Include(f => f.Trigger)
+      .ThenInclude(st => st!.ApiKey)
+      .FirstOrDefaultAsync();
   }
 }

@@ -43,7 +43,7 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
   private bool IsError { get; set; } = false;
 
   // Form helping variables
-  private readonly string[] AdvanceSelectElements = ["ProgressId-", "StartTriggerdId-", "EndTriggerdId-"];
+  private readonly string[] AdvanceSelectElements = ["ProgressId-", "TriggerdId-"];
   private int InitaisedAdvanceSelect { get; set; } = 0;
 
   // Form
@@ -89,13 +89,8 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     }
     else if (element == AdvanceSelectElements[1])
     {
-      Flow.FlowDetails[order].StartTriggerId = id;
-      Flow.FlowDetails[order].StartTriggerName = name;
-    }
-    else if (element == AdvanceSelectElements[2])
-    {
-      Flow.FlowDetails[order].EndTriggerId = id;
-      Flow.FlowDetails[order].EndTriggerName = name;
+      Flow.FlowDetails[order].TriggerId = id;
+      Flow.FlowDetails[order].TriggerName = name;
     }
   }
 
@@ -182,10 +177,8 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
           {
             Flow.FlowDetails[i].ProgressName = flow.FlowDetails[i].Progress?.Name;
             Flow.FlowDetails[i].ProgressId = flow.FlowDetails[i].Progress?.Id;
-            Flow.FlowDetails[i].StartTriggerId = flow.FlowDetails[i].StartTrigger?.Id;
-            Flow.FlowDetails[i].StartTriggerName = flow.FlowDetails[i].StartTrigger?.Name;
-            Flow.FlowDetails[i].EndTriggerId = flow.FlowDetails[i].EndTrigger?.Id;
-            Flow.FlowDetails[i].EndTriggerName = flow.FlowDetails[i].EndTrigger?.Name;
+            Flow.FlowDetails[i].TriggerId = flow.FlowDetails[i].Trigger?.Id;
+            Flow.FlowDetails[i].TriggerName = flow.FlowDetails[i].Trigger?.Name;
           }
           _editContext = new EditContext(Flow);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);

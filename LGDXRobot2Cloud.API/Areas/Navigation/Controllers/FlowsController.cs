@@ -54,10 +54,8 @@ public class FlowsController(
     foreach (var detail in flowEntity.FlowDetails)
     {
       progressIds.Add(detail.ProgressId);
-      if (detail.StartTriggerId != null)
-        triggerIds.Add((int)detail.StartTriggerId);
-      if (detail.EndTriggerId != null)
-        triggerIds.Add((int)detail.EndTriggerId);
+      if (detail.TriggerId != null)
+        triggerIds.Add((int)detail.TriggerId);
     }
     var progresses = await _progressRepository.GetProgressesDictFromListAsync(progressIds);
     var triggers = await _triggerRepository.GetTriggersDictFromListAsync(triggerIds);
@@ -73,15 +71,10 @@ public class FlowsController(
       {
         return (null, $"The Progress Id: {detail.ProgressId} is invalid.");
       }
-      if (detail.StartTriggerId != null &&
-          !triggers.ContainsKey((int)detail.StartTriggerId))
+      if (detail.TriggerId != null &&
+          !triggers.ContainsKey((int)detail.TriggerId))
       {
-        return (null, $"The Start Trigger Id: {detail.StartTriggerId} is invalid.");
-      }
-      if (detail.EndTriggerId != null &&
-          !triggers.ContainsKey((int)detail.EndTriggerId))
-      {
-        return (null, $"The End Trigger Id: {detail.EndTriggerId} is invalid.");
+        return (null, $"The Trigger Id: {detail.TriggerId} is invalid.");
       }
     }
     return (flowEntity, string.Empty);

@@ -25,7 +25,7 @@ public class Flow : IValidatableObject
     }
     for (int i = 0; i < FlowDetails.Count; i++)
     {
-      if (FlowDetails[i].AutoTaskNextControllerId == (int)AutoTaskNextController.API && FlowDetails[i].StartTriggerId == null)
+      if (FlowDetails[i].AutoTaskNextControllerId == (int)AutoTaskNextController.API && FlowDetails[i].TriggerId == null)
       {
         yield return new ValidationResult($"The Begin Trigger is requried step {i + 1}.", [nameof(FlowDetails)]);
       }
