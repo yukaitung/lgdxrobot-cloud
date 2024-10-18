@@ -9,20 +9,11 @@
       }
     },
     "profiles": {
-      "http": {
+      "default": {
         "commandName": "Project",
         "dotnetRunMessages": true,
         "launchBrowser": false,
-        "applicationUrl": "http://*:5103",
-        "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
-        }
-      },
-      "https": {
-        "commandName": "Project",
-        "dotnetRunMessages": true,
-        "launchBrowser": false,
-        "applicationUrl": "https://*:7088;http://*:5103",
+        "applicationUrl": "https://*:5103",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development"
         }

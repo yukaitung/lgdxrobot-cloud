@@ -1,0 +1,50 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch LGDXRobot2Cloud.API (.NET 8)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build LGDXRobot2Cloud.API",
+      "program": "${workspaceFolder}/LGDXRobot2Cloud.API/bin/Debug/net8.0/LGDXRobot2Cloud.API.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/LGDXRobot2Cloud.API",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      }
+    },
+    {
+      "name": "Launch LGDXRobot2Cloud.UI (.NET 8)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build LGDXRobot2Cloud.UI",
+      "program": "${workspaceFolder}/LGDXRobot2Cloud.UI/bin/Debug/net8.0/LGDXRobot2Cloud.UI.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/LGDXRobot2Cloud.UI",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch LGDXRobot2Cloud",
+      "configurations": [
+        "Launch LGDXRobot2Cloud.API (.NET 8)",
+        "Launch LGDXRobot2Cloud.UI (.NET 8)"
+      ],
+      "stopAll": true
+    }
+  ]
+}

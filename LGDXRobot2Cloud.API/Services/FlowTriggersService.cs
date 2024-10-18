@@ -92,6 +92,13 @@ public class FlowTriggersService(HttpClient httpClient,
     var body = GenerateBody(trigger.Body ?? string.Empty, task);
     Console.WriteLine(body);
     var bodyJson = JObject.Parse(body);
+
+    // Add Next Token
+    if (flowDetail.AutoTaskNextControllerId != (int) AutoTaskNextController.Robot && task.NextToken != null)
+    {
+      bodyJson.Add("Lgdx2NextToken", task.NextToken);
+    }
+    var backupBody = bodyJson.ToString();
     
     // Add API Key
     if (trigger.ApiKeyId != null)
