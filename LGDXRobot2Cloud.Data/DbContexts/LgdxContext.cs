@@ -1,11 +1,13 @@
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Enums;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LGDXRobot2Cloud.Data.DbContexts;
 
-public class LgdxContext(DbContextOptions<LgdxContext> options) : DbContext(options)
+public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbContext<IdentityUser>(options)
 {
   // Navigation
   public DbSet<AutoTask> AutoTasks { get; set; }

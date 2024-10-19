@@ -8,11 +8,16 @@
       "name": "Launch LGDXRobot2Cloud.API (.NET 8)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "Build LGDXRobot2Cloud.API",
+      //"preLaunchTask": "build: LGDXRobot2Cloud.API",
       "program": "${workspaceFolder}/LGDXRobot2Cloud.API/bin/Debug/net8.0/LGDXRobot2Cloud.API.dll",
       "args": [],
       "cwd": "${workspaceFolder}/LGDXRobot2Cloud.API",
       "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+https?://\\S+",
+        "uriFormat": "https://localhost:5163/swagger"
+      },
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
@@ -24,11 +29,16 @@
       "name": "Launch LGDXRobot2Cloud.UI (.NET 8)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "Build LGDXRobot2Cloud.UI",
+      //"preLaunchTask": "build: LGDXRobot2Cloud.UI",
       "program": "${workspaceFolder}/LGDXRobot2Cloud.UI/bin/Debug/net8.0/LGDXRobot2Cloud.UI.dll",
       "args": [],
       "cwd": "${workspaceFolder}/LGDXRobot2Cloud.UI",
       "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+        "uriFormat": "%s/"
+      },
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
@@ -39,12 +49,13 @@
   ],
   "compounds": [
     {
-      "name": "Launch LGDXRobot2Cloud",
+      "name": "Build & Launch All",
       "configurations": [
         "Launch LGDXRobot2Cloud.API (.NET 8)",
         "Launch LGDXRobot2Cloud.UI (.NET 8)"
       ],
-      "stopAll": true
+      "stopAll": true,
+      "preLaunchTask": "build: all"
     }
   ]
 }

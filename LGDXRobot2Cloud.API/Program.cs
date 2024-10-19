@@ -1,9 +1,10 @@
 using LGDXRobot2Cloud.API.Configurations;
-using LGDXRobot2Cloud.Utilities.Constants;
-using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
+using LGDXRobot2Cloud.Data.DbContexts;
+using LGDXRobot2Cloud.Utilities.Constants;
 using Microsoft.AspNetCore.Authentication.Certificate;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,7 +20,40 @@ builder.WebHost.ConfigureKestrel(cfg =>
 	cfg.AddServerHeader = false;
 });
 
-// Authentication
+/*
+ * Configuration
+ */
+builder.Services.Configure<LgdxRobot2Configuration>(
+	builder.Configuration.GetSection("LGDXRobot2")
+);
+builder.Services.Configure<LgdxRobot2SecretConfiguration>(
+	builder.Configuration.GetSection("LGDXRobot2Secret")
+);
+
+/*
+ * Infrastructure
+ */
+builder.Services.AddMemoryCache();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddGrpc(cfg => cfg.EnableDetailedErrors = true);
+var connectionString = builder.Configuration["MySQLConnectionString"];
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
+builder.Services.AddDbContext<LgdxContext>(
+    dbContextOptions => dbContextOptions
+        .UseMySql(connectionString, serverVersion)
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors()
+);
+
+/*
+ * Authentication
+ */
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+	.AddRoles<IdentityRole>()
+  .AddEntityFrameworkStores<LgdxContext>();
 builder.Services.AddTransient<RobotClientsCertificateValidationService>();
 builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme)
 	.AddCertificate(LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme, cfg =>
@@ -67,29 +101,9 @@ builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsJ
 		};
 	});
 
-// Services
-builder.Services.AddMemoryCache();
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddGrpc(cfg => cfg.EnableDetailedErrors = true);
-var connectionString = builder.Configuration["MySQLConnectionString"];
-var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
-builder.Services.AddDbContext<LgdxContext>(
-    dbContextOptions => dbContextOptions
-        .UseMySql(connectionString, serverVersion)
-        .LogTo(Console.WriteLine, LogLevel.Information)
-        .EnableSensitiveDataLogging()
-        .EnableDetailedErrors()
-);
-
-builder.Services.Configure<LgdxRobot2Configuration>(
-	builder.Configuration.GetSection("LGDXRobot2")
-);
-builder.Services.Configure<LgdxRobot2SecretConfiguration>(
-	builder.Configuration.GetSection("LGDXRobot2Secret")
-);
-
+/*
+ * LGDX Depency Injection
+ */
 // Custom Services
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
@@ -123,8 +137,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -133,9 +147,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "Area",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-app.MapControllers();
+	name: "Area",
+	pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+app.MapIdentityApi<IdentityUser>();
 app.MapGrpcService<RobotClientsService>();
 
 app.Run();
