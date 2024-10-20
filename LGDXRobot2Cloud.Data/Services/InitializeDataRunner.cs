@@ -1,4 +1,5 @@
 using LGDXRobot2Cloud.Data.DbContexts;
+using LGDXRobot2Cloud.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -6,10 +7,10 @@ using Microsoft.EntityFrameworkCore;
 namespace LGDXRobot2Cloud.Data.Services;
 
 public class InitializeDataRunner(LgdxContext context,
-  UserManager<IdentityUser> userManager) : IHostedService
+  UserManager<LgdxUser> userManager) : IHostedService
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
-  private readonly UserManager<IdentityUser> _userManager = userManager;
+  private readonly UserManager<LgdxUser> _userManager = userManager;
 
   public async Task StartAsync(CancellationToken cancellationToken)
   {
@@ -36,8 +37,9 @@ public class InitializeDataRunner(LgdxContext context,
       }
     }
     // Admin User
-    var firstUser = new IdentityUser
+    var firstUser = new LgdxUser
     {
+      Name = "Admin",
       Email = "admin@example.com",
       NormalizedEmail = "admin@example.com".ToUpper(),
       UserName = "admin",
@@ -48,15 +50,15 @@ public class InitializeDataRunner(LgdxContext context,
 
     if (!context.Users.Any(u => u.UserName == firstUser.UserName))
     {
-      var password = new PasswordHasher<IdentityUser>();
-      var hashed = password.HashPassword(firstUser,"123456");
+      var password = new PasswordHasher<LgdxUser>();
+      var hashed = password.HashPassword(firstUser, "123456");
       firstUser.PasswordHash = hashed;
 
-      var userStore = new UserStore<IdentityUser>(context);
+      var userStore = new UserStore<LgdxUser>(context);
       await userStore.CreateAsync(firstUser, cancellationToken);
     }
     // Assign user to roles
-    IdentityUser? user = await _userManager.FindByEmailAsync(firstUser.Email);
+    LgdxUser? user = await _userManager.FindByEmailAsync(firstUser.Email);
     var result = await _userManager.AddToRolesAsync(user!, ["Global Administrator"]);
     await context.SaveChangesAsync(cancellationToken);
 

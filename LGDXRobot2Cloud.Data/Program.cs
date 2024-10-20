@@ -1,4 +1,5 @@
 using LGDXRobot2Cloud.Data.DbContexts;
+using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ builder.Services.AddDbContext<LgdxContext>(
 bool initializeData = bool.Parse(builder.Configuration["initializeData"] ?? "false");
 if (initializeData) 
 {
-	builder.Services.AddIdentityCore<IdentityUser>()
+	builder.Services.AddIdentityCore<LgdxUser>()
 		.AddRoles<IdentityRole>()
 		.AddEntityFrameworkStores<LgdxContext>();
 	builder.Services.AddHostedService<InitializeDataRunner>();

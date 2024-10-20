@@ -2,8 +2,10 @@ using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
 using LGDXRobot2Cloud.Data.DbContexts;
+using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Constants;
 using Microsoft.AspNetCore.Authentication.Certificate;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.EntityFrameworkCore;
@@ -51,9 +53,23 @@ builder.Services.AddDbContext<LgdxContext>(
 /*
  * Authentication
  */
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
-	.AddRoles<IdentityRole>()
+builder.Services.AddIdentity<LgdxUser, IdentityRole>()
   .AddEntityFrameworkStores<LgdxContext>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddJwtBearer(cfg =>
+	{
+		cfg.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = true,
+			ValidateAudience = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
+			ValidIssuer = builder.Configuration["LGDXRobot2Secret:LgdxUserJwtIssuer"],
+			ValidAudience = builder.Configuration["LGDXRobot2Secret:LgdxUserJwtSecret"],
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LGDXRobot2Secret:RobotClientsJwtSecret"] ?? string.Empty)),
+			ClockSkew = TimeSpan.Zero
+		};
+	});
 builder.Services.AddTransient<RobotClientsCertificateValidationService>();
 builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme)
 	.AddCertificate(LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme, cfg =>
@@ -149,7 +165,6 @@ app.UseAuthorization();
 app.MapControllerRoute(
 	name: "Area",
 	pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-app.MapIdentityApi<IdentityUser>();
 app.MapGrpcService<RobotClientsService>();
 
 app.Run();
