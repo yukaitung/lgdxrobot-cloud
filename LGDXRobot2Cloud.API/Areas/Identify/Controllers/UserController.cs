@@ -12,7 +12,6 @@ using System.Security.Claims;
 using System.Text;
 
 namespace LGDXRobot2Cloud.API.Areas.Identify.Controllers;
-
 [ApiController]
 [Area("Identify")]
 [Route("[area]/[controller]")]
@@ -40,22 +39,9 @@ public class UserController(
       credentials);
   }
 
-  [HttpPost("login")]
-  [AllowAnonymous]
-  public async Task<ActionResult<LoginResponse>>Login(LoginRequest loginDto)
+  private async Task<JwtSecurityToken?> CheckPasswordAndGenerateTokenAsync(LgdxUser user, string password)
   {
-    var result = await _signInManager.PasswordSignInAsync(loginDto.Username, loginDto.Password, false, true);
-
-    var user = await _userManager.FindByNameAsync(loginDto.Username);
-    if (user == null)
-    {
-      return Unauthorized("User not found.");
-    }
-    if (await _userManager.IsLockedOutAsync(user))
-    {
-      return Unauthorized("User is locked out.");
-    }
-    if (await _userManager.CheckPasswordAsync(user, loginDto.Password))
+    if (await _userManager.CheckPasswordAsync(user, password))
     {
       var userRoles = await _userManager.GetRolesAsync(user);
       var Claims = new List<Claim>
@@ -67,15 +53,40 @@ public class UserController(
       {
         Claims.Add(new Claim(ClaimTypes.Role, userRole));
       }
-      var accessToken = GenerateJwtToken(Claims, _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins);
+      return GenerateJwtToken(Claims, _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins);
+    }
+    else
+    {
+      return null;
+    }
+  }
+
+  [HttpPost("login")]
+  [AllowAnonymous]
+  public async Task<ActionResult<LoginResponse>>Login(LoginRequest loginDto)
+  {
+    var user = await _userManager.FindByNameAsync(loginDto.Username);
+    if (user == null)
+    {
+      return Unauthorized("User not found.");
+    }
+    if (await _userManager.IsLockedOutAsync(user))
+    {
+      return Unauthorized("User is locked out.");
+    }
+    // Check password and generate token
+    var token = await CheckPasswordAndGenerateTokenAsync(user, loginDto.Password);
+    if (token != null)
+    {
+      // Password is correct
       return Ok(new LoginResponse {
-        AccessToken = new JwtSecurityTokenHandler().WriteToken(accessToken), 
+        AccessToken = new JwtSecurityTokenHandler().WriteToken(token), 
         ExpiresMins = _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins
       });
     }
     else
     {
-      // If lockout is requested, increment access failed count which might lock out the user
+      // Password is incorrect
       var incrementLockoutResult = await _userManager.AccessFailedAsync(user);
       if (!incrementLockoutResult.Succeeded)
       {
@@ -86,7 +97,7 @@ public class UserController(
       {
         return Unauthorized("User is locked out.");
       }
-    }
+    }    
     return Unauthorized("Login failed.");
   }
 

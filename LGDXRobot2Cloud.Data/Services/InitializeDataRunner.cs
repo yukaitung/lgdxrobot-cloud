@@ -39,13 +39,14 @@ public class InitializeDataRunner(LgdxContext context,
     // Admin User
     var firstUser = new LgdxUser
     {
-      Name = "Admin",
       Email = "admin@example.com",
-      NormalizedEmail = "admin@example.com".ToUpper(),
-      UserName = "admin",
-      NormalizedUserName = "ADMIN",
       EmailConfirmed = true,
-      SecurityStamp = Guid.NewGuid().ToString("D")
+      LockoutEnabled = true,
+      Name = "Admin",
+      NormalizedEmail = "admin@example.com".ToUpper(),
+      NormalizedUserName = "ADMIN",
+      SecurityStamp = Guid.NewGuid().ToString("D"),
+      UserName = "admin"
     };
 
     if (!context.Users.Any(u => u.UserName == firstUser.UserName))

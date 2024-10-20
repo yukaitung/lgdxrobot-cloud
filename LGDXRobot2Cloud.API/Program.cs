@@ -68,11 +68,11 @@ builder.Services.AddGrpc(cfg => cfg.EnableDetailedErrors = true);
 var connectionString = builder.Configuration["MySQLConnectionString"];
 var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
 builder.Services.AddDbContext<LgdxContext>(
-    dbContextOptions => dbContextOptions
-        .UseMySql(connectionString, serverVersion)
-        .LogTo(Console.WriteLine, LogLevel.Information)
-        .EnableSensitiveDataLogging()
-        .EnableDetailedErrors()
+	dbContextOptions => dbContextOptions
+		.UseMySql(connectionString, serverVersion)
+		.LogTo(Console.WriteLine, LogLevel.Information)
+		.EnableSensitiveDataLogging()
+		.EnableDetailedErrors()
 );
 
 /*
@@ -145,11 +145,15 @@ builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsJ
 /*
  * LGDX Depency Injection
  */
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Custom Services
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
 builder.Services.AddScoped<IFlowTriggersService, FlowTriggersService>();
 builder.Services.AddHttpClient<IFlowTriggersService, FlowTriggersService>();
+
+// Identity Repositories
+builder.Services.AddScoped<ILgdxUsersRepository, LgdxUsersRepository>();
 
 // Navigation Repositories
 builder.Services.AddScoped<IFlowRepository, FlowRepository>();
@@ -170,8 +174,6 @@ builder.Services.AddScoped<IRobotChassisInfoRepository, RobotChassisInfoReposito
 // Setting Repositories
 builder.Services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
 builder.Services.AddScoped<IRobotCertificateRepository, RobotCertificateRepository>();
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
