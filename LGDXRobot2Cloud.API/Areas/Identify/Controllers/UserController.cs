@@ -1,33 +1,31 @@
+using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Data.Models.DTOs.Requests;
-using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Http.HttpResults;
+using LGDXRobot2Cloud.Data.Models.Identify;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
-using LGDXRobot2Cloud.API.Configurations;
-using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 
 namespace LGDXRobot2Cloud.API.Areas.Identify.Controllers;
 
 [ApiController]
 [Area("Identify")]
 [Route("[area]/[controller]")]
-public class UserController(UserManager<LgdxUser> userManager,
-  SignInManager<LgdxUser> signInManager,
-  IOptionsMonitor<BearerTokenOptions> bearerTokenOptions,
-  IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
-  TimeProvider timeProvider) : ControllerBase
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+public class UserController(
+    IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
+    SignInManager<LgdxUser> signInManager,
+    UserManager<LgdxUser> userManager
+  ) : ControllerBase
 {
-  private readonly UserManager<LgdxUser> _userManager = userManager;
-  private readonly SignInManager<LgdxUser> _signInManager = signInManager;
-  private readonly IOptionsMonitor<BearerTokenOptions> _bearerTokenOptions = bearerTokenOptions;
-  private readonly TimeProvider _timeProvider = timeProvider;
-  private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value;
+  private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2SecretConfiguration));
+  private readonly SignInManager<LgdxUser> _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+  private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
   private JwtSecurityToken GenerateJwtToken(List<Claim> claims, int expiresMins)
   {
@@ -43,7 +41,8 @@ public class UserController(UserManager<LgdxUser> userManager,
   }
 
   [HttpPost("login")]
-  public async Task<ActionResult<LoginResponseDto>>Login(LoginDto loginDto)
+  [AllowAnonymous]
+  public async Task<ActionResult<LoginResponse>>Login(LoginRequest loginDto)
   {
     var result = await _signInManager.PasswordSignInAsync(loginDto.Username, loginDto.Password, false, true);
 
@@ -61,16 +60,15 @@ public class UserController(UserManager<LgdxUser> userManager,
       var userRoles = await _userManager.GetRolesAsync(user);
       var Claims = new List<Claim>
       {
-        new (ClaimTypes.NameIdentifier, user.UserName!),
+        new (ClaimTypes.NameIdentifier, user.Id.ToString()),
         new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new (JwtRegisteredClaimNames.Sub, user.Email!)
       };                
       foreach (var userRole in userRoles)
       {
         Claims.Add(new Claim(ClaimTypes.Role, userRole));
       }
       var accessToken = GenerateJwtToken(Claims, _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins);
-      return Ok(new LoginResponseDto {
+      return Ok(new LoginResponse {
         AccessToken = new JwtSecurityTokenHandler().WriteToken(accessToken), 
         ExpiresMins = _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins
       });
@@ -92,5 +90,22 @@ public class UserController(UserManager<LgdxUser> userManager,
     return Unauthorized("Login failed.");
   }
 
+  [HttpPost("updatePassword")]
+  public async Task<ActionResult<LoginResponse>> UpdatePassword(UpdatePasswordRequest updatePasswordRequest)
+  {
+    var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+    var user = await userManager.FindByIdAsync(userId!);
+    if (user == null)
+    {
+      return NotFound();
+    }
 
+    var changePasswordResult = await _userManager.ChangePasswordAsync(user, updatePasswordRequest.OldPassword, updatePasswordRequest.NewPassword);
+    if (!changePasswordResult.Succeeded)
+    {
+      return BadRequest();
+    }
+    
+    return NoContent();
+  }
 }

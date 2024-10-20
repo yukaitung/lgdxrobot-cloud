@@ -1,6 +1,6 @@
-namespace LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+namespace LGDXRobot2Cloud.Data.Models.Identify;
 
-public class LoginResponseDto
+public class LoginResponse
 {
   public string AccessToken { get; set; } = string.Empty;
   public int ExpiresMins { get; set; }

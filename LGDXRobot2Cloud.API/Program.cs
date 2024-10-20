@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -38,7 +39,31 @@ builder.Services.Configure<LgdxRobot2SecretConfiguration>(
 builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(cfg =>{
+	cfg.SwaggerDoc("v1", new OpenApiInfo { Title = "LGDXRobot2", Version = "v1" });
+	cfg.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+		Description = "JWT Authorization header using the Bearer scheme.",
+		Name = "Authorization",
+		In = ParameterLocation.Header,
+		Type = SecuritySchemeType.ApiKey,
+		BearerFormat = "JWT",
+    Scheme = "Bearer"
+	});
+	cfg.AddSecurityRequirement(new OpenApiSecurityRequirement
+	{
+		{
+			new OpenApiSecurityScheme
+			{
+				Reference = new OpenApiReference
+				{
+					Type = ReferenceType.SecurityScheme,
+					Id = "Bearer"
+				}
+			},
+			[]
+		}
+	});
+});
 builder.Services.AddGrpc(cfg => cfg.EnableDetailedErrors = true);
 var connectionString = builder.Configuration["MySQLConnectionString"];
 var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
@@ -65,8 +90,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			ValidateLifetime = true,
 			ValidateIssuerSigningKey = true,
 			ValidIssuer = builder.Configuration["LGDXRobot2Secret:LgdxUserJwtIssuer"],
-			ValidAudience = builder.Configuration["LGDXRobot2Secret:LgdxUserJwtSecret"],
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LGDXRobot2Secret:RobotClientsJwtSecret"] ?? string.Empty)),
+			ValidAudience = builder.Configuration["LGDXRobot2Secret:LgdxUserJwtIssuer"],
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LGDXRobot2Secret:LgdxUserJwtSecret"] ?? string.Empty)),
 			ClockSkew = TimeSpan.Zero
 		};
 	});
