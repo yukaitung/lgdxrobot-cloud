@@ -6,6 +6,7 @@ public class LgdxUserDto
   public string Name { get; set; } = null!;
   public string UserName { get; set; } = null!;
   public string Email { get; set; } = null!;
+  public IEnumerable<string> Roles { get; set; } = [];
   public bool TwoFactorEnabled { get; set; }
   public int AccessFailedCount { get; set; }
 }

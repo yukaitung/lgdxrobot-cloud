@@ -50,7 +50,9 @@ public class UserManageController(
     {
       return NotFound();
     }
-    return Ok(_mapper.Map<LgdxUserDto>(user));
+    var returnDto = _mapper.Map<LgdxUserDto>(user);
+    returnDto.Roles = await _userManager.GetRolesAsync(user);
+    return Ok(returnDto);
   }
 
   [HttpPost("")]
@@ -111,6 +113,30 @@ public class UserManageController(
     user.AccessFailedCount = 0;
     user.LockoutEnd = null;
     var result = await _userManager.UpdateAsync(user);
+    if (!result.Succeeded)
+    {
+      return BadRequest();
+    }
+    return NoContent();
+  }
+
+  [HttpPost("{id}/roles")]
+  public async Task<ActionResult> UpdateUserRole(Guid id, LgdxUserRoleUpdateDto lgdxUserRoleUpdateDto)
+  {
+    var user = await _userManager.FindByIdAsync(id.ToString());
+    if (user == null)
+    {
+      return NotFound();
+    }
+    var rolesEntity = await _userManager.GetRolesAsync(user);
+    var roleToAdd = lgdxUserRoleUpdateDto.Roles.Except(rolesEntity);
+    var result = await _userManager.AddToRolesAsync(user, roleToAdd);
+    if (!result.Succeeded)
+    {
+      return BadRequest();
+    }
+    var roleToRemove = rolesEntity.Except(lgdxUserRoleUpdateDto.Roles);
+    result = await _userManager.RemoveFromRolesAsync(user, roleToRemove);
     if (!result.Succeeded)
     {
       return BadRequest();
