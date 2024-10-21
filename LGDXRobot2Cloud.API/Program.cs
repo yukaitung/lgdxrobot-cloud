@@ -1,3 +1,4 @@
+using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
@@ -6,6 +7,7 @@ using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Constants;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.EntityFrameworkCore;
@@ -74,6 +76,8 @@ builder.Services.AddDbContext<LgdxContext>(
 		.EnableSensitiveDataLogging()
 		.EnableDetailedErrors()
 );
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddHttpContextAccessor();
 
 /*
  * Authentication
@@ -141,11 +145,17 @@ builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsJ
 			ClockSkew = TimeSpan.Zero
 		};
 	});
+builder.Services.AddScoped<IAuthorizationHandler, ValidateLgdxUserAccessHandler>();
+builder.Services.AddAuthorizationBuilder()
+	.AddPolicy("ValidateLgdxUserAccess", policyBuilder =>
+	{
+		policyBuilder.RequireAuthenticatedUser();
+		policyBuilder.AddRequirements(new ValidateLgdxUserAccessRequirement());
+	});
 
 /*
  * LGDX Depency Injection
  */
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Custom Services
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();

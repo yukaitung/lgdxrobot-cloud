@@ -16,7 +16,7 @@ public static class LgdxRoles
       {
         Name = "Global Administrator",
         Scopes = [
-          "LGDXRobot2Cloud.API"
+          "LGDXRobot2Cloud.API/FullAccess"
         ]
       }
     },
@@ -24,7 +24,7 @@ public static class LgdxRoles
       new Guid("0fb45ce9-d492-4cbc-8e58-24de5deb193d"), 
       new LgdxRoleData
       {
-        Name = "Global Reader",
+        Name = "Global Auditor",
         Scopes = [
           "LGDXRobot2Cloud.API/Read"
         ]
@@ -36,7 +36,7 @@ public static class LgdxRoles
       {
         Name = "Robot Administrator",
         Scopes = [
-          "LGDXRobot2Cloud.API/Robot/Robots"
+          "LGDXRobot2Cloud.API/Robot/Robots/FullAccess"
         ]
       }
     },
@@ -44,7 +44,7 @@ public static class LgdxRoles
       new Guid("f14119aa-00de-4404-94c1-89440104be7e"), 
       new LgdxRoleData
       {
-        Name = "Robot Reader",
+        Name = "Robot Auditor",
         Scopes = [
           "LGDXRobot2Cloud.API/Robot/Robots/Read"
         ]
@@ -56,7 +56,7 @@ public static class LgdxRoles
       {
         Name = "Navigation Administrator",
         Scopes = [
-          "LGDXRobot2Cloud.API/Navigation"
+          "LGDXRobot2Cloud.API/Navigation/FullAccess"
         ]
       }
     },
@@ -64,7 +64,7 @@ public static class LgdxRoles
       new Guid("69525f08-e48f-4c52-8ab7-3ed41ac269af"), 
       new LgdxRoleData
       {
-        Name = "Navigation Reader",
+        Name = "Navigation Auditor",
         Scopes = [
           "LGDXRobot2Cloud.API/Navigation/Read"
         ]
@@ -74,9 +74,9 @@ public static class LgdxRoles
       new Guid("b5ffffa8-238e-47e9-8db1-99b7c7591a1d"), 
       new LgdxRoleData
       {
-        Name = "Task Administrator",
+        Name = "Tasks Administrator",
         Scopes = [
-          "LGDXRobot2Cloud.API/Task"
+          "LGDXRobot2Cloud.API/Task/FullAccess"
         ]
       }
     },
@@ -84,9 +84,9 @@ public static class LgdxRoles
       new Guid("3abb5eea-d7b5-4756-98a1-7f5dc4e98af9"), 
       new LgdxRoleData
       {
-        Name = "Task Reader",
+        Name = "Tasks Auditor",
         Scopes = [
-          "LGDXRobot2Cloud.API/Task/Read"
+          "LGDXRobot2Cloud.API/Tasks/Read"
         ]
       } 
     },
@@ -94,9 +94,10 @@ public static class LgdxRoles
       new Guid("8493293c-74d2-48e8-ce83-0671007c5d7a"), 
       new LgdxRoleData
       {
-        Name = "Task Operator",
+        Name = "Tasks Operator",
         Scopes = [
-          "LGDXRobot2Cloud.API/Task/Write"
+          "LGDXRobot2Cloud.API/Tasks/Write",
+          "LGDXRobot2Cloud.API/Tasks/Delete"
         ]
       } 
     }
