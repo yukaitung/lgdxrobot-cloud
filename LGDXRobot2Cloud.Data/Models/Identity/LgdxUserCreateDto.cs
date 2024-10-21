@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LGDXRobot2Cloud.Data.Models.Identify;
+namespace LGDXRobot2Cloud.Data.Models.Identity;
 
 public class LgdxUserCreateDto
 {

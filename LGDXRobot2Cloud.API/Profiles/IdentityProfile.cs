@@ -1,12 +1,12 @@
 using AutoMapper;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Data.Models.Identify;
+using LGDXRobot2Cloud.Data.Models.Identity;
 
 namespace LGDXRobot2Cloud.API.Profiles;
 
-public class IdentifyProfile : Profile
+public class IdentityProfile : Profile
 {
-  public IdentifyProfile()
+  public IdentityProfile()
   {
     CreateMap<LgdxUser, LgdxUserDto>();
     CreateMap<LgdxUser, LgdxUserListDto>();

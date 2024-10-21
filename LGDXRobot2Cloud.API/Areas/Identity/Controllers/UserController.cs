@@ -1,6 +1,7 @@
 using LGDXRobot2Cloud.API.Configurations;
+using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Data.Models.Identify;
+using LGDXRobot2Cloud.Data.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,20 +12,20 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace LGDXRobot2Cloud.API.Areas.Identify.Controllers;
+namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 [ApiController]
-[Area("Identify")]
+[Area("Identity")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class UserController(
     IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
-    SignInManager<LgdxUser> signInManager,
-    UserManager<LgdxUser> userManager
+    UserManager<LgdxUser> userManager,
+    ILgdxRoleRepository lgdxRoleRepository
   ) : ControllerBase
 {
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2SecretConfiguration));
-  private readonly SignInManager<LgdxUser> _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+  private readonly ILgdxRoleRepository _lgdxRoleRepository = lgdxRoleRepository ?? throw new ArgumentNullException(nameof(lgdxRoleRepository));
 
   private JwtSecurityToken GenerateJwtToken(List<Claim> claims, int expiresMins)
   {
@@ -48,10 +49,21 @@ public class UserController(
       {
         new (ClaimTypes.NameIdentifier, user.Id.ToString()),
         new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-      };                
+      };
+      // Add Roles         
       foreach (var userRole in userRoles)
       {
         Claims.Add(new Claim(ClaimTypes.Role, userRole));
+      }
+      // Add Role Claims
+      {
+        var roles = await _lgdxRoleRepository.GetRolesAsync(userRoles);
+        List<string> roleIds = roles.Select(r => r.Id).ToList();
+        var roleClaims = await _lgdxRoleRepository.GetRolesClaimsAsync(roleIds);
+        foreach (var roleClaim in roleClaims)
+        {
+          Claims.Add(new Claim(roleClaim.ClaimType!, roleClaim.ClaimValue!));
+        }
       }
       return GenerateJwtToken(Claims, _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins);
     }

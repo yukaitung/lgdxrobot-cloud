@@ -154,6 +154,7 @@ builder.Services.AddHttpClient<IFlowTriggersService, FlowTriggersService>();
 
 // Identity Repositories
 builder.Services.AddScoped<ILgdxUsersRepository, LgdxUsersRepository>();
+builder.Services.AddScoped<ILgdxRoleRepository, LgdxRoleRepository>();
 
 // Navigation Repositories
 builder.Services.AddScoped<IFlowRepository, FlowRepository>();

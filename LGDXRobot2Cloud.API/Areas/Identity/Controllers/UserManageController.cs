@@ -2,7 +2,7 @@ using AutoMapper;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Data.Models.Identify;
+using LGDXRobot2Cloud.Data.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,10 +11,10 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace LGDXRobot2Cloud.API.Areas.Identify.Controllers;
+namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 
 [ApiController]
-[Area("Identify")]
+[Area("Identity")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = "Global Administrator")]
