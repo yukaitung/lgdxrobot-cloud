@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Utilities.Constants;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -18,22 +20,25 @@ public class InitializeDataRunner(LgdxContext context,
      * Identity
      */
     // Roles
-    List<IdentityRole> roles = [
-      new IdentityRole { Id = "07b16cb2-5daf-4d0b-a67f-13f80eff2833", Name = "Global Administrator", NormalizedName = "Global Administrator".ToUpper() },
-      new IdentityRole { Id = "0fb45ce9-d492-4cbc-8e58-24de5deb193d", Name = "Global Reader", NormalizedName = "Global Reader".ToUpper() },
-      new IdentityRole { Id = "62779402-22d2-4c66-83d4-5d1aab7b2834", Name = "Robot Administrator", NormalizedName = "Robot Administrator".ToUpper() },
-      new IdentityRole { Id = "f14119aa-00de-4404-94c1-89440104be7e", Name = "Robot Reader", NormalizedName = "Robot Reader".ToUpper() },
-      new IdentityRole { Id = "ca7fb8ed-d7b0-423f-b241-5740e1fd6475", Name = "Navigation Administrator", NormalizedName = "Navigation Administrator".ToUpper() },
-      new IdentityRole { Id = "69525f08-e48f-4c52-8ab7-3ed41ac269af", Name = "Navigation Reader", NormalizedName = "Navigation Reader".ToUpper() },
-      new IdentityRole { Id = "b5ffffa8-238e-47e9-8db1-99b7c7591a1d", Name = "Task Administrator", NormalizedName = "Task Administrator".ToUpper() },
-      new IdentityRole { Id = "3abb5eea-d7b5-4756-98a1-7f5dc4e98af9", Name = "Task Reader", NormalizedName = "Task Reader".ToUpper() }
-    ];
-    foreach (var role in roles)
+    var defaultRoles = LgdxRoles.Default;
+    foreach (var (key, value) in defaultRoles)
     {
+      var role = new IdentityRole{
+        Id = key.ToString(),
+        Name = value.Name,
+        NormalizedName = value.Name.ToUpper(),
+      };
       var roleStore = new RoleStore<IdentityRole>(context);
       if (!context.Roles.Any(r => r.Name == role.Name))
       {
+        // Create Role
         await roleStore.CreateAsync(role, cancellationToken);
+        // Add claims for role
+        foreach (var scope in value.Scopes)
+        {
+          var claim = new Claim("scope", scope);
+          await roleStore.AddClaimAsync(role, claim, cancellationToken);
+        }
       }
     }
     // Admin User

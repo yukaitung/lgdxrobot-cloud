@@ -17,9 +17,9 @@ namespace LGDXRobot2Cloud.API.Areas.Robot.Controllers;
 
 [ApiController]
 [Area("Robot")]
-[Route("[area]")]
+[Route("[area]/[controller]")]
 
-public class RobotController(
+public class RobotsController(
   IMapper mapper,
   IOnlineRobotsService OnlineRobotsService,
   IOptionsSnapshot<LgdxRobot2Configuration> options,
@@ -122,7 +122,7 @@ public class RobotController(
     return CreatedAtAction(nameof(CreateRobot), response);
   }
 
-  [HttpPatch("{id}/emergencystop")]
+  [HttpPatch("{id}/emergencyStop")]
   public ActionResult UpdateSoftwareEmergencyStop(Guid id, EnableDto data)
   {
     if (_onlineRobotsService.UpdateSoftwareEmergencyStop(id, data.Enable))
@@ -132,7 +132,7 @@ public class RobotController(
     return BadRequest("Robot is offline or not found.");
   }
 
-  [HttpPatch("{id}/pausetaskassigement")]
+  [HttpPatch("{id}/pauseTaskAssigement")]
   public ActionResult UpdatePauseTaskAssigement(Guid id, EnableDto data)
   {
     if (_onlineRobotsService.UpdatePauseTaskAssigement(id, data.Enable))
@@ -142,7 +142,7 @@ public class RobotController(
     return BadRequest("Robot is offline or not found.");
   }
 
-  [HttpPut("{id}/information")]
+  [HttpPut("{id}/info")]
   public async Task<ActionResult> UpdateRobot(Guid id, RobotUpdateDto robotDto)
   {
     var robotEntity = await _robotRepository.GetRobotAsync(id);

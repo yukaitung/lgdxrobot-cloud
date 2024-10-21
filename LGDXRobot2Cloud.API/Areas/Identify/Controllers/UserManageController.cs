@@ -17,6 +17,7 @@ namespace LGDXRobot2Cloud.API.Areas.Identify.Controllers;
 [Area("Identify")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(Roles = "Global Administrator")]
 public class UserManageController(
     ILgdxUsersRepository lgdxUsersRepository,
     IMapper mapper,
@@ -34,6 +35,7 @@ public class UserManageController(
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
   [HttpGet("")]
+  [Authorize(Roles = "Global Reader")]
   public async Task<ActionResult<IEnumerable<LgdxUserListDto>>> GetUsers(string? name, int pageNumber = 1, int pageSize = 10)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
@@ -43,6 +45,7 @@ public class UserManageController(
   }
 
   [HttpGet("{id}", Name = "GetUser")]
+  [Authorize(Roles = "Global Reader")]
   public async Task<ActionResult<LgdxUserDto>> GetUser(Guid id)
   {
     var user = await _userManager.FindByIdAsync(id.ToString());
