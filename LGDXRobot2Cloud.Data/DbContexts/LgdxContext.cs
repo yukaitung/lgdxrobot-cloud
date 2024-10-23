@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LGDXRobot2Cloud.Data.DbContexts;
 
-public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbContext<LgdxUser>(options)
+public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbContext<LgdxUser, LgdxRole, string>(options)
 {
   // Navigation
   public DbSet<AutoTask> AutoTasks { get; set; }

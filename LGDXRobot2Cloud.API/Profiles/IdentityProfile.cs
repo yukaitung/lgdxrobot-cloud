@@ -11,5 +11,9 @@ public class IdentityProfile : Profile
     CreateMap<LgdxUser, LgdxUserDto>();
     CreateMap<LgdxUser, LgdxUserListDto>();
     CreateMap<LgdxUserUpdateDto, LgdxUser>();
+    CreateMap<LgdxRole, LgdxRoleDto>();
+    CreateMap<LgdxRole, LgdxRoleListDto>();
+    CreateMap<LgdxRoleCreateDto, LgdxRole>();
+    CreateMap<LgdxRoleUpdateDto, LgdxRole>();
   }
 }

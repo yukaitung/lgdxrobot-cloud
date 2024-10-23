@@ -23,12 +23,12 @@ public class InitializeDataRunner(LgdxContext context,
     var defaultRoles = LgdxRoles.Default;
     foreach (var (key, value) in defaultRoles)
     {
-      var role = new IdentityRole{
+      var role = new LgdxRole{
         Id = key.ToString(),
         Name = value.Name,
         NormalizedName = value.Name.ToUpper(),
       };
-      var roleStore = new RoleStore<IdentityRole>(context);
+      var roleStore = new RoleStore<LgdxRole>(context);
       if (!context.Roles.Any(r => r.Name == role.Name))
       {
         // Create Role

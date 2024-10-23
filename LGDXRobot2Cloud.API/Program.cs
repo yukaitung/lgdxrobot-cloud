@@ -82,7 +82,7 @@ builder.Services.AddHttpContextAccessor();
 /*
  * Authentication
  */
-builder.Services.AddIdentity<LgdxUser, IdentityRole>()
+builder.Services.AddIdentity<LgdxUser, LgdxRole>()
   .AddEntityFrameworkStores<LgdxContext>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(cfg =>

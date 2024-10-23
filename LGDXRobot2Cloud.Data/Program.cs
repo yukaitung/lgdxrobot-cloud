@@ -19,9 +19,8 @@ builder.Services.AddDbContext<LgdxContext>(
 bool initializeData = bool.Parse(builder.Configuration["initializeData"] ?? "false");
 if (initializeData) 
 {
-	builder.Services.AddIdentityCore<LgdxUser>()
-		.AddRoles<IdentityRole>()
-		.AddEntityFrameworkStores<LgdxContext>();
+	builder.Services.AddIdentity<LgdxUser, LgdxRole>()
+  	.AddEntityFrameworkStores<LgdxContext>();
 	builder.Services.AddHostedService<InitializeDataRunner>();
 }
 
