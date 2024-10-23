@@ -12,13 +12,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using LGDXRobot2Cloud.API.Authorisation;
 
 namespace LGDXRobot2Cloud.API.Areas.Robot.Controllers;
 
 [ApiController]
 [Area("Robot")]
 [Route("[area]/[controller]")]
-
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[ValidateLgdxUserAccess]
 public class RobotsController(
   IMapper mapper,
   IOnlineRobotsService OnlineRobotsService,

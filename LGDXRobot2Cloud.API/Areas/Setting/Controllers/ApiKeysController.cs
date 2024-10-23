@@ -1,9 +1,12 @@
 using AutoMapper;
+using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
@@ -14,7 +17,8 @@ namespace LGDXRobot2Cloud.API.Areas.Setting.Controllers;
 [ApiController]
 [Area("Setting")]
 [Route("[area]/[controller]")]
-
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[ValidateLgdxUserAccess]
 public class ApiKeysController(
   IApiKeyRepository apiKeyRepository,
   IMapper mapper,

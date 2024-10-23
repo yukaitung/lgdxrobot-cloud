@@ -1,4 +1,5 @@
 using AutoMapper;
+using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
@@ -6,6 +7,8 @@ using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 using LGDXRobot2Cloud.Utilities.Enums;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
@@ -15,7 +18,8 @@ namespace LGDXRobot2Cloud.API.Areas.Navigation.Controllers;
 [ApiController]
 [Area("Navigation")]
 [Route("[area]/[controller]")]
-
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[ValidateLgdxUserAccess]
 public class TasksController(
   IAutoTaskRepository autoTaskRepository,
   IAutoTaskSchedulerService autoTaskSchedulerService,
