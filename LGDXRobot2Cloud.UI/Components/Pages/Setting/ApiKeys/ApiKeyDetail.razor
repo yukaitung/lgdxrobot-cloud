@@ -1,5 +1,6 @@
 @attribute [Route(AppRoutes.Setting.ApiKeys.Detail)]
 @attribute [Route(AppRoutes.Setting.ApiKeys.Create)]
+@attribute [Authorize]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit API Key" : "Create API Key")">

@@ -47,8 +47,11 @@ public class UserController(
       var userRoles = await _userManager.GetRolesAsync(user);
       var Claims = new List<Claim>
       {
-        new (ClaimTypes.NameIdentifier, user.Id.ToString()),
         new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new (ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new (ClaimTypes.Name, user.UserName ?? string.Empty),
+        new (ClaimTypes.Email, user.Email ?? string.Empty),
+        new ("fullname", user.Name ?? string.Empty),
       };
       // Add Roles         
       foreach (var userRole in userRoles)

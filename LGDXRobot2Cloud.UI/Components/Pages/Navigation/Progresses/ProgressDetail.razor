@@ -1,5 +1,6 @@
 @attribute [Route(AppRoutes.Navigation.Progresses.Create)]
 @attribute [Route(AppRoutes.Navigation.Progresses.Detail)]
+@attribute [Authorize]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Progress" : "Create Progress")">

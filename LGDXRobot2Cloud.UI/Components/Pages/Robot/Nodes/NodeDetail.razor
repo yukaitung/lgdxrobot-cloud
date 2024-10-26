@@ -1,5 +1,6 @@
 @attribute [Route(AppRoutes.Robot.Nodes.Create)]
 @attribute [Route(AppRoutes.Robot.Nodes.Detail)]
+@attribute [Authorize]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Node" : "Create Node")">

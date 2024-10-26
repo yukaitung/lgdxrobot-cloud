@@ -1,0 +1,43 @@
+@page "/login"
+@layout EmptyLayout
+
+<div style="display: none;">
+  <PageTitle>Log In | LGDXRobot2 Cloud</PageTitle>
+</div>
+
+<div class="page page-center">
+  <div class="container container-tight py-4">
+    <div class="text-center mb-4">
+      <a class="navbar-brand navbar-brand-autodark">
+        <img src="/img/logo.png" height="32" alt="LGDXRobot2" class="navbar-brand-image">
+      </a>
+    </div>
+    <div class="card card-md">
+      <div class="card-body">
+        <EditForm Model="LoginRequest" method="post" OnValidSubmit="HandleLogin" FormName="login">
+          <SubmitErrorModal Display="@IsError" />
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <InputText type="text" class="form-control" autocomplete="off" @bind-Value="LoginRequest.Username" />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">
+              Password
+              <span class="form-label-description">
+                <!-- <a href="./forgot-password.html">I forgot password</a> -->
+              </span>
+            </label>
+            <div class="input-group input-group-flat">
+              <InputText type="password" class="form-control" autocomplete="off" @bind-Value="LoginRequest.Password" />
+              <span class="input-group-text">
+              </span>
+            </div>
+          </div>
+          <div class="form-footer">
+            <button type="submit" class="btn btn-primary w-100">Log In</button>
+          </div>
+        </EditForm>
+      </div>
+    </div>
+  </div>
+</div>

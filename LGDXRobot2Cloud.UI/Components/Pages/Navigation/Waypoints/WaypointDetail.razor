@@ -1,5 +1,6 @@
 @attribute [Route(AppRoutes.Navigation.Waypoints.Create)]
 @attribute [Route(AppRoutes.Navigation.Waypoints.Detail)]
+@attribute [Authorize]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Waypoint" : "Create Waypoint")">

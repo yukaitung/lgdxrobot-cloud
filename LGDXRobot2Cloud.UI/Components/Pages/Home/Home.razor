@@ -1,4 +1,5 @@
 ﻿@page "/"
+@attribute [Authorize]
 
 <PageHeader Title="Home">
   <div class="row align-items-center">
@@ -12,4 +13,9 @@
 
 <PageBody>
   Welcome to LGDXRobot2.
+  <AuthorizeView>
+      <Authorized>
+          <p>Hello, @context.User.Identity?.Name!</p>
+      </Authorized>
+  </AuthorizeView>
 </PageBody>
