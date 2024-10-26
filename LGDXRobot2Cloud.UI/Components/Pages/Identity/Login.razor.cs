@@ -13,6 +13,9 @@ public sealed partial class Login : ComponentBase
   [Inject] 
   public required IUserService UserService { get; set; }
 
+  [Inject]
+  public required NavigationManager NavigationManager { get; set; }
+
   [CascadingParameter]
   private HttpContext HttpContext { get; set; } = default!;
 
@@ -38,5 +41,8 @@ public sealed partial class Login : ComponentBase
     var user = new ClaimsPrincipal(identity);
     var authProperties = new AuthenticationProperties{};
     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user, authProperties);
+
+  
+    NavigationManager.NavigateTo(ReturnUrl ?? "/");
   }
 }

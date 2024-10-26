@@ -1,0 +1,32 @@
+<div class="modal modal-blur fade" id="logoutModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-blue"></div>
+      <div class="modal-body text-center py-4">
+        <i class="ti ti-logout" style="font-size: 24px;"></i>
+        <h3>Logout</h3>
+        <div class="text-secondary">You are about to logout LGDXRobot2 Cloud</div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col">
+              <a class="btn w-100" data-bs-dismiss="modal">
+                Cancel
+              </a>
+            </div>
+            <div class="col">
+              <form action="api/Logout" method="post">
+                <AntiforgeryToken />
+                <button type="submit" class="btn btn-blue w-100" data-bs-dismiss="modal">
+                  Confirm
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

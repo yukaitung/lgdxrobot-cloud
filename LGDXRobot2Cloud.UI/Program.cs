@@ -1,6 +1,7 @@
 using LGDXRobot2Cloud.UI.Authorisation;
 using LGDXRobot2Cloud.UI.Components;
 using LGDXRobot2Cloud.UI.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -62,5 +63,11 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();
+
+app.MapPost("api/Logout", async (HttpContext context) =>
+{
+	await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+	return TypedResults.LocalRedirect("/Login");
+});
 
 app.Run();
