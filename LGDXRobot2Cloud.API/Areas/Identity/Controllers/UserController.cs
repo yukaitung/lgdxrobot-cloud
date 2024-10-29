@@ -48,7 +48,7 @@ public class UserController(
       var Claims = new List<Claim>
       {
         new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new (ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
         new (ClaimTypes.Name, user.UserName ?? string.Empty),
         new (ClaimTypes.Email, user.Email ?? string.Empty),
         new ("fullname", user.Name ?? string.Empty),

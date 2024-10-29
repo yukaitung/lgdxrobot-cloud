@@ -13,7 +13,11 @@ builder.Services.AddRazorComponents()
 
 // Add API
 var configureAction = (HttpClient client) => 
-    { client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? string.Empty); };
+  { 
+		client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? string.Empty);
+	};
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 // Navigation
 builder.Services.AddHttpClient<IAutoTaskService, AutoTaskService>(configureAction);
 builder.Services.AddHttpClient<IFlowService, FlowService>(configureAction);
@@ -29,8 +33,6 @@ builder.Services.AddHttpClient<IRobotService, RobotService>(configureAction);
 // Setting
 builder.Services.AddHttpClient<IApiKeyService, ApiKeyService>(configureAction);
 builder.Services.AddHttpClient<IRobotCertificateService, RobotCertificateService>(configureAction);
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Identity
 builder.Services.AddHttpClient<IUserService, UserService>(configureAction);

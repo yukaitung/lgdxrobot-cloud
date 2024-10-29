@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.UI.Models;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -17,18 +18,11 @@ public interface IAutoTaskService
   Task<bool> AbortAutoTaskAsync(int autoTaskId);
 }
 
-public sealed class AutoTaskService : IAutoTaskService
+public sealed class AutoTaskService(
+  AuthenticationStateProvider authenticationStateProvider, 
+  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IAutoTaskService
 {
-  public readonly HttpClient _httpClient;
-  public readonly JsonSerializerOptions _jsonSerializerOptions;
-
-  public AutoTaskService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-    _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-  }
-
-  public async Task<(IEnumerable<AutoTask>?, PaginationHelper?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10)
+    public async Task<(IEnumerable<AutoTask>?, PaginationHelper?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     StringBuilder url = new($"navigation/tasks?pageNumber={pageNumber}&pageSize={pageSize}");
     if (showProgressId != null)
