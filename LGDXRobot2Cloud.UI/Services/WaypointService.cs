@@ -3,6 +3,7 @@ using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -16,17 +17,10 @@ public interface IWaypointService
   Task<string> SearchWaypointsAsync(string name);
 }
 
-public sealed class WaypointService : IWaypointService
+public sealed class WaypointService(
+  AuthenticationStateProvider authenticationStateProvider, 
+  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IWaypointService
 {
-  public readonly HttpClient _httpClient;
-  public readonly JsonSerializerOptions _jsonSerializerOptions;
-
-  public WaypointService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-    _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-  }
-  
   public async Task<(IEnumerable<Waypoint>?, PaginationHelper?)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
   {
     var url = name != null ? $"navigation/waypoints?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/waypoints?pageNumber={pageNumber}&pageSize={pageSize}";

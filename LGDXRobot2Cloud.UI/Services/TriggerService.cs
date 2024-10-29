@@ -3,6 +3,7 @@ using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using LGDXRobot2Cloud.UI.Models;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -16,17 +17,10 @@ public interface ITriggerService
   Task<string> SearchTriggersAsync(string name);
 }
 
-public sealed class TriggerService : ITriggerService
+public sealed class TriggerService(
+  AuthenticationStateProvider authenticationStateProvider, 
+  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), ITriggerService
 {
-  public readonly HttpClient _httpClient;
-  public readonly JsonSerializerOptions _jsonSerializerOptions;
-
-  public TriggerService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-    _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-  }
-
   public async Task<(IEnumerable<Trigger>?, PaginationHelper?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"navigation/triggers?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/triggers?pageNumber={pageNumber}&pageSize={pageSize}";

@@ -3,6 +3,7 @@ using LGDXRobot2Cloud.Data.Models.DTOs.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using Microsoft.AspNetCore.Components.Authorization;
 using System.Text;
 using System.Text.Json;
 
@@ -21,20 +22,13 @@ public interface IRobotService
   Task<string> SearchRobotsAsync(string name);
 }
 
-public sealed class RobotService : IRobotService
+public sealed class RobotService(
+  AuthenticationStateProvider authenticationStateProvider, 
+  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IRobotService
 {
-  public readonly HttpClient _httpClient;
-  public readonly JsonSerializerOptions _jsonSerializerOptions;
-
-  public RobotService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-    _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-  }
-
   public async Task<(IEnumerable<Robot>?, PaginationHelper?)> GetRobotsAsync(string? name, int pageNumber, int pageSize)
   {
-    var url = name != null ? $"robot?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot?pageNumber={pageNumber}&pageSize={pageSize}";
+    var url = name != null ? $"robot/robots?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot/robots?pageNumber={pageNumber}&pageSize={pageSize}";
     var response = await _httpClient.GetAsync(url);
     if (response.IsSuccessStatusCode)
     {
@@ -51,7 +45,7 @@ public sealed class RobotService : IRobotService
 
   public async Task<Robot?> GetRobotAsync(string robotId)
   {
-    var response = await _httpClient.GetAsync($"robot/{robotId}");
+    var response = await _httpClient.GetAsync($"robot/robots/{robotId}");
     var robot = await JsonSerializer.DeserializeAsync<Robot>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
     return robot;
   }
@@ -72,7 +66,7 @@ public sealed class RobotService : IRobotService
   {
     EnableDto data = new() { Enable = enable };
     var dataJson = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PatchAsync($"robot/{robotId}/emergencystop", dataJson);
+    var response = await _httpClient.PatchAsync($"robot/robots/{robotId}/emergencystop", dataJson);
     return response.IsSuccessStatusCode;
   }
 
@@ -80,33 +74,33 @@ public sealed class RobotService : IRobotService
   {
     EnableDto data = new() { Enable = enable };
     var dataJson = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PatchAsync($"robot/{robotId}/pausetaskassigement", dataJson);
+    var response = await _httpClient.PatchAsync($"robot/robots/{robotId}/pauseTaskAssigement", dataJson);
     return response.IsSuccessStatusCode;
   }
 
   public async Task<bool> UpdateRobotInformationAsync(string robotId, RobotUpdateDto robot)
   {
     var robotJson = new StringContent(JsonSerializer.Serialize(robot), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PutAsync($"robot/{robotId}/information", robotJson);
+    var response = await _httpClient.PutAsync($"robot/robots/{robotId}/information", robotJson);
     return response.IsSuccessStatusCode;
   }
 
   public async Task<bool> UpdateRobotChassisInfoAsync(string robotId, RobotChassisInfoUpdateDto robot)
   {
     var robotJson = new StringContent(JsonSerializer.Serialize(robot), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PutAsync($"robot/{robotId}/chassis", robotJson);
+    var response = await _httpClient.PutAsync($"robot/robots/{robotId}/chassis", robotJson);
     return response.IsSuccessStatusCode;
   }
 
   public async Task<bool> DeleteRobotAsync(string robotId)
   {
-    var response = await _httpClient.DeleteAsync($"robot/{robotId}");
+    var response = await _httpClient.DeleteAsync($"robot/robots/{robotId}");
     return response.IsSuccessStatusCode;
   }
 
   public async Task<string> SearchRobotsAsync(string name)
   {
-    var url = $"robot?name={name}";
+    var url = $"robot/robots?name={name}";
     var response = await _httpClient.GetAsync(url);
     if (response.IsSuccessStatusCode)
     {

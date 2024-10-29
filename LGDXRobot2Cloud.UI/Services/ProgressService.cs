@@ -3,6 +3,7 @@ using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -16,17 +17,10 @@ public interface IProgressService
   Task<string> SearchProgressesAsync(string name);
 }
 
-public sealed class ProgressService : IProgressService
+public sealed class ProgressService(
+  AuthenticationStateProvider authenticationStateProvider, 
+  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IProgressService
 {
-  public readonly HttpClient _httpClient;
-  public readonly JsonSerializerOptions _jsonSerializerOptions;
-
-  public ProgressService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-    _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-  }
-
   public async Task<(IEnumerable<Progress>?, PaginationHelper?)> GetProgressesAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"navigation/progresses?name={name}&pageNumber={pageNumber}&pageSize={pageSize}&hideSystem=true" : $"navigation/progresses?pageNumber={pageNumber}&pageSize={pageSize}&hideSystem=true";

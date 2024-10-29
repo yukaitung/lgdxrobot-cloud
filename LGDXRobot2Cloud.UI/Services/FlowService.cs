@@ -1,6 +1,7 @@
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using Microsoft.AspNetCore.Components.Authorization;
 using System.Text;
 using System.Text.Json;
 
@@ -16,17 +17,10 @@ public interface IFlowService
   Task<string> SearchFlowsAsync(string name);
 }
 
-public sealed class FlowService : IFlowService
+public sealed class FlowService(
+  AuthenticationStateProvider authenticationStateProvider, 
+  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IFlowService
 {
-  public readonly HttpClient _httpClient;
-  public readonly JsonSerializerOptions _jsonSerializerOptions;
-
-  public FlowService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-    _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-  }
-
   public async Task<(IEnumerable<Flow>?, PaginationHelper?)> GetFlowsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"navigation/flows?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/flows?pageNumber={pageNumber}&pageSize={pageSize}";

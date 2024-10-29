@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -19,17 +20,10 @@ public interface IApiKeyService
   Task<string> SearchApiKeysAsync(string name);
 }
 
-public sealed class ApiKeyService : IApiKeyService
+public sealed class ApiKeyService(
+  AuthenticationStateProvider authenticationStateProvider, 
+  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IApiKeyService
 {
-  public readonly HttpClient _httpClient;
-  public readonly JsonSerializerOptions _jsonSerializerOptions;
-
-  public ApiKeyService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-    _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true};
-  }
-
   public async Task<(IEnumerable<ApiKey>?, PaginationHelper?)> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"setting/apikeys?isThirdParty={isThirdParty}&name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"setting/secret/apikeys?isThirdParty={isThirdParty}&pageNumber={pageNumber}&pageSize={pageSize}";

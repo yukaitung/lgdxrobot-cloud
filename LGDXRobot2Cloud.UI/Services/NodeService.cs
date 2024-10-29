@@ -3,6 +3,7 @@ using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using LGDXRobot2Cloud.UI.Models;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -16,17 +17,10 @@ public interface INodeService
   Task<string> SearchNodesAsync(string name);
 }
 
-public sealed class NodeService : INodeService
+public sealed class NodeService(
+  AuthenticationStateProvider authenticationStateProvider, 
+  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), INodeService
 {
-  public readonly HttpClient _httpClient;
-  public readonly JsonSerializerOptions _jsonSerializerOptions;
-
-  public NodeService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-    _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-  }
-
   public async Task<(IEnumerable<Node>?, PaginationHelper?)> GetNodesAsync(string? name, int pageNumber, int pageSize)
   {
     var url = name != null ? $"robot/nodes?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot/nodes?pageNumber={pageNumber}&pageSize={pageSize}";

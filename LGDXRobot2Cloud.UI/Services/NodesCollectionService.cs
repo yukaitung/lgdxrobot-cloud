@@ -3,6 +3,7 @@ using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -15,17 +16,10 @@ public interface INodesCollectionService
   Task<bool> DeleteNodesCollectionAsync(int nodesCollectionId);
 }
 
-public sealed class NodesCollectionService : INodesCollectionService
+public sealed class NodesCollectionService(
+  AuthenticationStateProvider authenticationStateProvider, 
+  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), INodesCollectionService
 {
-  public readonly HttpClient _httpClient;
-  public readonly JsonSerializerOptions _jsonSerializerOptions;
-
-  public NodesCollectionService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-    _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-  }
-
   public async Task<(IEnumerable<NodesCollection>?, PaginationHelper?)> GetNodesCollectionsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     var url = name != null ? $"robot/collections?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"robot/collections?pageNumber={pageNumber}&pageSize={pageSize}";

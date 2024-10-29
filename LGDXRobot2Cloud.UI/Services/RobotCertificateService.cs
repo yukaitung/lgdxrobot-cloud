@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -14,17 +15,10 @@ public interface IRobotCertificateService
   Task<RobotCertificateIssueDto?> RenewRobotCertificateAsync(string certificateId, RobotRenewCertificateRenewDto dto);
 }
 
-public sealed class RobotCertificateService : IRobotCertificateService
+public sealed class RobotCertificateService(
+  AuthenticationStateProvider authenticationStateProvider, 
+  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IRobotCertificateService
 {
-  public readonly HttpClient _httpClient;
-  public readonly JsonSerializerOptions _jsonSerializerOptions;
-
-  public RobotCertificateService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-    _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-  }
-
   public async Task<(IEnumerable<RobotCertificate>?, PaginationHelper?)> GetRobotCertificatesAsync(int pageNumber = 1, int pageSize = 10)
   {
     var url = $"setting/certificates?pageNumber={pageNumber}&pageSize={pageSize}";
