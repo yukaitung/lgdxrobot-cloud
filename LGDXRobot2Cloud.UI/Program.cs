@@ -35,7 +35,7 @@ builder.Services.AddHttpClient<IApiKeyService, ApiKeyService>(configureAction);
 builder.Services.AddHttpClient<IRobotCertificateService, RobotCertificateService>(configureAction);
 
 // Identity
-builder.Services.AddHttpClient<IUserService, UserService>(configureAction);
+builder.Services.AddHttpClient<IAuthService, AuthService>(configureAction);
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(cfg =>
 	{
@@ -70,6 +70,6 @@ app.MapPost("api/Logout", async (HttpContext context) =>
 {
 	await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 	return TypedResults.LocalRedirect("/Login");
-});
+}).RequireAuthorization();
 
 app.Run();

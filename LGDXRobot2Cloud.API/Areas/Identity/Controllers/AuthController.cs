@@ -17,7 +17,7 @@ namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 [Area("Identity")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class UserController(
+public class AuthController(
     IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
     UserManager<LgdxUser> userManager,
     ILgdxRoleRepository lgdxRoleRepository

@@ -8,17 +8,17 @@ using System.Text.Json;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
-public interface IUserService
+public interface IAuthService
 {
   Task<bool> LoginAsync(HttpContext context, LoginRequest request);
 }
 
-public class UserService : IUserService
+public class AuthService : IAuthService
 {
   private readonly HttpClient _httpClient;
   private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-  public UserService(HttpClient httpClient)
+  public AuthService(HttpClient httpClient)
   {
     _httpClient = httpClient;
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
@@ -27,7 +27,7 @@ public class UserService : IUserService
   public async Task<bool> LoginAsync(HttpContext context, LoginRequest request)
   {
     var json = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("/Identity/User/login", json);
+    var response = await _httpClient.PostAsync("/Identity/Auth/login", json);
     if (response.IsSuccessStatusCode)
     {
       var loginResponse = await JsonSerializer.DeserializeAsync<LoginResponse>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
