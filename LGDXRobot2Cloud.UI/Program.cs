@@ -34,6 +34,7 @@ builder.Services.AddHttpClient<IRobotService, RobotService>(configureAction);
 builder.Services.AddHttpClient<IApiKeyService, ApiKeyService>(configureAction);
 builder.Services.AddHttpClient<IRobotCertificateService, RobotCertificateService>(configureAction);
 builder.Services.AddHttpClient<IUsersService, UsersService>(configureAction);
+builder.Services.AddHttpClient<IRoleService, RoleService>(configureAction);
 
 // Identity
 builder.Services.AddHttpClient<IAuthService, AuthService>(configureAction);

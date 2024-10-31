@@ -1,23 +1,23 @@
-@attribute [Route(AppRoutes.Setting.Users.Index)]
+@attribute [Route(AppRoutes.Setting.Roles.Index)]
 @attribute [Authorize]
-@using LGDXRobot2Cloud.UI.Components.Pages.Setting.Users.Components
+@using LGDXRobot2Cloud.UI.Components.Pages.Setting.Roles.Components
 @rendermode InteractiveServer
 
-<PageHeader Title="Users">
+<PageHeader Title="Roles">
   <div class="row align-items-center">
     <div class="col">
       <h2 class="page-title">
-        Users
+        Roles
       </h2>
     </div>
     <div class="col-auto ms-auto">
-      <a href="@AppRoutes.Setting.Users.Create" class="btn btn-primary">
-        Create User
+      <a href="@AppRoutes.Setting.Roles.Create" class="btn btn-primary">
+        Create Role
       </a>
     </div>
   </div>
 </PageHeader>
 
 <PageBody>
-  <UsersTable />
+  <RolesTable />
 </PageBody>

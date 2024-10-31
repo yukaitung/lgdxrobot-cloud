@@ -1,18 +1,18 @@
-@attribute [Route(AppRoutes.Setting.Users.Detail)]
-@attribute [Route(AppRoutes.Setting.Users.Create)]
+@attribute [Route(AppRoutes.Setting.Roles.Detail)]
+@attribute [Route(AppRoutes.Setting.Roles.Create)]
 @attribute [Authorize]
 @rendermode InteractiveServer
 
-<PageHeader Title="@(Id != null ? "Edit User" : "Create User")">
+<PageHeader Title="@(Id != null ? "Edit Role" : "Create Role")">
   <div class="row align-items-center">
     <div class="col">
       <div class="mb-1">
         <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Setting.Users.Index">◀ Return</a></li>
+          <li class="breadcrumb-item"><a href="@AppRoutes.Setting.Roles.Index">◀ Return</a></li>
         </ol>
       </div>
       <h2 class="page-title">
-        @(Id != null ? "Edit User" : "Create User")
+        @(Id != null ? "Edit Role" : "Create Role")
       </h2>
     </div>
   </div>
@@ -21,7 +21,7 @@
 <PageBody>
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">User Detail</h3>
+      <h3 class="card-title">Role Detail</h3>
     </div>
     <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
       <DataAnnotationsValidator />
@@ -33,60 +33,54 @@
           <div class="mb-3 row">
             <label class="col-3 col-form-label">ID</label>
             <div class="col">
-              <div class="col form-control-plaintext">@User.Id</div>
+              <div class="col form-control-plaintext">@Role.Id</div>
             </div>
           </div>
         }
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="UserName">Username</label>
+          <label class="col-3 col-form-label required" for="Name">Name</label>
           <div class="col">
-            <InputText id="UserName" @bind-Value="User.UserName" type="text" class="form-control" />
-            <ValidationMessage class="invalid-feedback" For="@(() => User.UserName)" />
+            <InputText id="Name" @bind-Value="Role.Name" type="text" class="form-control" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Role.Name)" />
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="Name">Full Name</label>
+          <label class="col-3 col-form-label" for="Name">Description</label>
           <div class="col">
-            <InputText id="Name" @bind-Value="User.Name" type="text" class="form-control" />
-            <ValidationMessage class="invalid-feedback" For="@(() => User.Name)" />
+            <InputTextArea id="Arguments" @bind-Value="Role.Description" class="form-control" rows="3" />
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="Email">Email</label>
+          <label class="col-3 col-form-label required" for="Scopes">Scopes</label>
           <div class="col">
-            <InputText id="Email" @bind-Value="User.Email" type="text" class="form-control" />
-            <ValidationMessage class="invalid-feedback" For="@(() => User.Email)" />
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="Roles">Roles</label>
-          <div class="col">
+            <InformationModal>
+              1. The format of the scope is LGDXRobot2Cloud.API/Area/Controller/Permission.<br />
+              2. The permission including FullAccess, Read, Write and Delete.<br />
+              3. The permission applies to sub classes if not specified.
+            </InformationModal>
             <table class="table table-vcenter text-nowrap datatable">
               <thead>
                 <tr>
                   <th class="w-1">Sequence</th>
-                  <th>Roles</th>
+                  <th>Scopes</th>
                   <th class="w-1"><!-- Action --></th>
                 </tr>
               </thead>
               <tbody>
-                @for (int i = 0; i < User.Roles.Count; i++)
+                @for (int i = 0; i < Role.Scopes.Count; i++)
                 {
                   var index = i;
-                  var roleName = User.Roles[i];
+                  var scope = Role.Scopes[i];
                   <tr>
                     <td>
                         @(index + 1)
                     </td>
                     <td>
-                      <InputSelect id="@(AdvanceSelectElements[0] + i.ToString())" class="form-control"
-                        @bind-Value="roleName">
-                          <option value="@roleName">@roleName</option>
-                      </InputSelect>
+                      <InputText id="@($"Scope-{index}")" @bind-Value="Role.Scopes[index]" type="text" class="form-control" />
                     </td>
                     <td>
                       <button type="button"
-                        class="btn btn-ghost-danger btn-icon @(User.Roles.Count <= 1 ? "disabled" : "")"
+                        class="btn btn-ghost-danger btn-icon @(Role.Scopes.Count <= 1 ? "disabled" : "")"
                         @onclick="e => TaskRemoveStep(index)">
                         <i class="ti ti-trash" style="font-size: 16px;"></i>
                       </button>
@@ -97,20 +91,11 @@
             </table>
             <div class="row">
               <button type="button" class="btn btn-secondary w-8 mx-auto mb-3" @onclick="TaskAddStep">
-                Add A Role
+                Add A Scope
               </button>
             </div>
           </div>
         </div>
-        @if (Id != null)
-        {
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label">Access Failed</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@User.AccessFailedCount</div>
-            </div>
-          </div>
-        }
       </div>
       <div class="card-footer d-flex">
         @if (Id != null)
@@ -127,5 +112,5 @@
 
 @if (Id != null)
 {
-  <DeleteEntryModal EntryName="User" OnDelete="HandleDelete" />
+  <DeleteEntryModal EntryName="Scope" OnDelete="HandleDelete" />
 }

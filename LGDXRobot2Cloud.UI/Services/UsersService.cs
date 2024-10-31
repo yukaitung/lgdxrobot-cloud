@@ -14,7 +14,6 @@ public interface IUsersService
   Task<bool> AddUserAsync(LgdxUserCreateDto user);
   Task<bool> UpdateUserAsync(string userId, LgdxUserUpdateDto user);
   Task<bool> DeleteUserAsync(string userId);
-  Task<string> SearchRolessAsync(string name);
 }
 
 public sealed class UsersService(
@@ -63,19 +62,5 @@ public sealed class UsersService(
   {
     var response = await _httpClient.DeleteAsync($"Identity/Users/{userId}");
     return response.IsSuccessStatusCode;
-  }
-
-  public async Task<string> SearchRolessAsync(string name)
-  {
-    var url = $"Identity/Roles?name={name}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
-    {
-      return await response.Content.ReadAsStringAsync();
-    }
-    else
-    {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
-    }
   }
 }
