@@ -13,5 +13,5 @@ public class LgdxUserCreateDto
   [Required]
   public string Email { get; set; } = null!;
 
-  public string? Password { get; set; } = null!;
+  public IEnumerable<string> Roles { get; set; } = [];
 }

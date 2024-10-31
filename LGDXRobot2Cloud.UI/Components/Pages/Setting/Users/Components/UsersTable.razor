@@ -1,0 +1,71 @@
+@inherits AbstractTable
+
+<div class="card">
+  <!-- Header -->
+  <div class="card-header">
+    <h3 class="card-title">Users</h3>
+  </div>
+  <!-- Filter -->
+  <div class="card-body border-bottom py-3">
+    <div class="d-flex">
+      <div class="text-secondary">
+        <div class="row g-2">
+          <div class="col">
+            Show
+          </div>
+          <div class="col-auto">
+            <TablePageSizeSelect OnChange="HandlePageSizeChange" />
+          </div>
+          <div class="col-auto">
+            entries
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data -->
+  <div class="table-responsive">
+    <table class="table card-table table-vcenter text-nowrap datatable">
+      <thead>
+        <tr>
+          <th class="w-1">ID</th>
+          <th>Username</th>
+          <th>Full Name</th>
+          <th class="w-1"><!-- Action --></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (LgdxUsers != null)
+        {
+          @foreach (var lgdxUser in LgdxUsers)
+          {
+            var lgdxUserId = lgdxUser.Id;
+            <tr>
+              <td>@lgdxUser.Id</td>
+              <td>@lgdxUser.UserName</td>
+              <td>@lgdxUser.Name</td>
+              <td class="text-end">
+                <a href="@(AppRoutes.Setting.Users.Index + $"/{lgdxUserId}")" class="page-link link-primary">Edit</a>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <TableLoading Columns="5" />
+        }
+      </tbody>
+    </table>
+    @if (LgdxUsers != null && LgdxUsers.Count() == 0)
+    {
+      <TableEmpty />
+    }
+  </div>
+  <!-- Footer -->
+  @if (PaginationHelper != null && LgdxUsers != null && LgdxUsers.Count() > 0)
+  {
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="LgdxUsers.Count()"
+      OnPageChange="HandlePageChange" />
+  }
+</div>

@@ -71,18 +71,27 @@ public class UsersController(
       SecurityStamp = Guid.NewGuid().ToString("D"),
       UserName = lgdxUserCreateDto.UserName
     };
+    /*
     if (lgdxUserCreateDto.Password != null)
     {
       var password = new PasswordHasher<LgdxUser>();
       var hashed = password.HashPassword(user, lgdxUserCreateDto.Password);
       user.PasswordHash = hashed;
     }
+    */
     var result = await _userManager.CreateAsync(user);
     if (!result.Succeeded)
     {
       return BadRequest();
     }
     var userEntity = await _userManager.FindByNameAsync(lgdxUserCreateDto.UserName);
+    var roleToAdd = lgdxUserCreateDto.Roles;
+    result = await _userManager.AddToRolesAsync(userEntity!, roleToAdd);
+    if (!result.Succeeded)
+    {
+      return BadRequest();
+    }
+    userEntity = await _userManager.FindByNameAsync(lgdxUserCreateDto.UserName);
     var returnUser = _mapper.Map<LgdxUserDto>(userEntity);
     return CreatedAtAction(nameof(GetUser), new { id = returnUser.Id }, returnUser);
   }
@@ -97,6 +106,19 @@ public class UsersController(
     }
     _mapper.Map(lgdxUserUpdateDto, userEntity);
     var result = await _userManager.UpdateAsync(userEntity);
+    if (!result.Succeeded)
+    {
+      return BadRequest();
+    }
+    var rolesEntity = await _userManager.GetRolesAsync(userEntity);
+    var roleToAdd = lgdxUserUpdateDto.Roles.Except(rolesEntity);
+    result = await _userManager.AddToRolesAsync(userEntity, roleToAdd);
+    if (!result.Succeeded)
+    {
+      return BadRequest();
+    }
+    var roleToRemove = rolesEntity.Except(lgdxUserUpdateDto.Roles);
+    result = await _userManager.RemoveFromRolesAsync(userEntity, roleToRemove);
     if (!result.Succeeded)
     {
       return BadRequest();
@@ -122,29 +144,6 @@ public class UsersController(
     return NoContent();
   }
 
-  [HttpPost("{id}/roles")]
-  public async Task<ActionResult> UpdateUserRole(Guid id, LgdxUserRoleUpdateDto lgdxUserRoleUpdateDto)
-  {
-    var user = await _userManager.FindByIdAsync(id.ToString());
-    if (user == null)
-    {
-      return NotFound();
-    }
-    var rolesEntity = await _userManager.GetRolesAsync(user);
-    var roleToAdd = lgdxUserRoleUpdateDto.Roles.Except(rolesEntity);
-    var result = await _userManager.AddToRolesAsync(user, roleToAdd);
-    if (!result.Succeeded)
-    {
-      return BadRequest();
-    }
-    var roleToRemove = rolesEntity.Except(lgdxUserRoleUpdateDto.Roles);
-    result = await _userManager.RemoveFromRolesAsync(user, roleToRemove);
-    if (!result.Succeeded)
-    {
-      return BadRequest();
-    }
-    return NoContent();
-  }
 
   [HttpDelete("{id}")]
   public async Task<ActionResult> DeleteUser(Guid id)

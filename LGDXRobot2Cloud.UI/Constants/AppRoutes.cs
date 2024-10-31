@@ -80,5 +80,19 @@ public static class AppRoutes
       public const string Detail = "/setting/certificates/{Id}";
       public const string Renew = "/setting/certificates/{Id}/renew";
     }
+
+    public static class Users
+    {
+      public const string Index = "/setting/users";
+      public const string Create = "/setting/users/create";
+      public const string Detail = "/setting/users/{Id}";
+    }
+
+    public static class Roles
+    {
+      public const string Index = "/setting/roles";
+      public const string Create = "/setting/roles/create";
+      public const string Detail = "/setting/roles/{Id}";
+    }
   }
 }

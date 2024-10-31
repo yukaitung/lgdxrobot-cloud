@@ -88,14 +88,26 @@ function InitAdvancedSelectList(elementList, start, len) {
   }
 }
 
-var AdvanceSelectEventHandler = function(elementId) {
-	return function() {
-    if (arguments[0] != undefined) {
+var AdvanceSelectEventHandler = function(elementId) 
+{
+	return function() 
+  {
+    if (arguments[0] != undefined) 
+    {
       if (arguments[0].length == 0)
+      {
         DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, null, null);
-      else {
-        const optionId = parseInt(arguments[0]);
-        if (AdvancedSelectOptions[elementId] != undefined && AdvancedSelectOptions[elementId][optionId] != undefined) {
+      }
+      else 
+      {
+        let optionId = arguments[0];
+        if (Number.isInteger(arguments[0]))
+        {
+          // Id is not GUID
+          optionId = parseInt(arguments[0]);
+        }
+        if (AdvancedSelectOptions[elementId] != undefined && AdvancedSelectOptions[elementId][optionId] != undefined) 
+        {
           const optionName = AdvancedSelectOptions[elementId][optionId];
           DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, optionId, optionName);
         }

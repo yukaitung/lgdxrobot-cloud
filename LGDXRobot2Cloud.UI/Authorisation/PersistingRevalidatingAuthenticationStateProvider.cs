@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Security.Claims;
-using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.UI.Models;
+using Entities = LGDXRobot2Cloud.Data.Entities;
+using Models = LGDXRobot2Cloud.UI.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
@@ -46,11 +46,11 @@ internal sealed class PersistingRevalidatingAuthenticationStateProvider : Revali
   {
     // Get the user manager from a new scope to ensure it fetches fresh data
     await using var scope = scopeFactory.CreateAsyncScope();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<LgdxUser>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Entities.LgdxUser>>();
     return await ValidateSecurityStampAsync(userManager, authenticationState.User);
   }
 
-  private async Task<bool> ValidateSecurityStampAsync(UserManager<LgdxUser> userManager, ClaimsPrincipal principal)
+  private async Task<bool> ValidateSecurityStampAsync(UserManager<Entities.LgdxUser> userManager, ClaimsPrincipal principal)
   {
     var user = await userManager.GetUserAsync(principal);
     if (user is null)
@@ -93,7 +93,7 @@ internal sealed class PersistingRevalidatingAuthenticationStateProvider : Revali
 
       if (id != null && email != null)
       {
-        state.PersistAsJson(nameof(LgdxUserInfo), new LgdxUserInfo
+        state.PersistAsJson(nameof(Models.LgdxUserInfo), new
         {
           Id = id,
           Email = email,

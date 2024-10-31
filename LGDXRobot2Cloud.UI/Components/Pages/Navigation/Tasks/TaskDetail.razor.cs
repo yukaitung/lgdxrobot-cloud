@@ -137,6 +137,7 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
     if (i < Task.Details.Count - 1)
       await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i, i + 1, true);
     Task.Details.RemoveAt(i);
+    InitaisedAdvanceSelect--;
   }
 
   public async Task HandleValidSubmit()

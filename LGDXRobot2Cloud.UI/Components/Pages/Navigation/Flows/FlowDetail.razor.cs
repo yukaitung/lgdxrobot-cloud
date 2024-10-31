@@ -128,6 +128,7 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     if (i < Flow.FlowDetails.Count - 1)
       await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i, i + 1, true);
     Flow.FlowDetails.RemoveAt(i);
+    InitaisedAdvanceSelect--;
   }
 
   public async Task HandleValidSubmit()
