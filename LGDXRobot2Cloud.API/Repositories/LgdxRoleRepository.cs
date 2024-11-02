@@ -27,8 +27,8 @@ public class LgdxRoleRepository(LgdxContext context) : ILgdxRoleRepository
     var query = _context.Roles as IQueryable<LgdxRole>;
     if (!string.IsNullOrWhiteSpace(name))
     {
-      name = name.Trim();
-      query = query.Where(u => u.Name!.Contains(name));
+      name = name.Trim().ToUpper();
+      query = query.Where(u => u.NormalizedName!.Contains(name));
     }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);

@@ -20,8 +20,8 @@ public class LgdxUsersRepository(LgdxContext context) : ILgdxUsersRepository
     var query = _context.Users as IQueryable<LgdxUser>;
     if (!string.IsNullOrWhiteSpace(name))
     {
-      name = name.Trim();
-      query = query.Where(u => u.UserName!.Contains(name));
+      name = name.Trim().ToUpper();
+      query = query.Where(u => u.NormalizedUserName!.Contains(name));
     }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);

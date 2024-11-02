@@ -71,14 +71,12 @@ public class UsersController(
       SecurityStamp = Guid.NewGuid().ToString("D"),
       UserName = lgdxUserCreateDto.UserName
     };
-    /*
     if (lgdxUserCreateDto.Password != null)
     {
       var password = new PasswordHasher<LgdxUser>();
       var hashed = password.HashPassword(user, lgdxUserCreateDto.Password);
       user.PasswordHash = hashed;
     }
-    */
     var result = await _userManager.CreateAsync(user);
     if (!result.Succeeded)
     {

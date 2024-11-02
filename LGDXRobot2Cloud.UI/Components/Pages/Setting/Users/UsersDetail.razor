@@ -58,6 +58,19 @@
             <ValidationMessage class="invalid-feedback" For="@(() => User.Email)" />
           </div>
         </div>
+        @if (Id == null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label" for="Password">Password</label>
+            <div class="col">
+              <InputText id="Password" @bind-Value="User.Password" type="password" class="form-control" />
+              <ValidationMessage class="invalid-feedback" For="@(() => User.Password)" />
+              <small class="form-hint">
+                The user can set the password from email.
+              </small>
+            </div>
+          </div>
+        }
         <div class="mb-3 row">
           <label class="col-3 col-form-label required" for="Roles">Roles</label>
           <div class="col">
