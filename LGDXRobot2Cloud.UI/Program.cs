@@ -3,6 +3,7 @@ using LGDXRobot2Cloud.UI.Components;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,15 +27,15 @@ builder.Services.AddHttpClient<ITriggerService, TriggerService>(configureAction)
 builder.Services.AddHttpClient<IWaypointService, WaypointService>(configureAction);
 
 // Robot
-builder.Services.AddHttpClient<INodeService, NodeService>(configureAction);
 builder.Services.AddHttpClient<INodesCollectionService, NodesCollectionService>(configureAction);
+builder.Services.AddHttpClient<INodeService, NodeService>(configureAction);
 builder.Services.AddHttpClient<IRobotService, RobotService>(configureAction);
 
 // Setting
 builder.Services.AddHttpClient<IApiKeyService, ApiKeyService>(configureAction);
 builder.Services.AddHttpClient<IRobotCertificateService, RobotCertificateService>(configureAction);
-builder.Services.AddHttpClient<IUsersService, UsersService>(configureAction);
 builder.Services.AddHttpClient<IRoleService, RoleService>(configureAction);
+builder.Services.AddHttpClient<IUsersService, UsersService>(configureAction);
 
 // Identity
 builder.Services.AddHttpClient<IAuthService, AuthService>(configureAction);
@@ -46,6 +47,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+
+// Policy
+builder.Services.AddScoped<IAuthorizationHandler, ValidateLgdxUserAccessHandler>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, ValidateLgdxUserAccesPolicyProvider>();
 
 var app = builder.Build();
 
