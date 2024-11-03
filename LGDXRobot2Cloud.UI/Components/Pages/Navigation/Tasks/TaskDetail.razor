@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Navigation.Tasks.Create)]
 @attribute [Route(AppRoutes.Navigation.Tasks.Detail)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Tasks/Read")]
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Tasks.Components
 @rendermode InteractiveServer
@@ -265,18 +265,25 @@
         <div class="card-footer d-flex">
           @if (Id != null)
           {
-            <button type="button" class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-              Delete
-            </button>
-            <button type="submit" class="btn btn-primary ms-auto">
-              Update
-            </button>
+            <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Delete" Context="Delete">
+              <button type="button" class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                Delete
+              </button>
+            </AuthorizeView>
+            <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Write" Context="Write">
+              <button type="submit" class="btn btn-primary ms-auto">
+                Update
+              </button>
+            </AuthorizeView>
+            
           }
           else
           {
-            <button type="submit" class="btn btn-primary ms-auto">
-              Create
-            </button>
+            <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Write" Context="Create">
+              <button type="submit" class="btn btn-primary ms-auto">
+                Create
+              </button>
+            </AuthorizeView>
           }
         </div>
       }
@@ -294,6 +301,10 @@
 
 @if (Id != null)
 {
-  <DeleteEntryModal EntryName="Task" OnDelete="HandleDelete" />
-  <AbortTaskModal OnAbort="HandleAbort" />
+  <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Delete" Context="DeleteModal">
+    <DeleteEntryModal EntryName="Task" OnDelete="HandleDelete" />
+  </AuthorizeView>
+  <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Write" Context="AbortModal">
+    <AbortTaskModal OnAbort="HandleAbort" />
+  </AuthorizeView>
 }

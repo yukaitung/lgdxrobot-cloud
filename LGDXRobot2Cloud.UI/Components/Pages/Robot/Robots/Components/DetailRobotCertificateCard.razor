@@ -29,12 +29,13 @@
   @if (RobotCertificate != null)
   {
     <div class="card-footer d-flex">
-      <a href="@(AppRoutes.Setting.Certificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
-        Renew Certificate
-      </a>
+      <AuthorizeView Policy="ValidateLgdxUserAccess/Setting/Certificates/Write" Context="CertificateRenew">
+        <a href="@(AppRoutes.Setting.Certificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
+          Renew Certificate
+        </a>
+      </AuthorizeView>
     </div>
   }
-  
 </div>
 
 @code

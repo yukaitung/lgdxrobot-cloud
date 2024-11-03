@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Robot.Robots.Create)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/Robots/Write")]
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components
 @rendermode InteractiveServer

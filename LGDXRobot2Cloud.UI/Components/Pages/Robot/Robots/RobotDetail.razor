@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Robot.Robots.Detail)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/Robots/Read")]
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components
 @rendermode InteractiveServer
@@ -30,19 +30,21 @@
         </div>
       }
     </div>
-    @if (Robot != null && Robot.RobotStatus != RobotStatus.Offline)
-    {
-      <div class="col-md-auto ms-auto d-print-none">
-        <div class="btn-list">
-          <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement">
-            @(Robot.IsPauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")
-          </a>
-          <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop">
-            @(Robot.IsSoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
-          </a>
+    <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Write" Context="Control">
+      @if (Robot != null && Robot.RobotStatus != RobotStatus.Offline)
+      {
+        <div class="col-md-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement">
+              @(Robot.IsPauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")
+            </a>
+            <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop">
+              @(Robot.IsSoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
+            </a>
+          </div>
         </div>
-      </div>
-    }
+      }
+    </AuthorizeView>
   </div>
 </PageHeader>
 
@@ -94,17 +96,23 @@
             <h3 class="card-title">Delete Robot</h3>
           </div>
           <div class="card-body">
-            <button type="button" class="btn btn-danger d-none d-sm-inline-block ms-auto" data-bs-toggle="modal"
-              data-bs-target="#deleteModal">
-              Delete Robot
-            </button>
+            <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Delete" Context="Delete">
+              <button type="button" class="btn btn-danger d-none d-sm-inline-block ms-auto" data-bs-toggle="modal"
+                data-bs-target="#deleteModal">
+                Delete Robot
+              </button>
+            </AuthorizeView>
           </div>
-          <DeleteEntryModal EntryName="Robot" OnDelete="HandleDelete" />
+          <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Delete" Context="DeleteModel">
+            <DeleteEntryModal EntryName="Robot" OnDelete="HandleDelete" />
+          </AuthorizeView>
         </div>
       }
     </div>
   </div>
 </PageBody>
 
-<PauseTaskAssigementModel Robot="Robot" />
-<SoftwareEmergencyStopModel Robot="Robot" />
+<AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Write" Context="ControlModel">
+  <PauseTaskAssigementModel Robot="Robot" />
+  <SoftwareEmergencyStopModel Robot="Robot" />
+</AuthorizeView>

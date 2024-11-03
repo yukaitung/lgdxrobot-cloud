@@ -23,6 +23,7 @@ public class ValidateLgdxUserAccesPolicyProvider(IOptions<AuthorizationOptions> 
     if (scopeSplit.Length > 1 && string.Equals(scopeSplit[0], POLICY_PREFIX, StringComparison.CurrentCultureIgnoreCase))
     {
       var policy = new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme);
+      policy.RequireAuthenticatedUser();
       if (scopeSplit.Length == 2)
       {
         policy.AddRequirements(new ValidateLgdxUserAccessRequirement(scopeSplit[1]));

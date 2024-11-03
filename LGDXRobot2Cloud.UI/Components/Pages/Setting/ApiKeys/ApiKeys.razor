@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Setting.ApiKeys.Index)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Setting/ApiKeys/Read")]
 @using LGDXRobot2Cloud.UI.Components.Pages.Setting.ApiKeys.Components
 @rendermode InteractiveServer
 
@@ -10,11 +10,13 @@
         API Keys
       </h2>
     </div>
-    <div class="col-auto ms-auto">
-      <a href="@AppRoutes.Setting.ApiKeys.Create" class="btn btn-primary">
-        Create API Key
-      </a>
-    </div>
+    <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Write">
+      <div class="col-auto ms-auto">
+        <a href="@AppRoutes.Setting.ApiKeys.Create" class="btn btn-primary">
+          Create API Key
+        </a>
+      </div>
+    </AuthorizeView>
   </div>
 </PageHeader>
 

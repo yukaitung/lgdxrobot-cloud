@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Setting.ApiKeys.Detail)]
 @attribute [Route(AppRoutes.Setting.ApiKeys.Create)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Setting/ApiKeys/Read")]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit API Key" : "Create API Key")">
@@ -99,13 +99,17 @@
             }
           </div>
           <div class="card-footer d-flex">
-            @if (Id != null)
-            {
-              <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                Delete
-              </a>
-            }
-            <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+            <AuthorizeView Policy="ValidateLgdxUserAccess/Setting/ApiKeys/Delete" Context="Delete">
+              @if (Id != null)
+              {
+                <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  Delete
+                </a>
+              }
+            </AuthorizeView>
+            <AuthorizeView Policy="ValidateLgdxUserAccess/Setting/ApiKeys/Write" Context="Write">
+              <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+            </AuthorizeView>
           </div>
         </EditForm>
       </div>
@@ -163,12 +167,14 @@
                 </div>
               }
             </div>
-            @if (ApiKey.IsThirdParty)
-            {
-              <div class="card-footer d-flex">
-                <button type="submit" class="btn btn-primary ms-auto">Update</button>
-              </div>
-            }
+            <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Write" Context="WriteSecret">
+              @if (ApiKey.IsThirdParty)
+              {
+                <div class="card-footer d-flex">
+                  <button type="submit" class="btn btn-primary ms-auto">Update</button>
+                </div>
+              }
+            </AuthorizeView>
           </EditForm>
         </div>
       </div>
@@ -176,7 +182,9 @@
   </div>
 </PageBody>
 
-@if (Id != null)
-{
-  <DeleteEntryModal EntryName="API Key" OnDelete="HandleDelete" />
-}
+<AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Delete" Context="DeleteModal">
+  @if (Id != null)
+  {
+    <DeleteEntryModal EntryName="API Key" OnDelete="HandleDelete" />
+  }
+</AuthorizeView>

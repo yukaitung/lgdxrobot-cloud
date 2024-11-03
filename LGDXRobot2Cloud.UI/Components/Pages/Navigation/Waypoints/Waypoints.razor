@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Navigation.Waypoints.Index)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Waypoints/Read")]
 @using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Waypoints.Components
 @rendermode InteractiveServer
 
@@ -10,11 +10,13 @@
         Waypoints
       </h2>
     </div>
-    <div class="col-auto ms-auto">
-      <a href="@AppRoutes.Navigation.Waypoints.Create" type="button" class="btn btn-primary">
-        Create Waypoint
-      </a>
-    </div>
+    <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Waypoints/Write">
+      <div class="col-auto ms-auto">
+        <a href="@AppRoutes.Navigation.Waypoints.Create" type="button" class="btn btn-primary">
+          Create Waypoint
+        </a>
+      </div>
+    </AuthorizeView>
   </div>
 </PageHeader>
 

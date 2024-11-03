@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Robot.NodesCollections.Create)]
 @attribute [Route(AppRoutes.Robot.NodesCollections.Detail)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/NodesCollections/Read")]
 @using LGDXRobot2Cloud.UI.Components.Shared.Modals
 @rendermode InteractiveServer
 
@@ -111,19 +111,25 @@
         }
       </div>
       <div class="card-footer d-flex">
+        <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/NodesCollections/Delete" Context="Delete">
           @if (Id != null)
           {
             <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
               Delete
             </a>
           }
+        </AuthorizeView>
+        <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/NodesCollections/Write" Context="Write">
           <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
-        </div>
+        </AuthorizeView>
+      </div>
     </EditForm>
   </div>
 </PageBody>
 
-@if (Id != null)
-{
-  <DeleteEntryModal EntryName="Node Collection" OnDelete="HandleDelete" />
-}
+<AuthorizeView Policy="ValidateLgdxUserAccess/Robot/NodesCollections/Delete" Context="DeleteModal">
+  @if (Id != null)
+  {
+    <DeleteEntryModal EntryName="Node Collection" OnDelete="HandleDelete" />
+  }
+</AuthorizeView>

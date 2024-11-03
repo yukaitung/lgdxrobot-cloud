@@ -9,7 +9,9 @@
       <RobotChassisInfoForm RobotChassisInfo="@RobotChassisInfo"/>
     </div>
     <div class="card-footer d-flex">
-      <button type="submit" class="btn btn-primary ms-auto">Update</button>
+      <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Write" Context="ChassisUpdate">
+        <button type="submit" class="btn btn-primary ms-auto">Update</button>
+      </AuthorizeView>
     </div>
   </EditForm>
 </div>

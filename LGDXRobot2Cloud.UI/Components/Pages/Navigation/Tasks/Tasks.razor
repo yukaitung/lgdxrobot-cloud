@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Navigation.Tasks.Index)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Tasks/Read")]
 @using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Tasks.Components
 @using LGDXRobot2Cloud.Utilities.Enums
 @rendermode InteractiveServer
@@ -11,11 +11,13 @@
         Tasks
       </h2>
     </div>
-    <div class="col-auto ms-auto">
-      <a href="@AppRoutes.Navigation.Tasks.Create" type="button" class="btn btn-primary">
-        Create Task
-      </a>
-    </div>
+    <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Write">
+      <div class="col-auto ms-auto">
+        <a href="@AppRoutes.Navigation.Tasks.Create" type="button" class="btn btn-primary">
+          Create Task
+        </a>
+      </div>
+    </AuthorizeView>
   </div>
 </PageHeader>
 

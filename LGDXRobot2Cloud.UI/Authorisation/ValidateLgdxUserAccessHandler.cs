@@ -26,57 +26,51 @@ public class ValidateLgdxUserAccessHandler : AuthorizationHandler<ValidateLgdxUs
         continue;
       }
 
-      bool hasAccess = false;
+      bool hasAccess = true;
       if (requirement.Area != null)
       {
-        if (scopeSplit.Length <= 2 ||
-            string.Equals(scopeSplit[1], requirement.Area, StringComparison.CurrentCultureIgnoreCase))
+        if (!(scopeSplit.Length <= 2 ||
+            string.Equals(scopeSplit[1], requirement.Area, StringComparison.CurrentCultureIgnoreCase)))
         {
-          hasAccess = true;
-        }
-        else
-        {
-          continue;
+          hasAccess = false;
         }
       }
       if (requirement.Controller != null)
       {
-        if (scopeSplit.Length <= 3 ||
-            string.Equals(scopeSplit[2], requirement.Controller, StringComparison.CurrentCultureIgnoreCase))
+        if (!(scopeSplit.Length <= 3 ||
+            string.Equals(scopeSplit[2], requirement.Controller, StringComparison.CurrentCultureIgnoreCase)))
         {
-          hasAccess = true;
-        }
-        else
-        {
-          continue;
+          hasAccess = false;
         }
       }
       if (requirement.Access != null)
       {
-        if (string.Equals(scopeSplit[3], ApiAccessLevel.FullAccess.ToString(), StringComparison.CurrentCultureIgnoreCase))
+        if (!string.Equals(scopeSplit[^1], ApiAccessLevel.FullAccess.ToString(), StringComparison.CurrentCultureIgnoreCase))
         {
-          hasAccess = true;
-        }
-        switch (requirement.Access)
-        {
-          case ApiAccessLevel.Read:
-            if (string.Equals(scopeSplit[3], ApiAccessLevel.Read.ToString(), StringComparison.CurrentCultureIgnoreCase))
-            {
-              hasAccess = true;
-            }
-            break;
-          case ApiAccessLevel.Write:
-            if (string.Equals(scopeSplit[3], ApiAccessLevel.Write.ToString(), StringComparison.CurrentCultureIgnoreCase))
-            {
-              hasAccess = true;
-            }
-            break;
-          case ApiAccessLevel.Delete:
-            if (string.Equals(scopeSplit[3], ApiAccessLevel.Delete.ToString(), StringComparison.CurrentCultureIgnoreCase))
-            {
-              hasAccess = true;
-            }
-            break;
+          switch (requirement.Access)
+          {
+            case ApiAccessLevel.Read:
+              if (!string.Equals(scopeSplit[^1], ApiAccessLevel.Read.ToString(), StringComparison.CurrentCultureIgnoreCase))
+              {
+                hasAccess = false;
+              }
+              break;
+            case ApiAccessLevel.Write:
+              if (!string.Equals(scopeSplit[^1], ApiAccessLevel.Write.ToString(), StringComparison.CurrentCultureIgnoreCase))
+              {
+                hasAccess = false;;
+              }
+              break;
+            case ApiAccessLevel.Delete:
+              if (!string.Equals(scopeSplit[^1], ApiAccessLevel.Delete.ToString(), StringComparison.CurrentCultureIgnoreCase))
+              {
+                hasAccess = false;
+              }
+              break;
+            default:
+              hasAccess = false;
+              break;
+          }
         }
       }
       if (hasAccess)

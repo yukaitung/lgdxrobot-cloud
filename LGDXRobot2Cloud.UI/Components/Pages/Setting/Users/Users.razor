@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Setting.Users.Index)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Identity/Users/Read")]
 @using LGDXRobot2Cloud.UI.Components.Pages.Setting.Users.Components
 @rendermode InteractiveServer
 
@@ -10,11 +10,13 @@
         Users
       </h2>
     </div>
-    <div class="col-auto ms-auto">
-      <a href="@AppRoutes.Setting.Users.Create" class="btn btn-primary">
-        Create User
-      </a>
-    </div>
+    <AuthorizeView Policy="ValidateLgdxUserAccess/Identity/Roles/Write">
+      <div class="col-auto ms-auto">
+        <a href="@AppRoutes.Setting.Users.Create" class="btn btn-primary">
+          Create User
+        </a>
+      </div>
+    </AuthorizeView>
   </div>
 </PageHeader>
 

@@ -11,11 +11,14 @@ public class ValidateLgdxUserAccessAttribute : AuthorizeAttribute, IAuthorizatio
   public string? Controller { get; set; }
   public ApiAccessLevel? Access { get; set; }
 
-  public ValidateLgdxUserAccessAttribute(string area, string? controller = null, ApiAccessLevel? access = null)
+  public ValidateLgdxUserAccessAttribute(string area, string? controller = null, string? access = null)
   {
     Area = area;
     Controller = controller;
-    Access = access;
+    if (access != null)
+    {
+      Access = (ApiAccessLevel)Enum.Parse(typeof(ApiAccessLevel), access);
+    }
     Policy = $"{POLICY_PREFIX}/{Area}";
     if (Controller != null)
     {

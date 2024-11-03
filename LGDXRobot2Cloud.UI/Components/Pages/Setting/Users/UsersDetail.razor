@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Setting.Users.Detail)]
 @attribute [Route(AppRoutes.Setting.Users.Create)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Identity/Users/Read")]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit User" : "Create User")">
@@ -126,19 +126,25 @@
         }
       </div>
       <div class="card-footer d-flex">
-        @if (Id != null)
-        {
-          <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-            Delete
-          </a>
-        }
-        <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+        <AuthorizeView Policy="ValidateLgdxUserAccess/Identity/Users/Delete" Context="Delete">
+          @if (Id != null)
+          {
+            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+              Delete
+            </a>
+          }
+        </AuthorizeView>
+        <AuthorizeView Policy="ValidateLgdxUserAccess/Identity/Users/Write" Context="Write">
+          <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+        </AuthorizeView>
       </div>
     </EditForm>
   </div>
 </PageBody>
 
-@if (Id != null)
-{
-  <DeleteEntryModal EntryName="User" OnDelete="HandleDelete" />
-}
+<AuthorizeView Policy="ValidateLgdxUserAccess/Identity/Users/Delete" Context="DeleteModal">
+  @if (Id != null)
+  {
+    <DeleteEntryModal EntryName="User" OnDelete="HandleDelete" />
+  }
+</AuthorizeView>

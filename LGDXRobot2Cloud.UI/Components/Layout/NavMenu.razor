@@ -76,7 +76,8 @@
 						</div>
 					</NavDropdown>
 				</AuthorizeView>
-				<AuthorizeView Policy="ValidateLgdxUserAccess/Setting, ValidateLgdxUserAccess/Identity" Context="RobotSetting">
+				<!-- TODO -->
+				<AuthorizeView Policy="ValidateLgdxUserAccess/Setting" Context="RobotSetting">
 					<NavDropdown title="Setting" href="setting">
 						<div class="dropdown-menu-column">
 							<AuthorizeView Policy="ValidateLgdxUserAccess/Identity/Users" Context="IdentityUsers">

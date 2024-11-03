@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Robot.NodesCollections.Index)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/NodesCollections/Read")]
 @using LGDXRobot2Cloud.UI.Components.Pages.Robot.NodesCollections.Components;
 @rendermode InteractiveServer
 
@@ -10,11 +10,13 @@
         Nodes Collections
       </h2>
     </div>
-    <div class="col-auto ms-auto">
-      <a href="@AppRoutes.Robot.NodesCollections.Create" type="button" class="btn btn-primary">
-        Create Nodes Collection
-      </a>
-    </div>
+    <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/NodesCollections/Write">
+      <div class="col-auto ms-auto">
+        <a href="@AppRoutes.Robot.NodesCollections.Create" type="button" class="btn btn-primary">
+          Create Nodes Collection
+        </a>
+      </div>
+    </AuthorizeView>
   </div>
 </PageHeader>
 
