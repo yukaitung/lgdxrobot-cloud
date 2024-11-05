@@ -20,7 +20,7 @@ public sealed partial class PauseTaskAssigementModel
   public async Task HandleRequest()
   {
     bool newValue = !Robot!.IsPauseTaskAssigement;
-    var success = await RobotService.UpdatePauseTaskAssigement(Robot!.Id.ToString(), newValue);
+    var success = await RobotService.UpdatePauseTaskAssigementAsync(Robot!.Id.ToString(), newValue);
     if (success)
     {
       await JSRuntime.InvokeVoidAsync("CloseModal", "pauseTaskAssigement");

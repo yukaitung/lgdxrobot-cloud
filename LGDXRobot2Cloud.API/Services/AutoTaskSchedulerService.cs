@@ -6,10 +6,10 @@ namespace LGDXRobot2Cloud.API.Services;
 
 public interface IAutoTaskSchedulerService
 {
-  Task ClearIgnoreRobot();
-  Task<AutoTask?> GetAutoTask(Guid robotId);
-  Task<(AutoTask?, string)> AutoTaskAbort(Guid robotId, int taskId, string token);
-  Task<(AutoTask?, string)> AutoTaskNext(Guid robotId, int taskId, string token);
+  Task ResetIgnoreRobotAsync();
+  Task<AutoTask?> GetAutoTaskAsync(Guid robotId);
+  Task<(AutoTask?, string)> AutoTaskAbortAsync(Guid robotId, int taskId, string token);
+  Task<(AutoTask?, string)> AutoTaskNextAsync(Guid robotId, int taskId, string token);
 }
 
 public class AutoTaskSchedulerService(IAutoTaskRepository autoTaskRepository,
@@ -23,14 +23,14 @@ public class AutoTaskSchedulerService(IAutoTaskRepository autoTaskRepository,
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
   private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
 
-  public async Task ClearIgnoreRobot()
+  public async Task ResetIgnoreRobotAsync()
   {
     await _cache.RemoveAsync("AutoTaskSchedulerService_IgnoreRobot");
   }
 
-  public async Task<AutoTask?> GetAutoTask(Guid robotId)
+  public async Task<AutoTask?> GetAutoTaskAsync(Guid robotId)
   {
-    if (await _onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+    if (await _onlineRobotsService.GetPauseAutoTaskAssignmentAsync(robotId))
       return null;
     
     var ignoreRobotIds = await _cache.GetAsync<HashSet<Guid>>("AutoTaskSchedulerService_IgnoreRobot");
@@ -55,7 +55,7 @@ public class AutoTaskSchedulerService(IAutoTaskRepository autoTaskRepository,
     return currentTask;
   }
 
-  public async Task<(AutoTask?, string)> AutoTaskAbort(Guid robotId, int taskId, string token)
+  public async Task<(AutoTask?, string)> AutoTaskAbortAsync(Guid robotId, int taskId, string token)
   {
     var task = await _autoTaskRepository.AutoTaskAbortAsync(robotId, taskId, token);
     if (task == null)
@@ -67,7 +67,7 @@ public class AutoTaskSchedulerService(IAutoTaskRepository autoTaskRepository,
     return (task, "");
   }
 
-  public async Task<(AutoTask?, string)> AutoTaskNext(Guid robotId, int taskId, string token)
+  public async Task<(AutoTask?, string)> AutoTaskNextAsync(Guid robotId, int taskId, string token)
   {
     var task = await _autoTaskRepository.AutoTaskNextAsync(robotId, taskId, token);
     if (task == null)

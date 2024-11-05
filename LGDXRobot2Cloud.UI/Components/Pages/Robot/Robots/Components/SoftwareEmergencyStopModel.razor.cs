@@ -21,7 +21,7 @@ public sealed partial class SoftwareEmergencyStopModel
   public async Task HandleRequest()
   {
     bool newValue = !Robot!.IsSoftwareEmergencyStop;
-    var success = await RobotService.UpdateSoftwareEmergencyStop(Robot!.Id.ToString(), newValue);
+    var success = await RobotService.UpdateSoftwareEmergencyStopAsync(Robot!.Id.ToString(), newValue);
     if (success)
     {
       await JSRuntime.InvokeVoidAsync("CloseModal", "softwareEmergencyStop");

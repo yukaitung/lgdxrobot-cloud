@@ -58,7 +58,7 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
   // TODO: Validate in authorisation
   private async Task<bool> ValidateOnlineRobots(Guid robotId)
   {
-    return await _onlineRobotsService.IsRobotOnline(robotId);
+    return await _onlineRobotsService.IsRobotOnlineAsync(robotId);
   }
 
   private static RobotClientsRespond ValidateOnlineRobotsFailed()
@@ -208,7 +208,7 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
       credentials);
     var token = new JwtSecurityTokenHandler().WriteToken(secToken);
 
-    await _onlineRobotsService.AddRobot((Guid)robotId);
+    await _onlineRobotsService.AddRobotAsync((Guid)robotId);
 
     return new RobotClientsGreetRespond {
       Status = RobotClientsResultStatus.Success,
@@ -234,12 +234,12 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
     if (!await ValidateOnlineRobots((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
-    await _onlineRobotsService.SetRobotData((Guid)robotId, request);
+    await _onlineRobotsService.SetRobotDataAsync((Guid)robotId, request);
 
     // Get AutoTask
     if (request.RobotStatus == RobotClientsRobotStatus.Idle)
     {
-      var task = await _autoTaskSchedulerService.GetAutoTask((Guid)robotId);
+      var task = await _autoTaskSchedulerService.GetAutoTaskAsync((Guid)robotId);
       var flowDetail = await _flowTriggersService.GetFlowDetailAsync(task);
       var success = await _flowTriggersService.InitiateTriggerAsync(task, flowDetail);
       
@@ -269,7 +269,7 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
     if (!await ValidateOnlineRobots((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
-    var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNext((Guid)robotId, request.TaskId, request.NextToken);
+    var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNextAsync((Guid)robotId, request.TaskId, request.NextToken);
     var flowDetail = await _flowTriggersService.GetFlowDetailAsync(task);
     var success = await _flowTriggersService.InitiateTriggerAsync(task, flowDetail);
 
@@ -290,9 +290,9 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
     if (!await ValidateOnlineRobots((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
-    await _onlineRobotsService.UpdateAbortTask((Guid)robotId, false);
+    await _onlineRobotsService.UpdateAbortTaskAsync((Guid)robotId, false);
 
-    var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskAbort((Guid)robotId, request.TaskId, request.NextToken);
+    var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskAbortAsync((Guid)robotId, request.TaskId, request.NextToken);
     var taskDetail = await GenerateTaskDetail(task, null);
     return new RobotClientsRespond {
       Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,

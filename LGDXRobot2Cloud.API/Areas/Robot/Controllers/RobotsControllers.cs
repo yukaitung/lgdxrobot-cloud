@@ -59,7 +59,7 @@ public class RobotsController(
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
     var (robots, PaginationHelper) = await _robotRepository.GetRobotsAsync(name, pageNumber, pageSize);
-    var OnlineRobotssData = await _onlineRobotsService.GetRobotsData(robots.Select(r => r.Id).ToList());
+    var OnlineRobotssData = await _onlineRobotsService.GetRobotsDataAsync(robots.Select(r => r.Id).ToList());
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
 
     var robotsDto = _mapper.Map<IEnumerable<RobotListDto>>(robots);
@@ -88,7 +88,7 @@ public class RobotsController(
       return NotFound();
 
     var robotsDto = _mapper.Map<RobotDto>(robot);
-    var OnlineRobotssData = await _onlineRobotsService.GetRobotData(robot.Id);
+    var OnlineRobotssData = await _onlineRobotsService.GetRobotDataAsync(robot.Id);
     if (OnlineRobotssData != null && OnlineRobotssData.TryGetValue(robot.Id, out var data))
     {
       robotsDto.RobotStatus = ConvertRobotStatus(data.Data.RobotStatus);
@@ -127,9 +127,9 @@ public class RobotsController(
   }
 
   [HttpPatch("{id}/emergencyStop")]
-  public async Task<ActionResult> UpdateSoftwareEmergencyStop(Guid id, EnableDto data)
+  public async Task<ActionResult> UpdateSoftwareEmergencyStopAsync(Guid id, EnableDto data)
   {
-    if (await _onlineRobotsService.UpdateSoftwareEmergencyStop(id, data.Enable))
+    if (await _onlineRobotsService.UpdateSoftwareEmergencyStopAsync(id, data.Enable))
     {
       return NoContent();
     }
@@ -137,9 +137,9 @@ public class RobotsController(
   }
 
   [HttpPatch("{id}/pauseTaskAssigement")]
-  public async Task<ActionResult> UpdatePauseTaskAssigement(Guid id, EnableDto data)
+  public async Task<ActionResult> UpdatePauseTaskAssigementAsync(Guid id, EnableDto data)
   {
-    if (await _onlineRobotsService.UpdatePauseTaskAssigement(id, data.Enable))
+    if (await _onlineRobotsService.UpdatePauseTaskAssigementAsync(id, data.Enable))
     {
       return NoContent();
     }

@@ -14,8 +14,8 @@ public interface IRobotService
   Task<(IEnumerable<Robot>?, PaginationHelper?)> GetRobotsAsync(string? name = null, int pageNumber = 1, int pageSize = 16);
   Task<Robot?> GetRobotAsync(string robotId);
   Task<RobotCertificateIssueDto?> AddRobotAsync(RobotCreateDto robot);
-  Task<bool> UpdateSoftwareEmergencyStop(string robotId, bool enable);
-  Task<bool> UpdatePauseTaskAssigement(string robotId, bool enable);
+  Task<bool> UpdateSoftwareEmergencyStopAsync(string robotId, bool enable);
+  Task<bool> UpdatePauseTaskAssigementAsync(string robotId, bool enable);
   Task<bool> UpdateRobotInformationAsync(string robotId, RobotUpdateDto robot);
   Task<bool> UpdateRobotChassisInfoAsync(string robotId, RobotChassisInfoUpdateDto robot);
   Task<bool> DeleteRobotAsync(string robotId);
@@ -62,7 +62,7 @@ public sealed class RobotService(
       return null;
   }
 
-  public async Task<bool> UpdateSoftwareEmergencyStop(string robotId, bool enable)
+  public async Task<bool> UpdateSoftwareEmergencyStopAsync(string robotId, bool enable)
   {
     EnableDto data = new() { Enable = enable };
     var dataJson = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
@@ -70,7 +70,7 @@ public sealed class RobotService(
     return response.IsSuccessStatusCode;
   }
 
-  public async Task<bool> UpdatePauseTaskAssigement(string robotId, bool enable)
+  public async Task<bool> UpdatePauseTaskAssigementAsync(string robotId, bool enable)
   {
     EnableDto data = new() { Enable = enable };
     var dataJson = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");

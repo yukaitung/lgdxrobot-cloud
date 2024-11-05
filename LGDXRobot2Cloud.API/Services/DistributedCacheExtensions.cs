@@ -7,7 +7,7 @@ namespace LGDXRobot2Cloud.API.Services;
 
 public static class DistributedCacheExtensions
 {
-  private static readonly JsonSerializerOptions serializerOptions = new JsonSerializerOptions
+  private static readonly JsonSerializerOptions serializerOptions = new()
   {
     PropertyNamingPolicy = null,
     WriteIndented = true,
@@ -24,6 +24,6 @@ public static class DistributedCacheExtensions
   public static async Task<T?> GetAsync<T>(this IDistributedCache cache, string key)
   {
     var bytes = await cache.GetAsync(key);
-    return JsonSerializer.Deserialize<T>(bytes, serializerOptions);
+    return bytes != null ? JsonSerializer.Deserialize<T>(bytes, serializerOptions) : default;
   }
 }
