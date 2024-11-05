@@ -53,7 +53,7 @@ public sealed class RobotService(
   public async Task<RobotCertificateIssueDto?> AddRobotAsync(RobotCreateDto robot)
   {
     var robotJson = new StringContent(JsonSerializer.Serialize(robot), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("robot", robotJson);
+    var response = await _httpClient.PostAsync("robot/robots", robotJson);
     if (response.IsSuccessStatusCode)
     {
       return await JsonSerializer.DeserializeAsync<RobotCertificateIssueDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);

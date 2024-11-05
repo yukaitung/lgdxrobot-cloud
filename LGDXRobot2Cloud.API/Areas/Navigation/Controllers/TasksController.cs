@@ -109,7 +109,7 @@ public class TasksController(
     await _autoTaskRepository.AddAutoTaskAsync(taskEntity);
     await _autoTaskRepository.SaveChangesAsync();
     var returnTask = _mapper.Map<AutoTaskDto>(taskEntity);
-    _autoTaskSchedulerService.ClearIgnoreRobot();
+    await _autoTaskSchedulerService.ClearIgnoreRobot();
     return CreatedAtAction(nameof(GetTask), new {id = returnTask.Id}, returnTask);
   }
 
@@ -169,7 +169,7 @@ public class TasksController(
       return BadRequest("Cannot abort the task not in running status.");
     if (task.CurrentProgressId != (int)ProgressState.Waiting && 
         task.AssignedRobotId != null && 
-        _onlineRobotsService.UpdateAbortTask((Guid)task.AssignedRobotId!, true))
+        await _onlineRobotsService.UpdateAbortTask((Guid)task.AssignedRobotId!, true))
     {
       // If the robot is online, abort the task from the robot
       return NoContent();

@@ -56,9 +56,9 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
   }
 
   // TODO: Validate in authorisation
-  private bool ValidateOnlineRobots(Guid robotId)
+  private async Task<bool> ValidateOnlineRobots(Guid robotId)
   {
-    return _onlineRobotsService.IsRobotOnline(robotId);
+    return await _onlineRobotsService.IsRobotOnline(robotId);
   }
 
   private static RobotClientsRespond ValidateOnlineRobotsFailed()
@@ -208,7 +208,7 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
       credentials);
     var token = new JwtSecurityTokenHandler().WriteToken(secToken);
 
-    _onlineRobotsService.AddRobot((Guid)robotId);
+    await _onlineRobotsService.AddRobot((Guid)robotId);
 
     return new RobotClientsGreetRespond {
       Status = RobotClientsResultStatus.Success,
@@ -231,10 +231,10 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
-    if (!ValidateOnlineRobots((Guid)robotId))
+    if (!await ValidateOnlineRobots((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
-    _onlineRobotsService.SetRobotData((Guid)robotId, request);
+    await _onlineRobotsService.SetRobotData((Guid)robotId, request);
 
     // Get AutoTask
     if (request.RobotStatus == RobotClientsRobotStatus.Idle)
@@ -247,7 +247,7 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
         Message = string.Empty,
-        Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+        Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
         Task = taskDetail
       };
     }
@@ -256,7 +256,7 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
         Message = string.Empty,
-        Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+        Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
       };
     }
   }
@@ -266,7 +266,7 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
-    if (!ValidateOnlineRobots((Guid)robotId))
+    if (!await ValidateOnlineRobots((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
     var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNext((Guid)robotId, request.TaskId, request.NextToken);
@@ -277,7 +277,7 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
     return new RobotClientsRespond {
       Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
       Message = errorMessage,
-      Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+      Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
       Task = taskDetail
     };
   }
@@ -287,17 +287,17 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
-    if (!ValidateOnlineRobots((Guid)robotId))
+    if (!await ValidateOnlineRobots((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
-    _onlineRobotsService.UpdateAbortTask((Guid)robotId, false);
+    await _onlineRobotsService.UpdateAbortTask((Guid)robotId, false);
 
     var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskAbort((Guid)robotId, request.TaskId, request.NextToken);
     var taskDetail = await GenerateTaskDetail(task, null);
     return new RobotClientsRespond {
       Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
       Message = errorMessage,
-      Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+      Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
       Task = taskDetail
     };
   }

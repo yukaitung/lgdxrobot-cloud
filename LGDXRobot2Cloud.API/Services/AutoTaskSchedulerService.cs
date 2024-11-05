@@ -1,77 +1,81 @@
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Utilities.Enums;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
 
-namespace LGDXRobot2Cloud.API.Services
+namespace LGDXRobot2Cloud.API.Services;
+
+public interface IAutoTaskSchedulerService
 {
-  public interface IAutoTaskSchedulerService
+  Task ClearIgnoreRobot();
+  Task<AutoTask?> GetAutoTask(Guid robotId);
+  Task<(AutoTask?, string)> AutoTaskAbort(Guid robotId, int taskId, string token);
+  Task<(AutoTask?, string)> AutoTaskNext(Guid robotId, int taskId, string token);
+}
+
+public class AutoTaskSchedulerService(IAutoTaskRepository autoTaskRepository,
+  IProgressRepository progressRepository,
+  IDistributedCache cache,
+  IOnlineRobotsService onlineRobotsService) : IAutoTaskSchedulerService
+{
+  private readonly DistributedCacheEntryOptions _cacheEntryOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
+  private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
+  private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
+  private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
+
+  public async Task ClearIgnoreRobot()
   {
-    void ClearIgnoreRobot();
-    Task<AutoTask?> GetAutoTask(Guid robotId);
-    Task<(AutoTask?, string)> AutoTaskAbort(Guid robotId, int taskId, string token);
-    Task<(AutoTask?, string)> AutoTaskNext(Guid robotId, int taskId, string token);
+    await _cache.RemoveAsync("AutoTaskSchedulerService_IgnoreRobot");
   }
-  
-  public class AutoTaskSchedulerService(IAutoTaskRepository autoTaskRepository,
-    IProgressRepository progressRepository,
-    IMemoryCache memoryCache,
-    IOnlineRobotsService onlineRobotsService) : IAutoTaskSchedulerService
+
+  public async Task<AutoTask?> GetAutoTask(Guid robotId)
   {
-    private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
-    private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
-    private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-    private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
-
-    public void ClearIgnoreRobot()
+    if (await _onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+      return null;
+    
+    var ignoreRobotIds = await _cache.GetAsync<HashSet<Guid>>("AutoTaskSchedulerService_IgnoreRobot");
+    if (ignoreRobotIds != null && (ignoreRobotIds?.Contains(robotId) ?? false))
     {
-      _memoryCache.Remove("AutoTaskSchedulerService_IgnoreRobot");
+      return null;
     }
-
-    public async Task<AutoTask?> GetAutoTask(Guid robotId)
+    
+    var currentTask = await _autoTaskRepository.GetRunningAutoTaskAsync(robotId) ?? await _autoTaskRepository.AssignAutoTaskAsync(robotId);
+    if (currentTask != null)
     {
-      if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
-        return null;
-      _memoryCache.TryGetValue<HashSet<Guid>>("AutoTaskSchedulerService_IgnoreRobot", out var ignoreRobotIds);
-      if (ignoreRobotIds?.Contains(robotId) ?? false)
-        return null;
-      var currentTask = await _autoTaskRepository.GetRunningAutoTaskAsync(robotId) ?? await _autoTaskRepository.AssignAutoTaskAsync(robotId);
-      if (currentTask != null)
-      {
-        var progress = await _progressRepository.GetProgressAsync(currentTask.CurrentProgressId);
-        currentTask.CurrentProgress = progress!;
-      }
-      else
-      {
-        ignoreRobotIds ??= [];
-        ignoreRobotIds.Add(robotId);
-        _memoryCache.Set("AutoTaskSchedulerService_IgnoreRobot", ignoreRobotIds, TimeSpan.FromMinutes(5));
-      }
-      return currentTask;
+      var progress = await _progressRepository.GetProgressAsync(currentTask.CurrentProgressId);
+      currentTask.CurrentProgress = progress!;
     }
-
-    public async Task<(AutoTask?, string)> AutoTaskAbort(Guid robotId, int taskId, string token)
+    else
     {
-      var task = await _autoTaskRepository.AutoTaskAbortAsync(robotId, taskId, token);
-      if (task == null)
-      {
-        return (null, "Task not found / Invalid token.");
-      }
-      var progress = await _progressRepository.GetProgressAsync(task.CurrentProgressId);
-      task.CurrentProgress = progress!;
-      return (task, "");
+      // No task for this robot, pause database access.
+      ignoreRobotIds ??= [];
+      ignoreRobotIds.Add(robotId);
+      await _cache.SetAsync("AutoTaskSchedulerService_IgnoreRobot", ignoreRobotIds, _cacheEntryOptions);
     }
+    return currentTask;
+  }
 
-    public async Task<(AutoTask?, string)> AutoTaskNext(Guid robotId, int taskId, string token)
+  public async Task<(AutoTask?, string)> AutoTaskAbort(Guid robotId, int taskId, string token)
+  {
+    var task = await _autoTaskRepository.AutoTaskAbortAsync(robotId, taskId, token);
+    if (task == null)
     {
-      var task = await _autoTaskRepository.AutoTaskNextAsync(robotId, taskId, token);
-      if (task == null)
-      {
-        return (null, "Task not found / Invalid token.");
-      }
-      var progress = await _progressRepository.GetProgressAsync(task.CurrentProgressId);
-      task.CurrentProgress = progress!;
-      return (task, "");
+      return (null, "Task not found / Invalid token.");
     }
+    var progress = await _progressRepository.GetProgressAsync(task.CurrentProgressId);
+    task.CurrentProgress = progress!;
+    return (task, "");
+  }
+
+  public async Task<(AutoTask?, string)> AutoTaskNext(Guid robotId, int taskId, string token)
+  {
+    var task = await _autoTaskRepository.AutoTaskNextAsync(robotId, taskId, token);
+    if (task == null)
+    {
+      return (null, "Task not found / Invalid token.");
+    }
+    var progress = await _progressRepository.GetProgressAsync(task.CurrentProgressId);
+    task.CurrentProgress = progress!;
+    return (task, "");
   }
 }
