@@ -5,6 +5,7 @@ using LGDXRobot2Cloud.API.Services;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Constants;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +38,18 @@ builder.Services.Configure<LgdxRobot2SecretConfiguration>(
 /*
  * Infrastructure
  */
+builder.Services.AddMassTransit(cfg =>
+{
+	cfg.UsingRabbitMq((context, cfg) =>
+	{
+		cfg.Host(builder.Configuration["RabbitMq:Host"], builder.Configuration["RabbitMq:VirtualHost"], h =>
+		{
+			h.Username(builder.Configuration["RabbitMq:Username"] ?? string.Empty);
+			h.Password(builder.Configuration["RabbitMq:Password"] ?? string.Empty);
+		});
+		cfg.ConfigureEndpoints(context);
+	});
+});
 builder.Services.AddStackExchangeRedisCache(cfg =>
 {
 	cfg.Configuration = builder.Configuration["Redis:Configuration"];
