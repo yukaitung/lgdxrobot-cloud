@@ -8,7 +8,6 @@ namespace LGDXRobot2Cloud.API.Services;
 
 public interface IFlowTriggersService
 {
-  Task<FlowDetail?> GetFlowDetailAsync(AutoTask? task);
   Task<bool> InitiateTriggerAsync(AutoTask? task, FlowDetail? flowDetail);
 }
 

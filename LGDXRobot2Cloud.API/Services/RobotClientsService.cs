@@ -5,7 +5,6 @@ using LGDXRobot2Cloud.Utilities.Constants;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -17,24 +16,22 @@ using static LGDXRobot2Cloud.Protos.RobotClientsService;
 namespace LGDXRobot2Cloud.API.Services;
 
 [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme)]
-public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailRepository,
-  IAutoTaskSchedulerService autoTaskSchedulerService,
-  IMapper mapper,
-  IOnlineRobotsService OnlineRobotsService,
-  IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
-  IRobotChassisInfoRepository robotChassisInfoRepository,
-  IRobotRepository robotRepository,
-  IRobotSystemInfoRepository robotSystemInfoRepository,
-  IFlowTriggersService flowTriggersService) : RobotClientsServiceBase
+public class RobotClientsService(
+    IAutoTaskSchedulerService autoTaskSchedulerService,
+    IMapper mapper,
+    IOnlineRobotsService OnlineRobotsService,
+    IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
+    IRobotChassisInfoRepository robotChassisInfoRepository,
+    IRobotRepository robotRepository,
+    IRobotSystemInfoRepository robotSystemInfoRepository
+  ) : RobotClientsServiceBase
 {
-  private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository;
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService;
   private readonly IMapper _mapper = mapper;
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
   private readonly IRobotChassisInfoRepository _robotChassisInfoRepository = robotChassisInfoRepository;
   private readonly IRobotRepository _robotRepository = robotRepository;
   private readonly IRobotSystemInfoRepository _robotSystemInfoRepository = robotSystemInfoRepository;
-  private readonly IFlowTriggersService _flowTriggersService = flowTriggersService;
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value;
 
   private static Guid? ValidateRobotClaim(ServerCallContext context)
@@ -67,68 +64,6 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
       Status = RobotClientsResultStatus.Failed,
       Message = "The robot is offline."
     };
-  }
-
-  private async Task<RobotClientsAutoTask?> GenerateTaskDetail(AutoTask? task, FlowDetail? flowDetail)
-  {
-    if (task == null)
-      return null;
-
-    List<RobotClientsDof> waypoints = [];
-    if (task.CurrentProgressId == (int)ProgressState.PreMoving)
-    {
-      var firstTaskDetail = await _autoTaskDetailRepository.GetAutoTaskFirstDetailAsync(task.Id);
-      if (firstTaskDetail != null)
-        waypoints.Add(GenerateWaypoint(firstTaskDetail));
-    }
-    else if (task.CurrentProgressId == (int)ProgressState.Moving)
-    {
-      var taskDetails = await _autoTaskDetailRepository.GetAutoTaskDetailsAsync(task.Id);
-      foreach (var t in taskDetails)
-      {
-        if (t.Waypoint != null)
-          waypoints.Add(GenerateWaypoint(t));
-      }
-    }
-
-    string nextToken = task.NextToken ?? string.Empty;
-    if (flowDetail?.AutoTaskNextControllerId != (int) AutoTaskNextController.Robot)
-    {
-      // API has the control
-      nextToken = string.Empty;
-    }
-
-    return new RobotClientsAutoTask {
-      TaskId = task.Id,
-      TaskName = task.Name ?? string.Empty,
-      TaskProgressId = task.CurrentProgressId,
-      TaskProgressName = task.CurrentProgress.Name ?? string.Empty,
-      Waypoints = { waypoints },
-      NextToken = nextToken,
-    };
-  }
-
-  private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
-  {
-    if (taskDetail.Waypoint != null)
-    {
-      var waypoint = new RobotClientsDof 
-        { X = taskDetail.Waypoint.X, Y = taskDetail.Waypoint.Y, Rotation = taskDetail.Waypoint.Rotation };
-      if (taskDetail.CustomX != null)
-        waypoint.X = (double)taskDetail.CustomX;
-      if (taskDetail.CustomY != null)
-        waypoint.X = (double)taskDetail.CustomY;
-      if (taskDetail.CustomRotation != null)
-        waypoint.X = (double)taskDetail.CustomRotation;
-      return waypoint;
-    }
-    else 
-    {
-      return new RobotClientsDof { 
-        X = taskDetail.CustomX != null ? (double)taskDetail.CustomX : 0, 
-        Y = taskDetail.CustomY != null ? (double)taskDetail.CustomY : 0, 
-        Rotation = taskDetail.CustomRotation != null ? (double)taskDetail.CustomRotation : 0 };
-    }
   }
 
   [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme)]
@@ -240,15 +175,11 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
     if (request.RobotStatus == RobotClientsRobotStatus.Idle)
     {
       var task = await _autoTaskSchedulerService.GetAutoTaskAsync((Guid)robotId);
-      var flowDetail = await _flowTriggersService.GetFlowDetailAsync(task);
-      var success = await _flowTriggersService.InitiateTriggerAsync(task, flowDetail);
-      
-      var taskDetail = await GenerateTaskDetail(task, flowDetail);
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
         Message = string.Empty,
         Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
-        Task = taskDetail
+        Task = task
       };
     }
     else
@@ -269,16 +200,12 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
     if (!await ValidateOnlineRobots((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
-    var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskNextAsync((Guid)robotId, request.TaskId, request.NextToken);
-    var flowDetail = await _flowTriggersService.GetFlowDetailAsync(task);
-    var success = await _flowTriggersService.InitiateTriggerAsync(task, flowDetail);
-
-    var taskDetail = await GenerateTaskDetail(task, flowDetail);
+    var task = await _autoTaskSchedulerService.AutoTaskNextAsync((Guid)robotId, request.TaskId, request.NextToken);
     return new RobotClientsRespond {
-      Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
-      Message = errorMessage,
+      Status = task != null ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
+      Message = string.Empty,
       Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
-      Task = taskDetail
+      Task = task
     };
   }
 
@@ -292,13 +219,12 @@ public class RobotClientsService(IAutoTaskDetailRepository autoTaskDetailReposit
 
     await _onlineRobotsService.UpdateAbortTaskAsync((Guid)robotId, false);
 
-    var (task, errorMessage) = await _autoTaskSchedulerService.AutoTaskAbortAsync((Guid)robotId, request.TaskId, request.NextToken);
-    var taskDetail = await GenerateTaskDetail(task, null);
+    var task = await _autoTaskSchedulerService.AutoTaskAbortAsync((Guid)robotId, request.TaskId, request.NextToken);
     return new RobotClientsRespond {
-      Status = errorMessage == string.Empty ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
-      Message = errorMessage,
+      Status = task != null ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
+      Message = string.Empty,
       Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
-      Task = taskDetail
+      Task = task
     };
   }
 }
