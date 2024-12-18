@@ -94,7 +94,7 @@
                   </InputSelect>
                 </td>
                 <td>
-                  <select class="form-select form-select" value="@flowDetail.AutoTaskNextControllerId" @onchange="@((e) => HandleProceedConditionChange(index, e.Value ?? string.Empty))">
+                  <select class="form-select" value="@flowDetail.AutoTaskNextControllerId" @onchange="@((e) => HandleProceedConditionChange(index, e.Value ?? string.Empty))">
                     @foreach (AutoTaskNextController controller in Enum.GetValues(typeof(AutoTaskNextController)))
                     {
                       <option value="@((int) controller)">@(controller.ToEnumMember())</option>

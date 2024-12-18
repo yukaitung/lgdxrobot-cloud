@@ -1,3 +1,5 @@
+using System.Text;
+using System.Text.Json;
 using AutoMapper;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.UI.Constants;
@@ -12,6 +14,13 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Triggers;
 
 public sealed partial class TriggerDetail : ComponentBase, IDisposable
 {
+  private record BodyData
+  {
+    public string Key { get; set; } = string.Empty;
+    public int Value { get; set; } = 0;
+    public string CustomValue { get; set; } = string.Empty;
+  }
+
   [Inject]
   public required ITriggerService TriggerService { get; set; }
 
@@ -32,11 +41,78 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
 
   private DotNetObjectReference<TriggerDetail> ObjectReference = null!;
   private Trigger Trigger { get; set; } = null!;
+  private List<BodyData> Body { get; set; } = [];
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
   private bool IsError { get; set; } = false;
 
   private readonly string SelectId = "ApiKeyId";
+
+  private string GenerateBodyJson()
+  {
+    StringBuilder s = new();
+    for (int i = 0; i < Body.Count; i++)
+    {
+      var row = Body[i];
+      if (row.Value == 0)
+      {
+        s.Append($"\"{row.Key}\":\"{row.CustomValue}\"");
+        if (i < Body.Count - 1)
+          s.Append(',');
+      }
+      else
+      {
+        s.Append($"\"{row.Key}\":\"(({row.Value}))\"");
+        if (i < Body.Count - 1)
+          s.Append(',');
+      }
+    }
+    s.Insert(0, '{');
+    s.Append('}');
+    return s.ToString();
+  }
+
+  private void ConvertBodyJson(string body)
+  {
+    try
+    {
+      var bodyDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(body);
+      if (bodyDictionary == null)
+      {
+        return;
+      }
+        
+      foreach (var pair in bodyDictionary)
+      {
+        bool isPreset = false;
+        int preset = 0;
+        if (pair.Value.Length >= 5) // ((1)) has 5 characters
+        {
+          if (int.TryParse(pair.Value[2..^2], out int p))
+          {
+            isPreset = true;
+            preset = p;
+          }
+          else
+          {
+            isPreset = false;
+          }
+        }
+
+        var row = new BodyData
+        {
+          Key = pair.Key,
+          Value = preset,
+          CustomValue = isPreset ? string.Empty : pair.Value
+        };
+        Body.Add(row);
+      }
+    }
+    catch (Exception)
+    {
+      return;
+    }
+  }
 
   // Form
   public void HandleHttpMethod(object args)
@@ -74,6 +150,7 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
   public async Task HandleValidSubmit()
   {
     bool success;
+    Trigger.Body = GenerateBodyJson();
 
     if (Id != null)
       // Update
@@ -100,6 +177,24 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
     }
   }
 
+  public void BodyAddStep()
+  {
+    Body.Add(new BodyData());
+  }
+
+  public void BodyRemoveStep(int i)
+  {
+    if (Body.Count <= 1)
+      return;
+    Body.RemoveAt(i);
+  }
+
+  public void HandleBodyPresetChange(int i, object? args)
+  {
+    if (args != null)
+      Body[i].Value = int.Parse(args.ToString()!);
+  }
+
   public override async Task SetParametersAsync(ParameterView parameters)
   {
     parameters.SetParameterProperties(this);
@@ -117,6 +212,7 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
             Trigger.ApiKeyId = trigger.ApiKey.Id;
             Trigger.ApiKeyName = trigger.ApiKey.Name;
           }
+          ConvertBodyJson(trigger.Body?.ToString() ?? string.Empty);
           _editContext = new EditContext(Trigger);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }

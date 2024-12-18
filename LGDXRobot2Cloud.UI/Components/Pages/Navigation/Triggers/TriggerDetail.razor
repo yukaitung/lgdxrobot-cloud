@@ -68,16 +68,54 @@
         <div class="mb-3 row">
           <label class="col-3 col-form-label" for="Body">Body</label>
           <div class="col">
-              @foreach (TriggerPresetValue preset in Enum.GetValues(typeof(TriggerPresetValue)))
-              {
-                <button class="btn btn-sm me-1 mb-2" type="button" onclick="AddTextInSelection(@("'((" + (int) preset + "))'"), document.getElementById('Body'))">@(preset.ToEnumMember())</button>
-              }
-            <InputTextArea id="Body" @bind-Value="Trigger.Body" class="form-control" rows="3"
-              placeholder="Request body (JSON format is recommended)"></InputTextArea>
-            <ValidationMessage class="invalid-feedback" For="@(() => Trigger.Body)" />
-            <small class="form-hint">
-              Press buttons above for preset value, no quote is required for assign a preset value on value field.
-            </small>
+            <table class="table table-vcenter text-nowrap datatable">
+              <thead>
+                <tr>
+                  <th class="w-1">Sequence</th>
+                  <th>Key</th>
+                  <th>Value</th>
+                  <th>Custom Value</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (int i = 0; i < Body.Count; i++)
+                {
+                  var index = i;
+                  <tr>
+                    <td>
+                      <div class="col col-form-label col-form-label-sm">@(index + 1)</div>
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control" @bind="Body[index].Key">
+                    </td>
+                    <td>
+                      <select class="form-select" value="@Body[index].Value" @onchange="@((e) => HandleBodyPresetChange(index, e.Value ?? string.Empty))">
+                        <option value="0">Custom Value</option>
+                        @foreach (TriggerPresetValue preset in Enum.GetValues(typeof(TriggerPresetValue)))
+                        {
+                          <option value="@((int) preset)">@preset.ToEnumMember()</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <input type="text" class="form-control" @bind="Body[index].CustomValue" disabled="@(Body[index].Value != 0)">
+                    </td>
+                    <td>
+                      <button type="button"
+                        class="btn btn-ghost-danger btn-icon btn @(Body.Count <= 1 ? "disabled" : "")" @onclick="e => BodyRemoveStep(index)">
+                        <i class="ti ti-trash" style="font-size: 16px;"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            <div class="row">
+              <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="BodyAddStep">
+                Add A Step
+              </button>
+            </div>
           </div>
         </div>
         <div class="mb-3 row">

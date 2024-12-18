@@ -175,8 +175,6 @@ builder.Services.AddAuthorizationBuilder()
 // Custom Services
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
-builder.Services.AddScoped<IFlowTriggersService, FlowTriggersService>();
-builder.Services.AddHttpClient<IFlowTriggersService, FlowTriggersService>();
 
 // Identity Repositories
 builder.Services.AddScoped<ILgdxUsersRepository, LgdxUsersRepository>();

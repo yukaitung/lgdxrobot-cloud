@@ -1,8 +1,11 @@
+using LGDXRobot2Cloud.Worker.Consumers;
 using MassTransit;
 using System.Reflection;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
+
+builder.Services.AddHttpClient<AutoTaskTriggerConsumer>();
 
 /*
  * Infrastructure

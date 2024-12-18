@@ -1,22 +1,16 @@
 using System.Text;
-using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Enums;
+using MassTransit;
 using Newtonsoft.Json.Linq;
 
-namespace LGDXRobot2Cloud.API.Services;
+namespace LGDXRobot2Cloud.Worker.Consumers;
 
-public interface IFlowTriggersService
-{
-  Task<bool> InitiateTriggerAsync(AutoTask? task, FlowDetail? flowDetail);
-}
-
-public class FlowTriggersService(HttpClient httpClient,
-  IFlowDetailRepository flowDetailRepository) : IFlowTriggersService
+public class AutoTaskTriggerConsumer(HttpClient httpClient) : IConsumer<AutoTaskTriggerContract>
 {
   private readonly HttpClient _httpClient = httpClient;
-  private readonly IFlowDetailRepository _flowDetailRepository = flowDetailRepository;
-  
+
   private static string GeneratePresetValue(int i, AutoTask task)
   {
     return i switch
@@ -39,14 +33,14 @@ public class FlowTriggersService(HttpClient httpClient,
     int i = 0, j = 0;
     while (j < body.Length - 1)
     {
-      while (j < body.Length && s[j] != '(')
+      while (j < body.Length && body[j] != '(')
         j++;
       if ((j + 1) < body.Length && body[j + 1] == '(')
       {
         // Start of preset value
         while (i < j)
           s.Append(body[i++]);
-        while (j < body.Length && s[j] != ')')
+        while (j < body.Length && body[j] != ')')
           j++;
         if ((j + 1) < body.Length && body[j + 1] == ')')
         {
@@ -72,13 +66,6 @@ public class FlowTriggersService(HttpClient httpClient,
     while (i < body.Length)
       s.Append(body[i++]);
     return s.ToString();
-  }
-
-  public async Task<FlowDetail?> GetFlowDetailAsync(AutoTask? task)
-  {
-    if (task == null)
-      return null;
-    return await _flowDetailRepository.GetFlowDetailAsync(task.FlowId, (int) task.CurrentProgressOrder!);
   }
 
   public async Task<bool> InitiateTriggerAsync(AutoTask? task, FlowDetail? flowDetail)
@@ -162,5 +149,13 @@ public class FlowTriggersService(HttpClient httpClient,
     }
 
     return result || trigger.SkipOnFailure;
+  }
+
+  public async Task Consume(ConsumeContext<AutoTaskTriggerContract> context)
+  {
+    await InitiateTriggerAsync(context.Message.AutoTask, context.Message.FlowDetail);
+    //Console.WriteLine(JsonSerializer.Serialize(context.Message.AutoTask, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true }));
+    //Console.WriteLine(JsonSerializer.Serialize(context.Message.FlowDetail, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true }));
+    //return Task.CompletedTask;
   }
 }
