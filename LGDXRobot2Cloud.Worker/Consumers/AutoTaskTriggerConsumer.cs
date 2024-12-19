@@ -1,9 +1,9 @@
 using System.Text;
+using System.Text.Json;
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Enums;
 using MassTransit;
-using Newtonsoft.Json.Linq;
 
 namespace LGDXRobot2Cloud.Worker.Consumers;
 
@@ -27,80 +27,50 @@ public class AutoTaskTriggerConsumer(HttpClient httpClient) : IConsumer<AutoTask
     };
   }
 
-  private static string GenerateBody(string body, AutoTask task)
-  {
-    StringBuilder s = new();
-    int i = 0, j = 0;
-    while (j < body.Length - 1)
-    {
-      while (j < body.Length && body[j] != '(')
-        j++;
-      if ((j + 1) < body.Length && body[j + 1] == '(')
-      {
-        // Start of preset value
-        while (i < j)
-          s.Append(body[i++]);
-        while (j < body.Length && body[j] != ')')
-          j++;
-        if ((j + 1) < body.Length && body[j + 1] == ')')
-        {
-          // end of preset value
-          // ((xxx))
-          // i    j
-          var presetValueString = body.Substring(i + 2, j - i - 2);
-          if (int.TryParse(presetValueString, out int presetValue))
-          {
-            var insert = GeneratePresetValue(presetValue, task);
-            if (insert != string.Empty)
-            {
-              // Valid preset value
-              s.Append(insert);
-              j += 2;
-              i = j;
-            }
-          }
-        }
-      }
-    }
-    // Copy remaining content
-    while (i < body.Length)
-      s.Append(body[i++]);
-    return s.ToString();
-  }
-
   public async Task<bool> InitiateTriggerAsync(AutoTask? task, FlowDetail? flowDetail)
   {
     if (task == null || flowDetail == null || flowDetail.Trigger == null)
       return true; // Success because no error
+
     var trigger = flowDetail.Trigger;
-
     bool result = true;
-    var body = GenerateBody(trigger.Body ?? string.Empty, task);
-    Console.WriteLine(body);
-    var bodyJson = JObject.Parse(body);
 
-    // Add Next Token
-    if (flowDetail.AutoTaskNextControllerId != (int) AutoTaskNextController.Robot && task.NextToken != null)
+    var bodyDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(trigger.Body ?? "{}");
+    if (bodyDictionary != null)
     {
-      bodyJson.Add("Lgdx2NextToken", task.NextToken);
-    }
-    var backupBody = bodyJson.ToString();
-    
-    // Add API Key
-    if (trigger.ApiKeyId != null)
-    {
-      switch (trigger.ApiKeyInsertLocationId)
+      // Replace Preset Value
+      foreach (var pair in bodyDictionary)
       {
-        case (int) ApiKeyInsertLocation.Header:
-          _httpClient.DefaultRequestHeaders.Add(trigger.ApiKeyFieldName ?? "Key", trigger.ApiKey?.Secret);
-          break;
-        case (int) ApiKeyInsertLocation.Body:
-          bodyJson.Add(trigger.ApiKeyFieldName ?? "Key", trigger.ApiKey?.Secret);
-          break;
+        if (pair.Value.Length >= 5) // ((1)) has 5 characters
+        {
+          if (int.TryParse(pair.Value[2..^2], out int p))
+          {
+            bodyDictionary[pair.Key] = GeneratePresetValue(p, task);
+          }
+        }
+      }
+      // Add Next Token
+      if (flowDetail.AutoTaskNextControllerId != (int) AutoTaskNextController.Robot && task.NextToken != null)
+      {
+        bodyDictionary.Add("Lgdx2NextToken", task.NextToken);
+      }
+      // Add API Key
+      if (trigger.ApiKeyId != null)
+      {
+        switch (trigger.ApiKeyInsertLocationId)
+        {
+          case (int) ApiKeyInsertLocation.Header:
+            _httpClient.DefaultRequestHeaders.Add(trigger.ApiKeyFieldName ?? "Key", trigger.ApiKey?.Secret);
+            break;
+          case (int) ApiKeyInsertLocation.Body:
+            bodyDictionary.Add(trigger.ApiKeyFieldName ?? "Key", trigger.ApiKey?.Secret ?? string.Empty);
+            break;
+        }
       }
     }
 
-    var requestBody = new StringContent(bodyJson.ToString(), Encoding.UTF8, "application/json");
+    var bodyStr = bodyDictionary != null ? JsonSerializer.Serialize(bodyDictionary) : string.Empty;
+    var requestBody = new StringContent(bodyStr, Encoding.UTF8, "application/json");
     switch (trigger.HttpMethodId)
     {
       case (int) TriggerHttpMethod.Get:
@@ -154,8 +124,5 @@ public class AutoTaskTriggerConsumer(HttpClient httpClient) : IConsumer<AutoTask
   public async Task Consume(ConsumeContext<AutoTaskTriggerContract> context)
   {
     await InitiateTriggerAsync(context.Message.AutoTask, context.Message.FlowDetail);
-    //Console.WriteLine(JsonSerializer.Serialize(context.Message.AutoTask, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true }));
-    //Console.WriteLine(JsonSerializer.Serialize(context.Message.FlowDetail, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true }));
-    //return Task.CompletedTask;
   }
 }
