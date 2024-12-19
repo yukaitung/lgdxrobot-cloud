@@ -1,13 +1,16 @@
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Enums;
-using MassTransit;
 
-namespace LGDXRobot2Cloud.Worker.Consumers;
+namespace LGDXRobot2Cloud.API.Services;
 
-public class AutoTaskTriggerConsumer(HttpClient httpClient) : IConsumer<AutoTaskTriggerContract>
+public interface ITriggerService
+{
+  Task<bool> InitiateTriggerAsync(AutoTask? task, FlowDetail? flowDetail);
+}
+
+public class TriggerService(HttpClient httpClient) : ITriggerService
 {
   private readonly HttpClient _httpClient = httpClient;
 
@@ -119,10 +122,5 @@ public class AutoTaskTriggerConsumer(HttpClient httpClient) : IConsumer<AutoTask
     }
 
     return result || trigger.SkipOnFailure;
-  }
-
-  public async Task Consume(ConsumeContext<AutoTaskTriggerContract> context)
-  {
-    await InitiateTriggerAsync(context.Message.AutoTask, context.Message.FlowDetail);
   }
 }

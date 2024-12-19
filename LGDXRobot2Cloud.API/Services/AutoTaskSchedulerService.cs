@@ -19,21 +19,21 @@ public interface IAutoTaskSchedulerService
 public class AutoTaskSchedulerService(
     IAutoTaskDetailRepository autoTaskDetailRepository,
     IAutoTaskRepository autoTaskRepository,
-    IBus bus,
     IDistributedCache cache,
     IFlowDetailRepository flowDetailRepository,
     IOnlineRobotsService onlineRobotsService,
-    IProgressRepository progressRepository
+    IProgressRepository progressRepository,
+    ITriggerService triggerService
   ) : IAutoTaskSchedulerService
 {
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
   private readonly DistributedCacheEntryOptions _cacheEntryOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
   private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
   private readonly IFlowDetailRepository _flowDetailRepository = flowDetailRepository ?? throw new ArgumentNullException(nameof(flowDetailRepository));
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
   private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
+  private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
 
   private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
   {
@@ -80,10 +80,7 @@ public class AutoTaskSchedulerService(
     var flowDetail = await _flowDetailRepository.GetFlowDetailAsync(task.FlowId, (int) task.CurrentProgressOrder!);
     if (!ignoreTrigger && flowDetail!.Trigger != null)
     {
-      await _bus.Publish(new AutoTaskTriggerContract{
-        AutoTask = task,
-        FlowDetail = flowDetail
-      });
+      await _triggerService.InitiateTriggerAsync(task, flowDetail);
     }
 
     List<RobotClientsDof> waypoints = [];

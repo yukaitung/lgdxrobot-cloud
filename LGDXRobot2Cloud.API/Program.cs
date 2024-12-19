@@ -38,6 +38,7 @@ builder.Services.Configure<LgdxRobot2SecretConfiguration>(
 /*
  * Infrastructure
  */
+/*
 builder.Services.AddMassTransit(cfg =>
 {
 	cfg.UsingRabbitMq((context, cfg) =>
@@ -50,6 +51,7 @@ builder.Services.AddMassTransit(cfg =>
 		cfg.ConfigureEndpoints(context);
 	});
 });
+*/
 builder.Services.AddStackExchangeRedisCache(cfg =>
 {
 	cfg.Configuration = builder.Configuration["Redis:Configuration"];
@@ -172,6 +174,7 @@ builder.Services.AddAuthorizationBuilder()
 /*
  * LGDX Depency Injection
  */
+builder.Services.AddHttpClient<ITriggerService, TriggerService>();
 // Custom Services
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
