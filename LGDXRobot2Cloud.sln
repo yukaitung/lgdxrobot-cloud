@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobot2Cloud.UI", "LGDXR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobot2Cloud.Utilities", "LGDXRobot2Cloud.Utilities\LGDXRobot2Cloud.Utilities.csproj", "{E1063184-37EF-4078-A25C-C60A15A1DB58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobot2Cloud.Worker", "LGDXRobot2Cloud.Worker\LGDXRobot2Cloud.Worker.csproj", "{DE179E9A-BEAA-47DE-8C40-695ADBB8A147}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

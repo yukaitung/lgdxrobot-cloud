@@ -1,9 +1,7 @@
 using LGDXRobot2Cloud.API.Repositories;
-using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Utilities.Enums;
-using MassTransit;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace LGDXRobot2Cloud.API.Services;
@@ -14,6 +12,7 @@ public interface IAutoTaskSchedulerService
   Task<RobotClientsAutoTask?> GetAutoTaskAsync(Guid robotId);
   Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token);
   Task<RobotClientsAutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token);
+  Task<RobotClientsAutoTask?> AutoTaskNextManualAsync(AutoTask autoTask);
 }
 
 public class AutoTaskSchedulerService(
@@ -174,5 +173,12 @@ public class AutoTaskSchedulerService(
     var progress = await _progressRepository.GetProgressAsync(task.CurrentProgressId);
     task.CurrentProgress = progress!;
     return await GenerateTaskDetail(task, true);
+  }
+
+  public async Task<RobotClientsAutoTask?> AutoTaskNextManualAsync(AutoTask autoTask)
+  {
+    var progress = await _progressRepository.GetProgressAsync(autoTask.CurrentProgressId);
+    autoTask.CurrentProgress = progress!;
+    return await GenerateTaskDetail(autoTask, true);
   }
 }

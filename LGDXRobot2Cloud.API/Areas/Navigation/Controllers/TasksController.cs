@@ -5,6 +5,7 @@ using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -175,6 +176,18 @@ public class TasksController(
       return NoContent();
     }
     await _autoTaskRepository.AutoTaskAbortManualAsync(task.Id);
+    return NoContent();
+  }
+
+  [AllowAnonymous]
+  [HttpPost("{id}/Next")]
+  public async Task<IActionResult> AutoTaskNext(int id, AutoTaskNextDto autoTaskNextDto)
+  {
+    var result = await _autoTaskRepository.AutoTaskNextAsync(autoTaskNextDto.RobotId, id, autoTaskNextDto.NextToken);
+    if (result == null)
+      return BadRequest("The next token is invalid.");
+
+    _onlineRobotsService.SetAutoTaskNext(autoTaskNextDto.RobotId, result);
     return NoContent();
   }
 }

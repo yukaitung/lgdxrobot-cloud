@@ -52,6 +52,7 @@ builder.Services.AddMassTransit(cfg =>
 	});
 });
 */
+builder.Services.AddMemoryCache();
 builder.Services.AddStackExchangeRedisCache(cfg =>
 {
 	cfg.Configuration = builder.Configuration["Redis:Configuration"];

@@ -170,25 +170,38 @@ public class RobotClientsService(
       return ValidateOnlineRobotsFailed();
 
     await _onlineRobotsService.SetRobotDataAsync((Guid)robotId, request);
-
-    // Get AutoTask
-    if (request.RobotStatus == RobotClientsRobotStatus.Idle)
+    var manualAutoTask = _onlineRobotsService.GetAutoTaskNext((Guid)robotId);
+    if (manualAutoTask != null)
     {
-      var task = await _autoTaskSchedulerService.GetAutoTaskAsync((Guid)robotId);
+      // Triggered by API
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
         Message = string.Empty,
         Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
-        Task = task
+        Task = await _autoTaskSchedulerService.AutoTaskNextManualAsync(manualAutoTask)
       };
     }
     else
     {
-      return new RobotClientsRespond {
-        Status = RobotClientsResultStatus.Success,
-        Message = string.Empty,
-        Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
-      };
+      // Get AutoTask
+      if (request.RobotStatus == RobotClientsRobotStatus.Idle)
+      {
+        var task = await _autoTaskSchedulerService.GetAutoTaskAsync((Guid)robotId);
+        return new RobotClientsRespond {
+          Status = RobotClientsResultStatus.Success,
+          Message = string.Empty,
+          Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
+          Task = task
+        };
+      }
+      else
+      {
+        return new RobotClientsRespond {
+          Status = RobotClientsResultStatus.Success,
+          Message = string.Empty,
+          Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
+        };
+      }
     }
   }
 

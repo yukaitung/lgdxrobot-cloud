@@ -1,5 +1,7 @@
+using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobot2Cloud.API.Services;
 
@@ -24,12 +26,19 @@ public interface IOnlineRobotsService
   Task<bool> UpdateSoftwareEmergencyStopAsync(Guid robotId, bool enable);
   Task<bool> UpdatePauseTaskAssigementAsync(Guid robotId, bool enable);
   Task<bool> GetPauseAutoTaskAssignmentAsync(Guid robotId);
+
+  void SetAutoTaskNext(Guid robotId, AutoTask task);
+  AutoTask? GetAutoTaskNext(Guid robotId);
 }
 
-public class OnlineRobotsService(IDistributedCache cache) : IOnlineRobotsService
+public class OnlineRobotsService(
+    IDistributedCache cache, 
+    IMemoryCache memoryCache
+  ) : IOnlineRobotsService
 {
   private readonly DistributedCacheEntryOptions _cacheEntryOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) };
   private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly string OnlineRobotssKey = "OnlineRobotsService_OnlineRobotss";
 
   static private bool GenerateUnresolvableCriticalStatus(RobotClientsRobotCriticalStatus criticalStatus)
@@ -166,5 +175,23 @@ public class OnlineRobotsService(IDistributedCache cache) : IOnlineRobotsService
       return robotDataComposite.Commands.PauseTaskAssigement;
     }
     return false;
+  }
+
+  public void SetAutoTaskNext(Guid robotId, AutoTask autoTask)
+  {
+    _memoryCache.Set($"OnlineRobotsService_RobotHasNextTask_{robotId}", autoTask);
+  }
+
+  public AutoTask? GetAutoTaskNext(Guid robotId)
+  {
+    if (memoryCache.TryGetValue($"OnlineRobotsService_RobotHasNextTask_{robotId}", out AutoTask? autoTask))
+    {
+      memoryCache.Remove($"OnlineRobotsService_RobotHasNextTask_{robotId}");
+      return autoTask;
+    }
+    else
+    {
+      return null;
+    }
   }
 }
