@@ -39,6 +39,14 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Entities.Waypoint, Models.Responses.WaypointDto>();
       CreateMap<Models.Commands.WaypointCreateDto, Entities.Waypoint>();
       CreateMap<Models.Commands.WaypointUpdateDto, Entities.Waypoint>();
+      // Map
+      CreateMap<Entities.Map, Models.Responses.MapDto>()
+        .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.ToBase64String(s.Image)));
+      CreateMap<Entities.Map, Models.Responses.MapListDto>();
+      CreateMap<Models.Commands.MapCreateDto, Entities.Map>()
+        .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.FromBase64String(s.Image)));
+      CreateMap<Models.Commands.MapUpdateDto, Entities.Map>()
+        .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.FromBase64String(s.Image)));
     }
   }
 
