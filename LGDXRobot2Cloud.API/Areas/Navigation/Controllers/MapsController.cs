@@ -42,6 +42,15 @@ public class MapsController(
     return Ok(_mapper.Map<MapDto>(map));
   }
 
+  [HttpGet("default")]
+  public async Task<ActionResult<MapDto>> GetDefaultMap()
+  {
+    var map = await _mapRepository.GetDefaultMapAsync();
+    if (map == null)
+      return NotFound();
+    return Ok(_mapper.Map<MapDto>(map));
+  }
+
   [HttpPost("")]
   public async Task<ActionResult> CreateMap(MapCreateDto mapDto)
   {

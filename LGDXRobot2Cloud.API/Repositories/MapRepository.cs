@@ -12,6 +12,8 @@ public interface IMapRepository
   Task AddMapAsync(Map map);
   void DeleteMap(Map map);
   Task<bool> SaveChangesAsync();
+
+  Task<Map?> GetDefaultMapAsync();
 }
 
 public class MapRepository(LgdxContext context) : IMapRepository
@@ -54,5 +56,10 @@ public class MapRepository(LgdxContext context) : IMapRepository
   public async Task<bool> SaveChangesAsync()
   {
     return await _context.SaveChangesAsync() >= 0;
+  }
+
+  public async Task<Map?> GetDefaultMapAsync()
+  {
+    return await _context.Maps.OrderBy(m => m.Id).FirstOrDefaultAsync();
   }
 }
