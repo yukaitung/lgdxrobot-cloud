@@ -13,6 +13,7 @@ public interface IRobotCertificateService
   Task<(IEnumerable<RobotCertificate>?, PaginationHelper?)> GetRobotCertificatesAsync(int pageNumber = 1, int pageSize = 10);
   Task<RobotCertificate?> GetRobotCertificateAsync(string certificateId);
   Task<RobotCertificateIssueDto?> RenewRobotCertificateAsync(string certificateId, RobotRenewCertificateRenewDto dto);
+  Task<RootCertificateDto?> GetRootCertificateAsync();
 }
 
 public sealed class RobotCertificateService(
@@ -55,5 +56,12 @@ public sealed class RobotCertificateService(
     {
       throw new Exception($"The API service returns status code {response.StatusCode}.");
     }
+  }
+
+  public async Task<RootCertificateDto?> GetRootCertificateAsync()
+  {
+    var response = await _httpClient.GetAsync("setting/certificates/root");
+    var rootCertificate = await JsonSerializer.DeserializeAsync<RootCertificateDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+    return rootCertificate;
   }
 }

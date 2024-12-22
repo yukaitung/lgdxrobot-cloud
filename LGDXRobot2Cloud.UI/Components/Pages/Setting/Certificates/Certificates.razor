@@ -10,9 +10,36 @@
         Robot Certificates
       </h2>
     </div>
+    <div class="col-auto ms-auto">
+      <a class="btn" data-bs-toggle="modal" data-bs-target="#rootCertificate" @onclick="GetRootCertificate">
+        Root Certificate
+      </a>
+    </div>
   </div>
 </PageHeader>
 
 <PageBody>
   <CertificatesTable />
 </PageBody>
+
+<div class="modal modal-blur fade" id="rootCertificate" tabindex="-1" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Root Certificate</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <textarea id="RootCertificateTextarea" class="form-control mb-2" rows="6" readonly>
+          @if (RootCertificate != null)
+          {
+            @RootCertificate.PublicKey
+          }
+        </textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

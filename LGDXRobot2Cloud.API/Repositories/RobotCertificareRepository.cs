@@ -28,6 +28,8 @@ public interface IRobotCertificateRepository
   Task AddRobotCertificateAsync(RobotCertificate robotCertificate);
   void DeleteRobotCertificateAsync(RobotCertificate robotCertificate);
   Task<bool> SaveChangesAsync();
+
+  string GetRootCertificate();
 }
 
 public class RobotCertificateRepository(
@@ -96,5 +98,13 @@ public class RobotCertificateRepository(
   public async Task<bool> SaveChangesAsync()
   {
     return await _context.SaveChangesAsync() >= 0;
+  }
+
+  public string GetRootCertificate()
+  {
+    X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
+    store.Open(OpenFlags.OpenExistingOnly);
+    X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobot2Configuration.RootCertificateSN);
+    return rootCertificate.ExportCertificatePem();
   }
 }

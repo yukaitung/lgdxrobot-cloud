@@ -37,6 +37,13 @@ public class CertificatesController(
     return Ok(_mapper.Map<IEnumerable<RobotCertificateListDto>>(certificates));
   }
 
+  [HttpGet("root")]
+  public ActionResult<RootCertificateDto> GetRootCertificate()
+  {
+    var rootCertificate = _robotCertificateRepository.GetRootCertificate();
+    return Ok(new RootCertificateDto { PublicKey = rootCertificate });
+  }
+
   [HttpGet("{id}", Name = "GetCertificate")]
   public async Task<ActionResult<RobotCertificateDto>> GetCertificate(Guid id)
   {
