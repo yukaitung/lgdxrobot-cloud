@@ -1,0 +1,124 @@
+@attribute [Route(AppRoutes.Navigation.Maps.Create)]
+@attribute [Route(AppRoutes.Navigation.Maps.Detail)]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Maps/Read")]
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Id != null ? "Edit Map" : "Create Map")">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Maps.Index">◀ Return</a></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        @(Id != null ? "Edit Map" : "Create Map")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Map Detail</h3>
+    </div>
+    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+      <DataAnnotationsValidator />
+      <div class="card-body">
+        <SubmitErrorModal Display="@IsError" />
+        <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">ID</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Map.Id</div>
+            </div>
+          </div>
+        }
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="Name">Name</label>
+          <div class="col">
+            <InputText id="Name" @bind-Value="Map.Name" type="text" class="form-control" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Map.Name)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label" for="Description">Description</label>
+          <div class="col">
+            <InputTextArea id="Description" @bind-Value="Map.Description" class="form-control" rows="3" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="Image">Image</label>
+          <div class="col">
+            @if (Map.Image != null)
+            {
+              <img class="mx-auto d-block mb-2" src="data:image/png;base64, @Map.Image" />
+            }
+            <InputFile class="form-control" OnChange="LoadImage" accept=".png"/>
+            <ValidationMessage class="invalid-feedback" For="@(() => Map.SelectedImage)" />
+            <span class="form-check-description">The maximun file size is 8 MB, and only accept .png image.</span>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="Resolution">Resolution (m)</label>
+          <div class="col">
+            <InputNumber id="Resolution" @bind-Value="Map.Resolution" type="number" step="any" class="form-control" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Map.Resolution)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="OriginX">Origin X (m)</label>
+          <div class="col">
+            <InputNumber id="OriginX" @bind-Value="Map.OriginX" type="number" step="any" class="form-control" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Map.OriginX)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="OriginY">Origin Y (m)</label>
+          <div class="col">
+            <InputNumber id="OriginY" @bind-Value="Map.OriginY" type="number" step="any" class="form-control" />
+            <ValidationMessage class="invalid-feedback" For="@(() => Map.OriginY)" />
+          </div>
+        </div>
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Create Time</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Map.CreatedAt</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Last Update Time</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@Map.UpdatedAt</div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="card-footer d-flex">
+        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Waypoints/Delete" Context="Delete">
+          @if (Id != null)
+          {
+            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+              Delete
+            </a>
+          }
+        </AuthorizeView>
+        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Waypoints/Write" Context="Write">
+          <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+        </AuthorizeView>
+      </div>
+    </EditForm>
+  </div>
+</PageBody>
+
+<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Flows/Delete" Context="DeleteModal">
+  @if (Id != null)
+  {
+    <DeleteEntryModal EntryName="Map" OnDelete="HandleDelete" />
+  }
+</AuthorizeView>

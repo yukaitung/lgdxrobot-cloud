@@ -1,0 +1,25 @@
+@attribute [Route(AppRoutes.Navigation.Maps.Index)]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Maps/Read")]
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Maps.Components
+@rendermode InteractiveServer
+
+<PageHeader Title="Maps">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Maps
+      </h2>
+    </div>
+    <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Maps/Write">
+      <div class="col-auto ms-auto">
+        <a href="@AppRoutes.Navigation.Maps.Create" type="button" class="btn btn-primary">
+          Create Map
+        </a>
+      </div>
+    </AuthorizeView>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <MapsTable />
+</PageBody>

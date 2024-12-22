@@ -25,6 +25,7 @@ builder.Services.AddHttpClient<IFlowService, FlowService>(configureAction);
 builder.Services.AddHttpClient<IProgressService, ProgressService>(configureAction);
 builder.Services.AddHttpClient<ITriggerService, TriggerService>(configureAction);
 builder.Services.AddHttpClient<IWaypointService, WaypointService>(configureAction);
+builder.Services.AddHttpClient<IMapsService, MapsService>(configureAction);
 
 // Robot
 builder.Services.AddHttpClient<INodesCollectionService, NodesCollectionService>(configureAction);

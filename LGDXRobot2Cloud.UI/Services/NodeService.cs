@@ -18,8 +18,9 @@ public interface INodeService
 }
 
 public sealed class NodeService(
-  AuthenticationStateProvider authenticationStateProvider, 
-  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), INodeService
+    AuthenticationStateProvider authenticationStateProvider, 
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), INodeService
 {
   public async Task<(IEnumerable<Node>?, PaginationHelper?)> GetNodesAsync(string? name, int pageNumber, int pageSize)
   {

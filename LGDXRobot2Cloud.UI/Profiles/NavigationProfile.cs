@@ -27,6 +27,9 @@ namespace LGDXRobot2Cloud.UI.Profiles
       // Waypoint
       CreateMap<Waypoint, WaypointCreateDto>();
       CreateMap<Waypoint, WaypointUpdateDto>();
+      // Maps
+      CreateMap<Map, MapCreateDto>();
+      CreateMap<Map, MapUpdateDto>();
     }
   }
 }

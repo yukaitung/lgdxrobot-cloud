@@ -6,9 +6,11 @@ public static class AppRoutes
 
   public static class Navigation
   {
-    public static class Map
+    public static class Maps
     {
-      public const string Index = "/navigation/map";
+      public const string Index = "/navigation/maps";
+      public const string Create = "/navigation/maps/create";
+      public const string Detail = "/navigation/maps/{Id:int}";
     }
     public static class Tasks
     {
