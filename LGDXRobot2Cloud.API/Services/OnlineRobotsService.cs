@@ -184,9 +184,9 @@ public class OnlineRobotsService(
 
   public AutoTask? GetAutoTaskNext(Guid robotId)
   {
-    if (memoryCache.TryGetValue($"OnlineRobotsService_RobotHasNextTask_{robotId}", out AutoTask? autoTask))
+    if (_memoryCache.TryGetValue($"OnlineRobotsService_RobotHasNextTask_{robotId}", out AutoTask? autoTask))
     {
-      memoryCache.Remove($"OnlineRobotsService_RobotHasNextTask_{robotId}");
+      _memoryCache.Remove($"OnlineRobotsService_RobotHasNextTask_{robotId}");
       return autoTask;
     }
     else

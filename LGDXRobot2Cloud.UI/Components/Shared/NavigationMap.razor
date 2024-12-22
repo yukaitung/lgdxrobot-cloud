@@ -1,0 +1,11 @@
+<div class="card">
+  <!-- Header -->
+  <div class="card-header">
+    <h3 class="card-title">Navigation Map</h3>
+  </div>
+
+  @if (Map != null)
+  {
+    <img class="mx-auto d-block" src="data:image/png;base64, @Map.Image" />
+  }
+</div>

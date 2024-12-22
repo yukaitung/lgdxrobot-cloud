@@ -1,21 +1,9 @@
 ﻿@page "/"
+@using LGDXRobot2Cloud.UI.Components.Shared
 @attribute [Authorize]
 
-<PageHeader Title="Home">
-  <div class="row align-items-center">
-    <div class="col">
-      <h2 class="page-title">
-        Home
-      </h2>
-    </div>
-  </div>
-</PageHeader>
+<PageTitle>Home | LGDXRobot2 Cloud</PageTitle>
 
 <PageBody>
-  Welcome to LGDXRobot2.
-  <AuthorizeView>
-      <Authorized>
-          <p>Hello, @context.User.Identity?.Name!</p>
-      </Authorized>
-  </AuthorizeView>
+  <NavigationMap />
 </PageBody>

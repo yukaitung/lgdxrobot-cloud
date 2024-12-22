@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -15,13 +16,18 @@ public interface IMapsService
   Task<bool> UpdateMapAsync(int mapId, MapUpdateDto map);
   Task<bool> DeleteMapAsync(int mapId);
   Task<string> SearchMapsAsync(string name);
+
+  Task<Map?> GetDefaultMapAsync();
 }
 
 public sealed class MapsService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient
+    HttpClient httpClient,
+    IMemoryCache memoryCache
   ) : BaseService(authenticationStateProvider, httpClient), IMapsService
 {
+  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+
   public async Task<(IEnumerable<Map>?, PaginationHelper?)> GetMapsAsync(string? name, int pageNumber, int pageSize)
   {
     var url = name != null ? $"navigation/maps?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/maps?pageNumber={pageNumber}&pageSize={pageSize}";
@@ -77,6 +83,21 @@ public sealed class MapsService(
     else
     {
       throw new Exception($"The API service returns status code {response.StatusCode}.");
+    }
+  }
+
+  public async Task<Map?> GetDefaultMapAsync()
+  {
+    if (_memoryCache.TryGetValue($"MapsService_GetDefaultMap", out Map? cachedMap))
+    {
+      return cachedMap;
+    }
+    else
+    {
+      var response = await _httpClient.GetAsync("navigation/maps/default");
+      var map = await JsonSerializer.DeserializeAsync<Map>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      _memoryCache.Set($"MapsService_GetDefaultMap", map);
+      return map;
     }
   }
 }
