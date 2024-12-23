@@ -1,11 +1,22 @@
-<div class="card">
+<div class="card d-flex flex-grow-1">
   <!-- Header -->
   <div class="card-header">
     <h3 class="card-title">Navigation Map</h3>
   </div>
-
-  @if (Map != null)
-  {
-    <img class="mx-auto d-block" src="data:image/png;base64, @Map.Image" />
-  }
+  <div id="navigation-map-div" class="flex-grow-1">
+    @if (Map != null)
+    {
+      <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Map.Image" />
+    }
+    <div class="btn-group" style="position: absolute;right: 1em;top: 5em; background-color: var(--tblr-card-bg);">
+      <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
+      <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
+      <button class="btn" onclick="NavigationMapZoomReset()"<i class="ti ti-zoom-reset"></i></button>
+    </div>
+    <canvas id="navigation-map-canvas" style="float: left;" />
+  </div>
 </div>
+
+<script src="libs/two.js/build/two.min.js"></script>
+<script src="libs/two.js/extras/js/zui.js"></script>
+<script src="js/navigation-map.js"></script>

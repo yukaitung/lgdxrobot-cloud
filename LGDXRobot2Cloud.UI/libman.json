@@ -18,6 +18,15 @@
         "dist/tabler-icons.min.css",
         "dist/fonts/*"
       ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "two.js@latest",
+      "destination": "wwwroot/libs/two.js",
+      "files": [
+        "build/two.min.js",
+        "extras/js/zui.js"
+      ]
     }
   ]
 }

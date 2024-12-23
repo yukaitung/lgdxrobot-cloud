@@ -1,5 +1,5 @@
-<div class="page-body">
-  <div class="container-xl">
+<div class="page-body @(Flex ? "d-flex" : "")">
+  <div class="container-xl @(Flex ? "d-flex flex-grow-1 flex-column" : "")">
     <ErrorBoundary>
       <ChildContent>
         @ChildContent
@@ -22,4 +22,7 @@
 @code {
   [Parameter]
   public RenderFragment? ChildContent { get; set; }
+
+  [Parameter]
+  public bool Flex { get; set; } = false;
 }
