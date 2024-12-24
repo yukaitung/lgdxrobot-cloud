@@ -1,6 +1,8 @@
+using System.Reflection;
 using LGDXRobot2Cloud.UI.Authorisation;
 using LGDXRobot2Cloud.UI.Components;
 using LGDXRobot2Cloud.UI.Services;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +10,23 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container
+builder.Configuration.AddJsonFile("secrets.json", true, true);
+builder.Services.AddMassTransit(cfg =>
+{
+	var entryAssembly = Assembly.GetEntryAssembly();
+  cfg.AddConsumers(entryAssembly);
+
+	cfg.UsingRabbitMq((context, cfg) =>
+	{
+		cfg.Host(builder.Configuration["RabbitMq:Host"], builder.Configuration["RabbitMq:VirtualHost"], h =>
+		{
+			h.Username(builder.Configuration["RabbitMq:Username"] ?? string.Empty);
+			h.Password(builder.Configuration["RabbitMq:Password"] ?? string.Empty);
+		});
+		cfg.ConfigureEndpoints(context);
+	});
+});
 builder.Services.AddMemoryCache();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

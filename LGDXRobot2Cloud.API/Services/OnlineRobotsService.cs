@@ -1,5 +1,7 @@
+using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
+using MassTransit;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -32,11 +34,13 @@ public interface IOnlineRobotsService
 }
 
 public class OnlineRobotsService(
+    IBus bus,
     IDistributedCache cache, 
     IMemoryCache memoryCache
   ) : IOnlineRobotsService
 {
   private readonly DistributedCacheEntryOptions _cacheEntryOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) };
+  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly string OnlineRobotssKey = "OnlineRobotsService_OnlineRobotss";
@@ -78,6 +82,15 @@ public class OnlineRobotsService(
 
   public async Task SetRobotDataAsync(Guid robotId, RobotClientsExchange data)
   {
+    await _bus.Publish(new RobotDataContract {
+      RobotId = robotId,
+      Position = new RobotDof {
+        X = data.Position.X,
+        Y = data.Position.Y,
+        Rotation = data.Position.Rotation
+      }
+    });
+    
     var robotDataComposite = await _cache.GetAsync<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}");
     if (robotDataComposite != null)
     {

@@ -1,15 +1,18 @@
 var CanvasObject;
+var MapImage;
+var RobotObjects;
 var StartScale;
 var TwoObject;
 var WindowHeight = window.innerHeight;
 var ZuiObject;
-var MapImage;
 
 /*
  * Dotnet Functions
  */
 function InitNavigationMap() 
 {
+  RobotObjects = {};
+
   // Init Two.js
   const div = document.getElementById("navigation-map-div");
   CanvasObject = document.getElementById("navigation-map-canvas");
@@ -30,12 +33,6 @@ function InitNavigationMap()
   mapRect.fill = mapTexture;
   mapRect.noStroke();
   TwoObject.add(mapRect);
-
-  // Add robots
-  var robot = TwoObject.makeCircle(_internalToMapX(0), _internalToMapY(0), 3);
-  robot.fill = '#FF8000';
-  robot.stroke = 'orangered';
-  TwoObject.add(robot);
 
   // Add event listener
   TwoObject.renderer.domElement.addEventListener('click', _internalOnRobotClicked, false);
@@ -68,10 +65,12 @@ function InitNavigationMap()
 
   function _internalOnRobotSelect(x, y)
   {
-    const rect = robot.getBoundingClientRect();
-    if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-      console.log("I am a robot!");
-    }
+    Object.entries(RobotObjects).forEach(([robotId, robotObject]) => {
+      const rect = robotObject.getBoundingClientRect();
+      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+        console.log("I am a robot id: " + robotId);
+      }
+    });
   }
 
   function _internalOnResize(e)
@@ -91,6 +90,15 @@ function InitNavigationMap()
     // Disabe image smoothing
     CanvasObject.getContext("2d").imageSmoothingEnabled = false;
   }
+}
+
+function AddRobot(robotId, x, y, rotation)
+{
+  var robot = TwoObject.makeCircle(_internalToMapX(x), _internalToMapY(y), 3);
+  robot.fill = '#FF8000';
+  robot.noStroke();
+  TwoObject.add(robot);
+  RobotObjects[robotId] = robot;
 }
 
 /*

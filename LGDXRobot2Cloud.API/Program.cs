@@ -38,7 +38,6 @@ builder.Services.Configure<LgdxRobot2SecretConfiguration>(
 /*
  * Infrastructure
  */
-/*
 builder.Services.AddMassTransit(cfg =>
 {
 	cfg.UsingRabbitMq((context, cfg) =>
@@ -51,7 +50,6 @@ builder.Services.AddMassTransit(cfg =>
 		cfg.ConfigureEndpoints(context);
 	});
 });
-*/
 builder.Services.AddMemoryCache();
 builder.Services.AddStackExchangeRedisCache(cfg =>
 {
