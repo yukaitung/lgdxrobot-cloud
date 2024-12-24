@@ -8,10 +8,10 @@
     {
       <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Map.Image" />
     }
-    <div class="btn-group" style="position: absolute;right: 1em;top: 5em; background-color: var(--tblr-card-bg);">
+    <div class="btn-group-vertical" style="position: absolute;right: 1em;top: 5em; background-color: var(--tblr-card-bg);">
       <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
       <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
-      <button class="btn" onclick="NavigationMapZoomReset()"<i class="ti ti-zoom-reset"></i></button>
+      <button class="btn" onclick="NavigationMapZoomReset()"<i class="ti ti-rotate"></i></button>
     </div>
     <canvas id="navigation-map-canvas" style="float: left;" />
   </div>
@@ -20,3 +20,8 @@
 <script src="libs/two.js/build/two.min.js"></script>
 <script src="libs/two.js/extras/js/zui.js"></script>
 <script src="js/navigation-map.js"></script>
+<script> 
+  @(Map != null ? $"var MAP_ORIGIN_X = {Map.OriginX};" : "var MAP_ORIGIN_X = 0;")
+  @(Map != null ? $"var MAP_ORIGIN_Y = {Map.OriginY};" : "var MAP_ORIGIN_Y = 0;")
+  @(Map != null ? $"var MAP_RESOLUTION = {Map.Resolution};" : "var MAP_RESOLUTION = 0;")
+</script>

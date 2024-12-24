@@ -1,8 +1,9 @@
-var canvas;
-var startScale;
-var two;
-var windowHeight = window.innerHeight;
-var zui;
+var CanvasObject;
+var StartScale;
+var TwoObject;
+var WindowHeight = window.innerHeight;
+var ZuiObject;
+var MapImage;
 
 /*
  * Dotnet Functions
@@ -10,69 +11,65 @@ var zui;
 function InitNavigationMap() 
 {
   // Init Two.js
-  let div = document.getElementById("navigation-map-div");
-  canvas = document.getElementById("navigation-map-canvas");
-  two = new Two({
+  const div = document.getElementById("navigation-map-div");
+  CanvasObject = document.getElementById("navigation-map-canvas");
+  TwoObject = new Two({
     autostart: true,
-    domElement: canvas,
+    domElement: CanvasObject,
     type: Two.Types.canvas,
     height: div.clientHeight,
     width: div.clientWidth
   });
 
   // Add map image
-  let mapImage = document.getElementById("navigation-map-image");
-  let mapTexture = new Two.Texture(mapImage);
-  let x = two.width * 0.5;
-  let y = two.height * 0.5;
-  let imageWidth = mapImage.width;
-  let imageHeight = mapImage.height;
-  let mapRect = two.makeRectangle(x, y, imageWidth, imageHeight);
+  MapImage = document.getElementById("navigation-map-image");
+  const mapTexture = new Two.Texture(MapImage);
+  const x = TwoObject.width * 0.5;
+  const y = TwoObject.height * 0.5;
+  let mapRect = TwoObject.makeRectangle(x, y, MapImage.width, MapImage.height);
   mapRect.fill = mapTexture;
   mapRect.noStroke();
-  two.add(mapRect);
+  TwoObject.add(mapRect);
 
   // Add robots
-  var robot = two.makeCircle(x, y, 3);
+  var robot = TwoObject.makeCircle(_internalToMapX(0), _internalToMapY(0), 3);
   robot.fill = '#FF8000';
   robot.stroke = 'orangered';
-  two.add(robot);
+  TwoObject.add(robot);
 
   // Add event listener
-  two.renderer.domElement.addEventListener('click', _internalOnRobotSelect, false);
-  two.renderer.domElement.addEventListener('touchstart', _internalOnRobotTouched, false);
+  TwoObject.renderer.domElement.addEventListener('click', _internalOnRobotClicked, false);
+  TwoObject.renderer.domElement.addEventListener('touchstart', _internalOnRobotTouched, false);
 
-  // Add ZUI
-  _internalAddZui(canvas.width, canvas.height, imageWidth, imageHeight);
+  // Add Zui
+  _internalAddZui();
 
   // Disabe image smoothing
-  canvas.getContext("2d").imageSmoothingEnabled = false;
+  CanvasObject.getContext("2d").imageSmoothingEnabled = false;
 
   // Resize event listener
   window.addEventListener("resize", _internalOnResize);
 
-  function _internalOnRobotSelect(e)
+  function _internalOnRobotClicked(e)
   {
-    var rect = robot.getBoundingClientRect();
-    var rect2 = canvas.getBoundingClientRect();
-    var x = e.clientX - (rect2.left + window.scrollX);
-    var y = e.clientY - (rect2.top + window.scrollY);
-    console.log(x, y);
-    if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-      // your custom function
-      console.log("I am a robot!");
-    }
+    const rect = CanvasObject.getBoundingClientRect();
+    const x = e.clientX - (rect.left + window.scrollX);
+    const y = e.clientY - (rect.top + window.scrollY);
+    _internalOnRobotSelect(x, y);
   }
   function _internalOnRobotTouched(e)
   {
-    var touch = e.touches[0];
-    var rect = robot.getBoundingClientRect();
-    var rect2 = canvas.getBoundingClientRect();
-    var x = touch.clientX - (rect2.left + window.scrollX);
-    var y = touch.clientY - (rect2.top + window.scrollY);
-    console.log(x, y);
+    const touch = e.touches[0];
+    const rect = CanvasObject.getBoundingClientRect();
+    const x = touch.clientX - (rect.left + window.scrollX);
+    const y = touch.clientY - (rect.top + window.scrollY);
+    _internalOnRobotSelect(x, y);
+  }
+
+  function _internalOnRobotSelect(x, y)
+  {
+    const rect = robot.getBoundingClientRect();
     if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-      // your custom function
       console.log("I am a robot!");
     }
   }
@@ -83,18 +80,16 @@ function InitNavigationMap()
 
     // Set Canvas size
     const newWindowHeight = window.innerHeight;
-    const dy = newWindowHeight - windowHeight;
+    const dy = newWindowHeight - WindowHeight;
     const div = document.getElementById("navigation-map-div");
-    two.renderer.setSize(div.clientWidth, div.clientHeight + (dy < 0 ? dy : 0));
+    TwoObject.renderer.setSize(div.clientWidth, div.clientHeight + (dy < 0 ? dy : 0));
 
-    // Set ZUI limits
-    const mapImage = document.getElementById("navigation-map-image");
-    _internalSetScale(div.clientWidth, div.clientHeight, mapImage.width, mapImage.height);
-
-    windowHeight = newWindowHeight;
+    // Set Zui limits
+    _internalSetScale(div.clientWidth, div.clientHeight, MapImage.width, MapImage.height);
+    WindowHeight = newWindowHeight;
 
     // Disabe image smoothing
-    canvas.getContext("2d").imageSmoothingEnabled = false;
+    CanvasObject.getContext("2d").imageSmoothingEnabled = false;
   }
 }
 
@@ -113,134 +108,140 @@ function NavigationMapZoomOut()
 
 function NavigationMapZoomReset()
 {
-  zui.reset();
+  ZuiObject.reset();
   _internalSetScale()
-  let canvas = document.getElementById("navigation-map-canvas");
-  zui.zoomSet(startScale, canvas.clientWidth / 2, canvas.clientHeight / 2);
+  const canvas = document.getElementById("navigation-map-canvas");
+  ZuiObject.zoomSet(StartScale, canvas.clientWidth / 2, canvas.clientHeight / 2);
 }
 
 /*
  * Private Functions
  */
+function _internalToMapX(x)
+{
+  return TwoObject.width * 0.5 - MapImage.width / 2 - (MAP_ORIGIN_X - x) / MAP_RESOLUTION;
+}
+
+function _internalToMapY(y)
+{
+  return TwoObject.height * 0.5 + MapImage.height / 2 + (MAP_ORIGIN_Y - y) / MAP_RESOLUTION;
+}
+
 function _internalZoom(scale)
 {
-  zui.zoomBy(scale, canvas.clientWidth / 2, canvas.clientHeight / 2);
+  ZuiObject.zoomBy(scale, CanvasObject.clientWidth / 2, CanvasObject.clientHeight / 2);
 }
 
 function _internalSetScale()
 {
-  let canvas = document.getElementById("navigation-map-canvas");
-  let mapImage = document.getElementById("navigation-map-image");
-
   // Fit map to screen
-  const canvasAspectRatio = canvas.width / canvas.height;
-  const imageAspectRatio = mapImage.width / mapImage.height;
+  const canvasAspectRatio = CanvasObject.width / CanvasObject.height;
+  const imageAspectRatio = MapImage.width / MapImage.height;
   if (imageAspectRatio > canvasAspectRatio) 
   {
     // Image is wider than canvas
-    startScale = canvas.clientWidth / mapImage.width;
+    StartScale = CanvasObject.clientWidth / MapImage.width;
   }
   else 
   {
     // Image is taller than canvas
-    startScale = canvas.clientHeight / mapImage.height;
+    StartScale = CanvasObject.clientHeight / MapImage.height;
   }
-  zui.limits.scale.min = startScale;
-  zui.limits.scale.max = 10;
+  ZuiObject.limits.scale.min = StartScale;
+  ZuiObject.limits.scale.max = 10;
 }
 
 function _internalAddZui()
 {
-  // Init ZUI
-  const scene = two.renderer.scene;
-  const domElement = two.renderer.domElement;
-  if (zui != null)
+  // Init Zui
+  const scene = TwoObject.renderer.scene;
+  const domElement = TwoObject.renderer.domElement;
+  if (ZuiObject != null)
   {
     // TODO: Find better way to handle this
     location.reload();
   }
-  zui = new Two.ZUI(scene);
+  ZuiObject = new Two.ZUI(scene);
   let mouse = new Two.Vector();
   let touches = {};
   let distance = 0;
 
   _internalSetScale();
-  let canvas = document.getElementById("navigation-map-canvas");
-  zui.zoomSet(startScale, canvas.clientWidth / 2, canvas.clientHeight / 2);
+  ZuiObject.zoomSet(StartScale, CanvasObject.clientWidth / 2, CanvasObject.clientHeight / 2);
 
-  domElement.addEventListener('mousedown', mousedown, false);
-  domElement.addEventListener('mousewheel', mousewheel, false);
-  domElement.addEventListener('wheel', mousewheel, false);
+  // Operations events and functions
+  domElement.addEventListener('mousedown', zuiMouseDown, false);
+  domElement.addEventListener('mousewheel', zuiMouseWheel, false);
+  domElement.addEventListener('wheel', zuiMouseWheel, false);
+  domElement.addEventListener('touchstart', zuiTouchStart, false);
+  domElement.addEventListener('touchmove', zuiTouchMove, false);
+  domElement.addEventListener('touchend', zuiTouchEnd, false);
+  domElement.addEventListener('touchcancel', zuiTouchEnd, false);
 
-  domElement.addEventListener('touchstart', touchstart, false);
-  domElement.addEventListener('touchmove', touchmove, false);
-  domElement.addEventListener('touchend', touchend, false);
-  domElement.addEventListener('touchcancel', touchend, false);
-
-  function mousedown(e) 
+  function zuiMouseDown(e)
   {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
-    var rect = scene.getBoundingClientRect();
+    const rect = scene.getBoundingClientRect();
     dragging = mouse.x > rect.left && mouse.x < rect.right
       && mouse.y > rect.top && mouse.y < rect.bottom;
-    window.addEventListener('mousemove', mousemove, false);
-    window.addEventListener('mouseup', mouseup, false);
+    window.addEventListener('mousemove', zuiMouseMove, false);
+    window.addEventListener('mouseup', zuiMouseUp, false);
   }
 
-  function mousemove(e) 
+  function zuiMouseMove(e) 
   {
-    var dx = e.clientX - mouse.x;
-    var dy = e.clientY - mouse.y;
-    zui.translateSurface(dx, dy);
+    const dx = e.clientX - mouse.x;
+    const dy = e.clientY - mouse.y;
+    ZuiObject.translateSurface(dx, dy);
     mouse.set(e.clientX, e.clientY);
   }
 
-  function mouseup(e) 
+  function zuiMouseUp(e) 
   {
-    window.removeEventListener('mousemove', mousemove, false);
-    window.removeEventListener('mouseup', mouseup, false);
+    window.removeEventListener('mousemove', zuiMouseMove, false);
+    window.removeEventListener('mouseup', zuiMouseUp, false);
   }
 
-  function mousewheel(e) 
+  function zuiMouseWheel(e) 
   {
     var dy = (e.wheelDeltaY || - e.deltaY) / 1000;
     _internalZoom(dy);
   }
 
-  function touchstart(e) 
+  function zuiTouchStart(e) 
   {
     e.preventDefault();
     switch (e.touches.length) 
     {
       case 2:
-        pinchstart(e);
+        zuiPinchStart(e);
         break;
       case 1:
-        panstart(e)
+        zuiPanStart(e)
         break;
     }
   }
 
-  function touchmove(e) 
+  function zuiTouchMove(e) 
   {
     e.preventDefault();
     switch (e.touches.length) 
     {
       case 2:
-        pinchmove(e);
+        zuiPinchMove(e);
         break;
       case 1:
-        panmove(e)
+        zuiPanMove(e)
         break;
     }
   }
 
-  function touchend(e)
+  function zuiTouchEnd(e)
   {
     e.preventDefault();
     touches = {};
-    var touch = e.touches[0];
+    const touch = e.touches[0];
     if (touch) 
     {  
       // Pass through for panning after pinching
@@ -249,51 +250,51 @@ function _internalAddZui()
     }
   }
 
-  function panstart(e) 
+  function zuiPanStart(e) 
   {
-    var touch = e.touches[0];
+    const touch = e.touches[0];
     mouse.x = touch.clientX;
     mouse.y = touch.clientY;
   }
 
-  function panmove(e) 
+  function zuiPanMove(e) 
   {
-    var touch = e.touches[0];
-    var dx = touch.clientX - mouse.x;
-    var dy = touch.clientY - mouse.y;
-    zui.translateSurface(dx, dy);
+    const touch = e.touches[0];
+    const dx = touch.clientX - mouse.x;
+    const dy = touch.clientY - mouse.y;
+    ZuiObject.translateSurface(dx, dy);
     mouse.set(touch.clientX, touch.clientY);
   }
 
-  function pinchstart(e) 
+  function zuiPinchStart(e) 
   {
-    for (var i = 0; i < e.touches.length; i++) 
+    for (let i = 0; i < e.touches.length; i++) 
     {
       var touch = e.touches[i];
       touches[ touch.identifier ] = touch;
     }
-    var a = touches[0];
-    var b = touches[1];
-    var dx = b.clientX - a.clientX;
-    var dy = b.clientY - a.clientY;
+    const a = touches[0];
+    const b = touches[1];
+    const dx = b.clientX - a.clientX;
+    const dy = b.clientY - a.clientY;
     distance = Math.sqrt(dx * dx + dy * dy);
     mouse.x = dx / 2 + a.clientX;
     mouse.y = dy / 2 + a.clientY;
   }
 
-  function pinchmove(e) 
+  function zuiPinchMove(e) 
   {
-    for (var i = 0; i < e.touches.length; i++) 
+    for (let i = 0; i < e.touches.length; i++) 
     {
       var touch = e.touches[i];
       touches[i] = touch;
     }
-    var a = touches[0];
-    var b = touches[1];
-    var dx = b.clientX - a.clientX;
-    var dy = b.clientY - a.clientY;
-    var d = Math.sqrt(dx * dx + dy * dy);
-    var delta = d - distance;
+    const a = touches[0];
+    const b = touches[1];
+    const dx = b.clientX - a.clientX;
+    const dy = b.clientY - a.clientY;
+    const d = Math.sqrt(dx * dx + dy * dy);
+    const delta = d - distance;
     if (delta <= 10 && delta >= -10)
     {
       _internalZoom(delta / 100);
