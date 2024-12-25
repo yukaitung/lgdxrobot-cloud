@@ -23,7 +23,7 @@ message RobotClientsDof {
   double Rotation = 3;
 }
 
-message RobotClientsRobotCommand {
+message RobotClientsRobotCommands {
   bool AbortTask = 1;
   bool RenewCertificate = 2;
   bool SoftwareEmergencyStop = 3;
@@ -41,9 +41,8 @@ message RobotClientsAutoTask {
 
 message RobotClientsRespond {
   RobotClientsResultStatus Status = 1;
-  string Message = 2;
-  optional RobotClientsRobotCommand Commands = 3;
-  optional RobotClientsAutoTask Task = 4;
+  RobotClientsRobotCommands Commands = 2;
+  optional RobotClientsAutoTask Task = 3;
 }
 
 /*
@@ -77,9 +76,8 @@ message RobotClientsGreet {
 
 message RobotClientsGreetRespond {
   RobotClientsResultStatus Status = 1;
-  string Message = 2;
-  string AccessToken = 3;
-  optional RobotClientsChassisInfo ChassisInfo = 4;
+  string AccessToken = 2;
+  optional RobotClientsChassisInfo ChassisInfo = 3;
 }
 
 /*

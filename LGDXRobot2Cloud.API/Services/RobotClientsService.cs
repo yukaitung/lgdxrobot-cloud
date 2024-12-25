@@ -48,7 +48,6 @@ public class RobotClientsService(
   {
     return new RobotClientsRespond {
       Status = RobotClientsResultStatus.Failed,
-      Message = "Robot ID is missing in the certificate."
     };
   }
 
@@ -62,7 +61,6 @@ public class RobotClientsService(
   {
     return new RobotClientsRespond {
       Status = RobotClientsResultStatus.Failed,
-      Message = "The robot is offline."
     };
   }
 
@@ -73,7 +71,6 @@ public class RobotClientsService(
     if (robotId == null)
       return new RobotClientsGreetRespond {
         Status = RobotClientsResultStatus.Failed,
-        Message = "Robot ID is missing in the certificate.",
         AccessToken = string.Empty
       };
 
@@ -81,7 +78,6 @@ public class RobotClientsService(
     if (robot == null)
       return new RobotClientsGreetRespond {
         Status = RobotClientsResultStatus.Failed,
-        Message = "Robot not found.",
         AccessToken = string.Empty
       };
 
@@ -107,7 +103,6 @@ public class RobotClientsService(
       {
         return new RobotClientsGreetRespond {
           Status = RobotClientsResultStatus.Failed,
-          Message = "Motherboard serial number is mismatch.",
           AccessToken = string.Empty
         };
       }
@@ -115,7 +110,6 @@ public class RobotClientsService(
       {
         return new RobotClientsGreetRespond {
           Status = RobotClientsResultStatus.Failed,
-          Message = "MCU serial number is mismatch.",
           AccessToken = string.Empty
         };
       }
@@ -127,7 +121,6 @@ public class RobotClientsService(
     if (robotChassisInfo == null) {
       return new RobotClientsGreetRespond {
           Status = RobotClientsResultStatus.Failed,
-          Message = "Robot chassis information is missing.",
           AccessToken = string.Empty
         };
     }
@@ -147,7 +140,6 @@ public class RobotClientsService(
 
     return new RobotClientsGreetRespond {
       Status = RobotClientsResultStatus.Success,
-      Message = string.Empty,
       AccessToken = token,
       ChassisInfo = new RobotClientsChassisInfo {
         ChassisLX = robotChassisInfo.ChassisLX,
@@ -176,7 +168,6 @@ public class RobotClientsService(
       // Triggered by API
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
-        Message = string.Empty,
         Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
         Task = await _autoTaskSchedulerService.AutoTaskNextManualAsync(manualAutoTask)
       };
@@ -189,7 +180,6 @@ public class RobotClientsService(
         var task = await _autoTaskSchedulerService.GetAutoTaskAsync((Guid)robotId);
         return new RobotClientsRespond {
           Status = RobotClientsResultStatus.Success,
-          Message = string.Empty,
           Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
           Task = task
         };
@@ -198,7 +188,6 @@ public class RobotClientsService(
       {
         return new RobotClientsRespond {
           Status = RobotClientsResultStatus.Success,
-          Message = string.Empty,
           Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
         };
       }
@@ -216,7 +205,6 @@ public class RobotClientsService(
     var task = await _autoTaskSchedulerService.AutoTaskNextAsync((Guid)robotId, request.TaskId, request.NextToken);
     return new RobotClientsRespond {
       Status = task != null ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
-      Message = string.Empty,
       Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
       Task = task
     };
@@ -235,7 +223,6 @@ public class RobotClientsService(
     var task = await _autoTaskSchedulerService.AutoTaskAbortAsync((Guid)robotId, request.TaskId, request.NextToken);
     return new RobotClientsRespond {
       Status = task != null ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
-      Message = string.Empty,
       Commands = await _onlineRobotsService.GetRobotCommands((Guid)robotId),
       Task = task
     };

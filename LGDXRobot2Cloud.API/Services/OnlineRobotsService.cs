@@ -9,7 +9,7 @@ namespace LGDXRobot2Cloud.API.Services;
 
 public record RobotDataComposite
 {
-  public required RobotClientsRobotCommand Commands { get; set; }
+  public required RobotClientsRobotCommands Commands { get; set; }
   public required RobotClientsExchange Data { get; set; }
   public bool UnresolvableCriticalStatus { get; set; } = false;
 }
@@ -21,7 +21,7 @@ public interface IOnlineRobotsService
   Task SetRobotDataAsync(Guid robotId, RobotClientsExchange data);
   Task<Dictionary<Guid, RobotDataComposite>> GetRobotDataAsync(Guid robotId);
   Task<Dictionary<Guid, RobotDataComposite>> GetRobotsDataAsync(List<Guid> robotIds);
-  Task<RobotClientsRobotCommand?> GetRobotCommands(Guid robotId);
+  Task<RobotClientsRobotCommands?> GetRobotCommands(Guid robotId);
 
   Task<bool> IsRobotOnlineAsync(Guid robotId);
   Task<bool> UpdateAbortTaskAsync(Guid robotId, bool enable);
@@ -64,7 +64,7 @@ public class OnlineRobotsService(
     await _cache.SetAsync(OnlineRobotssKey, OnlineRobotsIds, _cacheEntryOptions);
     // Robot Data
     await _cache.SetAsync($"OnlineRobotsService_RobotData_{robotId}", new RobotDataComposite{
-      Commands = new RobotClientsRobotCommand(),
+      Commands = new RobotClientsRobotCommands(),
       Data = new RobotClientsExchange()
     }, _cacheEntryOptions);
   }
@@ -119,7 +119,7 @@ public class OnlineRobotsService(
     return result;
   }
 
-  public async Task<RobotClientsRobotCommand?> GetRobotCommands(Guid robotId)
+  public async Task<RobotClientsRobotCommands?> GetRobotCommands(Guid robotId)
   {
     var robotDataComposite = await _cache.GetAsync<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}");
     if (robotDataComposite != null)
