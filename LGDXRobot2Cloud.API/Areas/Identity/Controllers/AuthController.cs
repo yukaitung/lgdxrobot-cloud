@@ -121,7 +121,7 @@ public class AuthController(
 
   [HttpPost("ForgotPassword")]
   [AllowAnonymous]
-  public async Task<ActionResult<ForgotPasswordRespondDto>> ForgotPassword(ForgotPasswordRequestDto forgotPasswordRequestDto)
+  public async Task<ActionResult> ForgotPassword(ForgotPasswordRequestDto forgotPasswordRequestDto)
   {
     var user = await _userManager.FindByEmailAsync(forgotPasswordRequestDto.Email);
     if (user == null)
@@ -130,7 +130,7 @@ public class AuthController(
     }
     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
     await _emailService.SendForgotPasswordEmailAsync(user.Name!, user.Email!, token);
-    return Ok(new ForgotPasswordRespondDto { Token = token });
+    return Ok();
   }
 
   [HttpPost("ResetPassword")]

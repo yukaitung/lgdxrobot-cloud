@@ -1,5 +1,6 @@
 using System.Text;
 using LGDXRobot2Cloud.Data.Models.Identity;
+using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -14,8 +15,11 @@ public sealed partial class ResetPassword : ComponentBase
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
-  [Parameter]
-  public string Token { get; set; } = null!;
+  [SupplyParameterFromQuery]
+  private string Token { get; set; } = null!;
+
+  [SupplyParameterFromQuery]
+  private string Email { get; set; } = null!;
 
   [SupplyParameterFromForm]
   public ResetPasswordRequest ResetPasswordRequest { get; set; } = new();
@@ -26,7 +30,7 @@ public sealed partial class ResetPassword : ComponentBase
   public async Task HandleResetPassword()
   {
     var result = await AuthService.ResetPasswordAsync(new ResetPasswordRequestDto{
-      Email = ResetPasswordRequest.Email,
+      Email = Email,
       Token = Token,
       NewPassword = ResetPasswordRequest.NewPassword,
     });
@@ -41,21 +45,22 @@ public sealed partial class ResetPassword : ComponentBase
     }
   }
 
-  public override async Task SetParametersAsync(ParameterView parameters)
+  protected override Task OnInitializedAsync()
   {
-    parameters.SetParameterProperties(this);
-    if (parameters.TryGetValue<string?>(nameof(Token), out var _token))
+    if (Email == null || Token == null)
     {
-      try 
+      NavigationManager.NavigateTo(AppRoutes.Identity.Login);
+      return Task.CompletedTask;
+    }
+    try 
       {
-        var token = Encoding.UTF8.GetString(Convert.FromBase64String(_token!));
+        var token = Encoding.UTF8.GetString(Convert.FromBase64String(Token));
         Token = token;
       }
       catch (Exception)
       {
-        //NavigationManager.NavigateTo(AppRoutes.Identity.Login);
+        NavigationManager.NavigateTo(AppRoutes.Identity.Login);
       }
-    }
-    await base.SetParametersAsync(ParameterView.Empty);
+    return base.OnInitializedAsync();
   }
 }

@@ -9,7 +9,7 @@ public static class AppRoutes
     public const string Login = "/Login";
     public const string Logout = "/Logout";
     public const string ForgotPassword = "/ForgotPassword";
-    public const string ResetPassword = "/ResetPassword/{Token}";
+    public const string ResetPassword = "/ResetPassword";
     public const string User = "/User";
   }
 

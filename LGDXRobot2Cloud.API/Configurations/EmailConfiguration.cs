@@ -8,5 +8,5 @@ public class EmailConfiguration
   public int Port { get; set; }
   public string Username { get; set; } = string.Empty;
   public string Password { get; set; } = string.Empty;
-  public string AccessAddress { get; set; } = string.Empty;
+  public string PasswordResetUri { get; set; } = string.Empty;
 }

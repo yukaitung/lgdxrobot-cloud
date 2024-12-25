@@ -49,7 +49,7 @@ public sealed class EmailService(
     message.Subject = "[LGDXRobot2] Password Reset";
     message.Body = new TextPart("plain")
     {
-      Text = $"Your password reset link is {_emailConfiguration.AccessAddress}/ResetPassword/{Convert.ToBase64String(Encoding.UTF8.GetBytes(token))}"
+      Text = $"Your password reset link is {_emailConfiguration.PasswordResetUri}?Token={Convert.ToBase64String(Encoding.UTF8.GetBytes(token))}&Email={receipentAddress}"
     };
     await SendEmailAsync(message);
   }
