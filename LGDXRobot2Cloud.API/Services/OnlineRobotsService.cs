@@ -1,6 +1,7 @@
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
+using LGDXRobot2Cloud.Utilities.Enums;
 using MassTransit;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -45,6 +46,23 @@ public class OnlineRobotsService(
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly string OnlineRobotssKey = "OnlineRobotsService_OnlineRobotss";
 
+  private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
+  {
+    return robotStatus switch
+    {
+      RobotClientsRobotStatus.Idle => RobotStatus.Idle,
+      RobotClientsRobotStatus.Running => RobotStatus.Running,
+      RobotClientsRobotStatus.Stuck => RobotStatus.Stuck,
+      RobotClientsRobotStatus.Aborting => RobotStatus.Aborting,
+      RobotClientsRobotStatus.Paused => RobotStatus.Paused,
+      RobotClientsRobotStatus.Critical => RobotStatus.Critical,
+      RobotClientsRobotStatus.Charging => RobotStatus.Charging,
+      RobotClientsRobotStatus.Offline => RobotStatus.Offline,
+      _ => RobotStatus.Offline,
+    };
+  }
+
+
   static private bool GenerateUnresolvableCriticalStatus(RobotClientsRobotCriticalStatus criticalStatus)
   {
     if (criticalStatus.HardwareEmergencyStop ||
@@ -84,13 +102,27 @@ public class OnlineRobotsService(
   {
     await _bus.Publish(new RobotDataContract {
       RobotId = robotId,
+      RobotStatus = ConvertRobotStatus(data.RobotStatus),
+      CriticalStatus = new RobotCriticalStatus {
+        HardwareEmergencyStop = data.CriticalStatus.HardwareEmergencyStop,
+        SoftwareEmergencyStop = data.CriticalStatus.SoftwareEmergencyStop,
+        BatteryLow = [.. data.CriticalStatus.BatteryLow],
+        MotorDamaged = [.. data.CriticalStatus.MotorDamaged]
+      },
+      Batteries = [.. data.Batteries],
       Position = new RobotDof {
         X = data.Position.X,
         Y = data.Position.Y,
         Rotation = data.Position.Rotation
+      },
+      NavProgress = new AutoTaskNavProgress {
+        Eta = data.NavProgress.Eta,
+        Recoveries = data.NavProgress.Recoveries,
+        DistanceRemaining = data.NavProgress.DistanceRemaining,
+        WaypointsRemaining = data.NavProgress.WaypointsRemaining  
       }
     });
-    
+
     var robotDataComposite = await _cache.GetAsync<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}");
     if (robotDataComposite != null)
     {

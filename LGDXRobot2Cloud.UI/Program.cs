@@ -51,6 +51,7 @@ builder.Services.AddHttpClient<IMapsService, MapsService>(configureAction);
 builder.Services.AddHttpClient<INodesCollectionService, NodesCollectionService>(configureAction);
 builder.Services.AddHttpClient<INodeService, NodeService>(configureAction);
 builder.Services.AddHttpClient<IRobotService, RobotService>(configureAction);
+builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 
 // Setting
 builder.Services.AddHttpClient<IApiKeyService, ApiKeyService>(configureAction);

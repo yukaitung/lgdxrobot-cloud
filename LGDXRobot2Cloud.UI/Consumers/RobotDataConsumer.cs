@@ -12,7 +12,7 @@ public class RobotDataConsumer(
 
   public Task Consume(ConsumeContext<RobotDataContract> context)
   {
-    var robotsData = _memoryCache.Get<Dictionary<Guid, RobotDataContract>>($"RobotDataConsumer_RobotsData") ?? [];
+    var robotsData = _memoryCache.Get<Dictionary<Guid, RobotDataContract>>("RobotDataConsumer_RobotsData") ?? [];
     robotsData[context.Message.RobotId] = context.Message;
     _memoryCache.Set($"RobotDataConsumer_RobotsData", robotsData);
     return Task.CompletedTask;

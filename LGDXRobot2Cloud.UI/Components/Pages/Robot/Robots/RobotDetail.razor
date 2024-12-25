@@ -17,7 +17,7 @@
         <h2 class="page-title">
           @Robot.Name
           &nbsp;
-          <RobotStatusBadge RobotStatus="@Robot.RobotStatus" />
+          <RobotStatusBadge RobotStatus="@(RobotData != null ? RobotData.RobotStatus : RobotStatus.Offline)" />
         </h2>
       }
       else
@@ -50,11 +50,11 @@
 
 <PageBody>
   <div class="row row-cards">
-    <div class="col-8">
+    <div class="col-12">
       <DetailTasksCard TasksList="Robot?.AssignedTasks" />
     </div>
-    <div class="col-4">
-      <DetailRobotDataCard />
+    <div class="col-12">
+      <DetailRobotDataCard RobotData="RobotData" />
     </div>
     <div class="col-12">
       <ul class="nav nav-bordered mb-4">

@@ -1,3 +1,5 @@
+@using LGDXRobot2Cloud.Data.Contracts
+
 <div class="card h-100">
   <!-- Header -->
   <div class="card-header">
@@ -5,17 +7,62 @@
   </div>
 
   <!-- Data -->
-  <div class="table-responsive">
-    <table class="table card-table table-vcenter text-nowrap datatable">
-      <tbody>
-        <tr><td>Position</td><td></td></tr>
-        <tr><td>Batteries</td><td></td></tr>
-        <tr><td>Emergency Stops</td><td></td></tr>
-        <tr><td>ETA</td><td></td></tr>
-        <tr><td>Recoveries</td><td></td></tr>
-        <tr><td>Distance Remaining</td><td></td></tr>
-        <tr><td>Waypoints Remaining</td><td></td></tr>
-      </tbody>
-    </table>
-  </div>
+  @if (RobotData != null)
+  {
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter text-nowrap datatable">
+        <tbody>
+          <tr>
+            <td>Position</td>
+            <td>X: @Math.Round(RobotData.Position.X, 4), Y: @Math.Round(RobotData.Position.Y, 4), Rotation: @Math.Round(RobotData.Position.Rotation, 4)</td>
+          </tr>
+          <tr>
+            <td>Batteries</td>
+            <td>
+              @if (RobotData.Batteries.Count() > 0)
+              {
+                @for (int i = 0; i < RobotData.Batteries.Count(); i++)
+                {
+                  @(' ')
+                  <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
+                    @(RobotData.Batteries.ElementAt(i) + " V")
+                  </span>
+                }
+              }
+              else
+              {
+                <span class="badge badge-outline">Unavailable</span>
+              }
+            </td>
+          </tr>
+          <tr>
+            <td>Emergency Stops</td>
+            <td>Software: @RobotData.CriticalStatus.SoftwareEmergencyStop, Hardware: @RobotData.CriticalStatus.HardwareEmergencyStop</td>
+          </tr>
+          <tr>
+            <td>ETA</td>
+            <td>@RobotData.NavProgress.Eta</td>
+          </tr>
+          <tr>
+            <td>Recoveries</td>
+            <td>@RobotData.NavProgress.Recoveries</td>
+          </tr>
+          <tr>
+            <td>Distance Remaining</td>
+            <td>@RobotData.NavProgress.DistanceRemaining</td>
+          </tr>
+          <tr>
+            <td>Waypoints Remaining</td>
+            <td>@RobotData.NavProgress.WaypointsRemaining</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  }
 </div>
+
+@code
+{
+  [Parameter]
+  public RobotDataContract? RobotData { get; set; }
+}
