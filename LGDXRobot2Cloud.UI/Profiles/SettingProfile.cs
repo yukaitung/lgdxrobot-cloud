@@ -18,6 +18,7 @@ namespace LGDXRobot2Cloud.UI.Profiles
       // User
       CreateMap<LgdxUser, LgdxUserCreateDto>();
       CreateMap<LgdxUser, LgdxUserUpdateDto>();
+      CreateMap<LgdxUser, LgdxUserUpdateAdminDto>();
 
       // Role
       CreateMap<LgdxRole, LgdxRoleCreateDto>();

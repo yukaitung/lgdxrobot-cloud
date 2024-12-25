@@ -93,7 +93,7 @@ public sealed partial class UsersDetail : ComponentBase, IDisposable
 
     if (Id != null)
       // Update
-      success = await UsersService.UpdateUserAsync(Id, Mapper.Map<LgdxUserUpdateDto>(User));
+      success = await UsersService.UpdateUserAsync(Id, Mapper.Map<LgdxUserUpdateAdminDto>(User));
     else
       // Create
       success = await UsersService.AddUserAsync(Mapper.Map<LgdxUserCreateDto>(User));

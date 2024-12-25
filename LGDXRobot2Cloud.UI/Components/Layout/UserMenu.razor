@@ -5,7 +5,7 @@
         <i class="ti ti-user" style="font-size: 24px;"></i>
       </a>
       <div class="mt-2 dropdown-menu dropdown-menu-end">
-        <a class="dropdown-item disabled">
+        <a class="dropdown-item" href="@AppRoutes.Identity.User">
           @context.User.Identity?.Name
         </a>
         <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#logoutModal">

@@ -95,7 +95,7 @@ public class UsersController(
   }
 
   [HttpPut("{id}")]
-  public async Task<ActionResult> UpdateUser(Guid id, LgdxUserUpdateDto lgdxUserUpdateDto)
+  public async Task<ActionResult> UpdateUser(Guid id, LgdxUserUpdateAdminDto lgdxUserUpdateDto)
   {
     var userEntity = await _userManager.FindByIdAsync(id.ToString());
     if (userEntity == null)
@@ -141,7 +141,6 @@ public class UsersController(
     }
     return NoContent();
   }
-
 
   [HttpDelete("{id}")]
   public async Task<ActionResult> DeleteUser(Guid id)

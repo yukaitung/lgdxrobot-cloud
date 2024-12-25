@@ -4,6 +4,13 @@ public static class AppRoutes
 {
   public const string Home = "/";
 
+  public static class Identity
+  {
+    public const string Login = "/Login";
+    public const string Logout = "/Logout";
+    public const string User = "/User";
+  }
+
   public static class Navigation
   {
     public static class Maps

@@ -59,6 +59,7 @@ builder.Services.AddHttpClient<IUsersService, UsersService>(configureAction);
 
 // Identity
 builder.Services.AddHttpClient<IAuthService, AuthService>(configureAction);
+builder.Services.AddHttpClient<IUserService, UserService>(configureAction);
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(cfg =>
 	{

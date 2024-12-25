@@ -1,0 +1,130 @@
+@attribute [Route(AppRoutes.Identity.User)]
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<PageHeader Title="User Settings">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><button class="btn-link p-0 border-0" onclick="history.back()">◀ Return</button></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        User Settings
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="row row-cards">
+    <SubmitErrorModal Display="@IsError" />
+    <SubmitSuccessModal Display="@IsSuccess" />
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">User Detail</h3>
+        </div>
+        <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+          <DataAnnotationsValidator />
+          <div class="card-body">
+            <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">ID</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@User.Id</div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label" for="UserName">Username</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@User.UserName</div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="Name">Full Name</label>
+              <div class="col">
+                <InputText id="Name" @bind-Value="User.Name" type="text" class="form-control" />
+                <ValidationMessage class="invalid-feedback" For="@(() => User.Name)" />
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="Email">Email</label>
+              <div class="col">
+                <InputText id="Email" @bind-Value="User.Email" type="text" class="form-control" />
+                <ValidationMessage class="invalid-feedback" For="@(() => User.Email)" />
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label" for="Roles">Roles</label>
+              <div class="col">
+                <table class="table table-vcenter text-nowrap datatable">
+                  <thead>
+                    <tr>
+                      <th class="w-1">Sequence</th>
+                      <th>Roles</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (int i = 0; i < User.Roles.Count; i++)
+                    {
+                      var index = i;
+                      var roleName = User.Roles[i];
+                      <tr>
+                        <td>
+                            @(index + 1)
+                        </td>
+                        <td>
+                          @roleName
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer d-flex">
+            <button type="submit" class="btn btn-primary ms-auto">Update</button>
+          </div>
+        </EditForm>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Password</h3>
+        </div>
+        <EditForm EditContext="@_editContextPassword" OnValidSubmit="HandleValidSubmitPassword">
+        <DataAnnotationsValidator />
+          <div class="card-body">
+            <ValidationErrorModal Display="@_editContextPassword.GetValidationMessages().Any()" />
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="CurrentPassword">Current Password</label>
+              <div class="col">
+                <InputText id="CurrentPassword" @bind-Value="UserPassword.CurrentPassword" type="password" class="form-control" />
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="NewPassword">New Password</label>
+              <div class="col">
+                <InputText id="NewPassword" @bind-Value="UserPassword.NewPassword" type="password" class="form-control" />
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="ConfirmPassword">Confirm Password</label>
+              <div class="col">
+                <InputText id="ConfirmPassword" @bind-Value="UserPassword.ConfirmPassword" type="password" class="form-control" />
+              </div>
+            </div>
+          </div>
+          <div class="card-footer d-flex">
+            <button type="submit" class="btn btn-primary ms-auto">Update</button>
+          </div>
+        </EditForm>
+      </div>
+    </div>
+  </div>
+</PageBody>

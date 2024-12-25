@@ -115,23 +115,4 @@ public class AuthController(
     }    
     return Unauthorized("Login failed.");
   }
-
-  [HttpPost("updatePassword")]
-  public async Task<ActionResult<LoginResponse>> UpdatePassword(UpdatePasswordRequest updatePasswordRequest)
-  {
-    var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-    var user = await userManager.FindByIdAsync(userId!);
-    if (user == null)
-    {
-      return NotFound();
-    }
-
-    var changePasswordResult = await _userManager.ChangePasswordAsync(user, updatePasswordRequest.OldPassword, updatePasswordRequest.NewPassword);
-    if (!changePasswordResult.Succeeded)
-    {
-      return BadRequest();
-    }
-    
-    return NoContent();
-  }
 }

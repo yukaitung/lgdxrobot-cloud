@@ -12,7 +12,7 @@ public interface IUsersService
   Task<(IEnumerable<LgdxUser>?, PaginationHelper?)> GetUsersAsync(string? name = null, int pageNum = 1, int pageSize = 10);
   Task<LgdxUser?> GetUserAsync(string userId);
   Task<bool> AddUserAsync(LgdxUserCreateDto user);
-  Task<bool> UpdateUserAsync(string userId, LgdxUserUpdateDto user);
+  Task<bool> UpdateUserAsync(string userId, LgdxUserUpdateAdminDto user);
   Task<bool> DeleteUserAsync(string userId);
 }
 
@@ -51,7 +51,7 @@ public sealed class UsersService(
     return response.IsSuccessStatusCode;
   }
 
-  public async Task<bool> UpdateUserAsync(string userId, LgdxUserUpdateDto user)
+  public async Task<bool> UpdateUserAsync(string userId, LgdxUserUpdateAdminDto user)
   {
     var userJson = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
     var response = await _httpClient.PutAsync($"Identity/Users/{userId}", userJson);
