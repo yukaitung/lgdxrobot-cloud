@@ -11,6 +11,8 @@ namespace LGDXRobot2Cloud.UI.Services;
 public interface IAuthService
 {
   Task<bool> LoginAsync(HttpContext context, LoginRequest request);
+  Task<bool> ForgotPasswordAsync(ForgotPasswordRequestDto request);
+  Task<bool> ResetPasswordAsync(ResetPasswordRequestDto request);
 }
 
 public class AuthService : IAuthService
@@ -44,5 +46,19 @@ public class AuthService : IAuthService
     {
       return false;
     }
+  }
+
+  public async Task<bool> ForgotPasswordAsync(ForgotPasswordRequestDto request)
+  {
+    var json = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+    var response = await _httpClient.PostAsync("/Identity/Auth/ForgotPassword", json);
+    return response.IsSuccessStatusCode;
+  }
+
+  public async Task<bool> ResetPasswordAsync(ResetPasswordRequestDto request)
+  {
+    var json = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+    var response = await _httpClient.PostAsync("/Identity/Auth/ResetPassword", json);
+    return response.IsSuccessStatusCode;
   }
 }

@@ -1,5 +1,6 @@
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.API.Services;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,12 +21,14 @@ namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 public class AuthController(
     IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
     UserManager<LgdxUser> userManager,
-    ILgdxRoleRepository lgdxRoleRepository
+    ILgdxRoleRepository lgdxRoleRepository,
+    IEmailService emailService
   ) : ControllerBase
 {
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2SecretConfiguration));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
   private readonly ILgdxRoleRepository _lgdxRoleRepository = lgdxRoleRepository ?? throw new ArgumentNullException(nameof(lgdxRoleRepository));
+  private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
 
   private JwtSecurityToken GenerateJwtToken(List<Claim> claims, int expiresMins)
   {
@@ -114,5 +117,36 @@ public class AuthController(
       }
     }    
     return Unauthorized("Login failed.");
+  }
+
+  [HttpPost("ForgotPassword")]
+  [AllowAnonymous]
+  public async Task<ActionResult<ForgotPasswordRespondDto>> ForgotPassword(ForgotPasswordRequestDto forgotPasswordRequestDto)
+  {
+    var user = await _userManager.FindByEmailAsync(forgotPasswordRequestDto.Email);
+    if (user == null)
+    {
+      return NotFound();
+    }
+    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+    await _emailService.SendForgotPasswordEmailAsync(user.Name!, user.Email!, token);
+    return Ok(new ForgotPasswordRespondDto { Token = token });
+  }
+
+  [HttpPost("ResetPassword")]
+  [AllowAnonymous]
+  public async Task<ActionResult> ResetPassword(ResetPasswordRequestDto resetPasswordRequestDto)
+  {
+    var user = await _userManager.FindByEmailAsync(resetPasswordRequestDto.Email);
+    if (user == null)
+    {
+      return NotFound();
+    }
+    var result = await _userManager.ResetPasswordAsync(user, resetPasswordRequestDto.Token, resetPasswordRequestDto.NewPassword);
+    if (!result.Succeeded)
+    {
+      return BadRequest();
+    }
+    return Ok();
   }
 }

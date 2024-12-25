@@ -1,3 +1,4 @@
+using System.Text;
 using LGDXRobot2Cloud.API.Configurations;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -9,6 +10,7 @@ namespace LGDXRobot2Cloud.API.Services;
 public interface IEmailService
 {
   Task SendPasswordUpdateEmailAsync(string receipentName, string receipentAddress);
+  Task SendForgotPasswordEmailAsync(string receipentName, string receipentAddress, string token);
 }
 
 public sealed class EmailService(
@@ -35,6 +37,19 @@ public sealed class EmailService(
     message.Body = new TextPart("plain")
     {
       Text = "Your password has been updated."
+    };
+    await SendEmailAsync(message);
+  }
+
+  public async Task SendForgotPasswordEmailAsync(string receipentName, string receipentAddress, string token)
+  {
+    var message = new MimeMessage();
+    message.From.Add(new MailboxAddress(_emailConfiguration.FromName, _emailConfiguration.FromAddress));
+    message.To.Add(new MailboxAddress(receipentName, receipentAddress));
+    message.Subject = "[LGDXRobot2] Password Reset";
+    message.Body = new TextPart("plain")
+    {
+      Text = $"Your password reset link is {_emailConfiguration.AccessAddress}/ResetPassword/{Convert.ToBase64String(Encoding.UTF8.GetBytes(token))}"
     };
     await SendEmailAsync(message);
   }

@@ -1,4 +1,4 @@
-@page "/login"
+@attribute [Route(AppRoutes.Identity.Login)]
 @layout EmptyLayout
 
 <div style="display: none;">
@@ -14,6 +14,7 @@
     </div>
     <div class="card card-md">
       <div class="card-body">
+        <h2 class="h2 text-center mb-4">Welcome</h2>
         <EditForm Model="LoginRequest" method="post" OnValidSubmit="HandleLogin" FormName="login">
           <SubmitErrorModal Display="@IsError" />
           <div class="mb-3">
@@ -24,7 +25,7 @@
             <label class="form-label">
               Password
               <span class="form-label-description">
-                <!-- <a href="./forgot-password.html">I forgot password</a> -->
+                <a href="@AppRoutes.Identity.ForgotPassword">Forgot password</a>
               </span>
             </label>
             <div class="input-group input-group-flat">
