@@ -40,13 +40,15 @@ function InitNavigationMap()
 
   // Add Zui
   _internalAddZui();
-
-  // Disabe image smoothing
-  CanvasObject.getContext("2d").imageSmoothingEnabled = false;
+  NavigationMapZoomReset();
 
   // Resize event listener
   window.addEventListener("resize", _internalOnResize);
-
+  // disable image smoothing
+  TwoObject.bind('update', function() {
+    CanvasObject.getContext("2d").imageSmoothingEnabled = false;
+  });
+  
   function _internalOnRobotClicked(e)
   {
     const rect = CanvasObject.getBoundingClientRect();
@@ -86,9 +88,6 @@ function InitNavigationMap()
     // Set Zui limits
     _internalSetScale(div.clientWidth, div.clientHeight, MapImage.width, MapImage.height);
     WindowHeight = newWindowHeight;
-
-    // Disabe image smoothing
-    CanvasObject.getContext("2d").imageSmoothingEnabled = false;
   }
 }
 
@@ -118,8 +117,8 @@ function NavigationMapZoomReset()
 {
   ZuiObject.reset();
   _internalSetScale()
-  const canvas = document.getElementById("navigation-map-canvas");
-  ZuiObject.zoomSet(StartScale, canvas.clientWidth / 2, canvas.clientHeight / 2);
+  const div = document.getElementById("navigation-map-div");
+  ZuiObject.zoomSet(StartScale, div.clientWidth / 2, div.clientHeight / 2);
 }
 
 /*
@@ -142,18 +141,19 @@ function _internalZoom(scale)
 
 function _internalSetScale()
 {
+  const div = document.getElementById("navigation-map-div");
   // Fit map to screen
-  const canvasAspectRatio = CanvasObject.width / CanvasObject.height;
+  const canvasAspectRatio = div.clientWidth / div.clientHeight;
   const imageAspectRatio = MapImage.width / MapImage.height;
   if (imageAspectRatio > canvasAspectRatio) 
   {
     // Image is wider than canvas
-    StartScale = CanvasObject.clientWidth / MapImage.width;
+    StartScale = div.clientWidth / MapImage.width;
   }
   else 
   {
     // Image is taller than canvas
-    StartScale = CanvasObject.clientHeight / MapImage.height;
+    StartScale = div.clientHeight / MapImage.height;
   }
   ZuiObject.limits.scale.min = StartScale;
   ZuiObject.limits.scale.max = 10;
@@ -164,18 +164,10 @@ function _internalAddZui()
   // Init Zui
   const scene = TwoObject.renderer.scene;
   const domElement = TwoObject.renderer.domElement;
-  if (ZuiObject != null)
-  {
-    // TODO: Find better way to handle this
-    location.reload();
-  }
   ZuiObject = new Two.ZUI(scene);
   let mouse = new Two.Vector();
   let touches = {};
   let distance = 0;
-
-  _internalSetScale();
-  ZuiObject.zoomSet(StartScale, CanvasObject.clientWidth / 2, CanvasObject.clientHeight / 2);
 
   // Operations events and functions
   domElement.addEventListener('mousedown', zuiMouseDown, false);
