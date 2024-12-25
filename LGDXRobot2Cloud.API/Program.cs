@@ -28,6 +28,9 @@ builder.WebHost.ConfigureKestrel(cfg =>
 /*
  * Configuration
  */
+ builder.Services.Configure<EmailConfiguration>(
+	builder.Configuration.GetSection("Email")
+);
 builder.Services.Configure<LgdxRobot2Configuration>(
 	builder.Configuration.GetSection("LGDXRobot2")
 );
@@ -177,6 +180,7 @@ builder.Services.AddHttpClient<ITriggerService, TriggerService>();
 // Custom Services
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Identity Repositories
 builder.Services.AddScoped<ILgdxUsersRepository, LgdxUsersRepository>();
