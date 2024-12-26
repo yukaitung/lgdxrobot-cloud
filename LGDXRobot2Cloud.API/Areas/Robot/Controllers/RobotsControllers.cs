@@ -59,11 +59,12 @@ public class RobotsController(
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
     var (robots, PaginationHelper) = await _robotRepository.GetRobotsAsync(name, pageNumber, pageSize);
-    var OnlineRobotssData = await _onlineRobotsService.GetRobotsDataAsync(robots.Select(r => r.Id).ToList());
+    // TODO: remove this
+    //var OnlineRobotssData = await _onlineRobotsService.GetRobotsDataAsync(robots.Select(r => r.Id).ToList());
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
 
     var robotsDto = _mapper.Map<IEnumerable<RobotListDto>>(robots);
-    if (OnlineRobotssData != null)
+    /*if (OnlineRobotssData != null)
     {
       for (int i = 0; i < robotsDto.Count(); i++)
       {
@@ -75,7 +76,7 @@ public class RobotsController(
           robotsDto.ElementAt(i).IsPauseTaskAssigement = data.Commands.PauseTaskAssigement;
         }
       }
-    }
+    }*/
     
     return Ok(robotsDto);
   }
@@ -88,14 +89,15 @@ public class RobotsController(
       return NotFound();
 
     var robotsDto = _mapper.Map<RobotDto>(robot);
-    var OnlineRobotssData = await _onlineRobotsService.GetRobotDataAsync(robot.Id);
+    // TODO: remove this
+    /*var OnlineRobotssData = await _onlineRobotsService.GetRobotDataAsync(robot.Id);
     if (OnlineRobotssData != null && OnlineRobotssData.TryGetValue(robot.Id, out var data))
     {
       robotsDto.RobotStatus = ConvertRobotStatus(data.Data.RobotStatus);
       robotsDto.Batteries = data.Data.Batteries;
       robotsDto.IsSoftwareEmergencyStop = data.Commands.SoftwareEmergencyStop;
       robotsDto.IsPauseTaskAssigement = data.Commands.PauseTaskAssigement;
-    }
+    }*/
 
     return Ok(robotsDto);
   }
@@ -127,9 +129,9 @@ public class RobotsController(
   }
 
   [HttpPatch("{id}/emergencyStop")]
-  public async Task<ActionResult> UpdateSoftwareEmergencyStopAsync(Guid id, EnableDto data)
+  public ActionResult UpdateSoftwareEmergencyStopAsync(Guid id, EnableDto data)
   {
-    if (await _onlineRobotsService.UpdateSoftwareEmergencyStopAsync(id, data.Enable))
+    if (_onlineRobotsService.SetSoftwareEmergencyStop(id, data.Enable))
     {
       return NoContent();
     }
@@ -137,9 +139,9 @@ public class RobotsController(
   }
 
   [HttpPatch("{id}/pauseTaskAssigement")]
-  public async Task<ActionResult> UpdatePauseTaskAssigementAsync(Guid id, EnableDto data)
+  public ActionResult UpdatePauseTaskAssigementAsync(Guid id, EnableDto data)
   {
-    if (await _onlineRobotsService.UpdatePauseTaskAssigementAsync(id, data.Enable))
+    if (_onlineRobotsService.SetPauseTaskAssigement(id, data.Enable))
     {
       return NoContent();
     }

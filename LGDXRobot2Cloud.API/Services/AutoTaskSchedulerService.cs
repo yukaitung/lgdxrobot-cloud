@@ -123,7 +123,7 @@ public class AutoTaskSchedulerService(
 
   public async Task<RobotClientsAutoTask?> GetAutoTaskAsync(Guid robotId)
   {
-    if (await _onlineRobotsService.GetPauseAutoTaskAssignmentAsync(robotId))
+    if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
       return null;
     
     var ignoreRobotIds = await _cache.GetAsync<HashSet<Guid>>("AutoTaskSchedulerService_IgnoreRobot");

@@ -15,20 +15,24 @@ public record RobotDataComposite
   public bool UnresolvableCriticalStatus { get; set; } = false;
 }
 
+public class RobotCommandsEventArgs : EventArgs
+{
+  public Guid RobotId { get; set; }
+  public required RobotClientsRobotCommands Commands { get; set; }
+}
+
 public interface IOnlineRobotsService
 {
-  Task AddRobotAsync(Guid robotId);
-  Task RemoveRobotAsync(Guid robotId);
-  Task SetRobotDataAsync(Guid robotId, RobotClientsExchange data);
-  Task<Dictionary<Guid, RobotDataComposite>> GetRobotDataAsync(Guid robotId);
-  Task<Dictionary<Guid, RobotDataComposite>> GetRobotsDataAsync(List<Guid> robotIds);
-  Task<RobotClientsRobotCommands?> GetRobotCommands(Guid robotId);
+  void AddRobot(Guid robotId);
+  void RemoveRobot(Guid robotId);
+  Task UpdateRobotDataAsync(Guid robotId, RobotClientsExchange data);
+  RobotClientsRobotCommands? GetRobotCommands(Guid robotId);
 
-  Task<bool> IsRobotOnlineAsync(Guid robotId);
-  Task<bool> UpdateAbortTaskAsync(Guid robotId, bool enable);
-  Task<bool> UpdateSoftwareEmergencyStopAsync(Guid robotId, bool enable);
-  Task<bool> UpdatePauseTaskAssigementAsync(Guid robotId, bool enable);
-  Task<bool> GetPauseAutoTaskAssignmentAsync(Guid robotId);
+  bool IsRobotOnline(Guid robotId);
+  bool SetAbortTask(Guid robotId, bool enable);
+  bool SetSoftwareEmergencyStop(Guid robotId, bool enable);
+  bool SetPauseTaskAssigement(Guid robotId, bool enable);
+  bool GetPauseAutoTaskAssignment(Guid robotId);
 
   void SetAutoTaskNext(Guid robotId, AutoTask task);
   AutoTask? GetAutoTaskNext(Guid robotId);
@@ -36,15 +40,19 @@ public interface IOnlineRobotsService
 
 public class OnlineRobotsService(
     IBus bus,
-    IDistributedCache cache, 
     IMemoryCache memoryCache
   ) : IOnlineRobotsService
 {
-  private readonly DistributedCacheEntryOptions _cacheEntryOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) };
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
-  private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-  private readonly string OnlineRobotssKey = "OnlineRobotsService_OnlineRobotss";
+  private readonly string OnlineRobotsKey = "OnlineRobotsService_OnlineRobots";
+
+  public event EventHandler<RobotCommandsEventArgs>? RobotCommandsChanged;
+
+  protected virtual void OnRobotCommandsChanged(Guid robotId, RobotClientsRobotCommands commands)
+  {
+    RobotCommandsChanged?.Invoke(this, new RobotCommandsEventArgs { RobotId = robotId, Commands = commands });
+  }
 
   private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
   {
@@ -62,7 +70,6 @@ public class OnlineRobotsService(
     };
   }
 
-
   static private bool GenerateUnresolvableCriticalStatus(RobotClientsRobotCriticalStatus criticalStatus)
   {
     if (criticalStatus.HardwareEmergencyStop ||
@@ -74,31 +81,28 @@ public class OnlineRobotsService(
     return false;
   }
 
-  public async Task AddRobotAsync(Guid robotId)
+  public void AddRobot(Guid robotId)
   {
-    var OnlineRobotsIds = await _cache.GetAsync<HashSet<Guid>>(OnlineRobotssKey) ?? [];
+    var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(OnlineRobotsKey) ?? [];
     OnlineRobotsIds.Add(robotId);
-    // Online Robots
-    await _cache.SetAsync(OnlineRobotssKey, OnlineRobotsIds, _cacheEntryOptions);
-    // Robot Data
-    await _cache.SetAsync($"OnlineRobotsService_RobotData_{robotId}", new RobotDataComposite{
-      Commands = new RobotClientsRobotCommands(),
-      Data = new RobotClientsExchange()
-    }, _cacheEntryOptions);
+    // Register the robot
+    _memoryCache.Set(OnlineRobotsKey, OnlineRobotsIds);
+    _memoryCache.Set($"OnlineRobotsService_RobotCommands_{robotId}", new RobotClientsRobotCommands());
   }
 
-  public async Task RemoveRobotAsync(Guid robotId)
+  public void RemoveRobot(Guid robotId)
   {
-    var OnlineRobotsIds = await _cache.GetAsync<HashSet<Guid>>(OnlineRobotssKey);
+    // Unregister the robot
+    var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(OnlineRobotsKey);
     if (OnlineRobotsIds != null && OnlineRobotsIds.Contains(robotId))
     {
       OnlineRobotsIds.Remove(robotId);
-      await _cache.SetAsync(OnlineRobotssKey, OnlineRobotsIds, _cacheEntryOptions);
+      _memoryCache.Set(OnlineRobotsKey, OnlineRobotsIds);
     }    
-    await _cache.RemoveAsync($"OnlineRobotsService_RobotData_{robotId}");
+    _memoryCache.Remove($"OnlineRobotsService_RobotCommands_{robotId}");
   }
 
-  public async Task SetRobotDataAsync(Guid robotId, RobotClientsExchange data)
+  public async Task UpdateRobotDataAsync(Guid robotId, RobotClientsExchange data)
   {
     await _bus.Publish(new RobotDataContract {
       RobotId = robotId,
@@ -122,58 +126,48 @@ public class OnlineRobotsService(
         WaypointsRemaining = data.NavProgress.WaypointsRemaining  
       }
     });
+  }
 
-    var robotDataComposite = await _cache.GetAsync<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}");
-    if (robotDataComposite != null)
+  private void SetRobotCommands(Guid robotId, RobotClientsRobotCommands commands)
+  {
+    _memoryCache.Set($"OnlineRobotsService_RobotCommands_{robotId}", commands);
+  }
+
+  public RobotClientsRobotCommands? GetRobotCommands(Guid robotId)
+  {
+    return _memoryCache.Get<RobotClientsRobotCommands>($"OnlineRobotsService_RobotCommands_{robotId}");
+  }
+
+  public bool IsRobotOnline(Guid robotId)
+  {
+    var onlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(OnlineRobotsKey);
+    return onlineRobotsIds != null && onlineRobotsIds.Contains(robotId);
+  }
+
+  public bool SetAbortTask(Guid robotId, bool enable)
+  {
+    var robotCommands = GetRobotCommands(robotId);
+    if (robotCommands != null)
     {
-      robotDataComposite.Data = data;
-      robotDataComposite.UnresolvableCriticalStatus = GenerateUnresolvableCriticalStatus(robotDataComposite.Data.CriticalStatus);
-      await _cache.SetAsync($"OnlineRobotsService_RobotData_{robotId}", robotDataComposite, _cacheEntryOptions);
+      robotCommands.AbortTask = enable;
+      SetRobotCommands(robotId, robotCommands);
+      OnRobotCommandsChanged(robotId, robotCommands);
+      return true;
+    }
+    else
+    {
+      return false;
     }
   }
 
-  public async Task<Dictionary<Guid, RobotDataComposite>> GetRobotDataAsync(Guid robotId)
+  public bool SetSoftwareEmergencyStop(Guid robotId, bool enable)
   {
-    return await GetRobotsDataAsync([robotId]);
-  }
-
-  public async Task<Dictionary<Guid, RobotDataComposite>> GetRobotsDataAsync(List<Guid> robotIds)
-  {
-    Dictionary<Guid, RobotDataComposite> result = [];
-    foreach (var robotId in robotIds)
+    var robotCommands = GetRobotCommands(robotId);
+    if (robotCommands != null)
     {
-      var robotDataComposite = await _cache.GetAsync<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}");
-      if (robotDataComposite != null)
-      {
-        result[robotId] = robotDataComposite;
-      }
-    }
-    return result;
-  }
-
-  public async Task<RobotClientsRobotCommands?> GetRobotCommands(Guid robotId)
-  {
-    var robotDataComposite = await _cache.GetAsync<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}");
-    if (robotDataComposite != null)
-    {
-      return robotDataComposite.Commands;
-    }
-    return null;
-  }
-
-  public async Task<bool> IsRobotOnlineAsync(Guid robotId)
-  {
-    var OnlineRobotsIds = await _cache.GetAsync<HashSet<Guid>>(OnlineRobotssKey);
-    return OnlineRobotsIds != null && OnlineRobotsIds.Contains(robotId);
-  }
-
-  public async Task<bool> UpdateAbortTaskAsync(Guid robotId, bool enable)
-  {
-    var robotDataComposite = await _cache.GetAsync<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}");
-    if (robotDataComposite != null) 
-    {
-      robotDataComposite.Commands.AbortTask = enable;
-      await _cache.SetAsync($"OnlineRobotsService_RobotData_{robotId}", robotDataComposite, _cacheEntryOptions);
+      robotCommands.SoftwareEmergencyStop = enable;
+      SetRobotCommands(robotId, robotCommands);
+      OnRobotCommandsChanged(robotId, robotCommands);
       return true;
     }
     else 
@@ -182,13 +176,14 @@ public class OnlineRobotsService(
     }
   }
 
-  public async Task<bool> UpdateSoftwareEmergencyStopAsync(Guid robotId, bool enable)
+  public bool SetPauseTaskAssigement(Guid robotId, bool enable)
   {
-    var robotDataComposite = await _cache.GetAsync<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}");
-    if (robotDataComposite != null) 
+    var robotCommands = GetRobotCommands(robotId);
+    if (robotCommands != null)
     {
-      robotDataComposite.Commands.SoftwareEmergencyStop = enable;
-      await _cache.SetAsync($"OnlineRobotsService_RobotData_{robotId}", robotDataComposite, _cacheEntryOptions);
+      robotCommands.PauseTaskAssigement = enable;
+      SetRobotCommands(robotId, robotCommands);
+      OnRobotCommandsChanged(robotId, robotCommands);
       return true;
     }
     else 
@@ -197,29 +192,17 @@ public class OnlineRobotsService(
     }
   }
 
-  public async Task<bool> UpdatePauseTaskAssigementAsync(Guid robotId, bool enable)
+  public bool GetPauseAutoTaskAssignment(Guid robotId)
   {
-    var robotDataComposite = await _cache.GetAsync<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}");
-    if (robotDataComposite != null) 
+    var robotCommands = GetRobotCommands(robotId);
+    if (robotCommands != null) 
     {
-      robotDataComposite.Commands.PauseTaskAssigement = enable;
-      await _cache.SetAsync($"OnlineRobotsService_RobotData_{robotId}", robotDataComposite, _cacheEntryOptions);
-      return true;
+      return robotCommands.PauseTaskAssigement;
     }
-    else 
+    else
     {
       return false;
     }
-  }
-
-  public async Task<bool> GetPauseAutoTaskAssignmentAsync(Guid robotId)
-  {
-    var robotDataComposite = await _cache.GetAsync<RobotDataComposite>($"OnlineRobotsService_RobotData_{robotId}");
-    if (robotDataComposite != null) 
-    {
-      return robotDataComposite.Commands.PauseTaskAssigement;
-    }
-    return false;
   }
 
   public void SetAutoTaskNext(Guid robotId, AutoTask autoTask)
