@@ -18,12 +18,23 @@ public sealed partial class NavigationMap : ComponentBase
   [Inject]
   public required IMemoryCache MemoryCache { get; set; }
 
+  [Inject]
+  public required IRobotDataService RobotDataService { get; set; }
+
   private Map Map { get; set; } = null!;
-  private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = null!;
+  private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = [];
 
   protected override async Task OnInitializedAsync() 
   {
-    RobotsData = MemoryCache.Get<Dictionary<Guid, RobotDataContract>>($"RobotDataConsumer_RobotsData") ?? [];
+    var onlineRobots = RobotDataService.GetOnlineRobots();
+    foreach (var robotId in onlineRobots)
+    {
+      var robotData = RobotDataService.GetRobotData(robotId);
+      if (robotData != null)
+      {
+        RobotsData.Add(robotId, robotData);
+      }
+    }
     var map = await MapsService.GetDefaultMapAsync();
     if (map != null)
     {
