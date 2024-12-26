@@ -31,15 +31,15 @@
       }
     </div>
     <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Write" Context="Control">
-      @if (Robot != null && Robot.RobotStatus != RobotStatus.Offline)
+      @if (RobotData != null && RobotCommands != null && RobotData.RobotStatus != RobotStatus.Offline)
       {
         <div class="col-md-auto ms-auto d-print-none">
           <div class="btn-list">
             <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement">
-              @(Robot.IsPauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")
+              @(RobotCommands.Commands.PauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")
             </a>
             <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop">
-              @(Robot.IsSoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
+              @(RobotCommands.Commands.SoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
             </a>
           </div>
         </div>
@@ -113,6 +113,6 @@
 </PageBody>
 
 <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Write" Context="ControlModel">
-  <PauseTaskAssigementModel Robot="Robot" />
-  <SoftwareEmergencyStopModel Robot="Robot" />
+  <PauseTaskAssigementModel RobotCommands="RobotCommands" />
+  <SoftwareEmergencyStopModel RobotCommands="RobotCommands" />
 </AuthorizeView>

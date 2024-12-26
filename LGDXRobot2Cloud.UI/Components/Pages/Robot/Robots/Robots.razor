@@ -37,23 +37,23 @@
         var id = robot.Id;
         <div class="col-sm-6 col-md-4">
           <div class="card">
-            <RobotCardTop RobotStatus="@robot.RobotStatus" />
+            <RobotCardTop RobotStatus="@RobotsData[id]!.RobotStatus" />
             <div class="card-body row">
               <div class="d-flex">
                 <h2 style="display: table;">@robot.Name</h2>
-                <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@robot.RobotStatus" /></h2>
+                <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@RobotsData[id]!.RobotStatus" /></h2>
               </div>
               <div class="mt-auto">
                 <div>Address: @(robot.Address ?? "-")</div>
                 <div>Namespace: @(robot.Namespace ?? "-")</div>
                 <div>Batteries:
-                @if (robot.Batteries.Count() > 0)
+                @if (RobotsData[id]!.Batteries.Count() > 0)
                 {
-                  @for (int i = 0; i < robot.Batteries.Count(); i++)
+                  @for (int i = 0; i < RobotsData[id]!.Batteries.Count(); i++)
                   {
                     @(' ')
                     <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
-                      @(robot.Batteries.ElementAt(i) + " V")
+                      @(RobotsData[id]!.Batteries.ElementAt(i) + " V")
                     </span>
                   }
                 }
@@ -69,14 +69,14 @@
                 Manage
               </a>
               <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Write" Context="Control">
-                @if (robot.RobotStatus != RobotStatus.Offline)
+                @if (RobotsData[id]!.RobotStatus != RobotStatus.Offline)
                 {
                   <a class="card-btn dropdown-toggle" data-bs-toggle="dropdown" style="cursor: pointer;" @onclick="(e) => HandleRobotSelect(robot)">
                     Quick Action
                   </a>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement">@(robot.IsPauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")</a>
-                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop">@(robot.IsSoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")</a>
+                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement">@(RobotsCommands[id]!.Commands.PauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")</a>
+                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop">@(RobotsCommands[id]!.Commands.SoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")</a>
                   </div>
                 }  
               </AuthorizeView>
@@ -120,6 +120,6 @@
 </PageBody>
 
 <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Write" Context="ControlModal">
-  <PauseTaskAssigementModel Robot="SelectedRobot" />
-  <SoftwareEmergencyStopModel Robot="SelectedRobot" />
+  <PauseTaskAssigementModel RobotCommands="SelectedRobotCommands" />
+  <SoftwareEmergencyStopModel RobotCommands="SelectedRobotCommands" />
 </AuthorizeView>

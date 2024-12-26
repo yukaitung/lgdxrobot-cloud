@@ -6,6 +6,7 @@ namespace LGDXRobot2Cloud.UI.Services;
 public interface IRobotDataService
 {
   RobotDataContract? GetRobotData(Guid robotId);
+  RobotCommandsContract? GetRobotCommands(Guid robotId);
 }
 
 public sealed class RobotDataService(
@@ -16,12 +17,18 @@ public sealed class RobotDataService(
 
   public RobotDataContract? GetRobotData(Guid robotId)
   {
-    if (_memoryCache.TryGetValue("RobotDataConsumer_RobotsData", out Dictionary<Guid, RobotDataContract>? robotsData))
+    if (_memoryCache.TryGetValue($"RobotData_{robotId}", out RobotDataContract? robotData))
     {
-      if (robotsData != null && robotsData.TryGetValue(robotId, out var robotData))
-      {
-        return robotData;
-      }
+      return robotData;
+    }
+    return null;
+  }
+
+  public RobotCommandsContract? GetRobotCommands(Guid robotId)
+  {
+    if (_memoryCache.TryGetValue($"RobotCommands_{robotId}", out RobotCommandsContract? robotCommands))
+    {
+      return robotCommands;
     }
     return null;
   }

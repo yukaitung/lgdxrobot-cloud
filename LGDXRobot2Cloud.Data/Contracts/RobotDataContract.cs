@@ -21,16 +21,16 @@ public record RobotCriticalStatus
 {
   public bool HardwareEmergencyStop { get; set; }
   public bool SoftwareEmergencyStop { get; set; }
-  public List<int> BatteryLow { get; set; } = null!;
-  public List<int> MotorDamaged { get; set; } = null!;
+  public List<int> BatteryLow { get; set; } = [];
+  public List<int> MotorDamaged { get; set; } = [];
 }
 
 public record RobotDataContract 
 {
-  public Guid RobotId { get; set; }
-  public RobotStatus RobotStatus { get; set; }
-  public RobotCriticalStatus CriticalStatus { get; set; } = null!;
-  public List<double> Batteries { get; set; } = null!;
-  public RobotDof Position { get; set; } = null!;
-  public AutoTaskNavProgress NavProgress { get; set; } = null!;
+  public required Guid RobotId { get; set; }
+  public RobotStatus RobotStatus { get; set; } = RobotStatus.Offline;
+  public RobotCriticalStatus CriticalStatus { get; set; } = new();
+  public List<double> Batteries { get; set; } = [];
+  public RobotDof Position { get; set; } = new();
+  public AutoTaskNavProgress NavProgress { get; set; } = new();
 }

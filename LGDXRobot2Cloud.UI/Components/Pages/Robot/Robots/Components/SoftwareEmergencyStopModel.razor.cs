@@ -2,6 +2,7 @@ using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Models = LGDXRobot2Cloud.UI.Models;
 using Microsoft.JSInterop;
+using LGDXRobot2Cloud.Data.Contracts;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components;
 
@@ -14,19 +15,19 @@ public sealed partial class SoftwareEmergencyStopModel
   public required IJSRuntime JSRuntime { get; set; }
 
   [Parameter]
-  public Models.Robot? Robot { get; set; }
+  public RobotCommandsContract? RobotCommands { get; set; }
 
   private bool IsError { get; set; } = false;
 
   public async Task HandleRequest()
   {
-    bool newValue = !Robot!.IsSoftwareEmergencyStop;
-    var success = await RobotService.UpdateSoftwareEmergencyStopAsync(Robot!.Id.ToString(), newValue);
+    bool newValue = !RobotCommands!.Commands.SoftwareEmergencyStop;
+    var success = await RobotService.UpdateSoftwareEmergencyStopAsync(RobotCommands!.RobotId.ToString(), newValue);
     if (success)
     {
       await JSRuntime.InvokeVoidAsync("CloseModal", "softwareEmergencyStop");
-      Robot!.IsSoftwareEmergencyStop = newValue;
-      Robot = null;
+      RobotCommands!.Commands.SoftwareEmergencyStop = newValue;
+      RobotCommands = null;
     } 
     else
       IsError = true;

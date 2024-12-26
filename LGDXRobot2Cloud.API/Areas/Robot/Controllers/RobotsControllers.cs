@@ -59,25 +59,8 @@ public class RobotsController(
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
     var (robots, PaginationHelper) = await _robotRepository.GetRobotsAsync(name, pageNumber, pageSize);
-    // TODO: remove this
-    //var OnlineRobotssData = await _onlineRobotsService.GetRobotsDataAsync(robots.Select(r => r.Id).ToList());
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
-
     var robotsDto = _mapper.Map<IEnumerable<RobotListDto>>(robots);
-    /*if (OnlineRobotssData != null)
-    {
-      for (int i = 0; i < robotsDto.Count(); i++)
-      {
-        if (OnlineRobotssData.TryGetValue(robotsDto.ElementAt(i).Id, out var data))
-        {
-          robotsDto.ElementAt(i).RobotStatus = ConvertRobotStatus(data.Data.RobotStatus);
-          robotsDto.ElementAt(i).Batteries = data.Data.Batteries;
-          robotsDto.ElementAt(i).IsSoftwareEmergencyStop = data.Commands.SoftwareEmergencyStop;
-          robotsDto.ElementAt(i).IsPauseTaskAssigement = data.Commands.PauseTaskAssigement;
-        }
-      }
-    }*/
-    
     return Ok(robotsDto);
   }
 
@@ -86,19 +69,10 @@ public class RobotsController(
   {
     var robot = await _robotRepository.GetRobotAsync(id);
     if (robot == null)
-      return NotFound();
-
-    var robotsDto = _mapper.Map<RobotDto>(robot);
-    // TODO: remove this
-    /*var OnlineRobotssData = await _onlineRobotsService.GetRobotDataAsync(robot.Id);
-    if (OnlineRobotssData != null && OnlineRobotssData.TryGetValue(robot.Id, out var data))
     {
-      robotsDto.RobotStatus = ConvertRobotStatus(data.Data.RobotStatus);
-      robotsDto.Batteries = data.Data.Batteries;
-      robotsDto.IsSoftwareEmergencyStop = data.Commands.SoftwareEmergencyStop;
-      robotsDto.IsPauseTaskAssigement = data.Commands.PauseTaskAssigement;
-    }*/
-
+      return NotFound();
+    }
+    var robotsDto = _mapper.Map<RobotDto>(robot);
     return Ok(robotsDto);
   }
 
@@ -129,9 +103,9 @@ public class RobotsController(
   }
 
   [HttpPatch("{id}/emergencyStop")]
-  public ActionResult UpdateSoftwareEmergencyStopAsync(Guid id, EnableDto data)
+  public async Task<ActionResult> UpdateSoftwareEmergencyStopAsync(Guid id, EnableDto data)
   {
-    if (_onlineRobotsService.SetSoftwareEmergencyStop(id, data.Enable))
+    if (await _onlineRobotsService.SetSoftwareEmergencyStopAsync(id, data.Enable))
     {
       return NoContent();
     }
@@ -139,9 +113,9 @@ public class RobotsController(
   }
 
   [HttpPatch("{id}/pauseTaskAssigement")]
-  public ActionResult UpdatePauseTaskAssigementAsync(Guid id, EnableDto data)
+  public async Task<ActionResult> UpdatePauseTaskAssigementAsync(Guid id, EnableDto data)
   {
-    if (_onlineRobotsService.SetPauseTaskAssigement(id, data.Enable))
+    if (await _onlineRobotsService.SetPauseTaskAssigementAsync(id, data.Enable))
     {
       return NoContent();
     }

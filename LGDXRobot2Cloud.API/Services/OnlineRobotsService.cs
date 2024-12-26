@@ -29,9 +29,9 @@ public interface IOnlineRobotsService
   RobotClientsRobotCommands? GetRobotCommands(Guid robotId);
 
   bool IsRobotOnline(Guid robotId);
-  bool SetAbortTask(Guid robotId, bool enable);
-  bool SetSoftwareEmergencyStop(Guid robotId, bool enable);
-  bool SetPauseTaskAssigement(Guid robotId, bool enable);
+  Task<bool> SetAbortTaskAsync(Guid robotId, bool enable);
+  Task<bool> SetSoftwareEmergencyStopAsync(Guid robotId, bool enable);
+  Task<bool> SetPauseTaskAssigementAsync(Guid robotId, bool enable);
   bool GetPauseAutoTaskAssignment(Guid robotId);
 
   void SetAutoTaskNext(Guid robotId, AutoTask task);
@@ -104,6 +104,13 @@ public class OnlineRobotsService(
 
   public async Task UpdateRobotDataAsync(Guid robotId, RobotClientsExchange data)
   {
+    if (_memoryCache.TryGetValue<bool>($"OnlineRobotsService_RobotData_Pause_{robotId}", out var _))
+    {
+      // Blocking too much data to rabbitmq
+      return;
+    }
+    _memoryCache.Set($"OnlineRobotsService_RobotData_Pause_{robotId}", true, TimeSpan.FromSeconds(1));
+    
     await _bus.Publish(new RobotDataContract {
       RobotId = robotId,
       RobotStatus = ConvertRobotStatus(data.RobotStatus),
@@ -126,11 +133,36 @@ public class OnlineRobotsService(
         WaypointsRemaining = data.NavProgress.WaypointsRemaining  
       }
     });
+
+    if(_memoryCache.TryGetValue<RobotClientsRobotCommands>($"OnlineRobotsService_RobotCommands_{robotId}", out var robotCommands))
+    {
+      if (robotCommands != null)
+      {
+        await _bus.Publish(new RobotCommandsContract {
+          RobotId = robotId,
+          Commands = new RobotCommands {
+            AbortTask = robotCommands.AbortTask,
+            PauseTaskAssigement = robotCommands.PauseTaskAssigement,
+            SoftwareEmergencyStop = robotCommands.SoftwareEmergencyStop,
+            RenewCertificate = robotCommands.RenewCertificate
+          }
+        });
+      }
+    }
   }
 
-  private void SetRobotCommands(Guid robotId, RobotClientsRobotCommands commands)
+  private async Task SetRobotCommandsAsync(Guid robotId, RobotClientsRobotCommands commands)
   {
     _memoryCache.Set($"OnlineRobotsService_RobotCommands_{robotId}", commands);
+    await _bus.Publish(new RobotCommandsContract {
+      RobotId = robotId,
+      Commands = new RobotCommands {
+        AbortTask = commands.AbortTask,
+        PauseTaskAssigement = commands.PauseTaskAssigement,
+        SoftwareEmergencyStop = commands.SoftwareEmergencyStop,
+        RenewCertificate = commands.RenewCertificate
+      }
+    });
   }
 
   public RobotClientsRobotCommands? GetRobotCommands(Guid robotId)
@@ -144,13 +176,13 @@ public class OnlineRobotsService(
     return onlineRobotsIds != null && onlineRobotsIds.Contains(robotId);
   }
 
-  public bool SetAbortTask(Guid robotId, bool enable)
+  public async Task<bool> SetAbortTaskAsync(Guid robotId, bool enable)
   {
     var robotCommands = GetRobotCommands(robotId);
     if (robotCommands != null)
     {
       robotCommands.AbortTask = enable;
-      SetRobotCommands(robotId, robotCommands);
+      await SetRobotCommandsAsync(robotId, robotCommands);
       OnRobotCommandsChanged(robotId, robotCommands);
       return true;
     }
@@ -160,13 +192,13 @@ public class OnlineRobotsService(
     }
   }
 
-  public bool SetSoftwareEmergencyStop(Guid robotId, bool enable)
+  public async Task<bool> SetSoftwareEmergencyStopAsync(Guid robotId, bool enable)
   {
     var robotCommands = GetRobotCommands(robotId);
     if (robotCommands != null)
     {
       robotCommands.SoftwareEmergencyStop = enable;
-      SetRobotCommands(robotId, robotCommands);
+      await SetRobotCommandsAsync(robotId, robotCommands);
       OnRobotCommandsChanged(robotId, robotCommands);
       return true;
     }
@@ -176,13 +208,13 @@ public class OnlineRobotsService(
     }
   }
 
-  public bool SetPauseTaskAssigement(Guid robotId, bool enable)
+  public async Task<bool> SetPauseTaskAssigementAsync(Guid robotId, bool enable)
   {
     var robotCommands = GetRobotCommands(robotId);
     if (robotCommands != null)
     {
       robotCommands.PauseTaskAssigement = enable;
-      SetRobotCommands(robotId, robotCommands);
+      await SetRobotCommandsAsync(robotId, robotCommands);
       OnRobotCommandsChanged(robotId, robotCommands);
       return true;
     }

@@ -170,7 +170,7 @@ public class TasksController(
       return BadRequest("Cannot abort the task not in running status.");
     if (task.CurrentProgressId != (int)ProgressState.Waiting && 
         task.AssignedRobotId != null && 
-        _onlineRobotsService.SetAbortTask((Guid)task.AssignedRobotId!, true))
+        await _onlineRobotsService.SetAbortTaskAsync((Guid)task.AssignedRobotId!, true))
     {
       // If the robot is online, abort the task from the robot
       return NoContent();

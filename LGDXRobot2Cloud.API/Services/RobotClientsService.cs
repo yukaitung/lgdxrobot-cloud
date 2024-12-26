@@ -218,7 +218,7 @@ public class RobotClientsService(
     if (!ValidateOnlineRobots((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
-    _onlineRobotsService.SetAbortTask((Guid)robotId, false);
+    await _onlineRobotsService.SetAbortTaskAsync((Guid)robotId, false);
 
     var task = await _autoTaskSchedulerService.AutoTaskAbortAsync((Guid)robotId, request.TaskId, request.NextToken);
     return new RobotClientsRespond {

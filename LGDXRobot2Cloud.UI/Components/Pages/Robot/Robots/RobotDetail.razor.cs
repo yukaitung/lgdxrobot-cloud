@@ -1,6 +1,4 @@
-using System.Text.Json;
 using LGDXRobot2Cloud.Data.Contracts;
-using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -22,6 +20,7 @@ public sealed partial class RobotDetail
 
   private Models.Robot? Robot { get; set; }
   private RobotDataContract? RobotData { get; set; }
+  private RobotCommandsContract? RobotCommands { get; set; }
 
   private int CurrentTab { get; set; } = 0;
   private readonly List<string> Tabs = ["Robot", "System", "Chassis", "Certificate", "Delete Robot"];
@@ -42,6 +41,7 @@ public sealed partial class RobotDetail
   {
     Robot = await RobotService.GetRobotAsync(Id);
     RobotData = RobotDataService.GetRobotData(Robot!.Id);
+    RobotCommands = RobotDataService.GetRobotCommands(Robot!.Id);
     await base.OnInitializedAsync();
   }
 }

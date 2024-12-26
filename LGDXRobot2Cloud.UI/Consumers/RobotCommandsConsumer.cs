@@ -4,15 +4,15 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobot2Cloud.UI.Consumers;
 
-public class RobotDataConsumer(
-    IMemoryCache memoryCache
-  ) : IConsumer<RobotDataContract>
+public class RobotCommandsConsumer(
+  IMemoryCache memoryCache
+  ) : IConsumer<RobotCommandsContract>
 {
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
-  public Task Consume(ConsumeContext<RobotDataContract> context)
+  public Task Consume(ConsumeContext<RobotCommandsContract> context)
   {
-    _memoryCache.Set($"RobotData_{context.Message.RobotId}", context.Message, DateTimeOffset.Now.AddMinutes(1));
+    _memoryCache.Set($"RobotCommands_{context.Message.RobotId}", context.Message, DateTimeOffset.Now.AddMinutes(1));
     return Task.CompletedTask;
   }
 }

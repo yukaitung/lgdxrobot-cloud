@@ -1,6 +1,6 @@
 @using LGDXRobot2Cloud.Utilities.Enums
 
-@if (Robot != null)
+@if (RobotCommands != null)
 {
   <div class="modal fade modal-blur" id="pauseTaskAssigement" tabindex="-1" data-bs-keyboard="false">
     <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
@@ -8,19 +8,19 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         <div class="modal-status bg-primary"></div>
         <div class="modal-body text-center py-4 d-flex flex-column">
-          @if (Robot.IsPauseTaskAssigement) {
+          @if (RobotCommands.Commands.PauseTaskAssigement) {
             <i class="ti ti-player-play text-primary mb-2" style="font-size: 48px;"></i>
           }
           else {
             <i class="ti ti-player-pause text-primary mb-2" style="font-size: 48px;"></i>
           }
-          <h3>@(Robot.IsPauseTaskAssigement ? "Resume Task Assigment" : "Pause Task Assigment")</h3>
+          <h3>@(RobotCommands.Commands.PauseTaskAssigement ? "Resume Task Assigment" : "Pause Task Assigment")</h3>
           <div class="text-secondary">
             <SubmitErrorModal Display="IsError" />
             <div class="text-secondary">
-              @(Robot.IsPauseTaskAssigement ?
-                $"The robot {Robot.Name} will start receiving task." :
-                $"The robot {Robot.Name} will stop receiving task.")
+              @(RobotCommands.Commands.PauseTaskAssigement ?
+                $"The robot will start receiving task." :
+                $"The robot will stop receiving task.")
             </div>
           </div>
         </div>

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using LGDXRobot2Cloud.Utilities.Enums;
 
 namespace LGDXRobot2Cloud.UI.Models;
 
@@ -11,14 +10,6 @@ public class Robot
   public string Name { get; set; } = null!;
 
   public string? Address { get; set; }
-
-  public RobotStatus RobotStatus { get; set; } = RobotStatus.Offline;
-
-  public IEnumerable<double> Batteries { get; set; } = [];
-
-  public bool IsSoftwareEmergencyStop { get; set; }
-
-  public bool IsPauseTaskAssigement { get; set; }
 
   public string? Namespace { get; set; }
 

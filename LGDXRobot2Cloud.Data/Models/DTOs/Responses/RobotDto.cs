@@ -7,10 +7,6 @@ public class RobotDto
   public Guid Id { get; set; }
   public string Name { get; set; } = null!;
   public string Address { get; set; } = null!;
-  public RobotStatus RobotStatus { get; set; } = RobotStatus.Offline;
-  public IEnumerable<double> Batteries { get; set; } = [];
-  public bool IsSoftwareEmergencyStop { get; set; }
-  public bool IsPauseTaskAssigement { get; set; }
   public bool IsRealtimeExchange { get; set; }
   public bool IsProtectingHardwareSerialNumber { get; set; }
   public RobotCertificateDto Certificate { get; set; } = null!;
