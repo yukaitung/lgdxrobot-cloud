@@ -77,7 +77,10 @@ public sealed class RolesController(
     var result = await _roleManager.CreateAsync(role);
     if (!result.Succeeded)
     {
-      ModelState.AddModelError(nameof(LgdxRoleCreateDto), "Cannot create role.");
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
       return ValidationProblem();
     }
     if (lgdxRoleCreateDto.Scopes.Any())
@@ -116,7 +119,10 @@ public sealed class RolesController(
     var result = await _roleManager.UpdateAsync(roleEntity);
     if (!result.Succeeded)
     {
-      ModelState.AddModelError(nameof(LgdxRoleCreateDto), "Cannot update role.");
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
       return ValidationProblem();
     }
     var scopesEntity = await _lgdxRoleRepository.GetRoleScopesAsync(roleEntity!.Id);
@@ -163,7 +169,10 @@ public sealed class RolesController(
     var result = await _roleManager.DeleteAsync(roleEntity);
     if (!result.Succeeded)
     {
-      ModelState.AddModelError(nameof(LgdxRoleCreateDto), "Cannot delete role.");
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
       return ValidationProblem();
     }
     return NoContent();

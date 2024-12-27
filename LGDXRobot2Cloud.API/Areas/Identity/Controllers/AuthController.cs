@@ -114,7 +114,10 @@ public sealed class AuthController(
       if (!incrementLockoutResult.Succeeded)
       {
         // Return the same failure we do when resetting the lockout fails after a correct password.
-        ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed.");
+        foreach (var error in incrementLockoutResult.Errors)
+        {
+          ModelState.AddModelError(error.Code, error.Description);
+        }
         return ValidationProblem();
       }
       if (await _userManager.IsLockedOutAsync(user))
@@ -124,7 +127,7 @@ public sealed class AuthController(
       }
     }    
     ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed.");
-      return ValidationProblem();
+    return ValidationProblem();
   }
 
   [AllowAnonymous]

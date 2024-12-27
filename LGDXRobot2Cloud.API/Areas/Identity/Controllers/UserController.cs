@@ -1,9 +1,8 @@
 using System.Security.Claims;
 using AutoMapper;
-using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using LGDXRobot2Cloud.Data.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +14,7 @@ namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 [Area("Identity")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class UserController(
+public sealed class UserController(
     IMapper mapper,
     UserManager<LgdxUser> userManager
   ) : ControllerBase
@@ -24,6 +23,8 @@ public class UserController(
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
   [HttpGet("")]
+  [ProducesResponseType(typeof(LgdxUserDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<LgdxUserDto>> GetUser()
   {
     var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -32,12 +33,15 @@ public class UserController(
     {
       return NotFound();
     }
-    var returnDto = _mapper.Map<LgdxUserDto>(user);
-    returnDto.Roles = await _userManager.GetRolesAsync(user);
-    return Ok(returnDto);
+    var lgdxUserDto = _mapper.Map<LgdxUserDto>(user);
+    lgdxUserDto.Roles = await _userManager.GetRolesAsync(user);
+    return Ok(lgdxUserDto);
   }
 
   [HttpPut("")]
+  [ProducesResponseType(typeof(LgdxUserDto), StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> UpdateUser(LgdxUserUpdateDto lgdxUserUpdateDto)
   {
     var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -50,13 +54,20 @@ public class UserController(
     var result = await _userManager.UpdateAsync(userEntity);
     if (!result.Succeeded)
     {
-      return BadRequest();
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
+      return ValidationProblem();
     }
     return NoContent();
   }
 
   [HttpPost("Password")]
-  public async Task<ActionResult> UpdatePassword(UpdatePasswordRequest updatePasswordRequest)
+  [ProducesResponseType(typeof(LgdxUserDto), StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult> UpdatePassword(UpdatePasswordRequestDto updatePasswordRequestDto)
   {
     var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
     var user = await userManager.FindByIdAsync(userId!);
@@ -64,13 +75,15 @@ public class UserController(
     {
       return NotFound();
     }
-
-    var changePasswordResult = await _userManager.ChangePasswordAsync(user, updatePasswordRequest.CurrentPassword, updatePasswordRequest.NewPassword);
-    if (!changePasswordResult.Succeeded)
+    var result = await _userManager.ChangePasswordAsync(user, updatePasswordRequestDto.CurrentPassword, updatePasswordRequestDto.NewPassword);
+    if (!result.Succeeded)
     {
-      return BadRequest();
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
+      return ValidationProblem();
     }
-    
     return NoContent();
   }
 }

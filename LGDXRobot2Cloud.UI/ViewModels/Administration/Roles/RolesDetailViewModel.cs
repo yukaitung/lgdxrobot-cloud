@@ -5,6 +5,8 @@ namespace LGDXRobot2Cloud.UI.ViewModels.Administration.Roles;
 
 public sealed class RolesDetailViewModel : FormViewModel
 {
+  public Guid Id { get; set; }
+  
   [Required (ErrorMessage = "Please enter a name.")]
   public string Name { get; set; } = null!;
 
