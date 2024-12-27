@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LGDXRobot2Cloud.UI.Helpers;
@@ -11,7 +12,7 @@ public record ApiResponse<T>
 
 public static class ApiHelper
 {
-	public static ApiResponse<T> ApiReturnUnexpectedResponseStatusCode<T>()
+	public static ApiResponse<T> ReturnUnexpectedResponseStatusCode<T>()
 	{
 		return new ApiResponse<T> {
 			IsSuccess = false,
@@ -20,5 +21,6 @@ public static class ApiHelper
 			}
 		};
 	}
+
 	public static readonly string ApiErrorMessage = "An error occurred while calling the API";
 }

@@ -1,9 +1,12 @@
 using System.Text;
+using AutoMapper;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.UI.Constants;
-using LGDXRobot2Cloud.UI.Models;
+using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.UI.ViewModels.Identity;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Identity;
 
@@ -11,6 +14,9 @@ public sealed partial class ResetPassword : ComponentBase
 {
   [Inject] 
   public required IAuthService AuthService { get; set; }
+
+  [Inject]
+  public required IMapper Mapper { get; set; }
 
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
@@ -22,26 +28,21 @@ public sealed partial class ResetPassword : ComponentBase
   private string Email { get; set; } = null!;
 
   [SupplyParameterFromForm]
-  public ResetPasswordRequest ResetPasswordRequest { get; set; } = new();
+  public ResetPasswordViewModel ResetPasswordViewModel { get; set; } = new();
 
-  private bool Success { get; set; } = false;
-  private bool IsError { get; set; } = false;
+  private EditContext _editContext = null!;
+  private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
   public async Task HandleResetPassword()
   {
-    var result = await AuthService.ResetPasswordAsync(new ResetPasswordRequestDto{
-      Email = Email,
-      Token = Token,
-      NewPassword = ResetPasswordRequest.NewPassword,
-    });
-    if (result)
+    var result = await AuthService.ResetPasswordAsync(Mapper.Map<ResetPasswordRequestDto>(ResetPasswordViewModel));
+    if (result.IsSuccess)
     {
-      Success = true;
-      IsError = false;
+      ResetPasswordViewModel.IsSuccess = true;
     }
     else
     {
-      IsError = true;
+      ResetPasswordViewModel.Errors = result.Errors;
     }
   }
 
@@ -53,14 +54,17 @@ public sealed partial class ResetPassword : ComponentBase
       return Task.CompletedTask;
     }
     try 
-      {
-        var token = Encoding.UTF8.GetString(Convert.FromBase64String(Token));
-        Token = token;
-      }
-      catch (Exception)
-      {
-        NavigationManager.NavigateTo(AppRoutes.Identity.Login);
-      }
+    {
+      ResetPasswordViewModel.Email = Email;
+      var token = Encoding.UTF8.GetString(Convert.FromBase64String(Token));
+      ResetPasswordViewModel.Token = token;
+    }
+    catch (Exception)
+    {
+      NavigationManager.NavigateTo(AppRoutes.Identity.Login);
+    }
+    _editContext = new EditContext(ResetPasswordViewModel);
+    _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
     return base.OnInitializedAsync();
   }
 }

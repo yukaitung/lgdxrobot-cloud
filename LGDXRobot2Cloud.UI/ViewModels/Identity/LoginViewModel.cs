@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Identity;
 
-public sealed class LoginViewModel
+public sealed record LoginViewModel
 {
   [Required (ErrorMessage = "Please enter a username.")]
   public string Username { get; set; } = null!;

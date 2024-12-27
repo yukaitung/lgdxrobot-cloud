@@ -147,18 +147,22 @@ public sealed class AuthController(
   [HttpPost("ResetPassword")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> ResetPassword(ResetPasswordRequestDto resetPasswordRequestDto)
   {
     var user = await _userManager.FindByEmailAsync(resetPasswordRequestDto.Email);
     if (user == null)
     {
-      return NotFound();
+      // For security reasons, we do not return a 404 status code.
+      ModelState.AddModelError(nameof(ResetPasswordRequestDto.Token), "");
+      return ValidationProblem();
     }
     var result = await _userManager.ResetPasswordAsync(user, resetPasswordRequestDto.Token, resetPasswordRequestDto.NewPassword);
     if (!result.Succeeded)
     {
-      ModelState.AddModelError(nameof(ResetPasswordRequestDto.Token), "The token is invalid");
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
       return ValidationProblem();
     }
     return Ok();

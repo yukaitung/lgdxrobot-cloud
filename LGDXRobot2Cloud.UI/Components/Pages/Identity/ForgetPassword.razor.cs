@@ -34,7 +34,7 @@ public sealed partial class ForgetPassword : ComponentBase
     var result = await AuthService.ForgotPasswordAsync(Mapper.Map<ForgotPasswordRequestDto>(ForgotPasswordViewModel));
     if (result.IsSuccess)
     {
-      ForgotPasswordViewModel.Success = true;
+      ForgotPasswordViewModel.IsSuccess = true;
     }
     else
     {

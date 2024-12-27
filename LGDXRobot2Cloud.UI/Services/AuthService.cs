@@ -16,7 +16,7 @@ public interface IAuthService
 {
   Task<ApiResponse<bool>> LoginAsync(HttpContext context, LoginRequestDto loginRequestDto);
   Task<ApiResponse<bool>> ForgotPasswordAsync(ForgotPasswordRequestDto request);
-  Task<bool> ResetPasswordAsync(ResetPasswordRequestDto request);
+  Task<ApiResponse<bool>> ResetPasswordAsync(ResetPasswordRequestDto request);
 }
 
 public class AuthService : IAuthService
@@ -61,7 +61,7 @@ public class AuthService : IAuthService
       }
       else
       {
-        return ApiHelper.ApiReturnUnexpectedResponseStatusCode<bool>();
+        return ApiHelper.ReturnUnexpectedResponseStatusCode<bool>();
       }
     }
     catch (Exception ex)
@@ -76,7 +76,7 @@ public class AuthService : IAuthService
     {
       var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
       var response = await _httpClient.PostAsync("/Identity/Auth/ForgotPassword", content);
-      if(response.IsSuccessStatusCode)
+      if (response.IsSuccessStatusCode)
       {
         return new ApiResponse<bool> {
           Data = true,
@@ -85,7 +85,7 @@ public class AuthService : IAuthService
       }
       else
       {
-        return ApiHelper.ApiReturnUnexpectedResponseStatusCode<bool>();
+        return ApiHelper.ReturnUnexpectedResponseStatusCode<bool>();
       }
     }
     catch (Exception ex)
@@ -94,10 +94,36 @@ public class AuthService : IAuthService
     }
   }
 
-  public async Task<bool> ResetPasswordAsync(ResetPasswordRequestDto request)
+  public async Task<ApiResponse<bool>> ResetPasswordAsync(ResetPasswordRequestDto request)
   {
-    var json = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("/Identity/Auth/ResetPassword", json);
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync("/Identity/Auth/ResetPassword", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = true,
+          IsSuccess = true
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = false
+        };
+      }
+      else
+      {
+        return ApiHelper.ReturnUnexpectedResponseStatusCode<bool>();
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+    
   }
 }
