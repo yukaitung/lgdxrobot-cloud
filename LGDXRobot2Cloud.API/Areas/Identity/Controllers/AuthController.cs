@@ -1,3 +1,4 @@
+using Grpc.Core;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
@@ -127,8 +128,10 @@ public class AuthController(
       return ValidationProblem();
   }
 
-  [HttpPost("ForgotPassword")]
   [AllowAnonymous]
+  [HttpPost("ForgotPassword")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> ForgotPassword(ForgotPasswordRequestDto forgotPasswordRequestDto)
   {
     var user = await _userManager.FindByEmailAsync(forgotPasswordRequestDto.Email);
@@ -137,12 +140,16 @@ public class AuthController(
       return NotFound();
     }
     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+    Console.WriteLine(token);
     // TODO: Send email
     return Ok();
   }
 
-  [HttpPost("ResetPassword")]
   [AllowAnonymous]
+  [HttpPost("ResetPassword")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> ResetPassword(ResetPasswordRequestDto resetPasswordRequestDto)
   {
     var user = await _userManager.FindByEmailAsync(resetPasswordRequestDto.Email);
@@ -153,7 +160,8 @@ public class AuthController(
     var result = await _userManager.ResetPasswordAsync(user, resetPasswordRequestDto.Token, resetPasswordRequestDto.NewPassword);
     if (!result.Succeeded)
     {
-      return BadRequest();
+      ModelState.AddModelError(nameof(ResetPasswordRequestDto.Token), "The token is invalid.");
+      return ValidationProblem();
     }
     return Ok();
   }
