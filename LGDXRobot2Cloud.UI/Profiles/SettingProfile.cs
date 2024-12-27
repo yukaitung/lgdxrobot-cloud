@@ -3,6 +3,7 @@ using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 using LGDXRobot2Cloud.Data.Models.Identity;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
 namespace LGDXRobot2Cloud.UI.Profiles
 {

@@ -14,6 +14,7 @@ using System.Security.Claims;
 using System.Text;
 
 namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
+
 [ApiController]
 [Area("Identity")]
 [Route("[area]/[controller]")]

@@ -19,7 +19,7 @@ public interface IAuthService
   Task<ApiResponse<bool>> ResetPasswordAsync(ResetPasswordRequestDto request);
 }
 
-public class AuthService : IAuthService
+public sealed class AuthService : IAuthService
 {
   private readonly HttpClient _httpClient;
   private readonly JsonSerializerOptions _jsonSerializerOptions;

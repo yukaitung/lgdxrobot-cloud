@@ -54,7 +54,7 @@ builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 // Setting
 builder.Services.AddHttpClient<IApiKeyService, ApiKeyService>(configureAction);
 builder.Services.AddHttpClient<IRobotCertificateService, RobotCertificateService>(configureAction);
-builder.Services.AddHttpClient<IRoleService, RoleService>(configureAction);
+builder.Services.AddHttpClient<IRolesService, RolesService>(configureAction);
 builder.Services.AddHttpClient<IUsersService, UsersService>(configureAction);
 
 // Identity

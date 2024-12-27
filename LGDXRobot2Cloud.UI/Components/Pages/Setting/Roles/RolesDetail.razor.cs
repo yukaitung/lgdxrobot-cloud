@@ -1,5 +1,5 @@
 using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.Identity;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Models;
@@ -15,7 +15,7 @@ public sealed partial class RolesDetail : ComponentBase
   public NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
-  public required IRoleService RoleService { get; set; }
+  public required IRolesService IRolesService { get; set; }
 
   [Inject]
   public required IMapper Mapper { get; set; }
@@ -45,12 +45,18 @@ public sealed partial class RolesDetail : ComponentBase
     bool success;
 
     if (Id != null)
+    {
       // Update
-      success = await RoleService.UpdateRoleAsync(Id, Mapper.Map<LgdxRoleUpdateDto>(Role));
+      var response = await IRolesService.UpdateRoleAsync(Id, Mapper.Map<LgdxRoleUpdateDto>(Role));
+      success = response.IsSuccess;
+    }
     else
+    {
       // Create
-      success = await RoleService.AddRoleAsync(Mapper.Map<LgdxRoleCreateDto>(Role));
-    
+      var response = await IRolesService.AddRoleAsync(Mapper.Map<LgdxRoleCreateDto>(Role));
+      success = response.IsSuccess;
+    }
+      
     if (success)
       NavigationManager.NavigateTo(AppRoutes.Setting.Roles.Index);
     else
@@ -61,8 +67,8 @@ public sealed partial class RolesDetail : ComponentBase
   {
     if (Id != null)
     {
-      var success = await RoleService.DeleteRoleAsync(Id);
-      if (success)
+      var response = await IRolesService.DeleteRoleAsync(Id);
+      if (response.IsSuccess)
         NavigationManager.NavigateTo(AppRoutes.Setting.Roles.Index);
       else
         IsError = true;
@@ -74,7 +80,8 @@ public sealed partial class RolesDetail : ComponentBase
     parameters.SetParameterProperties(this);
     if (parameters.TryGetValue<string?>(nameof(Id), out var _id) && _id != null)
     {
-      var user = await RoleService.GetRoleAsync(_id);
+      var response = await IRolesService.GetRoleAsync(_id);
+      var user = response.Data;
       if (user != null) 
       {
         Role = user;
