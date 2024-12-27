@@ -1,4 +1,5 @@
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
@@ -12,8 +13,8 @@ namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IRolesService
 {
-  Task<ApiResponse<(IEnumerable<LgdxRole>?, PaginationHelper?)>> GetRolesAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<ApiResponse<LgdxRole>> GetRoleAsync(string id);
+  Task<ApiResponse<(IEnumerable<LgdxRoleDto>?, PaginationHelper?)>> GetRolesAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<ApiResponse<LgdxRoleDto>> GetRoleAsync(string id);
   Task<ApiResponse<bool>> AddRoleAsync(LgdxRoleCreateDto role);
   Task<ApiResponse<bool>> UpdateRoleAsync(string id, LgdxRoleUpdateDto role);
   Task<ApiResponse<bool>> DeleteRoleAsync(string id);
@@ -25,7 +26,7 @@ public sealed class RolesService(
     HttpClient httpClient
   ) : BaseService(authenticationStateProvider, httpClient), IRolesService
 {
-  public async Task<ApiResponse<(IEnumerable<LgdxRole>?, PaginationHelper?)>> GetRolesAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<ApiResponse<(IEnumerable<LgdxRoleDto>?, PaginationHelper?)>> GetRolesAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
     try
     {
@@ -35,15 +36,15 @@ public sealed class RolesService(
       {
         var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
         var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-        var roles = await JsonSerializer.DeserializeAsync<IEnumerable<LgdxRole>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-        return new ApiResponse<(IEnumerable<LgdxRole>?, PaginationHelper?)> {
+        var roles = await JsonSerializer.DeserializeAsync<IEnumerable<LgdxRoleDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<(IEnumerable<LgdxRoleDto>?, PaginationHelper?)> {
           Data = (roles, PaginationHelper),
           IsSuccess = true
         };
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<(IEnumerable<LgdxRole>?, PaginationHelper?)>();
+        return ApiHelper.ReturnUnexpectedResponseStatusCode<(IEnumerable<LgdxRoleDto>?, PaginationHelper?)>();
       }
     }
     catch (Exception ex)
@@ -52,22 +53,22 @@ public sealed class RolesService(
     }
   }
 
-  public async Task<ApiResponse<LgdxRole>> GetRoleAsync(string id)
+  public async Task<ApiResponse<LgdxRoleDto>> GetRoleAsync(string id)
   {
     try
     {
       var response = await _httpClient.GetAsync($"Administration/Roles/{id}");
       if (response.IsSuccessStatusCode)
       {
-        var role = await JsonSerializer.DeserializeAsync<LgdxRole>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-        return new ApiResponse<LgdxRole> {
+        var role = await JsonSerializer.DeserializeAsync<LgdxRoleDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<LgdxRoleDto> {
           Data = role,
           IsSuccess = true
         };
       }
       else if (response.StatusCode == HttpStatusCode.NotFound)
       {
-        return new ApiResponse<LgdxRole> {
+        return new ApiResponse<LgdxRoleDto> {
           Errors = new Dictionary<string, string[]> {
             { "Api", ["The role does not exist."] }
           },
@@ -76,7 +77,7 @@ public sealed class RolesService(
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<LgdxRole>();
+        return ApiHelper.ReturnUnexpectedResponseStatusCode<LgdxRoleDto>();
       }
     }
     catch (Exception ex)
@@ -127,7 +128,7 @@ public sealed class RolesService(
       {
         return new ApiResponse<bool> {
           Data = true,
-          IsSuccess = false
+          IsSuccess = true
         };
       }
       else if (response.StatusCode == HttpStatusCode.NotFound)

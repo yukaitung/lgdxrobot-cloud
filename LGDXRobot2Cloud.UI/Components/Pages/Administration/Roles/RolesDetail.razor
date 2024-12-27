@@ -26,32 +26,32 @@
     <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
       <DataAnnotationsValidator />
       <div class="card-body">
-        <SubmitErrorModal Display="@IsError" />
+        <ApiErrorModal Errors="RolesDetailViewModel.Errors" />
         <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
         @if (Id != null)
         {
           <div class="mb-3 row">
             <label class="col-3 col-form-label">ID</label>
             <div class="col">
-              <div class="col form-control-plaintext">@Role.Id</div>
+              <div class="col form-control-plaintext">@Id</div>
             </div>
           </div>
         }
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="Name">Name</label>
+          <label class="col-3 col-form-label required" for="@nameof(RolesDetailViewModel.Name)">Name</label>
           <div class="col">
-            <InputText id="Name" @bind-Value="Role.Name" type="text" class="form-control" />
-            <ValidationMessage class="invalid-feedback" For="@(() => Role.Name)" />
+            <InputText id="@nameof(RolesDetailViewModel.Name)" type="text" class="form-control" @bind-Value="RolesDetailViewModel.Name" />
+            <ValidationMessage class="invalid-feedback" For="@(() => RolesDetailViewModel.Name)" />
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label" for="Name">Description</label>
+          <label class="col-3 col-form-label" for="@nameof(RolesDetailViewModel.Description)">Description</label>
           <div class="col">
-            <InputTextArea id="Arguments" @bind-Value="Role.Description" class="form-control" rows="3" />
+            <InputTextArea id="@nameof(RolesDetailViewModel.Name)" class="form-control" rows="3" @bind-Value="RolesDetailViewModel.Description" />
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="Scopes">Scopes</label>
+          <label class="col-3 col-form-label" for="Scopes">Scopes</label>
           <div class="col">
             <InformationModal>
               1. The format of the scope is LGDXRobot2Cloud.API/Area/Controller/Permission.<br />
@@ -67,21 +67,21 @@
                 </tr>
               </thead>
               <tbody>
-                @for (int i = 0; i < Role.Scopes.Count; i++)
+                @for (int i = 0; i < RolesDetailViewModel.Scopes.Count; i++)
                 {
                   var index = i;
-                  var scope = Role.Scopes[i];
+                  var scope = RolesDetailViewModel.Scopes[i];
                   <tr>
                     <td>
                         @(index + 1)
                     </td>
                     <td>
-                      <InputText id="@($"Scope-{index}")" @bind-Value="Role.Scopes[index]" type="text" class="form-control" />
+                      <InputText id="@($"{nameof(RolesDetailViewModel.Name)}-{index}")" type="text" class="form-control" @bind-Value="RolesDetailViewModel.Scopes[index]" />
                     </td>
                     <td>
                       <button type="button"
-                        class="btn btn-ghost-danger btn-icon @(Role.Scopes.Count <= 1 ? "disabled" : "")"
-                        @onclick="e => TaskRemoveStep(index)">
+                        class="btn btn-ghost-danger btn-icon @(RolesDetailViewModel.Scopes.Count <= 1 ? "disabled" : "")"
+                        @onclick="e => ListRemoveScope(index)">
                         <i class="ti ti-trash" style="font-size: 16px;"></i>
                       </button>
                     </td>
@@ -90,7 +90,7 @@
               </tbody>
             </table>
             <div class="row">
-              <button type="button" class="btn btn-secondary w-8 mx-auto mb-3" @onclick="TaskAddStep">
+              <button type="button" class="btn btn-secondary w-8 mx-auto mb-3" @onclick="ListAddScope">
                 Add A Scope
               </button>
             </div>

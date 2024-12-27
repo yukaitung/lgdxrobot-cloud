@@ -1,16 +1,16 @@
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
-using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Setting.Roles.Components;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.Roles.Components;
 
 public sealed partial class RolesTable : AbstractTable
 {
   [Inject]
   public required IRolesService RolesService { get; set; }
 
-  private List<LgdxRole>? LgdxRoles { get; set; }
+  private List<LgdxRoleDto>? LgdxRoles { get; set; }
   
   public override async Task HandlePageSizeChange(int number)
   {
