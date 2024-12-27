@@ -1,7 +1,8 @@
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
-using LGDXRobot2Cloud.API.Services;
 using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.Data.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -19,16 +20,14 @@ namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class AuthController(
-    IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
-    UserManager<LgdxUser> userManager,
     ILgdxRoleRepository lgdxRoleRepository,
-    IEmailService emailService
+    IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
+    UserManager<LgdxUser> userManager
   ) : ControllerBase
 {
+  private readonly ILgdxRoleRepository _lgdxRoleRepository = lgdxRoleRepository ?? throw new ArgumentNullException(nameof(lgdxRoleRepository));
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2SecretConfiguration));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-  private readonly ILgdxRoleRepository _lgdxRoleRepository = lgdxRoleRepository ?? throw new ArgumentNullException(nameof(lgdxRoleRepository));
-  private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
 
   private JwtSecurityToken GenerateJwtToken(List<Claim> claims, int expiresMins)
   {
@@ -79,26 +78,32 @@ public class AuthController(
     }
   }
 
-  [HttpPost("login")]
   [AllowAnonymous]
-  public async Task<ActionResult<LoginResponse>>Login(LoginRequest loginDto)
+  [HttpPost("Login")]
+  [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult<LoginResponseDto>>Login(LoginRequestDto loginRequestDto)
   {
-    var user = await _userManager.FindByNameAsync(loginDto.Username);
+    var user = await _userManager.FindByNameAsync(loginRequestDto.Username);
     if (user == null)
     {
-      return Unauthorized("User not found.");
+      ModelState.AddModelError(nameof(LoginRequestDto.Username), "User not found.");
+      return ValidationProblem();
     }
     if (await _userManager.IsLockedOutAsync(user))
     {
-      return Unauthorized("User is locked out.");
+      ModelState.AddModelError(nameof(LoginRequestDto.Username), "User is locked out.");
+      return ValidationProblem();
     }
     // Check password and generate token
-    var token = await CheckPasswordAndGenerateTokenAsync(user, loginDto.Password);
+    var token = await CheckPasswordAndGenerateTokenAsync(user, loginRequestDto.Password);
     if (token != null)
     {
       // Password is correct
-      return Ok(new LoginResponse {
-        AccessToken = new JwtSecurityTokenHandler().WriteToken(token), 
+      return Ok(new LoginResponseDto 
+      {
+        AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+        RefreshToken = new JwtSecurityTokenHandler().WriteToken(token),
         ExpiresMins = _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins
       });
     }
@@ -109,14 +114,17 @@ public class AuthController(
       if (!incrementLockoutResult.Succeeded)
       {
         // Return the same failure we do when resetting the lockout fails after a correct password.
-        return Unauthorized();
+        ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed.");
+        return ValidationProblem();
       }
       if (await _userManager.IsLockedOutAsync(user))
       {
-        return Unauthorized("User is locked out.");
+        ModelState.AddModelError(nameof(LoginRequestDto.Username), "User is locked out.");
+        return ValidationProblem();
       }
     }    
-    return Unauthorized("Login failed.");
+    ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed.");
+      return ValidationProblem();
   }
 
   [HttpPost("ForgotPassword")]
@@ -129,7 +137,7 @@ public class AuthController(
       return NotFound();
     }
     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-    await _emailService.SendForgotPasswordEmailAsync(user.Name!, user.Email!, token);
+    // TODO: Send email
     return Ok();
   }
 

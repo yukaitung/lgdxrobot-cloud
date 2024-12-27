@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AutoMapper;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.Data.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -55,7 +56,7 @@ public class UserController(
   }
 
   [HttpPost("Password")]
-  public async Task<ActionResult<LoginResponse>> UpdatePassword(UpdatePasswordRequest updatePasswordRequest)
+  public async Task<ActionResult> UpdatePassword(UpdatePasswordRequest updatePasswordRequest)
   {
     var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
     var user = await userManager.FindByIdAsync(userId!);
