@@ -61,7 +61,7 @@ public sealed class AuthService : IAuthService
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<bool>();
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
       }
     }
     catch (Exception ex)
@@ -85,7 +85,7 @@ public sealed class AuthService : IAuthService
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<bool>();
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
       }
     }
     catch (Exception ex)
@@ -117,7 +117,7 @@ public sealed class AuthService : IAuthService
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<bool>();
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
       }
     }
     catch (Exception ex)

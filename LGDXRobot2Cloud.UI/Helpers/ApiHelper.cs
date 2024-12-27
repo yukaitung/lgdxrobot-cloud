@@ -9,15 +9,6 @@ public record ApiResponse<T>
 
 public static class ApiHelper
 {
-	public static ApiResponse<T> ReturnUnexpectedResponseStatusCode<T>()
-	{
-		return new ApiResponse<T> {
-			IsSuccess = false,
-			Errors = new Dictionary<string, string[]> {
-				{ "Api", ["The service returned an unexpected error."] }
-			}
-		};
-	}
-
+	public static readonly string UnexpectedResponseStatusCodeMessage = "The service returned an unexpected error. Status Code: ";
 	public static readonly string ApiErrorMessage = "An error occurred while calling the API";
 }

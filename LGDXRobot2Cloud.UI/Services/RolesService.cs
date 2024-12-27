@@ -44,7 +44,7 @@ public sealed class RolesService(
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<(IEnumerable<LgdxRoleDto>?, PaginationHelper?)>();
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
       }
     }
     catch (Exception ex)
@@ -77,7 +77,7 @@ public sealed class RolesService(
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<LgdxRoleDto>();
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
       }
     }
     catch (Exception ex)
@@ -109,7 +109,7 @@ public sealed class RolesService(
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<bool>();
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
       }
     }
     catch (Exception ex)
@@ -150,7 +150,7 @@ public sealed class RolesService(
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<bool>();
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
       }
     }
     catch (Exception ex)
@@ -190,7 +190,7 @@ public sealed class RolesService(
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<bool>();
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
       }
     }
     catch (Exception ex)
@@ -214,7 +214,7 @@ public sealed class RolesService(
       }
       else
       {
-        return ApiHelper.ReturnUnexpectedResponseStatusCode<string>();
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
       }
     }
     catch (Exception ex)
