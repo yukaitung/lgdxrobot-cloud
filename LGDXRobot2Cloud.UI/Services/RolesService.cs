@@ -15,8 +15,8 @@ public interface IRolesService
 {
   Task<ApiResponse<(IEnumerable<LgdxRoleDto>?, PaginationHelper?)>> GetRolesAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
   Task<ApiResponse<LgdxRoleDto>> GetRoleAsync(string id);
-  Task<ApiResponse<bool>> AddRoleAsync(LgdxRoleCreateDto role);
-  Task<ApiResponse<bool>> UpdateRoleAsync(string id, LgdxRoleUpdateDto role);
+  Task<ApiResponse<bool>> AddRoleAsync(LgdxRoleCreateDto lgdxRoleCreateDto);
+  Task<ApiResponse<bool>> UpdateRoleAsync(string id, LgdxRoleUpdateDto lgdxRoleUpdateDto);
   Task<ApiResponse<bool>> DeleteRoleAsync(string id);
   Task<ApiResponse<string>> SearchRolesAsync(string name);
 }
@@ -118,11 +118,11 @@ public sealed class RolesService(
     }
   }
 
-  public async Task<ApiResponse<bool>> UpdateRoleAsync(string id, LgdxRoleUpdateDto role)
+  public async Task<ApiResponse<bool>> UpdateRoleAsync(string id, LgdxRoleUpdateDto lgdxRoleUpdateDto)
   {
     try
     {
-      var content = new StringContent(JsonSerializer.Serialize(role), Encoding.UTF8, "application/json");
+      var content = new StringContent(JsonSerializer.Serialize(lgdxRoleUpdateDto), Encoding.UTF8, "application/json");
       var response = await _httpClient.PutAsync($"Administration/Roles/{id}", content);
       if (response.IsSuccessStatusCode)
       {

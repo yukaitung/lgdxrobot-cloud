@@ -19,14 +19,7 @@
 
 <PageBody>
   <div class="row row-cards">
-    @if (IsError || @IsSuccess)
-    {
-      <div class="col-12">
-        <SubmitErrorModal Display="@IsError" />
-        <SubmitSuccessModal Display="@IsSuccess" />
-      </div>
-    }
-    
+
     <div class="col-12">
       <div class="card">
         <div class="card-header">
@@ -35,35 +28,37 @@
         <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
           <DataAnnotationsValidator />
           <div class="card-body">
+            <FormSubmissionSuccessAlert Display="UserDetailViewModel.IsSuccess" />
+            <ApiErrorModal Errors="UserDetailViewModel.Errors" />
             <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
             <div class="mb-3 row">
               <label class="col-3 col-form-label">ID</label>
               <div class="col">
-                <div class="col form-control-plaintext">@User.Id</div>
+                <div class="col form-control-plaintext">@UserDetailViewModel.Id</div>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label" for="UserName">Username</label>
+              <label class="col-3 col-form-label">Username</label>
               <div class="col">
-                <div class="col form-control-plaintext">@User.UserName</div>
+                <div class="col form-control-plaintext">@UserDetailViewModel.UserName</div>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="Name">Full Name</label>
+              <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Name)">Full Name</label>
               <div class="col">
-                <InputText id="Name" @bind-Value="User.Name" type="text" class="form-control" />
-                <ValidationMessage class="invalid-feedback" For="@(() => User.Name)" />
+                <InputText id="@nameof(UserDetailViewModel.Name)" @bind-Value="UserDetailViewModel.Name" type="text" class="form-control" />
+                <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Name)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="Email">Email</label>
+              <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Email)">Email</label>
               <div class="col">
-                <InputText id="Email" @bind-Value="User.Email" type="text" class="form-control" />
-                <ValidationMessage class="invalid-feedback" For="@(() => User.Email)" />
+                <InputText id="@nameof(UserDetailViewModel.Email)" @bind-Value="UserDetailViewModel.Email" type="text" class="form-control" />
+                <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Email)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label" for="Roles">Roles</label>
+              <label class="col-3 col-form-label" for="@nameof(UserDetailViewModel.Roles)"Roles</label>
               <div class="col">
                 <table class="table table-vcenter text-nowrap datatable">
                   <thead>
@@ -73,10 +68,10 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (int i = 0; i < User.Roles.Count; i++)
+                    @for (int i = 0; i < UserDetailViewModel.Roles.Count; i++)
                     {
                       var index = i;
-                      var roleName = User.Roles[i];
+                      var roleName = UserDetailViewModel.Roles[i];
                       <tr>
                         <td>
                             @(index + 1)
@@ -106,23 +101,28 @@
         <EditForm EditContext="@_editContextPassword" OnValidSubmit="HandleValidSubmitPassword">
         <DataAnnotationsValidator />
           <div class="card-body">
+            <FormSubmissionSuccessAlert Display="UserDetailPasswordViewModel.IsSuccess" />
+            <ApiErrorModal Errors="UserDetailPasswordViewModel.Errors" />
             <ValidationErrorModal Display="@_editContextPassword.GetValidationMessages().Any()" />
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="CurrentPassword">Current Password</label>
+              <label class="col-3 col-form-label required" for="@nameof(UserDetailPasswordViewModel.CurrentPassword)">Current Password</label>
               <div class="col">
-                <InputText id="CurrentPassword" @bind-Value="UserPassword.CurrentPassword" type="password" class="form-control" />
+                <InputText id="@nameof(UserDetailPasswordViewModel.CurrentPassword)" @bind-Value="UserDetailPasswordViewModel.CurrentPassword" type="password" class="form-control" />
+                <ValidationMessage class="invalid-feedback" For="@(() => UserDetailPasswordViewModel.CurrentPassword)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="NewPassword">New Password</label>
+              <label class="col-3 col-form-label required" for="@nameof(UserDetailPasswordViewModel.NewPassword)">New Password</label>
               <div class="col">
-                <InputText id="NewPassword" @bind-Value="UserPassword.NewPassword" type="password" class="form-control" />
+                <InputText id="@nameof(UserDetailPasswordViewModel.NewPassword)" @bind-Value="UserDetailPasswordViewModel.NewPassword" type="password" class="form-control" />
+                <ValidationMessage class="invalid-feedback" For="@(() => UserDetailPasswordViewModel.NewPassword)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="ConfirmPassword">Confirm Password</label>
+              <label class="col-3 col-form-label required" for="@nameof(UserDetailPasswordViewModel.ConfirmPassword)">Confirm Password</label>
               <div class="col">
-                <InputText id="ConfirmPassword" @bind-Value="UserPassword.ConfirmPassword" type="password" class="form-control" />
+                <InputText id="@nameof(UserDetailPasswordViewModel.ConfirmPassword)" @bind-Value="UserDetailPasswordViewModel.ConfirmPassword" type="password" class="form-control" />
+                <ValidationMessage class="invalid-feedback" For="@(() => UserDetailPasswordViewModel.ConfirmPassword)" />
               </div>
             </div>
           </div>

@@ -1,16 +1,19 @@
+using System.Net;
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.UI.Models;
-using LGDXRobot2Cloud.Data.Models.Identity;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IUserService
 {
-  Task<LgdxUser?> GetUserAsync();
-  Task<bool> UpdateUserAsync(LgdxUserUpdateDto user);
-  Task<bool> UpdatePasswordAsync(UpdatePasswordRequest updatePasswordRequest);
+  Task<ApiResponse<LgdxUserDto>> GetUserAsync();
+  Task<ApiResponse<bool>> UpdateUserAsync(LgdxUserUpdateDto lgdxUserUpdateDto);
+  Task<ApiResponse<bool>> UpdatePasswordAsync(UpdatePasswordRequestDto updatePasswordRequestDto);
 }
 
 public sealed class UserService(
@@ -18,24 +21,91 @@ public sealed class UserService(
     HttpClient httpClient
   ) : BaseService(authenticationStateProvider, httpClient), IUserService
 {
-  public async Task<LgdxUser?> GetUserAsync()
+  public async Task<ApiResponse<LgdxUserDto>> GetUserAsync()
   {
-    var response = await _httpClient.GetAsync("Identity/User");
-    var user = JsonSerializer.Deserialize<LgdxUser>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    return user;
+    try
+    {
+      var response = await _httpClient.GetAsync("Identity/User");
+      if (response.IsSuccessStatusCode)
+      {
+        var lgdxUserDto = JsonSerializer.Deserialize<LgdxUserDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<LgdxUserDto> {
+          Data = lgdxUserDto,
+          IsSuccess = true
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 
-  public async Task<bool> UpdateUserAsync(LgdxUserUpdateDto user)
+  public async Task<ApiResponse<bool>> UpdateUserAsync(LgdxUserUpdateDto user)
   {
-    var userJson = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PutAsync("Identity/User", userJson);
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PutAsync("Identity/User", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = true,
+          IsSuccess = true
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = false
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 
-  public async Task<bool> UpdatePasswordAsync(UpdatePasswordRequest updatePasswordRequest)
+  public async Task<ApiResponse<bool>> UpdatePasswordAsync(UpdatePasswordRequestDto updatePasswordRequestDto)
   {
-    var userJson = new StringContent(JsonSerializer.Serialize(updatePasswordRequest), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("Identity/User/Password", userJson);
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var userJson = new StringContent(JsonSerializer.Serialize(updatePasswordRequestDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync("Identity/User/Password", userJson);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = true,
+          IsSuccess = true
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = false
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 }
