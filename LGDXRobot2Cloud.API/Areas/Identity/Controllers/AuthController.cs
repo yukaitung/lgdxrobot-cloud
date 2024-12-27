@@ -86,12 +86,12 @@ public sealed class AuthController(
     var user = await _userManager.FindByNameAsync(loginRequestDto.Username);
     if (user == null)
     {
-      ModelState.AddModelError(nameof(LoginRequestDto.Username), "User not found");
+      ModelState.AddModelError(nameof(LoginRequestDto.Username), "The user does not exist.");
       return ValidationProblem();
     }
     if (await _userManager.IsLockedOutAsync(user))
     {
-      ModelState.AddModelError(nameof(LoginRequestDto.Username), "User is locked out");
+      ModelState.AddModelError(nameof(LoginRequestDto.Username), "The user is locked out.");
       return ValidationProblem();
     }
     // Check password and generate token
@@ -113,16 +113,16 @@ public sealed class AuthController(
       if (!incrementLockoutResult.Succeeded)
       {
         // Return the same failure we do when resetting the lockout fails after a correct password.
-        ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed");
+        ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed.");
         return ValidationProblem();
       }
       if (await _userManager.IsLockedOutAsync(user))
       {
-        ModelState.AddModelError(nameof(LoginRequestDto.Username), "User is locked out");
+        ModelState.AddModelError(nameof(LoginRequestDto.Username), "The user is locked out.");
         return ValidationProblem();
       }
     }    
-    ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed");
+    ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed.");
       return ValidationProblem();
   }
 
