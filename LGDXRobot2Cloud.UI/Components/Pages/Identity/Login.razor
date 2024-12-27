@@ -15,25 +15,21 @@
     <div class="card card-md">
       <div class="card-body">
         <h2 class="h2 text-center mb-4">Welcome</h2>
-        <EditForm Model="LoginRequest" method="post" OnValidSubmit="HandleLogin" FormName="login">
-          <SubmitErrorModal Display="@IsError" />
+        <EditForm EditContext="_editContext" method="post" OnValidSubmit="HandleLogin" FormName="login">
+          <DataAnnotationsValidator />
+          <ApiErrorModal Errors="LoginViewModel.Errors" />
+          <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
           <div class="mb-3">
             <label class="form-label">Username</label>
-            <InputText type="text" class="form-control" autocomplete="off" @bind-Value="LoginRequest.Username" />
+            <InputText id="@(nameof(LoginViewModel.Username))" class="form-control" type="text" @bind-Value="LoginViewModel.Username" />
+            <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.Username)" />
           </div>
-          <div class="mb-2">
-            <label class="form-label">
-              Password
-              <span class="form-label-description">
-                <a href="@AppRoutes.Identity.ForgotPassword">Forgot password</a>
-              </span>
-            </label>
-            <div class="input-group input-group-flat">
-              <InputText type="password" class="form-control" autocomplete="off" @bind-Value="LoginRequest.Password" />
-              <span class="input-group-text">
-              </span>
-            </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <InputText id="@(nameof(LoginViewModel.Password))" class="form-control" type="password" @bind-Value="LoginViewModel.Password" />
+            <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.Password)" />
           </div>
+          <a href="@AppRoutes.Identity.ForgotPassword">Forgot password</a>
           <div class="form-footer">
             <button type="submit" class="btn btn-primary w-100">Log In</button>
           </div>

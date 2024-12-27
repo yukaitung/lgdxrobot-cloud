@@ -1,4 +1,4 @@
-using LGDXRobot2Cloud.Data.Models.Identity;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -10,7 +10,7 @@ public sealed partial class ForgetPassword : ComponentBase
   public required IAuthService AuthService { get; set; }
 
   [SupplyParameterFromForm]
-  public ForgotPasswordRequestDto ForgotPasswordRequest { get; set; } = new();
+  public ForgotPasswordRequestDto ForgotPasswordRequest { get; set; } = null!;
 
   private bool Success { get; set; } = false;
 

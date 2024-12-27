@@ -18,7 +18,7 @@ namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 [Area("Identity")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class AuthController(
+public sealed class AuthController(
     ILgdxRoleRepository lgdxRoleRepository,
     IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
     UserManager<LgdxUser> userManager
@@ -86,12 +86,12 @@ public class AuthController(
     var user = await _userManager.FindByNameAsync(loginRequestDto.Username);
     if (user == null)
     {
-      ModelState.AddModelError(nameof(LoginRequestDto.Username), "User not found.");
+      ModelState.AddModelError(nameof(LoginRequestDto.Username), "User not found");
       return ValidationProblem();
     }
     if (await _userManager.IsLockedOutAsync(user))
     {
-      ModelState.AddModelError(nameof(LoginRequestDto.Username), "User is locked out.");
+      ModelState.AddModelError(nameof(LoginRequestDto.Username), "User is locked out");
       return ValidationProblem();
     }
     // Check password and generate token
@@ -113,16 +113,16 @@ public class AuthController(
       if (!incrementLockoutResult.Succeeded)
       {
         // Return the same failure we do when resetting the lockout fails after a correct password.
-        ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed.");
+        ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed");
         return ValidationProblem();
       }
       if (await _userManager.IsLockedOutAsync(user))
       {
-        ModelState.AddModelError(nameof(LoginRequestDto.Username), "User is locked out.");
+        ModelState.AddModelError(nameof(LoginRequestDto.Username), "User is locked out");
         return ValidationProblem();
       }
     }    
-    ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed.");
+    ModelState.AddModelError(nameof(LoginRequestDto.Username), "Login failed");
       return ValidationProblem();
   }
 
@@ -158,7 +158,7 @@ public class AuthController(
     var result = await _userManager.ResetPasswordAsync(user, resetPasswordRequestDto.Token, resetPasswordRequestDto.NewPassword);
     if (!result.Succeeded)
     {
-      ModelState.AddModelError(nameof(ResetPasswordRequestDto.Token), "The token is invalid.");
+      ModelState.AddModelError(nameof(ResetPasswordRequestDto.Token), "The token is invalid");
       return ValidationProblem();
     }
     return Ok();

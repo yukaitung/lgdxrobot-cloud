@@ -1,7 +1,11 @@
-using LGDXRobot2Cloud.Data.Models.Identity;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Helpers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -10,7 +14,7 @@ namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IAuthService
 {
-  Task<bool> LoginAsync(HttpContext context, LoginRequest request);
+  Task<ApiResponse<bool>> LoginAsync(HttpContext context, LoginRequestDto loginRequestDto);
   Task<bool> ForgotPasswordAsync(ForgotPasswordRequestDto request);
   Task<bool> ResetPasswordAsync(ResetPasswordRequestDto request);
 }
@@ -26,25 +30,43 @@ public class AuthService : IAuthService
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
   }
 
-  public async Task<bool> LoginAsync(HttpContext context, LoginRequest request)
+  public async Task<ApiResponse<bool>> LoginAsync(HttpContext context, LoginRequestDto loginRequestDto)
   {
-    var json = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("/Identity/Auth/login", json);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      var loginResponse = await JsonSerializer.DeserializeAsync<LoginResponse>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      var accessToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponse!.AccessToken);
-      var identity = new ClaimsIdentity([], CookieAuthenticationDefaults.AuthenticationScheme);
-      identity.AddClaims(accessToken.Claims);
-      identity.AddClaim(new Claim("access_token", loginResponse!.AccessToken));
-      var user = new ClaimsPrincipal(identity);
-      var authProperties = new AuthenticationProperties{};
-      await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user, authProperties);
-      return true;
+      var content = new StringContent(JsonSerializer.Serialize(loginRequestDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync("/Identity/Auth/Login", content);
+      if (response.IsSuccessStatusCode)
+      {
+        var loginResponseDto = await JsonSerializer.DeserializeAsync<LoginResponseDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        var accessToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponseDto!.AccessToken);
+        var identity = new ClaimsIdentity([], CookieAuthenticationDefaults.AuthenticationScheme);
+        identity.AddClaims(accessToken.Claims);
+        identity.AddClaim(new Claim("access_token", loginResponseDto!.AccessToken));
+        var user = new ClaimsPrincipal(identity);
+        var authProperties = new AuthenticationProperties{};
+        await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user, authProperties);
+        return new ApiResponse<bool> {
+          Data = true,
+          IsSuccess = true
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          ValidationErrors = validationProblemDetails,
+          IsSuccess = false
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      return false;
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 

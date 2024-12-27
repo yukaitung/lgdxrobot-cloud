@@ -1,5 +1,5 @@
 using System.Text;
-using LGDXRobot2Cloud.Data.Models.Identity;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
