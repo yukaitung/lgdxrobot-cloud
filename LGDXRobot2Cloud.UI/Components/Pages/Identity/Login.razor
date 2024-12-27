@@ -15,7 +15,7 @@
     <div class="card card-md">
       <div class="card-body">
         <h2 class="h2 text-center mb-4">Welcome</h2>
-        <EditForm EditContext="_editContext" method="post" OnValidSubmit="HandleLogin" FormName="login">
+        <EditForm EditContext="_editContext" method="post" OnValidSubmit="HandleLogin" FormName="Login">
           <DataAnnotationsValidator />
           <ApiErrorModal Errors="LoginViewModel.Errors" />
           <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
@@ -27,7 +27,6 @@
           <div class="mb-3">
             <label class="form-label">Password</label>
             <InputText id="@(nameof(LoginViewModel.Password))" class="form-control" type="password" @bind-Value="LoginViewModel.Password" />
-            <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.Password)" />
           </div>
           <a href="@AppRoutes.Identity.ForgotPassword">Forgot password</a>
           <div class="form-footer">

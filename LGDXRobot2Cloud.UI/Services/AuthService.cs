@@ -15,7 +15,7 @@ namespace LGDXRobot2Cloud.UI.Services;
 public interface IAuthService
 {
   Task<ApiResponse<bool>> LoginAsync(HttpContext context, LoginRequestDto loginRequestDto);
-  Task<bool> ForgotPasswordAsync(ForgotPasswordRequestDto request);
+  Task<ApiResponse<bool>> ForgotPasswordAsync(ForgotPasswordRequestDto request);
   Task<bool> ResetPasswordAsync(ResetPasswordRequestDto request);
 }
 
@@ -55,13 +55,13 @@ public class AuthService : IAuthService
       {
         var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<bool> {
-          ValidationErrors = validationProblemDetails,
+          Errors = validationProblemDetails?.Errors,
           IsSuccess = false
         };
       }
       else
       {
-        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+        return ApiHelper.ApiReturnUnexpectedResponseStatusCode<bool>();
       }
     }
     catch (Exception ex)
@@ -70,11 +70,28 @@ public class AuthService : IAuthService
     }
   }
 
-  public async Task<bool> ForgotPasswordAsync(ForgotPasswordRequestDto request)
+  public async Task<ApiResponse<bool>> ForgotPasswordAsync(ForgotPasswordRequestDto request)
   {
-    var json = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("/Identity/Auth/ForgotPassword", json);
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync("/Identity/Auth/ForgotPassword", content);
+      if(response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = true,
+          IsSuccess = true
+        };
+      }
+      else
+      {
+        return ApiHelper.ApiReturnUnexpectedResponseStatusCode<bool>();
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 
   public async Task<bool> ResetPasswordAsync(ResetPasswordRequestDto request)

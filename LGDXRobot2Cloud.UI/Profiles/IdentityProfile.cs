@@ -9,5 +9,6 @@ public class IdentityProfile : Profile
   public IdentityProfile()
   {
     CreateMap<LoginViewModel, LoginRequestDto>();
+    CreateMap<ForgotPasswordViewModel, ForgotPasswordRequestDto>();
   }
 }

@@ -129,16 +129,16 @@ public sealed class AuthController(
   [AllowAnonymous]
   [HttpPost("ForgotPassword")]
   [ProducesResponseType(StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> ForgotPassword(ForgotPasswordRequestDto forgotPasswordRequestDto)
   {
     var user = await _userManager.FindByEmailAsync(forgotPasswordRequestDto.Email);
     if (user == null)
     {
-      return NotFound();
+      // For security reasons, we do not return a 404 status code.
+      return Ok();
     }
     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-    Console.WriteLine(token);
+    Console.WriteLine($"Your password reset link is ?Token={Convert.ToBase64String(Encoding.UTF8.GetBytes(token))}&Email={user.Email}");
     // TODO: Send email
     return Ok();
   }

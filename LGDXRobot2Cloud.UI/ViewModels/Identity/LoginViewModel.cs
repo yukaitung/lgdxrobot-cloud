@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Identity;
 
-public class LoginViewModel
+public sealed class LoginViewModel
 {
   [Required (ErrorMessage = "Please enter a username.")]
   public string Username { get; set; } = null!;

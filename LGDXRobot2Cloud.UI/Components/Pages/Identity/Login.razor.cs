@@ -43,7 +43,7 @@ public sealed partial class Login : ComponentBase
     var response = await AuthService.LoginAsync(HttpContext, Mapper.Map<LoginRequestDto>(LoginViewModel));
     if (!response.IsSuccess)
     {
-      LoginViewModel.Errors = response.ValidationErrors?.Errors;
+      LoginViewModel.Errors = response?.Errors;
       return;
     }
     NavigationManager.NavigateTo(ReturnUrl ?? "/");
