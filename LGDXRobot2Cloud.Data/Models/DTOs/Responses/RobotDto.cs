@@ -10,7 +10,6 @@ public class RobotDto
   public bool IsRealtimeExchange { get; set; }
   public bool IsProtectingHardwareSerialNumber { get; set; }
   public RobotCertificateDto Certificate { get; set; } = null!;
-  public NodesCollectionListDto? DefaultNodesCollection { get; set; }
   public RobotSystemInfoDto? RobotSystemInfo { get; set; }
   public RobotChassisInfoDto? RobotChassisInfo { get; set; }
   public ICollection<AutoTaskListDto> AssignedTasks { get; set; } = [];

@@ -27,9 +27,6 @@ public class Robot
 
   public RobotCertificate Certificate { get; set; } = null!;
 
-  [ForeignKey("DefaultNodesCollectionId")]
-  public NodesCollection? DefaultNodesCollection { get; set; }
-
   public int? DefaultNodesCollectionId { get; set; }
 
   public RobotSystemInfo? RobotSystemInfo { get; set; }

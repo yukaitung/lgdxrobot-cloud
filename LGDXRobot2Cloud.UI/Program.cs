@@ -48,8 +48,6 @@ builder.Services.AddHttpClient<IWaypointService, WaypointService>(configureActio
 builder.Services.AddHttpClient<IMapsService, MapsService>(configureAction);
 
 // Robot
-builder.Services.AddHttpClient<INodesCollectionService, NodesCollectionService>(configureAction);
-builder.Services.AddHttpClient<INodeService, NodeService>(configureAction);
 builder.Services.AddHttpClient<IRobotService, RobotService>(configureAction);
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 

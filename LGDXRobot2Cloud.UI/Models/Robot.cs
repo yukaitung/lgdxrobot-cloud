@@ -19,8 +19,6 @@ public class Robot
 
   public RobotCertificate Certificate { get; set; } = null!;
 
-  public NodesCollection? DefaultNodesCollection { get; set; }
-
   public RobotSystemInfo? RobotSystemInfo { get; set; }
 
   public RobotChassisInfo? RobotChassisInfo { get; set; }

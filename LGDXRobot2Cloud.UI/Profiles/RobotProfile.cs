@@ -8,14 +8,6 @@ namespace LGDXRobot2Cloud.UI.Profiles
   {
     public RobotProfile()
     {
-      // Nodes
-      CreateMap<Node, NodeCreateDto>();
-      CreateMap<Node, NodeUpdateDto>();
-      // Nodes Collection
-      CreateMap<NodesCollection, NodesCollectionCreateDto>();
-      CreateMap<NodesCollection, NodesCollectionUpdateDto>();
-      CreateMap<NodesCollectionDetail, NodesCollectionDetailCreateDto>();
-      CreateMap<NodesCollectionDetail, NodesCollectionDetailUpdateDto>();
       // Robot
       CreateMap<Robot, RobotCreateInfoDto>();
       CreateMap<RobotChassisInfo, RobotCreateChassisInfoDto>();

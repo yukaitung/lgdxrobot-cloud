@@ -22,9 +22,6 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
   public required ITriggerService TriggerService { get; set; }
 
   [Inject]
-  public required INodeService NodeService { get; set; }
-
-  [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
