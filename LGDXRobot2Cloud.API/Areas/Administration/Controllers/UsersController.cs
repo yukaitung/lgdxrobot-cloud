@@ -3,8 +3,8 @@ using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using LGDXRobot2Cloud.Data.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,10 +13,10 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
+namespace LGDXRobot2Cloud.API.Areas.Administration.Controllers;
 
 [ApiController]
-[Area("Identity")]
+[Area("Administration")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
@@ -37,6 +37,7 @@ public class UsersController(
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
   [HttpGet("")]
+  [ProducesResponseType(typeof(IEnumerable<LgdxUserListDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<LgdxUserListDto>>> GetUsers(string? name, int pageNumber = 1, int pageSize = 10)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
@@ -46,6 +47,8 @@ public class UsersController(
   }
 
   [HttpGet("{id}", Name = "GetUser")]
+  [ProducesResponseType(typeof(LgdxUserDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<LgdxUserDto>> GetUser(Guid id)
   {
     var user = await _userManager.FindByIdAsync(id.ToString());
@@ -59,73 +62,101 @@ public class UsersController(
   }
 
   [HttpPost("")]
-  public async Task<ActionResult> CreateUser(LgdxUserCreateDto lgdxUserCreateDto)
+  [ProducesResponseType(StatusCodes.Status201Created)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult> CreateUser(LgdxUserCreateAdminDto lgdxUserCreateAdminDto)
   {
     var user = new LgdxUser
     {
-      Email = lgdxUserCreateDto.Email,
+      Email = lgdxUserCreateAdminDto.Email,
       EmailConfirmed = true,
       LockoutEnabled = true,
-      Name = lgdxUserCreateDto.Name,
-      NormalizedEmail = lgdxUserCreateDto.Email.ToUpper(),
-      NormalizedUserName = lgdxUserCreateDto.UserName.ToUpper(),
+      Name = lgdxUserCreateAdminDto.Name,
+      NormalizedEmail = lgdxUserCreateAdminDto.Email.ToUpper(),
+      NormalizedUserName = lgdxUserCreateAdminDto.UserName.ToUpper(),
       SecurityStamp = Guid.NewGuid().ToString("D"),
-      UserName = lgdxUserCreateDto.UserName
+      UserName = lgdxUserCreateAdminDto.UserName
     };
-    if (lgdxUserCreateDto.Password != null)
+    if (lgdxUserCreateAdminDto.Password != null)
     {
       var password = new PasswordHasher<LgdxUser>();
-      var hashed = password.HashPassword(user, lgdxUserCreateDto.Password);
+      var hashed = password.HashPassword(user, lgdxUserCreateAdminDto.Password);
       user.PasswordHash = hashed;
     }
     var result = await _userManager.CreateAsync(user);
     if (!result.Succeeded)
     {
-      return BadRequest();
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
+      return ValidationProblem();
     }
-    var userEntity = await _userManager.FindByNameAsync(lgdxUserCreateDto.UserName);
-    var roleToAdd = lgdxUserCreateDto.Roles;
+    var userEntity = await _userManager.FindByNameAsync(lgdxUserCreateAdminDto.UserName);
+    var roleToAdd = lgdxUserCreateAdminDto.Roles;
     result = await _userManager.AddToRolesAsync(userEntity!, roleToAdd);
     if (!result.Succeeded)
     {
-      return BadRequest();
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
+      return ValidationProblem();
     }
-    userEntity = await _userManager.FindByNameAsync(lgdxUserCreateDto.UserName);
-    var returnUser = _mapper.Map<LgdxUserDto>(userEntity);
-    return CreatedAtAction(nameof(GetUser), new { id = returnUser.Id }, returnUser);
+    userEntity = await _userManager.FindByNameAsync(lgdxUserCreateAdminDto.UserName);
+    var lgdxUserDto = _mapper.Map<LgdxUserDto>(userEntity);
+    return CreatedAtAction(nameof(GetUser), new { id = lgdxUserDto.Id }, lgdxUserDto);
   }
 
   [HttpPut("{id}")]
-  public async Task<ActionResult> UpdateUser(Guid id, LgdxUserUpdateAdminDto lgdxUserUpdateDto)
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult> UpdateUser(Guid id, LgdxUserUpdateAdminDto lgdxUserUpdateAdminDto)
   {
     var userEntity = await _userManager.FindByIdAsync(id.ToString());
     if (userEntity == null)
     {
       return NotFound();
     }
-    _mapper.Map(lgdxUserUpdateDto, userEntity);
+    _mapper.Map(lgdxUserUpdateAdminDto, userEntity);
     var result = await _userManager.UpdateAsync(userEntity);
     if (!result.Succeeded)
     {
-      return BadRequest();
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
+      return ValidationProblem();
     }
     var rolesEntity = await _userManager.GetRolesAsync(userEntity);
-    var roleToAdd = lgdxUserUpdateDto.Roles.Except(rolesEntity);
+    var roleToAdd = lgdxUserUpdateAdminDto.Roles.Except(rolesEntity);
     result = await _userManager.AddToRolesAsync(userEntity, roleToAdd);
     if (!result.Succeeded)
     {
-      return BadRequest();
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
+      return ValidationProblem();
     }
-    var roleToRemove = rolesEntity.Except(lgdxUserUpdateDto.Roles);
+    var roleToRemove = rolesEntity.Except(lgdxUserUpdateAdminDto.Roles);
     result = await _userManager.RemoveFromRolesAsync(userEntity, roleToRemove);
     if (!result.Succeeded)
     {
-      return BadRequest();
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
+      return ValidationProblem();
     }
     return NoContent();
   }
 
   [HttpPatch("{id}/unlock")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> UnlockUser(Guid id)
   {
     var user = await _userManager.FindByIdAsync(id.ToString());
@@ -138,12 +169,19 @@ public class UsersController(
     var result = await _userManager.UpdateAsync(user);
     if (!result.Succeeded)
     {
-      return BadRequest();
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
+      return ValidationProblem();
     }
     return NoContent();
   }
 
   [HttpDelete("{id}")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> DeleteUser(Guid id)
   {
     var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -154,12 +192,17 @@ public class UsersController(
     }
     if (user.Id == userId)
     {
-      return BadRequest("Cannot delete yourself.");
+      ModelState.AddModelError(nameof(id), "Cannot delete yourself.");
+      return ValidationProblem();
     }
     var result = await _userManager.DeleteAsync(user);
     if (!result.Succeeded)
     {
-      return BadRequest();
+      foreach (var error in result.Errors)
+      {
+        ModelState.AddModelError(error.Code, error.Description);
+      }
+      return ValidationProblem();
     }
     return NoContent();
   }

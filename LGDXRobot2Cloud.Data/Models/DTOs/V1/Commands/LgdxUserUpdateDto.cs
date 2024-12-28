@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
-public class LgdxUserUpdateDto
+public record LgdxUserUpdateDto
 {
   [Required]
   public required string Name { get; set; }

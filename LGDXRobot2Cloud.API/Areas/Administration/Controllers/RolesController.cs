@@ -107,7 +107,7 @@ public sealed class RolesController(
   {
     if (IsSystemRole(id))
     {
-      ModelState.AddModelError(nameof(LgdxRoleCreateDto), "Cannot update system role.");
+      ModelState.AddModelError(nameof(LgdxRoleUpdateDto), "Cannot update system role.");
       return ValidationProblem();
     }
     var roleEntity = await _roleManager.FindByIdAsync(id.ToString());
@@ -133,7 +133,7 @@ public sealed class RolesController(
       bool addResult = await _lgdxRoleRepository.AddRoleScopesAsync(roleEntity, scopeToAdd!);
       if (!addResult)
       {
-        ModelState.AddModelError(nameof(LgdxRoleCreateDto.Scopes), "Cannot update role with scopes.");
+        ModelState.AddModelError(nameof(LgdxRoleUpdateDto.Scopes), "Cannot update role with scopes.");
         return ValidationProblem();
       }
     }
@@ -143,7 +143,7 @@ public sealed class RolesController(
       bool removeResult = await _lgdxRoleRepository.RemoveRoleScopesAsync(roleEntity, scopeToRemove!);
       if (!removeResult)
       {
-        ModelState.AddModelError(nameof(LgdxRoleCreateDto.Scopes), "Cannot update role with scopes.");
+        ModelState.AddModelError(nameof(LgdxRoleUpdateDto.Scopes), "Cannot update role with scopes.");
         return ValidationProblem();
       }
     }
@@ -158,7 +158,7 @@ public sealed class RolesController(
   {
     if (IsSystemRole(id))
     {
-      ModelState.AddModelError(nameof(LgdxRoleCreateDto), "Cannot delete system role.");
+      ModelState.AddModelError(nameof(id), "Cannot delete system role.");
       return ValidationProblem();
     }
     var roleEntity = await _roleManager.FindByIdAsync(id.ToString());
