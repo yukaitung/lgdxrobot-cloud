@@ -32,7 +32,7 @@ public sealed class UserService(
         var lgdxUserDto = JsonSerializer.Deserialize<LgdxUserDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<LgdxUserDto> {
           Data = lgdxUserDto,
-          IsSuccess = true
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else
@@ -55,8 +55,8 @@ public sealed class UserService(
       if (response.IsSuccessStatusCode)
       {
         return new ApiResponse<bool> {
-          Data = true,
-          IsSuccess = true
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -64,7 +64,7 @@ public sealed class UserService(
         var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<bool> {
           Errors = validationProblemDetails?.Errors,
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else
@@ -88,7 +88,7 @@ public sealed class UserService(
       {
         return new ApiResponse<bool> {
           Data = true,
-          IsSuccess = true
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -96,7 +96,7 @@ public sealed class UserService(
         var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<bool> {
           Errors = validationProblemDetails?.Errors,
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else

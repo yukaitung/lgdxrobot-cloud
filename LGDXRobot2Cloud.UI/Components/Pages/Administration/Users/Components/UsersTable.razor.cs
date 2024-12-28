@@ -3,7 +3,7 @@ using LGDXRobot2Cloud.UI.Components.Shared.Table;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Setting.Users.Components;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.Users.Components;
 
 public sealed partial class UsersTable : AbstractTable
 {

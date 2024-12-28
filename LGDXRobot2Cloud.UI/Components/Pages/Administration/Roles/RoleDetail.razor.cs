@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.Roles;
 
-public sealed partial class RolesDetail : ComponentBase
+public sealed partial class RoleDetail : ComponentBase
 {
   [Inject]
   public NavigationManager NavigationManager { get; set; } = default!;
@@ -34,7 +34,7 @@ public sealed partial class RolesDetail : ComponentBase
 
   public void ListRemoveScope(int i)
   {
-    if (RolesDetailViewModel.Scopes.Count <= 1)
+    if (RolesDetailViewModel.Scopes.Count <= 0)
       return;
     RolesDetailViewModel.Scopes.RemoveAt(i);
   }

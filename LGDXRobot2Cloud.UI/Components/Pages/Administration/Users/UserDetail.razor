@@ -100,7 +100,7 @@
                     <td>
                       <button type="button"
                         class="btn btn-ghost-danger btn-icon @(UserDetailViewModel.Roles.Count <= 1 ? "disabled" : "")"
-                        @onclick="e => TaskRemoveStep(index)">
+                        @onclick="e => ListRemoveRole(index)">
                         <i class="ti ti-trash" style="font-size: 16px;"></i>
                       </button>
                     </td>
@@ -109,8 +109,8 @@
               </tbody>
             </table>
             <div class="row">
-              <button type="button" class="btn btn-secondary w-8 mx-auto mb-3" @onclick="TaskAddStep">
-                Add A Role
+              <button type="button" class="btn btn-secondary w-8 mx-auto mb-3" @onclick="ListAddRole">
+                Add Role
               </button>
             </div>
           </div>

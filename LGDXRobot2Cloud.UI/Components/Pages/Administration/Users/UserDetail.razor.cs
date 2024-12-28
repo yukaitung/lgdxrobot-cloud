@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Setting.Users;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.Users;
 
 public sealed partial class UserDetail : ComponentBase, IDisposable
 {
@@ -72,12 +72,12 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
     }
   }
 
-  public void TaskAddStep()
+  public void ListAddRole()
   {
     UserDetailViewModel.Roles.Add(string.Empty);
   }
 
-  public async Task TaskRemoveStep(int i)
+  public async Task ListRemoveRole(int i)
   {
     if (UserDetailViewModel.Roles.Count <= 1)
       return;

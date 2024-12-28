@@ -39,7 +39,7 @@ public sealed class RolesService(
         var roles = await JsonSerializer.DeserializeAsync<IEnumerable<LgdxRoleDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<(IEnumerable<LgdxRoleDto>?, PaginationHelper?)> {
           Data = (roles, PaginationHelper),
-          IsSuccess = true
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else
@@ -63,7 +63,7 @@ public sealed class RolesService(
         var role = await JsonSerializer.DeserializeAsync<LgdxRoleDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<LgdxRoleDto> {
           Data = role,
-          IsSuccess = true
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else if (response.StatusCode == HttpStatusCode.NotFound)
@@ -72,7 +72,7 @@ public sealed class RolesService(
           Errors = new Dictionary<string, string[]> {
             { "Api", ["The role does not exist."] }
           },
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else
@@ -95,8 +95,8 @@ public sealed class RolesService(
       if (response.IsSuccessStatusCode)
       {
         return new ApiResponse<bool> {
-          Data = true,
-          IsSuccess = true
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -104,7 +104,7 @@ public sealed class RolesService(
         var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<bool> {
           Errors = validationProblemDetails?.Errors,
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else
@@ -127,8 +127,8 @@ public sealed class RolesService(
       if (response.IsSuccessStatusCode)
       {
         return new ApiResponse<bool> {
-          Data = true,
-          IsSuccess = true
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else if (response.StatusCode == HttpStatusCode.NotFound)
@@ -137,7 +137,7 @@ public sealed class RolesService(
           Errors = new Dictionary<string, string[]> {
             { "Api", ["The role does not exist."] }
           },
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -145,7 +145,7 @@ public sealed class RolesService(
         var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<bool> {
           Errors = validationProblemDetails?.Errors,
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else
@@ -167,8 +167,8 @@ public sealed class RolesService(
       if (response.IsSuccessStatusCode)
       {
         return new ApiResponse<bool> {
-          Data = true,
-          IsSuccess = true
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else if (response.StatusCode == HttpStatusCode.NotFound)
@@ -177,7 +177,7 @@ public sealed class RolesService(
           Errors = new Dictionary<string, string[]> {
             { "Api", ["The role does not exist."] }
           },
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -185,7 +185,7 @@ public sealed class RolesService(
         var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<bool> {
           Errors = validationProblemDetails?.Errors,
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else
@@ -209,7 +209,7 @@ public sealed class RolesService(
       {
         return new ApiResponse<string> {
           Data = await response.Content.ReadAsStringAsync(),
-          IsSuccess = true
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else

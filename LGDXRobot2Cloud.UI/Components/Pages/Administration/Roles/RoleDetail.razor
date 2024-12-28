@@ -80,7 +80,7 @@
                     </td>
                     <td>
                       <button type="button"
-                        class="btn btn-ghost-danger btn-icon @(RolesDetailViewModel.Scopes.Count <= 1 ? "disabled" : "")"
+                        class="btn btn-ghost-danger btn-icon @(RolesDetailViewModel.Scopes.Count <= 0 ? "disabled" : "")"
                         @onclick="e => ListRemoveScope(index)">
                         <i class="ti ti-trash" style="font-size: 16px;"></i>
                       </button>
@@ -91,7 +91,7 @@
             </table>
             <div class="row">
               <button type="button" class="btn btn-secondary w-8 mx-auto mb-3" @onclick="ListAddScope">
-                Add A Scope
+                Add Scope
               </button>
             </div>
           </div>

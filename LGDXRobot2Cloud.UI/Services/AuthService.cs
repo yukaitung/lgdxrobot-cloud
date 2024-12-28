@@ -47,8 +47,8 @@ public sealed class AuthService : IAuthService
         var authProperties = new AuthenticationProperties{};
         await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user, authProperties);
         return new ApiResponse<bool> {
-          Data = true,
-          IsSuccess = true
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -56,7 +56,7 @@ public sealed class AuthService : IAuthService
         var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<bool> {
           Errors = validationProblemDetails?.Errors,
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else
@@ -79,8 +79,8 @@ public sealed class AuthService : IAuthService
       if (response.IsSuccessStatusCode)
       {
         return new ApiResponse<bool> {
-          Data = true,
-          IsSuccess = true
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else
@@ -103,8 +103,8 @@ public sealed class AuthService : IAuthService
       if (response.IsSuccessStatusCode)
       {
         return new ApiResponse<bool> {
-          Data = true,
-          IsSuccess = true
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -112,7 +112,7 @@ public sealed class AuthService : IAuthService
         var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<bool> {
           Errors = validationProblemDetails?.Errors,
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else

@@ -14,8 +14,8 @@ public interface IUsersService
 {
   Task<ApiResponse<(IEnumerable<LgdxUserListDto>?, PaginationHelper?)>> GetUsersAsync(string? name = null, int pageNum = 1, int pageSize = 10);
   Task<ApiResponse<LgdxUserDto>> GetUserAsync(string userId);
-  Task<ApiResponse<bool>> AddUserAsync(LgdxUserCreateAdminDto user);
-  Task<ApiResponse<bool>> UpdateUserAsync(string userId, LgdxUserUpdateAdminDto user);
+  Task<ApiResponse<bool>> AddUserAsync(LgdxUserCreateAdminDto lgdxUserCreateAdminDto);
+  Task<ApiResponse<bool>> UpdateUserAsync(string userId, LgdxUserUpdateAdminDto lgdxUserUpdateAdminDto);
   Task<ApiResponse<bool>> DeleteUserAsync(string userId);
 }
 
@@ -75,11 +75,11 @@ public sealed class UsersService(
     }
   }
 
-  public async Task<ApiResponse<bool>> AddUserAsync(LgdxUserCreateAdminDto user)
+  public async Task<ApiResponse<bool>> AddUserAsync(LgdxUserCreateAdminDto lgdxUserCreateAdminDto)
   {
     try
     {
-      var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+      var content = new StringContent(JsonSerializer.Serialize(lgdxUserCreateAdminDto), Encoding.UTF8, "application/json");
       var response = await _httpClient.PostAsync("Administration/Users", content);
       if (response.IsSuccessStatusCode)
       {
@@ -107,11 +107,11 @@ public sealed class UsersService(
     }
   }
 
-  public async Task<ApiResponse<bool>> UpdateUserAsync(string userId, LgdxUserUpdateAdminDto user)
+  public async Task<ApiResponse<bool>> UpdateUserAsync(string userId, LgdxUserUpdateAdminDto lgdxUserUpdateAdminDto)
   {
     try
     {
-      var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+      var content = new StringContent(JsonSerializer.Serialize(lgdxUserUpdateAdminDto), Encoding.UTF8, "application/json");
       var response = await _httpClient.PutAsync($"Administration/Users/{userId}", content);
       if (response.IsSuccessStatusCode)
       {
@@ -125,7 +125,7 @@ public sealed class UsersService(
         var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         return new ApiResponse<bool> {
           Errors = validationProblemDetails?.Errors,
-          IsSuccess = false
+          IsSuccess = response.IsSuccessStatusCode
         };
       }
       else
