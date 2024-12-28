@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
-public interface IRolesService
+public interface IRoleService
 {
   Task<ApiResponse<(IEnumerable<LgdxRoleDto>?, PaginationHelper?)>> GetRolesAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
   Task<ApiResponse<LgdxRoleDto>> GetRoleAsync(string id);
@@ -20,10 +20,10 @@ public interface IRolesService
   Task<ApiResponse<string>> SearchRolesAsync(string name);
 }
 
-public sealed class RolesService(
+public sealed class RoleService(
     AuthenticationStateProvider authenticationStateProvider, 
     HttpClient httpClient
-  ) : BaseService(authenticationStateProvider, httpClient), IRolesService
+  ) : BaseService(authenticationStateProvider, httpClient), IRoleService
 {
   public async Task<ApiResponse<(IEnumerable<LgdxRoleDto>?, PaginationHelper?)>> GetRolesAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {

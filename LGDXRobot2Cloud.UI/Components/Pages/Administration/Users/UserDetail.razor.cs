@@ -19,7 +19,7 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
   public required IUsersService UsersService { get; set; }
 
   [Inject]
-  public required IRolesService RolesService { get; set; }
+  public required IRoleService RoleService { get; set; }
 
   [Inject]
   public required IMapper Mapper { get; set; }
@@ -50,7 +50,7 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
     string element = elementId[..(index + 1)];
     if (element == AdvanceSelectElements[0])
     {
-      var result = await RolesService.SearchRolesAsync(name);
+      var result = await RoleService.SearchRolesAsync(name);
       var str = result.Data;
       await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, str);
     }

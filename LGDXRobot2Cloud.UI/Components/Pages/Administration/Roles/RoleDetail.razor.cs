@@ -15,7 +15,7 @@ public sealed partial class RoleDetail : ComponentBase
   public NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
-  public required IRolesService RolesService { get; set; }
+  public required IRoleService RoleService { get; set; }
 
   [Inject]
   public required IMapper Mapper { get; set; }
@@ -45,12 +45,12 @@ public sealed partial class RoleDetail : ComponentBase
     if (Id != null)
     {
       // Update
-      response = await RolesService.UpdateRoleAsync(Id, Mapper.Map<LgdxRoleUpdateDto>(RolesDetailViewModel));
+      response = await RoleService.UpdateRoleAsync(Id, Mapper.Map<LgdxRoleUpdateDto>(RolesDetailViewModel));
     }
     else
     {
       // Create
-      response = await RolesService.AddRoleAsync(Mapper.Map<LgdxRoleCreateDto>(RolesDetailViewModel));
+      response = await RoleService.AddRoleAsync(Mapper.Map<LgdxRoleCreateDto>(RolesDetailViewModel));
     }
     if (response.IsSuccess)
       NavigationManager.NavigateTo(AppRoutes.Setting.Roles.Index);
@@ -62,7 +62,7 @@ public sealed partial class RoleDetail : ComponentBase
   {
     if (Id != null)
     {
-      var response = await RolesService.DeleteRoleAsync(Id);
+      var response = await RoleService.DeleteRoleAsync(Id);
       if (response.IsSuccess)
         NavigationManager.NavigateTo(AppRoutes.Setting.Roles.Index);
       else
@@ -75,7 +75,7 @@ public sealed partial class RoleDetail : ComponentBase
     parameters.SetParameterProperties(this);
     if (parameters.TryGetValue<string?>(nameof(Id), out var _id) && _id != null)
     {
-      var response = await RolesService.GetRoleAsync(_id);
+      var response = await RoleService.GetRoleAsync(_id);
       var user = response.Data;
       if (user != null) 
       {

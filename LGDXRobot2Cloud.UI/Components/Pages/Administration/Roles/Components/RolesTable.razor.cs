@@ -8,7 +8,7 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.Roles.Components;
 public sealed partial class RolesTable : AbstractTable
 {
   [Inject]
-  public required IRolesService RolesService { get; set; }
+  public required IRoleService RoleService { get; set; }
 
   private List<LgdxRoleDto>? LgdxRoles { get; set; }
   
@@ -19,7 +19,7 @@ public sealed partial class RolesTable : AbstractTable
       PageSize = 100;
     else if (PageSize < 1)
       PageSize = 1;
-    var data = await RolesService.GetRolesAsync(DataSearch, 1, PageSize);
+    var data = await RoleService.GetRolesAsync(DataSearch, 1, PageSize);
     LgdxRoles = data.Data.Item1?.ToList();
     PaginationHelper = data.Data.Item2;
   }
@@ -28,7 +28,7 @@ public sealed partial class RolesTable : AbstractTable
   {
     if (LastDataSearch == DataSearch)
       return;
-    var data = await RolesService.GetRolesAsync(DataSearch, 1, PageSize);
+    var data = await RoleService.GetRolesAsync(DataSearch, 1, PageSize);
     LgdxRoles = data.Data.Item1?.ToList();
     PaginationHelper = data.Data.Item2;
     LastDataSearch = DataSearch;
@@ -49,7 +49,7 @@ public sealed partial class RolesTable : AbstractTable
     CurrentPage = pageNum;
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
-    var data = await RolesService.GetRolesAsync(DataSearch, pageNum, PageSize);
+    var data = await RoleService.GetRolesAsync(DataSearch, pageNum, PageSize);
     LgdxRoles = data.Data.Item1?.ToList();
     PaginationHelper = data.Data.Item2;
   }
@@ -58,7 +58,7 @@ public sealed partial class RolesTable : AbstractTable
   {
     if (deleteOpt && CurrentPage > 1 && LgdxRoles?.Count == 1)
       CurrentPage--;
-    var data = await RolesService.GetRolesAsync(DataSearch, CurrentPage, PageSize);
+    var data = await RoleService.GetRolesAsync(DataSearch, CurrentPage, PageSize);
     LgdxRoles = data.Data.Item1?.ToList();
     PaginationHelper = data.Data.Item2;
   }
