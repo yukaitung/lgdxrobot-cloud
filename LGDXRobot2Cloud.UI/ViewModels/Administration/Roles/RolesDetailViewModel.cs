@@ -3,7 +3,7 @@ using LGDXRobot2Cloud.UI.ViewModels.Shared;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Administration.Roles;
 
-public sealed class RolesDetailViewModel : FormViewModel
+public sealed class RolesDetailViewModel : FormViewModel, IValidatableObject
 {
   public Guid Id { get; set; }
   
@@ -13,4 +13,17 @@ public sealed class RolesDetailViewModel : FormViewModel
   public string? Description { get; set; }
 
   public List<string> Scopes { get; set; } = [];
+
+  public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+  {
+    int i = 0;
+    foreach (var scope in Scopes)
+    {
+      if (string.IsNullOrWhiteSpace(scope))
+      {
+        yield return new ValidationResult($"Scope is required.", [$"{nameof(Scopes)}-{i}"]);
+      }
+      i++;
+    }
+  }
 }

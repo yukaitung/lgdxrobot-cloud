@@ -1,0 +1,22 @@
+@if (Errors != null && Errors.Any())
+{
+  <div class="alert alert-warning" role="alert">
+    <div class="d-flex">
+      <i class="me-2 ti ti-exclamation-circle" style="font-size: 22px;"></i>
+      <div>
+        A few things need fixing before submission.
+        <ul class="mb-0 mt-1">
+          @foreach (string error in Errors)
+          {
+            <li>@(error)</li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  [Parameter]
+  public IEnumerable<string>? Errors { get; set; }
+}

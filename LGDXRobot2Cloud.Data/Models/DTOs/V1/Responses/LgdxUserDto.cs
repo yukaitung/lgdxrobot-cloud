@@ -1,6 +1,6 @@
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 
-public class LgdxUserDto
+public record LgdxUserDto
 {
   public required Guid Id { get; set; }
 

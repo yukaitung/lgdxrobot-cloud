@@ -1,6 +1,6 @@
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 
-public sealed record LgdxRoleListDto
+public record LgdxRoleListDto
 {
   public required Guid Id { get; set; } 
 

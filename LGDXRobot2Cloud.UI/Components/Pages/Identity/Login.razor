@@ -17,7 +17,7 @@
         <h2 class="h2 text-center mb-4">Welcome</h2>
         <EditForm EditContext="_editContext" method="post" OnValidSubmit="HandleLogin" FormName="Login">
           <DataAnnotationsValidator />
-          <ApiErrorModal Errors="LoginViewModel.Errors" />
+          <ApiErrorAlert Errors="LoginViewModel.Errors" />
           <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
           <div class="mb-3">
             <label class="form-label" for="@nameof(LoginViewModel.Username)">Username</label>

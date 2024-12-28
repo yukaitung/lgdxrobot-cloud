@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Identity;
 
-public class ResetPasswordViewModel : IValidatableObject
+public sealed class ResetPasswordViewModel : IValidatableObject
 {
   public string Email = null!;
 
@@ -18,7 +18,7 @@ public class ResetPasswordViewModel : IValidatableObject
 
 	public bool IsSuccess { get; set; } = false;
 
-  public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+  public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
   {
     if (NewPassword != ConfirmPassword)
     {

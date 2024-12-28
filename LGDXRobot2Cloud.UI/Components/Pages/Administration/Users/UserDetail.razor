@@ -26,8 +26,8 @@
     <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
       <DataAnnotationsValidator />
       <div class="card-body">
-        <ApiErrorModal Errors="@UserDetailViewModel.Errors" />
-        <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+        <ApiErrorAlert Errors="@UserDetailViewModel.Errors" />
+        <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
         @if (Id != null)
         {
           <div class="mb-3 row">
