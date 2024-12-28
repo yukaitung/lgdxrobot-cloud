@@ -6,9 +6,9 @@ using LGDXRobot2Cloud.UI.ViewModels.Identity;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Identity;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Identity.ForgotPassword;
 
-public sealed partial class ForgetPassword : ComponentBase
+public sealed partial class ForgotPassword : ComponentBase
 {
   [Inject] 
   public required IAuthService AuthService { get; set; }

@@ -20,8 +20,8 @@ public sealed partial class UserDetail : ComponentBase
   private UserDetailViewModel UserDetailViewModel { get; set; } = new();
   private UserDetailPasswordViewModel UserDetailPasswordViewModel { get; set; } = new();
   private EditContext _editContext = null!;
-  private EditContext _editContextPassword = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
+  private EditContext _editContextPassword = null!;
 
   public async Task HandleValidSubmit()
   {
@@ -58,9 +58,9 @@ public sealed partial class UserDetail : ComponentBase
     _editContextPassword = new EditContext(UserDetailPasswordViewModel);
     _editContextPassword.SetFieldCssClassProvider(_customFieldClassProvider);
     _editContext = new EditContext(UserDetailViewModel); // This must go first
-    _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
     var response = await UserService.GetUserAsync();
     UserDetailViewModel = Mapper.Map<UserDetailViewModel>(response.Data);
     _editContext = new EditContext(UserDetailViewModel);
+    _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
   }
 }

@@ -8,7 +8,7 @@ using LGDXRobot2Cloud.UI.ViewModels.Identity;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Identity;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Identity.ResetPassword;
 
 public sealed partial class ResetPassword : ComponentBase
 {

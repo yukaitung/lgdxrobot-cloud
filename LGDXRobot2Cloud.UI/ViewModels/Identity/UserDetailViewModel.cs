@@ -13,6 +13,7 @@ public sealed class UserDetailViewModel : FormViewModel
   public string UserName { get; set; } = null!;
 
   [Required (ErrorMessage = "Please enter a email.")]
+  [EmailAddress (ErrorMessage = "Please enter a valid email.")]
   public string Email { get; set; } = null!;
 
   public List<string> Roles { get; set; } = [];

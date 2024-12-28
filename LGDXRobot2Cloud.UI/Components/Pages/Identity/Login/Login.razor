@@ -18,7 +18,7 @@
         <EditForm EditContext="_editContext" method="post" OnValidSubmit="HandleLogin" FormName="Login">
           <DataAnnotationsValidator />
           <ApiErrorAlert Errors="LoginViewModel.Errors" />
-          <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+          <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
           <div class="mb-3">
             <label class="form-label" for="@nameof(LoginViewModel.Username)">Username</label>
             <InputText id="@nameof(LoginViewModel.Username)" class="form-control" type="text" @bind-Value="LoginViewModel.Username" />

@@ -30,7 +30,7 @@
           <div class="card-body">
             <FormSubmissionSuccessAlert Display="UserDetailViewModel.IsSuccess" />
             <ApiErrorAlert Errors="UserDetailViewModel.Errors" />
-            <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+            <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
             <div class="mb-3 row">
               <label class="col-3 col-form-label">ID</label>
               <div class="col">
@@ -103,7 +103,7 @@
           <div class="card-body">
             <FormSubmissionSuccessAlert Display="UserDetailPasswordViewModel.IsSuccess" />
             <ApiErrorAlert Errors="UserDetailPasswordViewModel.Errors" />
-            <ValidationErrorModal Display="@_editContextPassword.GetValidationMessages().Any()" />
+            <FormValidationErrorAlert Errors="@_editContextPassword.GetValidationMessages()" />
             <div class="mb-3 row">
               <label class="col-3 col-form-label required" for="@nameof(UserDetailPasswordViewModel.CurrentPassword)">Current Password</label>
               <div class="col">

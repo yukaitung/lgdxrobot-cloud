@@ -6,7 +6,7 @@ using LGDXRobot2Cloud.UI.ViewModels.Identity;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Identity;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Identity.Login;
 
 public sealed partial class Login : ComponentBase
 {
