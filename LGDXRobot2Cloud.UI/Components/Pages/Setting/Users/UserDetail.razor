@@ -26,45 +26,45 @@
     <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
       <DataAnnotationsValidator />
       <div class="card-body">
-        <SubmitErrorModal Display="@IsError" />
+        <ApiErrorModal Errors="@UserDetailViewModel.Errors" />
         <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
         @if (Id != null)
         {
           <div class="mb-3 row">
             <label class="col-3 col-form-label">ID</label>
             <div class="col">
-              <div class="col form-control-plaintext">@User.Id</div>
+              <div class="col form-control-plaintext">@UserDetailViewModel.Id</div>
             </div>
           </div>
         }
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="UserName">Username</label>
+          <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.UserName)">Username</label>
           <div class="col">
-            <InputText id="UserName" @bind-Value="User.UserName" type="text" class="form-control" />
-            <ValidationMessage class="invalid-feedback" For="@(() => User.UserName)" />
+            <InputText id="@nameof(UserDetailViewModel.UserName)" type="text" class="form-control" @bind-Value="UserDetailViewModel.UserName"/>
+            <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.UserName)" />
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="Name">Full Name</label>
+          <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Name)">Full Name</label>
           <div class="col">
-            <InputText id="Name" @bind-Value="User.Name" type="text" class="form-control" />
-            <ValidationMessage class="invalid-feedback" For="@(() => User.Name)" />
+            <InputText id="@nameof(UserDetailViewModel.Name)" type="text" class="form-control" @bind-Value="UserDetailViewModel.Name" />
+            <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Name)" />
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="Email">Email</label>
+          <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Email)">Email</label>
           <div class="col">
-            <InputText id="Email" @bind-Value="User.Email" type="text" class="form-control" />
-            <ValidationMessage class="invalid-feedback" For="@(() => User.Email)" />
+            <InputText id="@nameof(UserDetailViewModel.Email)" type="text" class="form-control" @bind-Value="UserDetailViewModel.Email" />
+            <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Email)" />
           </div>
         </div>
         @if (Id == null)
         {
           <div class="mb-3 row">
-            <label class="col-3 col-form-label" for="Password">Password</label>
+            <label class="col-3 col-form-label" for="@nameof(UserDetailViewModel.Password)">Password</label>
             <div class="col">
-              <InputText id="Password" @bind-Value="User.Password" type="password" class="form-control" />
-              <ValidationMessage class="invalid-feedback" For="@(() => User.Password)" />
+              <InputText id="@nameof(UserDetailViewModel.Password)"t ype="password" class="form-control" @bind-Value="UserDetailViewModel.Password" />
+              <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Password)" />
               <small class="form-hint">
                 The user can set the password from email.
               </small>
@@ -72,7 +72,7 @@
           </div>
         }
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="Roles">Roles</label>
+          <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Roles)">Roles</label>
           <div class="col">
             <table class="table table-vcenter text-nowrap datatable">
               <thead>
@@ -83,10 +83,10 @@
                 </tr>
               </thead>
               <tbody>
-                @for (int i = 0; i < User.Roles.Count; i++)
+                @for (int i = 0; i < UserDetailViewModel.Roles.Count; i++)
                 {
                   var index = i;
-                  var roleName = User.Roles[i];
+                  var roleName = UserDetailViewModel.Roles[i];
                   <tr>
                     <td>
                         @(index + 1)
@@ -99,7 +99,7 @@
                     </td>
                     <td>
                       <button type="button"
-                        class="btn btn-ghost-danger btn-icon @(User.Roles.Count <= 1 ? "disabled" : "")"
+                        class="btn btn-ghost-danger btn-icon @(UserDetailViewModel.Roles.Count <= 1 ? "disabled" : "")"
                         @onclick="e => TaskRemoveStep(index)">
                         <i class="ti ti-trash" style="font-size: 16px;"></i>
                       </button>
@@ -120,7 +120,7 @@
           <div class="mb-3 row">
             <label class="col-3 col-form-label">Access Failed</label>
             <div class="col">
-              <div class="col form-control-plaintext">@User.AccessFailedCount</div>
+              <div class="col form-control-plaintext">@UserDetailViewModel.AccessFailedCount</div>
             </div>
           </div>
         }

@@ -3,9 +3,9 @@ using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.ViewModels.Identity;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Identity.User;
 

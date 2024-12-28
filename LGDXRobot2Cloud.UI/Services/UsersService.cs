@@ -1,7 +1,10 @@
-using LGDXRobot2Cloud.Data.Models.Identity;
-using LGDXRobot2Cloud.UI.Models;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -9,58 +12,162 @@ namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IUsersService
 {
-  Task<(IEnumerable<LgdxUser>?, PaginationHelper?)> GetUsersAsync(string? name = null, int pageNum = 1, int pageSize = 10);
-  Task<LgdxUser?> GetUserAsync(string userId);
-  Task<bool> AddUserAsync(LgdxUserCreateDto user);
-  Task<bool> UpdateUserAsync(string userId, LgdxUserUpdateAdminDto user);
-  Task<bool> DeleteUserAsync(string userId);
+  Task<ApiResponse<(IEnumerable<LgdxUserListDto>?, PaginationHelper?)>> GetUsersAsync(string? name = null, int pageNum = 1, int pageSize = 10);
+  Task<ApiResponse<LgdxUserDto>> GetUserAsync(string userId);
+  Task<ApiResponse<bool>> AddUserAsync(LgdxUserCreateAdminDto user);
+  Task<ApiResponse<bool>> UpdateUserAsync(string userId, LgdxUserUpdateAdminDto user);
+  Task<ApiResponse<bool>> DeleteUserAsync(string userId);
 }
 
 public sealed class UsersService(
-  AuthenticationStateProvider authenticationStateProvider, 
-  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IUsersService
+    AuthenticationStateProvider authenticationStateProvider, 
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IUsersService
 {
-  public async Task<(IEnumerable<LgdxUser>?, PaginationHelper?)> GetUsersAsync(string? name = null, int pageNum = 1, int pageSize = 10)
+  public async Task<ApiResponse<(IEnumerable<LgdxUserListDto>?, PaginationHelper?)>> GetUsersAsync(string? name = null, int pageNum = 1, int pageSize = 10)
   {
-    var url = name != null ? $"Identity/Users?name={name}&pageNumber={pageNum}&pageSize={pageSize}" : $"Identity/Users?pageNumber={pageNum}&pageSize={pageSize}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var users = JsonSerializer.Deserialize<IEnumerable<LgdxUser>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (users, PaginationHelper);
+      var url = name != null ? $"Administration/Users?name={name}&pageNumber={pageNum}&pageSize={pageSize}" : $"Administration/Users?pageNumber={pageNum}&pageSize={pageSize}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+        var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
+        var users = JsonSerializer.Deserialize<IEnumerable<LgdxUserListDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<(IEnumerable<LgdxUserListDto>?, PaginationHelper?)> {
+          Data = (users, PaginationHelper),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 
-  public async Task<LgdxUser?> GetUserAsync(string userId)
+  public async Task<ApiResponse<LgdxUserDto>> GetUserAsync(string userId)
   {
-    var response = await _httpClient.GetAsync($"Identity/Users/{userId}");
-    var user = JsonSerializer.Deserialize<LgdxUser>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    return user;
+    try
+    {
+      var response = await _httpClient.GetAsync($"Administration/Users/{userId}");
+      var user = JsonSerializer.Deserialize<LgdxUserDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<LgdxUserDto> {
+          Data = user,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 
-  public async Task<bool> AddUserAsync(LgdxUserCreateDto user)
+  public async Task<ApiResponse<bool>> AddUserAsync(LgdxUserCreateAdminDto user)
   {
-    var userJson = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("Identity/Users", userJson);
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync("Administration/Users", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = true,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 
-  public async Task<bool> UpdateUserAsync(string userId, LgdxUserUpdateAdminDto user)
+  public async Task<ApiResponse<bool>> UpdateUserAsync(string userId, LgdxUserUpdateAdminDto user)
   {
-    var userJson = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PutAsync($"Identity/Users/{userId}", userJson);
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PutAsync($"Administration/Users/{userId}", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = true,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = false
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+    
   }
 
-  public async Task<bool> DeleteUserAsync(string userId)
+  public async Task<ApiResponse<bool>> DeleteUserAsync(string userId)
   {
-    var response = await _httpClient.DeleteAsync($"Identity/Users/{userId}");
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var response = await _httpClient.DeleteAsync($"Administration/Users/{userId}");
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = true,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 }
