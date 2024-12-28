@@ -196,7 +196,7 @@ builder.Services.AddScoped<IAutoTaskRepository, AutoTaskRepository>();
 builder.Services.AddScoped<IAutoTaskDetailRepository, AutoTaskDetailRepository>();
 builder.Services.AddScoped<ITriggerRepository, TriggerRepository>();
 builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();
-builder.Services.AddScoped<IMapRepository, MapRepository>();
+builder.Services.AddScoped<IRealmRepository, RealmRepository>();
 
 // Robot Repositories
 builder.Services.AddScoped<IRobotRepository, RobotRepository>();

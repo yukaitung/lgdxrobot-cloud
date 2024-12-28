@@ -1,11 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
-[Table("Navigation.Maps")]
-public class Map
+[Table("Navigation.Realms")]
+public class Realm
 {
   [Key]
   [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -31,9 +30,6 @@ public class Map
   [Required]
   public double OriginY { get; set; }
 
-  [Precision(3)]
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-  
-  [Precision(3)]
-  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+  [Required]
+  public double OriginRotation { get; set; }
 }

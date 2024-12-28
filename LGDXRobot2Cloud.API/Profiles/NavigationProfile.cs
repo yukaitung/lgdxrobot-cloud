@@ -1,4 +1,6 @@
 using AutoMapper;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using Entities = LGDXRobot2Cloud.Data.Entities;
 using Models = LGDXRobot2Cloud.Data.Models.DTOs;
 
@@ -40,12 +42,12 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Models.Commands.WaypointCreateDto, Entities.Waypoint>();
       CreateMap<Models.Commands.WaypointUpdateDto, Entities.Waypoint>();
       // Map
-      CreateMap<Entities.Map, Models.Responses.MapDto>()
+      CreateMap<Entities.Realm, RealmDto>()
         .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.ToBase64String(s.Image)));
-      CreateMap<Entities.Map, Models.Responses.MapListDto>();
-      CreateMap<Models.Commands.MapCreateDto, Entities.Map>()
+      CreateMap<Entities.Realm, RealmListDto>();
+      CreateMap<RealmCreateDto, Entities.Realm>()
         .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.FromBase64String(s.Image)));
-      CreateMap<Models.Commands.MapUpdateDto, Entities.Map>()
+      CreateMap<RealmUpdateDto, Entities.Realm>()
         .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.FromBase64String(s.Image)));
     }
   }

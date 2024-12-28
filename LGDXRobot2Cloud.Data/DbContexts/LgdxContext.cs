@@ -16,7 +16,7 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
   public DbSet<Progress> Progresses { get; set; }
   public DbSet<Trigger> Triggers { get; set; }
   public DbSet<Waypoint> Waypoints { get; set; }
-  public DbSet<Map> Maps { get; set; }
+  public DbSet<Realm> Realms { get; set; }
 
   // Robot
   public DbSet<Robot> Robots { get; set; }
