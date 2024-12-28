@@ -153,7 +153,7 @@ public class UsersController(
     return NoContent();
   }
 
-  [HttpPatch("{id}/unlock")]
+  [HttpPatch("{id}/Unlock")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]

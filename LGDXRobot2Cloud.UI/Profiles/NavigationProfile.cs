@@ -1,6 +1,9 @@
 using AutoMapper;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Models;
+using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 
 namespace LGDXRobot2Cloud.UI.Profiles
 {
@@ -28,8 +31,9 @@ namespace LGDXRobot2Cloud.UI.Profiles
       CreateMap<Waypoint, WaypointCreateDto>();
       CreateMap<Waypoint, WaypointUpdateDto>();
       // Maps
-      CreateMap<Map, MapCreateDto>();
-      CreateMap<Map, MapUpdateDto>();
+      CreateMap<RealmDetailViewModel, RealmCreateDto>();
+      CreateMap<RealmDetailViewModel, RealmUpdateDto>();
+      CreateMap<RealmDto, RealmDetailViewModel>();
     }
   }
 }

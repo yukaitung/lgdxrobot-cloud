@@ -3,7 +3,7 @@
 <div class="card">
   <!-- Header -->
   <div class="card-header">
-    <h3 class="card-title">Maps</h3>
+    <h3 class="card-title">Realms</h3>
   </div>
   <!-- Filter -->
   <div class="card-body border-bottom py-3">
@@ -43,26 +43,22 @@
           <th>Name</th>
           <th>Description</th>
           <th class="w-1">Resolution</th>
-          <th class="w-1">Create Time</th>
-          <th class="w-1">Last Update Time</th>
           <th class="w-1"><!-- Action --></th>
         </tr>
       </thead>
       <tbody>
-        @if (MapsList != null)
+        @if (Realms != null)
         {
-          @foreach (var Map in MapsList)
+          @foreach (var realm in Realms)
           {
-            var mapId = Map.Id;
+            var realmId = realm.Id;
             <tr>
-              <td>@Map.Id</td>
-              <td>@Map.Name</td>
-              <td>@Map.Description</td>
-              <td>@Map.Resolution</td>
-              <td>@Map.CreatedAt</td>
-              <td>@Map.UpdatedAt</td>
+              <td>@realm.Id</td>
+              <td>@realm.Name</td>
+              <td>@realm.Description</td>
+              <td>@realm.Resolution</td>
               <td class="text-end">
-                <a href="@(AppRoutes.Navigation.Maps.Index + $"/{mapId}")" class="page-link link-primary">Edit</a>
+                <a href="@(AppRoutes.Navigation.Maps.Index + $"/{realmId}")" class="page-link link-primary">Edit</a>
               </td>
             </tr>
           }
@@ -73,15 +69,15 @@
         }
       </tbody>
     </table>
-    @if (MapsList != null && MapsList.Count() == 0)
+    @if (Realms != null && Realms.Count() == 0)
     {
       <TableEmpty />
     }
   </div>
   <!-- Footer -->
-  @if (PaginationHelper != null && MapsList != null && MapsList.Count() > 0)
+  @if (PaginationHelper != null && Realms != null && Realms.Count() > 0)
   {
-    <TablePagination PaginationHelper="PaginationHelper" ItemCount="MapsList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="Realms.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

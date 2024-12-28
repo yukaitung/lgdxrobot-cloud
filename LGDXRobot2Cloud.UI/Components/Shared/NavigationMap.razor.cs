@@ -1,4 +1,6 @@
 using LGDXRobot2Cloud.Data.Contracts;
+using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -10,7 +12,7 @@ namespace LGDXRobot2Cloud.UI.Components.Shared;
 public sealed partial class NavigationMap : ComponentBase
 {
   [Inject]
-  public required IMapsService MapsService { get; set; }
+  public required IRealmService RealmService { get; set; }
 
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }
@@ -21,7 +23,7 @@ public sealed partial class NavigationMap : ComponentBase
   [Inject]
   public required IRobotDataService RobotDataService { get; set; }
 
-  private Map Map { get; set; } = null!;
+  private RealmDto Map { get; set; } = null!;
   private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = [];
 
   protected override async Task OnInitializedAsync() 
@@ -35,7 +37,8 @@ public sealed partial class NavigationMap : ComponentBase
         RobotsData.Add(robotId, robotData);
       }
     }
-    var map = await MapsService.GetDefaultMapAsync();
+    var response = await RealmService.GetDefaultRealmAsync();
+    var map = response.Data;
     if (map != null)
     {
       Map = map;

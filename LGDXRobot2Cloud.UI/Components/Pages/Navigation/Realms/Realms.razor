@@ -1,19 +1,19 @@
 @attribute [Route(AppRoutes.Navigation.Maps.Index)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Maps/Read")]
-@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Maps.Components
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Realms.Components
 @rendermode InteractiveServer
 
-<PageHeader Title="Maps">
+<PageHeader Title="Realms">
   <div class="row align-items-center">
     <div class="col">
       <h2 class="page-title">
-        Maps
+        Realms
       </h2>
     </div>
     <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Maps/Write">
       <div class="col-auto ms-auto">
         <a href="@AppRoutes.Navigation.Maps.Create" type="button" class="btn btn-primary">
-          Create Map
+          Create Realm
         </a>
       </div>
     </AuthorizeView>
@@ -21,5 +21,5 @@
 </PageHeader>
 
 <PageBody>
-  <MapsTable />
+  <RealmsTable />
 </PageBody>

@@ -1,0 +1,116 @@
+@attribute [Route(AppRoutes.Navigation.Maps.Create)]
+@attribute [Route(AppRoutes.Navigation.Maps.Detail)]
+@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Maps/Read")]
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Id != null ? "Edit Realm" : "Create Realm")">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Maps.Index">◀ Return</a></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        @(Id != null ? "Edit Realm" : "Create Realm")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Realm Detail</h3>
+    </div>
+    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+      <DataAnnotationsValidator />
+      <div class="card-body">
+        <ApiErrorAlert Errors="RealmDetailViewModel.Errors" />
+        <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">ID</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@RealmDetailViewModel.Id</div>
+            </div>
+          </div>
+        }
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.Name)">Name</label>
+          <div class="col">
+            <InputText id="@nameof(RealmDetailViewModel.Name)" type="text" class="form-control"  @bind-Value="RealmDetailViewModel.Name" />
+            <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.Name)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.Description)">Description</label>
+          <div class="col">
+            <InputTextArea id="@nameof(RealmDetailViewModel.Description)" class="form-control" rows="3" @bind-Value="RealmDetailViewModel.Description" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.SelectedImage)">Image</label>
+          <div class="col">
+            @if (RealmDetailViewModel.Image != null)
+            {
+              <img class="mx-auto d-block mb-2" src="data:image/png;base64, @RealmDetailViewModel.Image" />
+            }
+            <InputFile id="@nameof(RealmDetailViewModel.SelectedImage)" class="form-control" OnChange="LoadImage" accept=".png"/>
+            <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.SelectedImage)" />
+            <span class="form-check-description">The maximum file size is 8 MB, and only .png images are accepted.</span>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.Resolution)">Resolution (m)</label>
+          <div class="col">
+            <InputNumber id="@nameof(RealmDetailViewModel.Resolution)" type="number" step="any" class="form-control"  @bind-Value="RealmDetailViewModel.Resolution" />
+            <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.Resolution)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.OriginX)">Origin X (m)</label>
+          <div class="col">
+            <InputNumber id="@nameof(RealmDetailViewModel.OriginX)" type="number" step="any" class="form-control"  @bind-Value="RealmDetailViewModel.OriginX" />
+            <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.OriginX)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.OriginY)">Origin Y (m)</label>
+          <div class="col">
+            <InputNumber id="@nameof(RealmDetailViewModel.OriginY)" type="number" step="any" class="form-control" @bind-Value="RealmDetailViewModel.OriginY" />
+            <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.OriginY)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.OriginRotation)">Origin Rotation (rad)</label>
+          <div class="col">
+            <InputNumber id="@nameof(RealmDetailViewModel.OriginRotation)" type="number" step="any" class="form-control" @bind-Value="RealmDetailViewModel.OriginRotation" />
+            <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.OriginRotation)" />
+          </div>
+        </div>
+      </div>
+      <div class="card-footer d-flex">
+        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Waypoints/Delete" Context="Delete">
+          @if (Id != null)
+          {
+            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+              Delete
+            </a>
+          }
+        </AuthorizeView>
+        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Waypoints/Write" Context="Write">
+          <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+        </AuthorizeView>
+      </div>
+    </EditForm>
+  </div>
+</PageBody>
+
+<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Flows/Delete" Context="DeleteModal">
+  @if (Id != null)
+  {
+    <DeleteEntryModal EntryName="Realm" OnDelete="HandleDelete" />
+  }
+</AuthorizeView>
