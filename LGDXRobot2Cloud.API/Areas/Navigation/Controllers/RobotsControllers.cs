@@ -18,7 +18,7 @@ using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 namespace LGDXRobot2Cloud.API.Areas.Navigation.Controllers;
 
 [ApiController]
-[Area("Robot")]
+[Area("Navigation")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
@@ -64,6 +64,14 @@ public sealed class RobotsController(
     var (robots, PaginationHelper) = await _robotRepository.GetRobotsAsync(name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(_mapper.Map<IEnumerable<RobotListDto>>(robots));
+  }
+
+  [HttpGet("Search")]
+  [ProducesResponseType(typeof(IEnumerable<RobotSearchDto>), StatusCodes.Status200OK)]
+  public async Task<ActionResult<IEnumerable<RobotSearchDto>>> SearchRobots(string name)
+  {
+    var waypoints = await _robotRepository.SearchRobotsAsync(name);
+    return Ok(_mapper.Map<IEnumerable<RobotSearchDto>>(waypoints));
   }
 
   [HttpGet("{id}", Name = "GetRobot")]

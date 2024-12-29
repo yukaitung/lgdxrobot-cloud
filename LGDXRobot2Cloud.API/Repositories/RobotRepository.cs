@@ -14,6 +14,8 @@ public interface IRobotRepository
   Task AddRobotAsync(Robot robot);
   void DeleteRobot(Robot robot);
   Task<bool> SaveChangesAsync();
+
+  Task<IEnumerable<Robot>> SearchRobotsAsync(string name);
 }
 
 public class RobotRepository(LgdxContext context) : IRobotRepository
@@ -74,5 +76,17 @@ public class RobotRepository(LgdxContext context) : IRobotRepository
   public async Task<bool> SaveChangesAsync()
   {
     return await _context.SaveChangesAsync() >= 0;
+  }
+
+  public async Task<IEnumerable<Robot>> SearchRobotsAsync(string name)
+  {
+    if (string.IsNullOrWhiteSpace(name))
+    {
+      return await _context.Robots.AsNoTracking().Take(10).ToListAsync();
+    }
+    else
+    {
+      return await _context.Robots.AsNoTracking().Where(w => w.Name.Contains(name)).Take(10).ToListAsync();
+    }
   }
 }
