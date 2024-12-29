@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
-public class WaypointCreateDto
+public record WaypointCreateDto
 {
   [MaxLength(100)]
   [Required (ErrorMessage = "Please enter a name.")]

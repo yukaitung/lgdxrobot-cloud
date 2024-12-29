@@ -10,14 +10,10 @@ public class RobotClientsProfile : Profile
     CreateMap<Entities.RobotSystemInfo, Entities.RobotSystemInfo>()
       .ForMember(m => m.Id, opt => opt.Ignore())
       .ForMember(m => m.RobotId, opt => opt.Ignore())
-      .ForMember(m => m.Robot, opt => opt.Ignore())
-      .ForMember(m => m.CreatedAt, opt => opt.Ignore())
-      .ForMember(m => m.UpdatedAt, opt => opt.Ignore());
+      .ForMember(m => m.Robot, opt => opt.Ignore());
     CreateMap<Entities.RobotChassisInfo, Entities.RobotChassisInfo>()
       .ForMember(m => m.Id, opt => opt.Ignore())
       .ForMember(m => m.RobotId, opt => opt.Ignore())
-      .ForMember(m => m.Robot, opt => opt.Ignore())
-      .ForMember(m => m.CreatedAt, opt => opt.Ignore())
-      .ForMember(m => m.UpdatedAt, opt => opt.Ignore());
+      .ForMember(m => m.Robot, opt => opt.Ignore());
   }
 }

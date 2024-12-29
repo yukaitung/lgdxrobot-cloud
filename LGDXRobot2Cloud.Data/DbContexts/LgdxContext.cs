@@ -62,7 +62,7 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
       .IsRequired(false);
     // One Robot has one RobotCertificate
     modelBuilder.Entity<Robot>()
-      .HasOne(e => e.Certificate)
+      .HasOne(e => e.RobotCertificate)
       .WithOne(e => e.Robot)
       .HasForeignKey<RobotCertificate>(e => e.RobotId)
       .IsRequired();

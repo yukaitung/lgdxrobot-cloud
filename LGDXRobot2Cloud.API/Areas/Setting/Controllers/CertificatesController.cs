@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -73,7 +74,6 @@ public class CertificatesController(
     robotCertificateEntity.Thumbprint = certificates.RobotCertificateThumbprint;
     robotCertificateEntity.NotBefore = certificates.RobotCertificateNotBefore;
     robotCertificateEntity.NotAfter = certificates.RobotCertificateNotAfter;
-    robotCertificateEntity.UpdatedAt = DateTime.UtcNow;
     await _robotCertificateRepository.SaveChangesAsync();
 
     var robotEntity = await _robotRepository.GetRobotSimpleAsync(robotCertificateEntity.RobotId);

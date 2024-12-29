@@ -1,4 +1,5 @@
 using AutoMapper;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using Entities = LGDXRobot2Cloud.Data.Entities;
 using Models = LGDXRobot2Cloud.Data.Models.DTOs;
 
@@ -15,7 +16,7 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Entities.ApiKey, Models.Responses.ApiKeySecretDto>();
 
       CreateMap<Entities.RobotCertificate, Models.Responses.RobotCertificateListDto>();
-      CreateMap<Entities.RobotCertificate, Models.Responses.RobotCertificateDto>();
+      CreateMap<Entities.RobotCertificate, RobotCertificateDto>();
     }
   }
 }

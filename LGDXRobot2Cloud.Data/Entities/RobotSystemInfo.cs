@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
-[Table("Robot.RobotSystemInfos")]
+[Table("Navigation.RobotSystemInfos")]
 public class RobotSystemInfo
 {
   [Key]
@@ -12,15 +11,15 @@ public class RobotSystemInfo
   public int Id { get; set; }
 
   [MaxLength(100)]
+  public string Cpu { get; set; } = null!;
+
+  public bool IsLittleEndian { get; set; }
+
+  [MaxLength(100)]
   public string Motherboard { get; set; } = null!;
 
   [MaxLength(100)]
   public string MotherboardSerialNumber { get; set; } = null!;
-
-  [MaxLength(100)]
-  public string Cpu { get; set; } = null!;
-
-  public bool IsLittleEndian { get; set; }
 
   public int RamMiB { get; set; }
 
@@ -33,16 +32,10 @@ public class RobotSystemInfo
   public bool Is32Bit { get; set; }
 
   [MaxLength(100)]
-  public string McuSerialNumber { get; set; } = null!;
+  public string? McuSerialNumber { get; set; } = null!;
 
   [ForeignKey("RobotId")]
   public Robot Robot { get; set; } = null!;
 
   public Guid RobotId { get; set; }
-
-  [Precision(3)]
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-  
-  [Precision(3)]
-  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

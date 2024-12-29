@@ -142,8 +142,8 @@ public class RobotClientsService(
       Status = RobotClientsResultStatus.Success,
       AccessToken = token,
       ChassisInfo = new RobotClientsChassisInfo {
-        ChassisLX = robotChassisInfo.ChassisLX,
-        ChassisLY = robotChassisInfo.ChassisLY,
+        ChassisLX = robotChassisInfo.ChassisLengthX,
+        ChassisLY = robotChassisInfo.ChassisLengthY,
         ChassisWheelCount = robotChassisInfo.ChassisWheelCount,
         ChassisWheelRadius = robotChassisInfo.ChassisWheelRadius,
         BatteryCount = robotChassisInfo.BatteryCount,

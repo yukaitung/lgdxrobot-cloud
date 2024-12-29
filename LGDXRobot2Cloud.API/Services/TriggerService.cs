@@ -24,8 +24,6 @@ public class TriggerService(HttpClient httpClient) : ITriggerService
       (int)TriggerPresetValue.AutoTaskCurrentProgressName => $"\"{task.CurrentProgress.Name}\"",
       (int)TriggerPresetValue.RobotId => $"\"{task.AssignedRobotId}\"",
       (int)TriggerPresetValue.RobotName => $"\"{task.AssignedRobot?.Name}\"",
-      (int)TriggerPresetValue.RobotAddress => $"\"{task.AssignedRobot?.Address}\"",
-      (int)TriggerPresetValue.RobotNamespace => $"\"{task.AssignedRobot?.Namespace}\"",
       _ => string.Empty,
     };
   }

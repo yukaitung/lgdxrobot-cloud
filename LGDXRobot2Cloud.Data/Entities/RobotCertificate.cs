@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
-[Table("Robot.Certificates")]
+[Table("Navigation.Certificates")]
 public class RobotCertificate
 {
   [Key]
@@ -27,10 +27,4 @@ public class RobotCertificate
   public Robot Robot { get; set; } = null!;
 
   public Guid RobotId { get; set; }
-
-  [Precision(3)]
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
-  [Precision(3)]
-  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

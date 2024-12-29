@@ -1,6 +1,6 @@
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 
-public class WaypointListDto
+public record WaypointListDto
 {
   public required int Id { get; set; }
 

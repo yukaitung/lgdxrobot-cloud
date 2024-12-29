@@ -25,7 +25,7 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Models.Commands.ProgressCreateDto, Entities.Progress>();
       CreateMap<Models.Commands.ProgressUpdateDto, Entities.Progress>();
       // Tasks
-      CreateMap<Entities.AutoTask, Models.Responses.AutoTaskListDto>();
+      CreateMap<Entities.AutoTask, AutoTaskListDto>();
       CreateMap<Entities.AutoTask, Models.Responses.AutoTaskDto>();
       CreateMap<Models.Commands.AutoTaskCreateDto, Models.Commands.AutoTaskUpdateDto>();
       CreateMap<Models.Commands.AutoTaskUpdateDto, Entities.AutoTask>();
@@ -52,6 +52,13 @@ namespace LGDXRobot2Cloud.API.Profiles
         .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.FromBase64String(s.Image)));
       CreateMap<RealmUpdateDto, Entities.Realm>()
         .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.FromBase64String(s.Image)));
+      // Robots
+      CreateMap<Entities.Robot, RobotDto>();
+      CreateMap<Entities.Robot, RobotListDto>();
+      CreateMap<RobotChassisInfoCreateDto, Entities.RobotChassisInfo>();
+      CreateMap<RobotChassisInfoUpdateDto, Entities.RobotChassisInfo>();
+      CreateMap<RobotCreateDto, Entities.Robot>();
+      CreateMap<RobotUpdateDto, Entities.Robot>();
     }
   }
 

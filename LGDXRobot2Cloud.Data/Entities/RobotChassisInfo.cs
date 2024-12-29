@@ -1,21 +1,20 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
-[Table("Robot.RobotChassisInfo")]
+[Table("Navigation.RobotChassisInfo")]
 public class RobotChassisInfo
 {
   [Key]
   [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
   public int Id { get; set; }
 
-  public int LgdxRobotTypeId { get; set; }
+  public int RobotTypeId { get; set; }
 
-  public double ChassisLX { get; set; }
+  public double ChassisLengthX { get; set; }
 
-  public double ChassisLY { get; set; }
+  public double ChassisLengthY { get; set; }
 
   public int ChassisWheelCount { get; set; }
 
@@ -31,10 +30,4 @@ public class RobotChassisInfo
   public Robot Robot { get; set; } = null!;
 
   public Guid RobotId { get; set; }
-
-  [Precision(3)]
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
-  [Precision(3)]
-  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

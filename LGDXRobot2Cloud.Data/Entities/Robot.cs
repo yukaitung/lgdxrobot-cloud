@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
-[Table("Robot.Robots")]
+[Table("Navigation.Robots")]
 public class Robot
 {
   [Key]
@@ -15,29 +14,21 @@ public class Robot
   [Required]
   public string Name { get; set; } = null!;
 
-  [MaxLength(100)]
-  public string? Address { get; set; }
+  [ForeignKey("RealmId")]
+  public Realm Realm { get; set; } = null!;
 
-  [MaxLength(50)]
-  public string? Namespace { get; set; }
+  [Required]
+  public int RealmId { get; set; }
 
   public bool IsRealtimeExchange { get; set; }
 
   public bool IsProtectingHardwareSerialNumber { get; set; }
 
-  public RobotCertificate Certificate { get; set; } = null!;
-
-  public int? DefaultNodesCollectionId { get; set; }
+  public RobotCertificate RobotCertificate { get; set; } = null!;
 
   public RobotSystemInfo? RobotSystemInfo { get; set; }
 
   public RobotChassisInfo? RobotChassisInfo { get; set; }
 
   public ICollection<AutoTask> AssignedTasks { get; set; } = [];
-
-  [Precision(3)]
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-  
-  [Precision(3)]
-  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

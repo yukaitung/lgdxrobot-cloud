@@ -1,4 +1,7 @@
-namespace LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+
+namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 
 public class AutoTaskListDto
 {
