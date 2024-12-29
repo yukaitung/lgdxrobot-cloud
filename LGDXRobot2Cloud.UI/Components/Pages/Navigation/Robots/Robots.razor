@@ -1,7 +1,7 @@
 @attribute [Route(AppRoutes.Robot.Robots.Index)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/Robots/Read")]
 @using LGDXRobot2Cloud.Utilities.Enums
-@using LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components
 @rendermode InteractiveServer
 
 <PageHeader Title="Robots">
@@ -44,8 +44,6 @@
                 <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@RobotsData[id]!.RobotStatus" /></h2>
               </div>
               <div class="mt-auto">
-                <div>Address: @(robot.Address ?? "-")</div>
-                <div>Namespace: @(robot.Namespace ?? "-")</div>
                 <div>Batteries:
                 @if (RobotsData[id]!.Batteries.Count() > 0)
                 {

@@ -1,4 +1,6 @@
+@using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses
 @using LGDXRobot2Cloud.UI.Models;
+@using LGDXRobot2Cloud.UI.ViewModels.Navigation
 
 <div class="card">
   <div class="card-header">
@@ -44,14 +46,6 @@
           <td>MCU Serial Number</td>
           <td>@(RobotSystemInfo != null ? RobotSystemInfo.McuSerialNumber : "-")</td>
         </tr>
-        <tr>
-          <td>Create Time</td>
-          <td>@(RobotSystemInfo != null ? RobotSystemInfo.CreatedAt : "-")</td>
-        </tr>
-        <tr>
-          <td>Last Update Time</td>
-          <td>@(RobotSystemInfo != null ? RobotSystemInfo.UpdatedAt : "-")</td>
-        </tr>
       </tbody>
     </table>
   </div>
@@ -60,5 +54,5 @@
 @code
 {
   [Parameter]
-  public RobotSystemInfo? RobotSystemInfo { get; set; }
+  public RobotSystemInfoDto? RobotSystemInfo { get; set; }
 }

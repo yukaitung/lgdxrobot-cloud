@@ -1,3 +1,4 @@
+@using LGDXRobot2Cloud.UI.ViewModels.Navigation
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 <div class="card">
@@ -47,7 +48,7 @@
   public ProtectedSessionStorage ProtectedSessionStorage { get; set; } = default!;
 
   [Parameter]
-  public Models.RobotCertificate? RobotCertificate { get; set; }
+  public RobotCertificateViewModel? RobotCertificate { get; set; }
 
   string RedirectUrl { get; set; } = string.Empty;
 

@@ -16,7 +16,7 @@
           }
           <h3>@(RobotCommands.Commands.SoftwareEmergencyStop ? "Resuming Robot" : "Stopping Robot")</h3>
           <div class="text-secondary">
-            <SubmitErrorModal Display="IsError" />
+            <ApiErrorAlert Errors="Errors" />
             <div class="text-secondary">
               @(RobotCommands.Commands.SoftwareEmergencyStop ?
                 $"The robot will be resumed." :

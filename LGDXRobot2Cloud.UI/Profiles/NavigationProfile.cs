@@ -37,6 +37,13 @@ namespace LGDXRobot2Cloud.UI.Profiles
       CreateMap<RealmDetailViewModel, RealmCreateDto>();
       CreateMap<RealmDetailViewModel, RealmUpdateDto>();
       CreateMap<RealmDto, RealmDetailViewModel>();
+      // Robots
+      CreateMap<RobotCertificateDto, RobotCertificateViewModel>();
+      CreateMap<RobotChassisInfoDto, RobotChassisInfoViewModel>();
+      CreateMap<RobotChassisInfoViewModel, RobotChassisInfoCreateDto>();
+      CreateMap<RobotChassisInfoViewModel, RobotChassisInfoUpdateDto>();
+      CreateMap<RobotDetailViewModel, RobotCreateDto>();
+      CreateMap<RobotDto, RobotDetailViewModel>();
     }
   }
 }

@@ -1,6 +1,7 @@
 using AutoMapper;
 using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;

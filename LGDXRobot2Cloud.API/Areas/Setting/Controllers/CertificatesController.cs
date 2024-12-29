@@ -53,9 +53,13 @@ public class CertificatesController(
       return NotFound();
 
     var robotEntity = await _robotRepository.GetRobotSimpleAsync(certificate.RobotId);
+    if (robotEntity == null)
+      return NotFound();
     var response = _mapper.Map<RobotCertificateDto>(certificate);
-    response.RobotId = robotEntity?.Id;
-    response.RobotName = robotEntity?.Name;
+    response.Robot = new RobotSearchDto {
+      Id = robotEntity.Id,
+      Name = robotEntity.Name
+    };
     return Ok(response);
   }
 
@@ -77,10 +81,14 @@ public class CertificatesController(
     await _robotCertificateRepository.SaveChangesAsync();
 
     var robotEntity = await _robotRepository.GetRobotSimpleAsync(robotCertificateEntity.RobotId);
+    if (robotEntity == null)
+      return NotFound();
 
     return Ok(new RobotCertificateIssueDto {
-      RobotId = robotEntity?.Id,
-      RobotName = robotEntity?.Name,
+      Robot = new RobotSearchDto {
+        Id = robotEntity.Id,
+        Name = robotEntity.Name
+      },
       RootCertificate = certificates.RootCertificate,
       RobotCertificatePrivateKey = certificates.RobotCertificatePrivateKey,
       RobotCertificatePublicKey = certificates.RobotCertificatePublicKey

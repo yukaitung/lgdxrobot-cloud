@@ -73,7 +73,8 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
     }
     else if (element == AdvanceSelectElements[1])
     {
-      result = await RobotService.SearchRobotsAsync(name);
+      var response = await RobotService.SearchRobotsAsync(name);
+      result = response.Data ?? string.Empty;
     }
     else if (element == AdvanceSelectElements[2])
     {

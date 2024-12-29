@@ -1,10 +1,10 @@
 using LGDXRobot2Cloud.Utilities.Helpers;
 using LGDXRobot2Cloud.UI.Services;
-using Models = LGDXRobot2Cloud.UI.Models;
 using Microsoft.AspNetCore.Components;
 using LGDXRobot2Cloud.Data.Contracts;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots;
 
 public sealed partial class Robots : ComponentBase
 {
@@ -14,17 +14,18 @@ public sealed partial class Robots : ComponentBase
   [Inject]
   public required IRobotDataService RobotDataService { get; set; }
 
-  private List<Models.Robot>? RobotsList { get; set; }
+  private List<RobotListDto>? RobotsList { get; set; }
   private Dictionary<Guid, RobotDataContract?> RobotsData { get; set; } = [];
   private Dictionary<Guid, RobotCommandsContract?> RobotsCommands { get; set; } = [];
+  private RobotCommandsContract? SelectedRobotCommands { get; set; }
+
   private PaginationHelper? PaginationHelper { get; set; }
   private int CurrentPage { get; set; } = 1;
   private int PageSize { get; set; } = 16;
   private string DataSearch { get; set; } = string.Empty;
   private string LastDataSearch { get; set; } = string.Empty;
-  private RobotCommandsContract? SelectedRobotCommands { get; set; }
 
-  private void SetRobotsData(IEnumerable<Models.Robot>? robots)
+  private void SetRobotsData(IEnumerable<RobotListDto>? robots)
   {
     RobotsData.Clear();
     if (robots == null)
@@ -62,7 +63,8 @@ public sealed partial class Robots : ComponentBase
   {
     if (LastDataSearch == DataSearch)
       return;
-    var data = await RobotService.GetRobotsAsync(DataSearch, 1, PageSize);
+    var response = await RobotService.GetRobotsAsync(DataSearch, 1, PageSize);
+    var data = response.Data;
     SetRobotsData(data.Item1);
     RobotsList = data.Item1?.ToList();
     PaginationHelper = data.Item2;
@@ -84,7 +86,8 @@ public sealed partial class Robots : ComponentBase
     CurrentPage = pageNum;
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
-    var data = await RobotService.GetRobotsAsync(DataSearch, pageNum, PageSize);
+    var response = await RobotService.GetRobotsAsync(DataSearch, pageNum, PageSize);
+    var data = response.Data;
     SetRobotsData(data.Item1);
     RobotsList = data.Item1?.ToList();
     PaginationHelper = data.Item2;
@@ -94,14 +97,15 @@ public sealed partial class Robots : ComponentBase
   {
     if (deleteOpt && CurrentPage > 1 && RobotsList?.Count == 1)
       CurrentPage--;
-    var data = await RobotService.GetRobotsAsync(DataSearch, CurrentPage, PageSize);
+    var response = await RobotService.GetRobotsAsync(DataSearch, CurrentPage, PageSize);
+    var data = response.Data;
     SetRobotsData(data.Item1);
     RobotsList = data.Item1?.ToList();
     PaginationHelper = data.Item2;
     StateHasChanged();
   }
 
-  public void HandleRobotSelect(Models.Robot robot)
+  public void HandleRobotSelect(RobotListDto robot)
   {
     SelectedRobotCommands = RobotsCommands[robot.Id];
   }

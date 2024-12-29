@@ -5,7 +5,8 @@
   <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <div class="card-body">
-      <SubmitErrorModal Display="@IsError" />
+      <ApiErrorAlert Errors="RobotChassisInfo?.Errors" />
+      <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
       <RobotChassisInfoForm RobotChassisInfo="@RobotChassisInfo"/>
     </div>
     <div class="card-footer d-flex">

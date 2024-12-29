@@ -1,10 +1,8 @@
-namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+namespace LGDXRobot2Cloud.UI.ViewModels.Navigation;
 
-public record RobotCertificateDto
+public sealed class RobotCertificateViewModel
 {
   public Guid Id { get; set; }
-
-  public RobotSearchDto Robot { get; set; } = null!;
   
   public string Thumbprint { get; set; } = null!;
 

@@ -1,15 +1,14 @@
 using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
-using Model = LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using LGDXRobot2Cloud.UI.Constants;
-using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.ViewModels.Navigation;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots;
 
 public sealed partial class CreateRobot
 {
@@ -22,12 +21,11 @@ public sealed partial class CreateRobot
   [Inject]
   public required IMapper Mapper { get; set; }
 
-  private Model.Robot Robot { get; set; } = new();
-  private Model.RobotChassisInfo RobotChassisInfo { get; set; } = new();
+  private RobotDetailViewModel Robot { get; set; } = new();
+  private RobotChassisInfoViewModel RobotChassisInfo { get; set; } = new();
   private RobotCertificateIssueDto? RobotCertificates { get; set; }
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
-  private bool IsError { get; set; } = false;
 
   public readonly List<string> stepHeadings = ["Information", "Chassis", "Download Cerificates", "Complete"];
   private int currentStep = 0;
@@ -42,19 +40,16 @@ public sealed partial class CreateRobot
     }
     else if (currentStep == 1)
     {
-      RobotCreateDto robot = new() {
-        RobotInfo = Mapper.Map<RobotCreateInfoDto>(Robot),
-        RobotChassisInfo = Mapper.Map<RobotCreateChassisInfoDto>(RobotChassisInfo)
-      };
-      var success = await RobotService.AddRobotAsync(robot);
-      if (success != null)
+      var robotCreateDto = Mapper.Map<RobotCreateDto>(Robot);
+      robotCreateDto.RobotChassisInfo = Mapper.Map<RobotChassisInfoCreateDto>(RobotChassisInfo);
+      var response = await RobotService.AddRobotAsync(robotCreateDto);
+      if (response.IsSuccess)
       {
-        RobotCertificates = success;
-        IsError = false;
+        RobotCertificates = response.Data;
         currentStep++;
       }
       else
-        IsError = true;
+        Robot.Errors = response.Errors;
     }
     else if (currentStep == 2)
     {

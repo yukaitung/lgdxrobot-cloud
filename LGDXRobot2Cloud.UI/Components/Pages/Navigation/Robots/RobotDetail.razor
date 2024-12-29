@@ -1,7 +1,7 @@
 @attribute [Route(AppRoutes.Robot.Robots.Detail)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/Robots/Read")]
 @using LGDXRobot2Cloud.Utilities.Enums
-@using LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components
 @rendermode InteractiveServer
 
 <PageHeader Title="Robots">
@@ -12,10 +12,10 @@
           <li class="breadcrumb-item"><a href="@AppRoutes.Robot.Robots.Index">◀ Return</a></li>
         </ol>
       </div>
-      @if (Robot != null)
+      @if (RobotDetailViewModel != null)
       {
         <h2 class="page-title">
-          @Robot.Name
+          @RobotDetailViewModel.Name
           &nbsp;
           <RobotStatusBadge RobotStatus="@(RobotData != null ? RobotData.RobotStatus : RobotStatus.Offline)" />
         </h2>
@@ -51,7 +51,7 @@
 <PageBody>
   <div class="row row-cards">
     <div class="col-12">
-      <DetailTasksCard TasksList="Robot?.AssignedTasks" />
+      <DetailTasksCard AutoTasks="AutoTasks" />
     </div>
     <div class="col-12">
       <DetailRobotDataCard RobotData="RobotData" />
@@ -75,19 +75,19 @@
       </ul>
       @if (CurrentTab == 0)
       {
-        <DetailRobotInfoCard Robot="Robot" />
+        <DetailRobotInfoCard Robot="RobotDetailViewModel" />
       }
       else if (CurrentTab == 1)
       {
-        <DetailSystemInfoCard RobotSystemInfo="Robot?.RobotSystemInfo" />
+        <DetailSystemInfoCard RobotSystemInfo="RobotSystemInfoDto" />
       }
       else if (CurrentTab == 2)
       {
-        <DetailChassisInfoCard  Robot="Robot" RobotChassisInfo="Robot?.RobotChassisInfo" />
+        <DetailChassisInfoCard Robot="RobotDetailViewModel" RobotChassisInfo="RobotChassisInfoViewModel" />
       }
       else if (CurrentTab == 3)
       {
-        <DetailRobotCertificateCard RobotCertificate="Robot?.Certificate" />
+        <DetailRobotCertificateCard RobotCertificate="RobotCertificateViewModel" />
       }
       else if (CurrentTab == 4)
       {

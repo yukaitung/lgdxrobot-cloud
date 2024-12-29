@@ -1,0 +1,45 @@
+@using LGDXRobot2Cloud.UI.Models;
+@using LGDXRobot2Cloud.UI.ViewModels.Navigation;
+
+@if (Robot != null)
+{
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label required" for="@nameof(Robot.Name)">Name</label>
+    <div class="col">
+      <InputText id="@nameof(Robot.Name)" type="text" class="form-control" @bind-Value="Robot.Name" />
+      <ValidationMessage class="invalid-feedback" For="@(() => Robot.Name)" />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label required" for="@nameof(Robot.RealmId)">Realm</label>
+    <div class="col">
+      <InputSelect id="@($"{nameof(Robot.RealmId)}-0")" class="form-control" @bind-Value="Robot.RealmId">
+        @if (Robot.RealmName != null)
+        {
+          <option value="@Robot.RealmId">@Robot.RealmName</option>
+        }
+      </InputSelect>
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label pt-0" for="@nameof(Robot.IsRealtimeExchange)">Realtime Exchange</label>
+    <div class="col">
+      <label class="form-check mt-auto">
+        <input class="form-check-input" id="@nameof(Robot.IsRealtimeExchange)" type="checkbox" @bind="Robot.IsRealtimeExchange">
+        <span class="form-check-label">Enable realtime exchange</span>
+        <span class="form-check-description">This option enable streaming RPC for data exchange (Not Implemented)</span>
+      </label>
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label pt-0" for="@nameof(Robot.IsProtectingHardwareSerialNumber)">Hardware Protection</label>
+    <div class="col">
+      <label class="form-check mt-auto">
+        <input class="form-check-input" id="@nameof(Robot.IsProtectingHardwareSerialNumber)" type="checkbox" @bind="Robot.IsProtectingHardwareSerialNumber">
+        <span class="form-check-label">Enable hardware protection</span>
+        <span class="form-check-description">The system verifies the serial number for hardware and blocks the connection
+          if there is a discrepancy</span>
+      </label>
+    </div>
+  </div>
+}

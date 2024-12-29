@@ -14,23 +14,19 @@
           <th>Priority</th>
           <th>Current Progress</th>
           <th>Flow</th>
-          <th class="w-1">Create Time</th>
-          <th class="w-1">Last Update Time</th>
         </tr>
       </thead>
       <tbody>
-        @if (TasksList != null)
+        @if (AutoTasks != null)
         {
-          @foreach (var task in TasksList)
+          @foreach (var autoTask in AutoTasks)
           {
             <tr>
-              <td>@task.Id</td>
-              <td>@task.Name</td>
-              <td>@task.Priority</td>
-              <td>@task.CurrentProgress.Name</td>
-              <td>@task.Flow.Name</td>
-              <td>@task.CreatedAt</td>
-              <td>@task.UpdatedAt</td>
+              <td>@autoTask.Id</td>
+              <td>@autoTask.Name</td>
+              <td>@autoTask.Priority</td>
+              <td>@autoTask.CurrentProgress.Name</td>
+              <td>@autoTask.Flow.Name</td>
             </tr>
           }
         }
@@ -40,7 +36,7 @@
         }
       </tbody>
     </table>
-    @if (TasksList != null && TasksList.Count() == 0)
+    @if (AutoTasks != null && AutoTasks.Count() == 0)
     {
       <div class="empty h-25">
         <!--<p class="empty-title">No results found</p>-->

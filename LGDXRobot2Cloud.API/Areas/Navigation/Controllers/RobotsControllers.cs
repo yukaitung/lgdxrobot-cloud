@@ -112,8 +112,10 @@ public sealed class RobotsController(
     await _robotRepository.SaveChangesAsync();
     var response = new RobotCertificateIssueDto
     {
-      RobotId = robotEntity.Id,
-      RobotName = robotEntity.Name,
+      Robot = new RobotSearchDto {
+        Id = robotEntity.Id,
+        Name = robotEntity.Name
+      },
       RootCertificate = certificates.RootCertificate,
       RobotCertificatePrivateKey = certificates.RobotCertificatePrivateKey,
       RobotCertificatePublicKey = certificates.RobotCertificatePublicKey

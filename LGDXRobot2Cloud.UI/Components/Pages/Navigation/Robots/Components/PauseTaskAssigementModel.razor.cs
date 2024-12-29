@@ -3,7 +3,7 @@ using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components;
 
 public sealed partial class PauseTaskAssigementModel
 {
@@ -16,19 +16,19 @@ public sealed partial class PauseTaskAssigementModel
   [Parameter]
   public RobotCommandsContract? RobotCommands { get; set; }
 
-  private bool IsError { get; set; } = false;
+  private IDictionary<string, string[]>? Errors { get; set; } = null;
 
   public async Task HandleRequest()
   {
     bool newValue = !RobotCommands!.Commands.PauseTaskAssigement;
-    var success = await RobotService.UpdatePauseTaskAssigementAsync(RobotCommands!.RobotId.ToString(), newValue);
-    if (success)
+    var response = await RobotService.SetPauseTaskAssigementAsync(RobotCommands!.RobotId.ToString(), newValue);
+    if (response.IsSuccess)
     {
       await JSRuntime.InvokeVoidAsync("CloseModal", "pauseTaskAssigement");
       RobotCommands!.Commands.PauseTaskAssigement = newValue;
       RobotCommands = null;
     } 
     else
-      IsError = true;
+      Errors = response.Errors;
   }
 }

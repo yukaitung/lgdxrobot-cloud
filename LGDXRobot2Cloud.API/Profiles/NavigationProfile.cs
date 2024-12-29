@@ -1,7 +1,7 @@
 using AutoMapper;
+using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using Entities = LGDXRobot2Cloud.Data.Entities;
 using Models = LGDXRobot2Cloud.Data.Models.DTOs;
 
 namespace LGDXRobot2Cloud.API.Profiles
@@ -11,65 +11,67 @@ namespace LGDXRobot2Cloud.API.Profiles
     public NavigationProfile()
     {
       // Flow
-      CreateMap<Entities.Flow, Models.Responses.FlowListDto>();
-      CreateMap<Entities.Flow, Models.Responses.FlowDto>();
-      CreateMap<Entities.FlowDetail, Models.Responses.FlowDetailDto>();
+      CreateMap<Flow, Models.Responses.FlowListDto>();
+      CreateMap<Flow, Models.Responses.FlowDto>();
+      CreateMap<FlowDetail, Models.Responses.FlowDetailDto>();
       CreateMap<Models.Commands.FlowCreateDto, Models.Commands.FlowUpdateDto>();
       CreateMap<Models.Commands.FlowDetailCreateDto, Models.Commands.FlowDetailUpdateDto>();
-      CreateMap<Models.Commands.FlowUpdateDto, Entities.Flow>();
-      CreateMap<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>()
+      CreateMap<Models.Commands.FlowUpdateDto, Flow>();
+      CreateMap<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<FlowDetail>>()
         .ConvertUsing<FlowDetailUpdateDtoToFlowDetail>();
-      CreateMap<Models.Commands.FlowDetailUpdateDto, Entities.FlowDetail>();
+      CreateMap<Models.Commands.FlowDetailUpdateDto, FlowDetail>();
       // Progress
-      CreateMap<Entities.Progress, Models.Responses.ProgressDto>();
-      CreateMap<Models.Commands.ProgressCreateDto, Entities.Progress>();
-      CreateMap<Models.Commands.ProgressUpdateDto, Entities.Progress>();
+      CreateMap<Progress, Models.Responses.ProgressDto>();
+      CreateMap<Models.Commands.ProgressCreateDto, Progress>();
+      CreateMap<Models.Commands.ProgressUpdateDto, Progress>();
       // Tasks
-      CreateMap<Entities.AutoTask, AutoTaskListDto>();
-      CreateMap<Entities.AutoTask, Models.Responses.AutoTaskDto>();
+      CreateMap<AutoTask, AutoTaskListDto>();
+      CreateMap<AutoTask, Models.Responses.AutoTaskDto>();
       CreateMap<Models.Commands.AutoTaskCreateDto, Models.Commands.AutoTaskUpdateDto>();
-      CreateMap<Models.Commands.AutoTaskUpdateDto, Entities.AutoTask>();
-      CreateMap<Entities.AutoTaskDetail, Models.Responses.AutoTaskDetailDto>();
+      CreateMap<Models.Commands.AutoTaskUpdateDto, AutoTask>();
+      CreateMap<AutoTaskDetail, Models.Responses.AutoTaskDetailDto>();
       CreateMap<Models.Commands.AutoTaskDetailCreateDto, Models.Commands.AutoTaskDetailUpdateDto>();
-      CreateMap<Models.Commands.AutoTaskDetailUpdateDto, Entities.AutoTaskDetail>();
+      CreateMap<Models.Commands.AutoTaskDetailUpdateDto, AutoTaskDetail>();
       // Trigger
-      CreateMap<Entities.Trigger, Models.Responses.TriggerListDto>();
-      CreateMap<Entities.Trigger, Models.Responses.TriggerDto>();
-      CreateMap<Models.Commands.TriggerCreateDto, Entities.Trigger>();
-      CreateMap<Models.Commands.TriggerUpdateDto, Entities.Trigger>();
+      CreateMap<Trigger, Models.Responses.TriggerListDto>();
+      CreateMap<Trigger, Models.Responses.TriggerDto>();
+      CreateMap<Models.Commands.TriggerCreateDto, Trigger>();
+      CreateMap<Models.Commands.TriggerUpdateDto, Trigger>();
       // Waypoint
-      CreateMap<Entities.Waypoint, WaypointDto>();
-      CreateMap<Entities.Waypoint, WaypointListDto>();
-      CreateMap<Entities.Waypoint, WaypointSearchDto>();
-      CreateMap<WaypointCreateDto, Entities.Waypoint>();
-      CreateMap<WaypointUpdateDto, Entities.Waypoint>();
+      CreateMap<Waypoint, WaypointDto>();
+      CreateMap<Waypoint, WaypointListDto>();
+      CreateMap<Waypoint, WaypointSearchDto>();
+      CreateMap<WaypointCreateDto, Waypoint>();
+      CreateMap<WaypointUpdateDto, Waypoint>();
       // Realm
-      CreateMap<Entities.Realm, RealmDto>()
+      CreateMap<Realm, RealmDto>()
         .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.ToBase64String(s.Image)));
-      CreateMap<Entities.Realm, RealmListDto>();
-      CreateMap<Entities.Realm, RealmSearchDto>();
-      CreateMap<RealmCreateDto, Entities.Realm>()
+      CreateMap<Realm, RealmListDto>();
+      CreateMap<Realm, RealmSearchDto>();
+      CreateMap<RealmCreateDto, Realm>()
         .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.FromBase64String(s.Image)));
-      CreateMap<RealmUpdateDto, Entities.Realm>()
+      CreateMap<RealmUpdateDto, Realm>()
         .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.FromBase64String(s.Image)));
       // Robots
-      CreateMap<Entities.Robot, RobotDto>();
-      CreateMap<Entities.Robot, RobotListDto>();
-      CreateMap<RobotChassisInfoCreateDto, Entities.RobotChassisInfo>();
-      CreateMap<RobotChassisInfoUpdateDto, Entities.RobotChassisInfo>();
-      CreateMap<RobotCreateDto, Entities.Robot>();
-      CreateMap<RobotUpdateDto, Entities.Robot>();
+      CreateMap<Robot, RobotDto>();
+      CreateMap<Robot, RobotListDto>();
+      CreateMap<RobotChassisInfoCreateDto, RobotChassisInfo>();
+      CreateMap<RobotChassisInfoUpdateDto, RobotChassisInfo>();
+      CreateMap<RobotCreateDto, Robot>();
+      CreateMap<RobotUpdateDto, Robot>();
+      CreateMap<Robot, RobotSearchDto>();
+      CreateMap<RobotChassisInfo, RobotChassisInfoDto>();
     }
   }
 
-  public class FlowDetailUpdateDtoToFlowDetail : ITypeConverter<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<Entities.FlowDetail>>
+  public class FlowDetailUpdateDtoToFlowDetail : ITypeConverter<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<FlowDetail>>
   {
-    public ICollection<Entities.FlowDetail> Convert(IEnumerable<Models.Commands.FlowDetailUpdateDto> src, ICollection<Entities.FlowDetail> dest, ResolutionContext context)
+    public ICollection<FlowDetail> Convert(IEnumerable<Models.Commands.FlowDetailUpdateDto> src, ICollection<FlowDetail> dest, ResolutionContext context)
     {
-      ICollection<Entities.FlowDetail> result = [];
+      ICollection<FlowDetail> result = [];
       foreach(Models.Commands.FlowDetailUpdateDto e in src)
       {
-        result.Add(context.Mapper.Map<Entities.FlowDetail>(e));
+        result.Add(context.Mapper.Map<FlowDetail>(e));
       }
       return result;
     }

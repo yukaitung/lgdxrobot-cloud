@@ -4,7 +4,7 @@ using Models = LGDXRobot2Cloud.UI.Models;
 using Microsoft.JSInterop;
 using LGDXRobot2Cloud.Data.Contracts;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components;
 
 public sealed partial class SoftwareEmergencyStopModel
 {
@@ -17,19 +17,19 @@ public sealed partial class SoftwareEmergencyStopModel
   [Parameter]
   public RobotCommandsContract? RobotCommands { get; set; }
 
-  private bool IsError { get; set; } = false;
+  private IDictionary<string, string[]>? Errors { get; set; } = null;
 
   public async Task HandleRequest()
   {
     bool newValue = !RobotCommands!.Commands.SoftwareEmergencyStop;
-    var success = await RobotService.UpdateSoftwareEmergencyStopAsync(RobotCommands!.RobotId.ToString(), newValue);
-    if (success)
+    var response = await RobotService.SetSoftwareEmergencyStopAsync(RobotCommands!.RobotId.ToString(), newValue);
+    if (response.IsSuccess)
     {
       await JSRuntime.InvokeVoidAsync("CloseModal", "softwareEmergencyStop");
       RobotCommands!.Commands.SoftwareEmergencyStop = newValue;
       RobotCommands = null;
     } 
     else
-      IsError = true;
+      Errors = response.Errors;
   }
 }

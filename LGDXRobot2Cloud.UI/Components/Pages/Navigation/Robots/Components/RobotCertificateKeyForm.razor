@@ -1,5 +1,6 @@
 @using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 @using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+@using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses
 
 <InformationModal>
   The system does not store the "Robot Private Key" and "Robot Public Key". Please save the keys before continuing.
@@ -20,7 +21,7 @@
     readonly>@RobotCertificates!.RobotCertificatePrivateKey</textarea>
   <div class="input-group mb-2">
     <input id="RobotPrivateKeyFileName" type="text" class="form-control" placeholder="File name for Robot Private Key"
-      value="@(RobotCertificates!.RobotName).key">
+      value="@(RobotCertificates!.Robot.Name).key">
     <button class="btn" type="button" onclick="downloadCertificate(1)">Download</button>
   </div>
 </div>
@@ -30,7 +31,7 @@
     readonly>@RobotCertificates!.RobotCertificatePublicKey</textarea>
   <div class="input-group mb-2">
     <input id="RobotPublicKeyFileName" type="text" class="form-control" placeholder="File name for Robot Public Key"
-      value="@(RobotCertificates!.RobotName).crt">
+      value="@(RobotCertificates!.Robot.Name).crt">
     <button class="btn" type="button" onclick="downloadCertificate(2)">Download</button>
   </div>
 </div>

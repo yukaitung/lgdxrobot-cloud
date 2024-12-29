@@ -1,7 +1,7 @@
 @attribute [Route(AppRoutes.Robot.Robots.Create)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/Robots/Write")]
 @using LGDXRobot2Cloud.Utilities.Enums
-@using LGDXRobot2Cloud.UI.Components.Pages.Robot.Robots.Components
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components
 @rendermode InteractiveServer
 
 <PageHeader Title="Create Robot">
@@ -35,8 +35,8 @@
             }
           </ul>
         </div>
-        <SubmitErrorModal Display="@IsError" />
-        <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+        <ApiErrorAlert Errors="Robot.Errors" />
+        <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
         @if (currentStep == 0)
         {
           <RobotInfoForm Robot="Robot" />
