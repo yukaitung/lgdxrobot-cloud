@@ -14,7 +14,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     void DeleteWaypoint(Waypoint waypoint);
     Task<bool> SaveChangesAsync();
 
-     // Specific Functions
+    Task<IEnumerable<Waypoint>> SearchWaypointsAsync(string name);
     Task<Dictionary<int, Waypoint>> GetWaypointsDictFromListAsync(IEnumerable<int> waypointIds);
   }
   
@@ -22,7 +22,7 @@ namespace LGDXRobot2Cloud.API.Repositories
   {
     private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-        public async Task<(IEnumerable<Waypoint>, PaginationHelper)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
+    public async Task<(IEnumerable<Waypoint>, PaginationHelper)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
     {
       var query = _context.Waypoints as IQueryable<Waypoint>;
       if(!string.IsNullOrWhiteSpace(name))
@@ -42,7 +42,9 @@ namespace LGDXRobot2Cloud.API.Repositories
 
     public async Task<Waypoint?> GetWaypointAsync(int waypointId)
     {
-      return await _context.Waypoints.Where(w => w.Id == waypointId).FirstOrDefaultAsync();
+      return await _context.Waypoints.Where(w => w.Id == waypointId)
+        .Include(w => w.Realm)
+        .FirstOrDefaultAsync();
     }
 
     public async Task<bool> WaypointExistsAsync(int waypointId)
@@ -63,6 +65,18 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<bool> SaveChangesAsync()
     {
       return await _context.SaveChangesAsync() >= 0;
+    }
+
+    public async Task<IEnumerable<Waypoint>> SearchWaypointsAsync(string name)
+    {
+      if (string.IsNullOrWhiteSpace(name))
+      {
+        return await _context.Waypoints.AsNoTracking().Take(10).ToListAsync();
+      }
+      else
+      {
+        return await _context.Waypoints.AsNoTracking().Where(w => w.Name.Contains(name)).Take(10).ToListAsync();
+      }
     }
 
     public async Task<Dictionary<int, Waypoint>> GetWaypointsDictFromListAsync(IEnumerable<int> waypointIds)

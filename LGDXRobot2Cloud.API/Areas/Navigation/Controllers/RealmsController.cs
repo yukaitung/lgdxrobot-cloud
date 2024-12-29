@@ -34,6 +34,14 @@ public class RealmsController(
     return Ok(_mapper.Map<IEnumerable<RealmListDto>>(realms));
   }
 
+  [HttpGet("Search")]
+  [ProducesResponseType(typeof(IEnumerable<RealmSearchDto>), StatusCodes.Status200OK)]
+  public async Task<ActionResult<IEnumerable<RealmSearchDto>>> SearchRealms(string name)
+  {
+    var realms = await realmRepository.SearchRealmsAsync(name);
+    return Ok(_mapper.Map<IEnumerable<RealmSearchDto>>(realms));
+  }
+
   [HttpGet("{id}", Name = "GetRealm")]
   [ProducesResponseType(typeof(RealmDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]

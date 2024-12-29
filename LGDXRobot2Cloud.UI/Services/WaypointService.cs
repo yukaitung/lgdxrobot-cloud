@@ -1,81 +1,190 @@
+using System.Net;
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IWaypointService
 {
-  Task<(IEnumerable<Waypoint>?, PaginationHelper?)> GetWaypointsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<Waypoint?> GetWaypointAsync(int waypointId);
-  Task<bool> AddWaypointAsync(WaypointCreateDto waypoint);
-  Task<bool> UpdateWaypointAsync(int waypointId, WaypointUpdateDto waypoint);
-  Task<bool> DeleteWaypointAsync(int waypointId);
-  Task<string> SearchWaypointsAsync(string name);
+  Task<ApiResponse<(IEnumerable<WaypointListDto>?, PaginationHelper?)>> GetWaypointsAsync(string? name, int pageNumber, int pageSize);
+  Task<ApiResponse<WaypointDto>> GetWaypointAsync(int waypointId);
+  Task<ApiResponse<bool>> AddWaypointAsync(WaypointCreateDto waypointCreateDto);
+  Task<ApiResponse<bool>> UpdateWaypointAsync(int waypointId, WaypointUpdateDto waypointUpdateDto);
+  Task<ApiResponse<bool>> DeleteWaypointAsync(int waypointId);
+  Task<ApiResponse<string>> SearchWaypointsAsync(string name);
 }
 
 public sealed class WaypointService(
-  AuthenticationStateProvider authenticationStateProvider, 
-  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IWaypointService
+    AuthenticationStateProvider authenticationStateProvider, 
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IWaypointService
 {
-  public async Task<(IEnumerable<Waypoint>?, PaginationHelper?)> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
+  public async Task<ApiResponse<(IEnumerable<WaypointListDto>?, PaginationHelper?)>> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
   {
-    var url = name != null ? $"navigation/waypoints?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/waypoints?pageNumber={pageNumber}&pageSize={pageSize}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var waypoints = await JsonSerializer.DeserializeAsync<IEnumerable<Waypoint>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (waypoints, PaginationHelper);
+      var url = name != null ? $"Navigation/Waypoints?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"Navigation/Waypoints?pageNumber={pageNumber}&pageSize={pageSize}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+        var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
+        var waypoints = await JsonSerializer.DeserializeAsync<IEnumerable<WaypointListDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<(IEnumerable<WaypointListDto>?, PaginationHelper?)> {
+          Data = (waypoints, PaginationHelper),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 
-  public async Task<Waypoint?> GetWaypointAsync(int waypointId)
+  public async Task<ApiResponse<WaypointDto>> GetWaypointAsync(int waypointId)
   {
-    var response = await _httpClient.GetAsync($"navigation/waypoints/{waypointId}");
-    var waypoint = await JsonSerializer.DeserializeAsync<Waypoint>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    return waypoint;
-  }
-
-  public async Task<bool> AddWaypointAsync(WaypointCreateDto waypoint)
-  {
-    var waypointJson = new StringContent(JsonSerializer.Serialize(waypoint), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("navigation/waypoints", waypointJson);
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<bool> UpdateWaypointAsync(int waypointId, WaypointUpdateDto waypoint)
-  {
-    var waypointJson = new StringContent(JsonSerializer.Serialize(waypoint), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PutAsync($"navigation/waypoints/{waypointId}", waypointJson);
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<bool> DeleteWaypointAsync(int waypointId)
-  {
-    var response = await _httpClient.DeleteAsync($"navigation/waypoints/{waypointId}");
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<string> SearchWaypointsAsync(string name)
-  {
-    var url = $"navigation/waypoints?name={name}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      return await response.Content.ReadAsStringAsync();
+      var response = await _httpClient.GetAsync($"navigation/waypoints/{waypointId}");
+      if (response.IsSuccessStatusCode)
+      {
+        var waypoint = await JsonSerializer.DeserializeAsync<WaypointDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<WaypointDto> {
+          Data = waypoint,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> AddWaypointAsync(WaypointCreateDto waypointCreateDto)
+  {
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(waypointCreateDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync("Navigation/Waypoints", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> UpdateWaypointAsync(int waypointId, WaypointUpdateDto waypointUpdateDto)
+  {
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(waypointUpdateDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PutAsync($"Navigation/Waypoints/{waypointId}", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> DeleteWaypointAsync(int waypointId)
+  {
+    try
+    {
+      var response = await _httpClient.DeleteAsync($"Navigation/Waypoints/{waypointId}");
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<string>> SearchWaypointsAsync(string name)
+  {
+    try
+    {
+      var url = $"Navigation/Waypoints/Search?name={name}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<string> {
+          Data = await response.Content.ReadAsStringAsync(),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 }

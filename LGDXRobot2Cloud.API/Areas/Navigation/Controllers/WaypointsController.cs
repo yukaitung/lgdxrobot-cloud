@@ -18,7 +18,7 @@ namespace LGDXRobot2Cloud.API.Areas.Navigation.Controllers;
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
-public class WaypointsController(
+public sealed class WaypointsController(
     IMapper mapper,
     IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
     IRealmRepository realmRepository,
@@ -38,6 +38,14 @@ public class WaypointsController(
     var (waypoints, PaginationHelper) = await _waypointRepository.GetWaypointsAsync(name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(_mapper.Map<IEnumerable<WaypointListDto>>(waypoints));
+  }
+
+  [HttpGet("Search")]
+  [ProducesResponseType(typeof(IEnumerable<WaypointSearchDto>), StatusCodes.Status200OK)]
+  public async Task<ActionResult<IEnumerable<WaypointSearchDto>>> SearchWaypoints(string name)
+  {
+    var waypoints = await _waypointRepository.SearchWaypointsAsync(name);
+    return Ok(_mapper.Map<IEnumerable<WaypointSearchDto>>(waypoints));
   }
 
   [HttpGet("{id}", Name = "GetWaypoint")]

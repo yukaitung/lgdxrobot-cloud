@@ -28,8 +28,11 @@ namespace LGDXRobot2Cloud.UI.Profiles
       CreateMap<Trigger, TriggerCreateDto>();
       CreateMap<Trigger, TriggerUpdateDto>();
       // Waypoint
-      CreateMap<Waypoint, WaypointCreateDto>();
-      CreateMap<Waypoint, WaypointUpdateDto>();
+      CreateMap<WaypointDto, WaypointDetailViewModel>()
+        .ForMember(d => d.RealmId, opt => opt.MapFrom(s => s.Realm.Id))
+        .ForMember(d => d.Name, opt => opt.MapFrom(s => s.Realm.Name));
+      CreateMap<WaypointDetailViewModel, WaypointCreateDto>();
+      CreateMap<WaypointDetailViewModel, WaypointUpdateDto>();
       // Maps
       CreateMap<RealmDetailViewModel, RealmCreateDto>();
       CreateMap<RealmDetailViewModel, RealmUpdateDto>();

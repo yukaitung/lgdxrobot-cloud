@@ -77,7 +77,8 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
     }
     else if (element == AdvanceSelectElements[2])
     {
-      result = await WaypointService.SearchWaypointsAsync(name);
+      // TODO Waypoint
+      //result = await WaypointService.SearchWaypointsAsync(name);
     }
     await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
   }

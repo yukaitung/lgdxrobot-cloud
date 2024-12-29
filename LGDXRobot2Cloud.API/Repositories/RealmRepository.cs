@@ -13,6 +13,7 @@ public interface IRealmRepository
   void DeleteRealm(Realm realm);
   Task<bool> SaveChangesAsync();
 
+  Task<IEnumerable<Realm>> SearchRealmsAsync(string name);
   Task<Realm?> GetDefaultRealmAsync();
   Task<bool> IsRealmExistsAsync(int id); 
 }
@@ -58,6 +59,18 @@ public class RealmRepository(LgdxContext context) : IRealmRepository
   {
     return await _context.SaveChangesAsync() >= 0;
   }
+
+  public async Task<IEnumerable<Realm>> SearchRealmsAsync(string name)
+  {
+      if (string.IsNullOrWhiteSpace(name))
+      {
+        return await _context.Realms.AsNoTracking().Take(10).ToListAsync();
+      }
+      else
+      {
+        return await _context.Realms.AsNoTracking().Where(w => w.Name.Contains(name)).Take(10).ToListAsync();
+      }
+    }
 
   public async Task<Realm?> GetDefaultRealmAsync()
   {

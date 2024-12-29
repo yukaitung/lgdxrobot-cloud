@@ -1,5 +1,5 @@
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
-using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -11,8 +11,7 @@ public sealed partial class WaypointsTable : AbstractTable
   [Inject]
   public required IWaypointService WaypointService { get; set; }
 
-
-  private List<Waypoint>? WaypointsList { get; set; }
+  private List<WaypointListDto>? Waypoints { get; set; }
   
   public override async Task HandlePageSizeChange(int number)
   {
@@ -22,8 +21,8 @@ public sealed partial class WaypointsTable : AbstractTable
     else if (PageSize < 1)
       PageSize = 1;
     var data = await WaypointService.GetWaypointsAsync(DataSearch, 1, PageSize);
-    WaypointsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Waypoints = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task HandleSearch()
@@ -31,8 +30,8 @@ public sealed partial class WaypointsTable : AbstractTable
     if (LastDataSearch == DataSearch)
       return;
     var data = await WaypointService.GetWaypointsAsync(DataSearch, 1, PageSize);
-    WaypointsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Waypoints = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
     LastDataSearch = DataSearch;
   }
 
@@ -52,16 +51,16 @@ public sealed partial class WaypointsTable : AbstractTable
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
     var data = await WaypointService.GetWaypointsAsync(DataSearch, pageNum, PageSize);
-    WaypointsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Waypoints = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
-    if (deleteOpt && CurrentPage > 1 && WaypointsList?.Count == 1)
+    if (deleteOpt && CurrentPage > 1 && Waypoints?.Count == 1)
       CurrentPage--;
     var data = await WaypointService.GetWaypointsAsync(DataSearch, CurrentPage, PageSize);
-    WaypointsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Waypoints = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 }
