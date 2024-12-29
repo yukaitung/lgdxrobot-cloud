@@ -19,17 +19,17 @@ public sealed class RealmDetailViewModel : FormViewModel, IValidatableObject
 
   public IBrowserFile SelectedImage { get; set; } = null!;
 
-  [Required]
-  public double Resolution { get; set; }
+  [Required (ErrorMessage = "Please enter a resolution.")]
+  public double? Resolution { get; set; } = null!;
 
-  [Required]
-  public double OriginX { get; set; }
+  [Required (ErrorMessage = "Please enter an origin X coordinate.")]
+  public double? OriginX { get; set; } = null!;
 
-  [Required]
-  public double OriginY { get; set; }
+  [Required (ErrorMessage = "Please enter an origin Y coordinate.")]
+  public double? OriginY { get; set; } = null!;
 
-  [Required]
-  public double OriginRotation { get; set; }
+  [Required (ErrorMessage = "Please enter an origin rotation.")]
+  public double? OriginRotation { get; set; } = null!;
 
   public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
   {

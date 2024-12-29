@@ -5,27 +5,24 @@ namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 public class WaypointCreateDto
 {
   [MaxLength(100)]
-  [Required]
+  [Required (ErrorMessage = "Please enter a name.")]
   public required string Name { get; set; }
 
-  [Required]
+  [Required (ErrorMessage = "A realm is required.")]
   public required int RealmId { get; set; }
   
-  [Required]
+  [Required (ErrorMessage = "Please enter a X coordinate.")]
   public required double X { get; set; }
 
-  [Required]
+  [Required (ErrorMessage = "Please enter a Y coordinate.")]
   public required double Y { get; set; }
 
-  [Required]
+  [Required (ErrorMessage = "Please enter a rotation.")]
   public required double Rotation { get; set; }
 
-  [Required]
-  public required bool IsParking { get; set; }
+  public bool IsParking { get; set; } = false;
 
-  [Required]
-  public required bool HasCharger { get; set; }
+  public bool HasCharger { get; set; } = false;
 
-  [Required]
-  public required bool IsReserved { get; set; }
+  public bool IsReserved { get; set; } = false;
 }

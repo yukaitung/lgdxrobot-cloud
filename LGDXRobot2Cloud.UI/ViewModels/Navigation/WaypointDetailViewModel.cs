@@ -8,22 +8,22 @@ public class WaypointDetailViewModel : FormViewModel
   public int Id { get; set; }
 
   [MaxLength(100)]
-  [Required]
+  [Required (ErrorMessage = "Please enter a name.")]
   public string Name { get; set; } = null!;
 
-  [Required]
+  [Required (ErrorMessage = "A realm is required.")]
   public int? RealmId { get; set; } = null;
 
   public string? RealmName { get; set; }
   
-  [Required]
-  public double X { get; set; }
+  [Required (ErrorMessage = "Please enter a X coordinate.")]
+  public double? X { get; set; } = null!;
 
-  [Required]
-  public double Y { get; set; }
+  [Required (ErrorMessage = "Please enter a Y coordinate.")]
+  public double? Y { get; set; } = null!;
 
-  [Required]
-  public double Rotation { get; set; }
+  [Required (ErrorMessage = "Please enter a rotation.")]
+  public double? Rotation { get; set; } = null!;
 
   public bool IsParking { get; set; }
 

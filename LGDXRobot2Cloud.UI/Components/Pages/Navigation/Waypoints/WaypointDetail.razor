@@ -1,7 +1,7 @@
 @attribute [Route(AppRoutes.Navigation.Waypoints.Create)]
 @attribute [Route(AppRoutes.Navigation.Waypoints.Detail)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Waypoints/Read")]
-@rendermode @(new InteractiveServerRenderMode(false))
+@rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Waypoint" : "Create Waypoint")">
   <div class="row align-items-center">
