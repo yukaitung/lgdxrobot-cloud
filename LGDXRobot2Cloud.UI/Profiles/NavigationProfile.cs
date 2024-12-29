@@ -38,12 +38,13 @@ namespace LGDXRobot2Cloud.UI.Profiles
       CreateMap<RealmDetailViewModel, RealmUpdateDto>();
       CreateMap<RealmDto, RealmDetailViewModel>();
       // Robots
-      CreateMap<RobotCertificateDto, RobotCertificateViewModel>();
       CreateMap<RobotChassisInfoDto, RobotChassisInfoViewModel>();
       CreateMap<RobotChassisInfoViewModel, RobotChassisInfoCreateDto>();
       CreateMap<RobotChassisInfoViewModel, RobotChassisInfoUpdateDto>();
       CreateMap<RobotDetailViewModel, RobotCreateDto>();
-      CreateMap<RobotDto, RobotDetailViewModel>();
+      CreateMap<RobotDto, RobotDetailViewModel>()
+        .ForMember(d => d.RealmId, opt => opt.MapFrom(s => s.Realm.Id))
+        .ForMember(d => d.RealmName, opt => opt.MapFrom(s => s.Realm.Name));
     }
   }
 }

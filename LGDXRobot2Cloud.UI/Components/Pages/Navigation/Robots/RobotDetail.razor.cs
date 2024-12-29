@@ -25,7 +25,7 @@ public sealed partial class RobotDetail
   public string Id { get; set; } = string.Empty;
 
   private RobotDetailViewModel? RobotDetailViewModel { get; set; } = null!;
-  private RobotCertificateViewModel? RobotCertificateViewModel { get; set; } = null!;
+  private RobotCertificateDto? RobotCertificate { get; set; } = null!;
   private RobotSystemInfoDto? RobotSystemInfoDto { get; set; } = null!;
   private RobotChassisInfoViewModel? RobotChassisInfoViewModel { get; set; } = null!;
   private IEnumerable<AutoTaskListDto>? AutoTasks { get; set; }
@@ -56,7 +56,7 @@ public sealed partial class RobotDetail
     if (data != null)
     {
       RobotDetailViewModel = Mapper.Map<RobotDetailViewModel>(data);
-      RobotCertificateViewModel = Mapper.Map<RobotCertificateViewModel>(data.RobotCertificate);
+      RobotCertificate = data.RobotCertificate;
       RobotSystemInfoDto = data.RobotSystemInfo;
       RobotChassisInfoViewModel = Mapper.Map<RobotChassisInfoViewModel>(data.RobotChassisInfo);
       AutoTasks = data.AssignedTasks;

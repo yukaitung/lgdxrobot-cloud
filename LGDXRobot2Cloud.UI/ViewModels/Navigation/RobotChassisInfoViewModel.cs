@@ -5,27 +5,27 @@ namespace LGDXRobot2Cloud.UI.ViewModels.Navigation;
 
 public sealed class RobotChassisInfoViewModel : FormViewModel
 {
-  [Required]
-  public int RobotTypeId { get; set; }
+  [Required (ErrorMessage = "Please select a robot type.")]
+  public int? RobotTypeId { get; set; } = null;
 
-  [Required]
-  public double ChassisLengthX { get; set; }
+  [Required (ErrorMessage = "Please enter a chassis length X.")]
+  public double? ChassisLengthX { get; set; } = null;
 
-  [Required]
-  public double ChassisLengthY { get; set; }
+  [Required (ErrorMessage = "Please enter a chassis length Y.")]
+  public double? ChassisLengthY { get; set; } = null;
 
-  [Required]
-  public int ChassisWheelCount { get; set; }
+  [Required (ErrorMessage = "Please enter a chassis wheel count.")]
+  public int? ChassisWheelCount { get; set; } = null;
 
-  [Required]
-  public double ChassisWheelRadius { get; set; }
+  [Required (ErrorMessage = "Please enter a chassis wheel radius.")]
+  public double? ChassisWheelRadius { get; set; } = null;
 
-  [Required]
-  public int BatteryCount { get; set; }
+  [Required (ErrorMessage = "Please enter a battery count.")]
+  public int? BatteryCount { get; set; } = null;
 
-  [Required]
-  public double BatteryMaxVoltage { get; set; }
+  [Required (ErrorMessage = "Please enter a battery max voltage.")]
+  public double? BatteryMaxVoltage { get; set; } = null;
 
-  [Required]
-  public double BatteryMinVoltage { get; set; }
+  [Required (ErrorMessage = "Please enter a battery min voltage.")]
+  public double? BatteryMinVoltage { get; set; } = null;
 }

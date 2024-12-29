@@ -7,10 +7,11 @@ public sealed class RobotDetailViewModel : FormViewModel
 {
   public Guid Id { get; set; }
 
-  [Required]
+  [MaxLength(50)]
+  [Required (ErrorMessage = "Please enter a name.")]
   public string Name { get; set; } = null!;
 
-  [Required]
+  [Required (ErrorMessage = "Please select a realm.")]
   public int? RealmId { get; set; } = null;
 
   public string? RealmName { get; set; }

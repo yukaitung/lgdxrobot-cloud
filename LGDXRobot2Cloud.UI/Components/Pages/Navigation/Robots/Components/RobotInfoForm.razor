@@ -21,20 +21,20 @@
       </InputSelect>
     </div>
   </div>
-  <div class="mb-3 row">
-    <label class="col-3 col-form-label pt-0" for="@nameof(Robot.IsRealtimeExchange)">Realtime Exchange</label>
+  <div class="mb-3 row align-items-center">
+    <label class="col-3 col-form-label" for="@nameof(Robot.IsRealtimeExchange)">Realtime Exchange</label>
     <div class="col">
-      <label class="form-check mt-auto">
+      <label class="form-check mb-0">
         <input class="form-check-input" id="@nameof(Robot.IsRealtimeExchange)" type="checkbox" @bind="Robot.IsRealtimeExchange">
         <span class="form-check-label">Enable realtime exchange</span>
         <span class="form-check-description">This option enable streaming RPC for data exchange (Not Implemented)</span>
       </label>
     </div>
   </div>
-  <div class="mb-3 row">
-    <label class="col-3 col-form-label pt-0" for="@nameof(Robot.IsProtectingHardwareSerialNumber)">Hardware Protection</label>
+  <div class="mb-3 row align-items-center">
+    <label class="col-3 col-form-label" for="@nameof(Robot.IsProtectingHardwareSerialNumber)">Hardware Protection</label>
     <div class="col">
-      <label class="form-check mt-auto">
+      <label class="form-check mb-0">
         <input class="form-check-input" id="@nameof(Robot.IsProtectingHardwareSerialNumber)" type="checkbox" @bind="Robot.IsProtectingHardwareSerialNumber">
         <span class="form-check-label">Enable hardware protection</span>
         <span class="form-check-description">The system verifies the serial number for hardware and blocks the connection

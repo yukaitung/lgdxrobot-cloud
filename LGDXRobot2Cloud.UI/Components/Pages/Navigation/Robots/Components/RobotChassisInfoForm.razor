@@ -7,11 +7,13 @@
     <label class="col-3 col-form-label required">Robot Type</label>
     <div class="col">
       <select id="@nameof(RobotChassisInfo.RobotTypeId)" class="form-select" value="@RobotChassisInfo.RobotTypeId" @onchange="@((e) => HandleLgdxRobotTypeId(e.Value ?? string.Empty))">
+        <option value="">Choose a robot type</option>
         @foreach (LgdxRobotType robotType in Enum.GetValues(typeof(LgdxRobotType)))
         {
-          <option value="@((int) robotType)">@(robotType.ToEnumMember())</option>
+          <option value="@((int) robotType)" selected="@(@RobotChassisInfo.RobotTypeId == (int) robotType)">@(robotType.ToEnumMember())</option>
         }
       </select>
+      <ValidationMessage class="invalid-feedback" For="@(() => RobotChassisInfo.RobotTypeId)" />
     </div>
   </div>
   <div class="mb-3 row">
@@ -72,6 +74,10 @@
 
   public void HandleLgdxRobotTypeId(object args)
   {
-    RobotChassisInfo!.RobotTypeId = int.Parse(args.ToString() ?? string.Empty);
+    var value = args.ToString();
+    if (!string.IsNullOrEmpty(value))
+      RobotChassisInfo!.RobotTypeId = int.Parse(value);
+    else
+      RobotChassisInfo!.RobotTypeId = null;
   }
 } 

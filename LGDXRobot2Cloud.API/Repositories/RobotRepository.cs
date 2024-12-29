@@ -46,6 +46,7 @@ public class RobotRepository(LgdxContext context) : IRobotRepository
       .Include(r => r.RobotCertificate)
       .Include(r => r.RobotSystemInfo)
       .Include(r => r.RobotChassisInfo)
+      .Include(r => r.Realm)
       .Include(r => r.AssignedTasks)
         .ThenInclude(t => t.Flow)
       .Include(r => r.AssignedTasks.Where(  t => t.CurrentProgressId != (int)ProgressState.Aborted 

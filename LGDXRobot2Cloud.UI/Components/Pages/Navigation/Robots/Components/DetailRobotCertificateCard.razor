@@ -1,3 +1,4 @@
+@using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses
 @using LGDXRobot2Cloud.UI.ViewModels.Navigation
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
@@ -48,7 +49,7 @@
   public ProtectedSessionStorage ProtectedSessionStorage { get; set; } = default!;
 
   [Parameter]
-  public RobotCertificateViewModel? RobotCertificate { get; set; }
+  public RobotCertificateDto? RobotCertificate { get; set; }
 
   string RedirectUrl { get; set; } = string.Empty;
 

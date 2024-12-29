@@ -45,6 +45,7 @@ public sealed partial class CreateRobot
       var response = await RobotService.AddRobotAsync(robotCreateDto);
       if (response.IsSuccess)
       {
+        Robot.Errors = null;
         RobotCertificates = response.Data;
         currentStep++;
       }

@@ -5,10 +5,10 @@ namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 public record RobotUpdateDto
 {
   [MaxLength(50)]
-  [Required]
+  [Required (ErrorMessage = "Please enter a name.")]
   public required string Name { get; set; }
 
-  [Required]
+  [Required (ErrorMessage = "Please select a realm.")]
   public required int RealmId { get; set; }
 
   public bool IsRealtimeExchange { get; set; } = false;
