@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
-[Table("Navigation.RobotChassisInfo")]
+[Table("Navigation.RobotChassisInfos")]
 public class RobotChassisInfo
 {
   [Key]
