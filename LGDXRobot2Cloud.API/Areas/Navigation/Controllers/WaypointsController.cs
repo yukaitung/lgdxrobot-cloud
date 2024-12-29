@@ -59,7 +59,7 @@ public class WaypointsController(
     if (!await _realmRepository.IsRealmExistsAsync(waypointCreateDto.RealmId))
     {
       ModelState.AddModelError(nameof(waypointCreateDto.RealmId), "Realm does not exist.");
-      return BadRequest(ModelState);
+      return ValidationProblem();
     }
     var waypointEntity = _mapper.Map<Waypoint>(waypointCreateDto);
     await _waypointRepository.AddWaypointAsync(waypointEntity);
@@ -80,7 +80,7 @@ public class WaypointsController(
     if (!await _realmRepository.IsRealmExistsAsync(waypointUpdateDto.RealmId))
     {
       ModelState.AddModelError(nameof(waypointUpdateDto.RealmId), "Realm does not exist.");
-      return BadRequest(ModelState);
+      return ValidationProblem();
     }
     _mapper.Map(waypointUpdateDto, waypointEntity);
     await _waypointRepository.SaveChangesAsync();
