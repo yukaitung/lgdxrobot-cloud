@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
@@ -11,9 +10,15 @@ public class Waypoint
   [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
   public int Id { get; set; }
 
-  [MaxLength(50)]
+  [MaxLength(100)]
   [Required]
   public string Name { get; set; } = null!;
+
+  [ForeignKey("RealmId")]
+  public Realm Realm { get; set; } = null!;
+
+  [Required]
+  public int RealmId { get; set; }
   
   [Required]
   public double X { get; set; }
@@ -24,9 +29,12 @@ public class Waypoint
   [Required]
   public double Rotation { get; set; }
 
-  [Precision(3)]
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-  
-  [Precision(3)]
-  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+  [Required]
+  public bool IsParking { get; set; }
+
+  [Required]
+  public bool HasCharger { get; set; }
+
+  [Required]
+  public bool IsReserved { get; set; }
 }

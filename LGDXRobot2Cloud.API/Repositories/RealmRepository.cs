@@ -14,6 +14,7 @@ public interface IRealmRepository
   Task<bool> SaveChangesAsync();
 
   Task<Realm?> GetDefaultRealmAsync();
+  Task<bool> IsRealmExistsAsync(int id); 
 }
 
 public class RealmRepository(LgdxContext context) : IRealmRepository
@@ -61,5 +62,10 @@ public class RealmRepository(LgdxContext context) : IRealmRepository
   public async Task<Realm?> GetDefaultRealmAsync()
   {
     return await _context.Realms.OrderBy(m => m.Id).FirstOrDefaultAsync();
+  }
+
+  public async Task<bool> IsRealmExistsAsync(int id)
+  {
+    return await _context.Realms.AnyAsync(m => m.Id == id);
   }
 }

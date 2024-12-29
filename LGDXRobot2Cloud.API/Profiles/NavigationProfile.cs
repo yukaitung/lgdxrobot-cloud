@@ -38,9 +38,10 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<Models.Commands.TriggerCreateDto, Entities.Trigger>();
       CreateMap<Models.Commands.TriggerUpdateDto, Entities.Trigger>();
       // Waypoint
-      CreateMap<Entities.Waypoint, Models.Responses.WaypointDto>();
-      CreateMap<Models.Commands.WaypointCreateDto, Entities.Waypoint>();
-      CreateMap<Models.Commands.WaypointUpdateDto, Entities.Waypoint>();
+      CreateMap<Entities.Waypoint, WaypointDto>();
+      CreateMap<Entities.Waypoint, WaypointListDto>();
+      CreateMap<WaypointCreateDto, Entities.Waypoint>();
+      CreateMap<WaypointUpdateDto, Entities.Waypoint>();
       // Map
       CreateMap<Entities.Realm, RealmDto>()
         .ForMember(d => d.Image, opt => opt.MapFrom(s => Convert.ToBase64String(s.Image)));
