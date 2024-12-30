@@ -27,6 +27,9 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
   public required IWaypointService WaypointService { get; set; }
 
   [Inject]
+  public required IRealmService RealmService { get; set; }
+
+  [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
@@ -44,8 +47,8 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
   // Form helping variables
-  private readonly string[] AdvanceSelectElements = ["FlowId-", "AssignedRobotId-", "WaypointsId-"];
-  private readonly string[] AdvanceSelectElementsDetail = ["WaypointsId-"];
+  private readonly string[] AdvanceSelectElements = [$"{nameof(AutoTaskDetailViewModel.FlowId)}-", $"{nameof(AutoTaskDetailViewModel.AssignedRobotId)}-", $"{nameof(TaskDetailBody.WaypointId)}-", $"{nameof(AutoTaskDetailViewModel.RealmId)}-"];
+  private readonly string[] AdvanceSelectElementsDetail = [$"{nameof(TaskDetailBody.WaypointId)}-"];
   private int InitaisedAdvanceSelect { get; set; } = 0;
 
   // Form
@@ -80,6 +83,11 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
       var response = await WaypointService.SearchWaypointsAsync(name);
       result = response.Data!;
     }
+    else if (element == AdvanceSelectElements[3])
+    {
+      var response = await RealmService.SearchRealmsAsync(name);
+      result = response.Data!;
+    }
     await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
   }
 
@@ -107,6 +115,11 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     {
       AutoTaskDetailViewModel.AutoTaskDetails[order].WaypointId = id != null ? int.Parse(id) : null;
       AutoTaskDetailViewModel.AutoTaskDetails[order].WaypointName = name;
+    }
+    else if (element == AdvanceSelectElements[3])
+    {
+      AutoTaskDetailViewModel.RealmId = id != null ? int.Parse(id) : null;
+      AutoTaskDetailViewModel.RealmName = name;
     }
   }
 

@@ -3,7 +3,7 @@ using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
-using LGDXRobot2Cloud.UI.ViewModels.Administration.Roles;
+using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 

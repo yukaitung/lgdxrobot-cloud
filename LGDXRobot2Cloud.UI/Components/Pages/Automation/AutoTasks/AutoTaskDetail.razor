@@ -87,6 +87,25 @@
           </div>
         </div>
         <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="@nameof(AutoTaskDetailViewModel.RealmId)">Realm</label>
+          <div class="col">
+            @if (IsEditable())
+            {
+              <InputSelect id="@(AdvanceSelectElements[3] + "0")" class="form-control" @bind-Value="AutoTaskDetailViewModel.RealmId">
+                @if (AutoTaskDetailViewModel.RealmId != null)
+                {
+                  <option value="@AutoTaskDetailViewModel.RealmId">@AutoTaskDetailViewModel.RealmName</option>
+                }
+              </InputSelect>
+              <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.RealmId)" />
+            }
+            else
+            {
+              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.RealmName</div>
+            }
+          </div>
+        </div>
+        <div class="mb-3 row">
           <label class="col-3 col-form-label" for="@nameof(AutoTaskDetailViewModel.AssignedRobotId)">Assign Robot</label>
           <div class="col">
             @if (IsEditable())
@@ -126,119 +145,123 @@
             </div>
           </div>
         }
-        <div class="form-label">Waypoints</div>
-        <table class="table table-vcenter text-nowrap datatable">
-          <thead>
-            <tr>
-              <th class="w-1">ID</th>
-              @if (IsEditable())
-              {
-                <th class="w-1"></th>
-              }
-              <th style="width:250px">Waypoint</th>
-              <th>X</th>
-              <th>Y</th>
-              <th>Rotation</th>
-              @if (IsEditable())
-              {
-                <th class="w-1"></th>
-              }
-            </tr>
-          </thead>
-          <tbody>
-            @for (int i = 0; i < AutoTaskDetailViewModel.AutoTaskDetails.Count; i++)
-            {
-              var index = i;
-              var taskDetail = AutoTaskDetailViewModel.AutoTaskDetails[i];
-              <tr>
-                <td>
-                  @if (taskDetail.Id != null)
-                  {
-                    <div class="col col-form-label col-form-label-sm">@taskDetail.Id</div>
-                  }
-                </td>
-                @if (IsEditable())
-                {
-                  <td>
-                    <button type="button" class="btn btn-ghost-secondary btn-icon btn @(i < 1 ? "disabled" : "")"
-                      @onclick="e => TaskStepMoveUp(index)">
-                      <i class="ti ti-arrow-up" style="font-size: 16px;"></i>
-                    </button>
-                    <button type="button"
-                      class="btn btn-ghost-secondary btn-icon btn @(i >= AutoTaskDetailViewModel.AutoTaskDetails.Count - 1 ? "disabled" : "")"
-                      @onclick="e => TaskStepMoveDown(index)">
-                      <i class="ti ti-arrow-down" style="font-size: 16px;"></i>
-                    </button>
-                  </td>
-                }
-                <td>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label">Waypoints</label>
+          <div class="col">
+            <table class="table table-vcenter text-nowrap datatable">
+              <thead>
+                <tr>
+                  <th class="w-1">ID</th>
                   @if (IsEditable())
                   {
-                    <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control form-control"
-                      @bind-Value="taskDetail.WaypointId">
-                      @if (taskDetail.WaypointName != null)
+                    <th class="w-1"></th>
+                  }
+                  <th style="width:250px">Waypoint</th>
+                  <th>X</th>
+                  <th>Y</th>
+                  <th>Rotation</th>
+                  @if (IsEditable())
+                  {
+                    <th class="w-1"></th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (int i = 0; i < AutoTaskDetailViewModel.AutoTaskDetails.Count; i++)
+                {
+                  var index = i;
+                  var taskDetail = AutoTaskDetailViewModel.AutoTaskDetails[i];
+                  <tr>
+                    <td>
+                      @if (taskDetail.Id != null)
                       {
-                        <option value="@taskDetail.WaypointId">@taskDetail.WaypointName</option>
+                        <div class="col col-form-label col-form-label-sm">@taskDetail.Id</div>
                       }
-                    </InputSelect>
-                  }
-                  else
-                  {
-                    <div class="col col-form-label col-form-label">@taskDetail.WaypointName</div>
-                  }
-                </td>
-                <td>
-                  @if (IsEditable())
-                  {
-                    <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX">
-                  }
-                  else
-                  {
-                    <div class="col col-form-label col-form-label">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX</div>
-                  }
-                </td>
-                <td>
-                  @if (IsEditable())
-                  {
-                    <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY">
-                  }
-                  else
-                  {
-                    <div class="col col-form-label col-form-label">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY</div>
-                  }
-                </td>
-                <td>
-                  @if (IsEditable())
-                  {
-                    <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation">
-                  }
-                  else
-                  {
-                    <div class="col col-form-label col-form-label">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation</div>
-                  }
-                </td>
-                @if (IsEditable())
-                {
-                  <td>
-                    <button type="button"
-                      class="btn btn-ghost-danger btn-icon btn @(AutoTaskDetailViewModel.AutoTaskDetails.Count <= 1 ? "disabled" : "")"
-                      @onclick="e => TaskRemoveStep(index)">
-                      <i class="ti ti-trash" style="font-size: 16px;"></i>
-                    </button>
-                  </td>
+                    </td>
+                    @if (IsEditable())
+                    {
+                      <td>
+                        <button type="button" class="btn btn-ghost-secondary btn-icon btn @(i < 1 ? "disabled" : "")"
+                          @onclick="e => TaskStepMoveUp(index)">
+                          <i class="ti ti-arrow-up" style="font-size: 16px;"></i>
+                        </button>
+                        <button type="button"
+                          class="btn btn-ghost-secondary btn-icon btn @(i >= AutoTaskDetailViewModel.AutoTaskDetails.Count - 1 ? "disabled" : "")"
+                          @onclick="e => TaskStepMoveDown(index)">
+                          <i class="ti ti-arrow-down" style="font-size: 16px;"></i>
+                        </button>
+                      </td>
+                    }
+                    <td>
+                      @if (IsEditable())
+                      {
+                        <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control form-control"
+                          @bind-Value="taskDetail.WaypointId">
+                          @if (taskDetail.WaypointName != null)
+                          {
+                            <option value="@taskDetail.WaypointId">@taskDetail.WaypointName</option>
+                          }
+                        </InputSelect>
+                      }
+                      else
+                      {
+                        <div class="col col-form-label col-form-label">@taskDetail.WaypointName</div>
+                      }
+                    </td>
+                    <td>
+                      @if (IsEditable())
+                      {
+                        <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX">
+                      }
+                      else
+                      {
+                        <div class="col col-form-label col-form-label">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX</div>
+                      }
+                    </td>
+                    <td>
+                      @if (IsEditable())
+                      {
+                        <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY">
+                      }
+                      else
+                      {
+                        <div class="col col-form-label col-form-label">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY</div>
+                      }
+                    </td>
+                    <td>
+                      @if (IsEditable())
+                      {
+                        <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation">
+                      }
+                      else
+                      {
+                        <div class="col col-form-label col-form-label">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation</div>
+                      }
+                    </td>
+                    @if (IsEditable())
+                    {
+                      <td>
+                        <button type="button"
+                          class="btn btn-ghost-danger btn-icon btn @(AutoTaskDetailViewModel.AutoTaskDetails.Count <= 1 ? "disabled" : "")"
+                          @onclick="e => TaskRemoveStep(index)">
+                          <i class="ti ti-trash" style="font-size: 16px;"></i>
+                        </button>
+                      </td>
+                    }
+                  </tr>
                 }
-              </tr>
+              </tbody>
+            </table>
+            @if (IsEditable())
+            {
+              <div class="row">
+                <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="TaskAddStep">
+                  Add Step
+                </button>
+              </div>
             }
-          </tbody>
-        </table>
-        @if (IsEditable())
-        {
-          <div class="row">
-            <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="TaskAddStep">
-              Add A Step
-            </button>
           </div>
-        }
+        </div>
       </div>
       @if (IsEditable())
       {

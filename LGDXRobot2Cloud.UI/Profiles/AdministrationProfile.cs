@@ -3,8 +3,6 @@ using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.ViewModels.Administration;
-using LGDXRobot2Cloud.UI.ViewModels.Administration.Roles;
-using LGDXRobot2Cloud.UI.ViewModels.Administration.Users;
 
 namespace LGDXRobot2Cloud.UI.Profiles;
 
