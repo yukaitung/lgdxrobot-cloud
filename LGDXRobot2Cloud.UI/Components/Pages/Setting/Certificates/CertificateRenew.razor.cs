@@ -1,9 +1,9 @@
 using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
@@ -26,9 +26,8 @@ public sealed partial class CertificateRenew
   [Parameter]
   public string? Id { get; set; }
 
-  private RobotCertificateIssueDto? RobotCertificates { get; set; }
-  private RobotRenewCertificateRenewDto Settings { get; set; } = new();
-  private bool IsError { get; set; } = false;
+  private RobotCertificateIssueDto? RobotCertificate { get; set; }
+  private RobotCertificateRenewViewModel RobotCertificateRenewViewModel { get; set; } = new();
   public readonly List<string> stepHeadings = ["Begin", "Download Cerificates", "Complete"];
   private int currentStep = 0;
 
@@ -43,19 +42,19 @@ public sealed partial class CertificateRenew
   {
     if (currentStep == 0)
     {
-      var success = await RobotCertificateService.RenewRobotCertificateAsync(Id!, Settings);
-      if (success != null)
+      var response = await RobotCertificateService.RenewRobotCertificateAsync(Id!, Mapper.Map<RobotCertificateRenewRequestDto>(RobotCertificateRenewViewModel));
+      if (response.IsSuccess)
       {
-        RobotCertificates = success;
-        IsError = false;
+        RobotCertificate = response.Data;
+        RobotCertificateRenewViewModel.Errors = null;
         currentStep++;
       }
       else
-        IsError = true;
+        RobotCertificateRenewViewModel.Errors = response.Errors;
     }
     else if (currentStep == 1)
     {
-      RobotCertificates = null;
+      RobotCertificate = null;
       currentStep++;
     }
     else 

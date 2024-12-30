@@ -1,5 +1,6 @@
 using AutoMapper;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using LGDXRobot2Cloud.UI.ViewModels.Administration.Roles;
@@ -20,6 +21,9 @@ public class AdministrationProfile : Profile
     CreateMap<LgdxRoleDto, RolesDetailViewModel>();
     CreateMap<RolesDetailViewModel, LgdxRoleUpdateDto>();
     CreateMap<RolesDetailViewModel, LgdxRoleCreateDto>();
+
+    // Robot Certificates
+    CreateMap<RobotCertificateRenewViewModel, RobotCertificateRenewRequestDto>();
 
     // Users
     CreateMap<LgdxUserDto, UserDetailViewModel>();

@@ -36,13 +36,13 @@
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Robot ID</label>
               <div class="col">
-                <div class="col form-control-plaintext">@RobotCertificate.RobotId</div>
+                <div class="col form-control-plaintext">@RobotCertificate.Robot.Id</div>
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Robot Name</label>
               <div class="col">
-                <div class="col form-control-plaintext">@(RobotCertificate.RobotName ?? "-")</div>
+                <div class="col form-control-plaintext">@(RobotCertificate.Robot.Name)</div>
               </div>
             </div>
             <div class="mb-3 row">
@@ -67,18 +67,6 @@
               <label class="col-3 col-form-label">Invalid After</label>
               <div class="col">
                 <div class="col form-control-plaintext">@RobotCertificate.NotAfter</div>
-              </div>
-            </div>
-            <div class="mb-3 row">
-              <label class="col-3 col-form-label">Created At</label>
-              <div class="col">
-                <div class="col form-control-plaintext">@RobotCertificate.CreatedAt</div>
-              </div>
-            </div>
-            <div class="mb-3 row">
-              <label class="col-3 col-form-label">Updated At</label>
-              <div class="col">
-                <div class="col form-control-plaintext">@RobotCertificate.UpdatedAt</div>
               </div>
             </div>
           </div>

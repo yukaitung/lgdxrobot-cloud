@@ -37,9 +37,9 @@
         </tr>
       </thead>
       <tbody>
-        @if (RobotCertificateList != null)
+        @if (RobotCertificates != null)
         {
-          @foreach (var certificate in RobotCertificateList)
+          @foreach (var certificate in RobotCertificates)
           {
             var certificateId = certificate.Id;
             <tr>
@@ -59,15 +59,15 @@
         }
       </tbody>
     </table>
-    @if (RobotCertificateList != null && RobotCertificateList.Count() == 0)
+    @if (RobotCertificates != null && RobotCertificates.Count() == 0)
     {
       <TableEmpty />
     }
   </div>
   <!-- Footer -->
-  @if (PaginationHelper != null && RobotCertificateList != null && RobotCertificateList.Count() > 0)
+  @if (PaginationHelper != null && RobotCertificates != null && RobotCertificates.Count() > 0)
   {
-    <TablePagination PaginationHelper="PaginationHelper" ItemCount="RobotCertificateList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="RobotCertificates.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

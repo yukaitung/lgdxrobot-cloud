@@ -23,7 +23,7 @@
     <div class="card-header">
       <h3 class="card-title">Robot Detail</h3>
     </div>
-    <form onsubmit="@HandleSubmit">
+    <form @onsubmit="HandleSubmit">
       <div class="card-body">
         <div class="mb-3 row">
           <ul class="steps steps-counter">
@@ -33,14 +33,14 @@
             }
           </ul>
         </div>
-        <SubmitErrorModal Display="@IsError" />
+        <ApiErrorAlert Errors="RobotCertificateRenewViewModel.Errors" />
         @if (currentStep == 0)
         {
           <div class="mb-3 row">
             <label class="col-3 col-form-label pt-0" for="RevokeOldCertificate">Revoke Certificate</label>
             <div class="col">
               <label class="form-check mt-auto">
-                <input class="form-check-input" type="checkbox" @bind="Settings.RevokeOldCertificate">
+                <input class="form-check-input" type="checkbox" @bind="RobotCertificateRenewViewModel.RevokeOldCertificate">
                 <span class="form-check-label">Revoke current robot certificate immediately after renew</span>
               </label>
             </div>
@@ -48,7 +48,7 @@
         }
         else if (currentStep == 1)
         {
-          <RobotCertificateKeyForm RobotCertificates="RobotCertificates" />
+          <RobotCertificateKeyForm RobotCertificates="RobotCertificate" />
         }
         else if (currentStep == 2)
         {

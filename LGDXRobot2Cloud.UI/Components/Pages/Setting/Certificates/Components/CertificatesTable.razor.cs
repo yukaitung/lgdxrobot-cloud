@@ -1,5 +1,5 @@
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
-using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -9,7 +9,7 @@ public sealed partial class CertificatesTable : AbstractTable
   [Inject]
   public required IRobotCertificateService RobotCertificateService { get; set; }
 
-  private List<RobotCertificate>? RobotCertificateList { get; set; }
+  private List<RobotCertificateListDto>? RobotCertificates { get; set; }
   
   public override async Task HandlePageSizeChange(int number)
   {
@@ -19,8 +19,8 @@ public sealed partial class CertificatesTable : AbstractTable
     else if (PageSize < 1)
       PageSize = 1;
     var data = await RobotCertificateService.GetRobotCertificatesAsync(1, PageSize);
-    RobotCertificateList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    RobotCertificates = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task HandleSearch()
@@ -28,8 +28,8 @@ public sealed partial class CertificatesTable : AbstractTable
     if (LastDataSearch == DataSearch)
       return;
     var data = await RobotCertificateService.GetRobotCertificatesAsync(1, PageSize);
-    RobotCertificateList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    RobotCertificates = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task HandleClearSearch()
@@ -48,16 +48,16 @@ public sealed partial class CertificatesTable : AbstractTable
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
     var data = await RobotCertificateService.GetRobotCertificatesAsync(pageNum, PageSize);
-    RobotCertificateList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    RobotCertificates = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
-    if (deleteOpt && CurrentPage > 1 && RobotCertificateList?.Count == 1)
+    if (deleteOpt && CurrentPage > 1 && RobotCertificates?.Count == 1)
       CurrentPage--;
     var data = await RobotCertificateService.GetRobotCertificatesAsync(CurrentPage, PageSize);
-    RobotCertificateList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    RobotCertificates = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 }

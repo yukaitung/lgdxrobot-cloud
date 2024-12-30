@@ -1,4 +1,5 @@
 using AutoMapper;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -23,7 +24,7 @@ public sealed partial class CertificateDetail
   [Parameter]
   public string? Id { get; set; }
 
-  RobotCertificate? RobotCertificate { get; set; } = null!;
+  RobotCertificateDto RobotCertificate { get; set; } = null!;
 
   string RedirectUrl { get; set; } = string.Empty;
 
@@ -37,7 +38,8 @@ public sealed partial class CertificateDetail
     parameters.SetParameterProperties(this);
     if (parameters.TryGetValue<string?>(nameof(Id), out var _id) && _id != null)
     {
-      var robotCertificate = await RobotCertificateService.GetRobotCertificateAsync(_id);
+      var response = await RobotCertificateService.GetRobotCertificateAsync(_id);
+      var robotCertificate = response.Data;
       if (robotCertificate != null) 
       {
         RobotCertificate = robotCertificate;

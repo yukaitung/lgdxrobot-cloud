@@ -1,9 +1,8 @@
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using LGDXRobot2Cloud.UI.Models;
+using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -11,58 +10,114 @@ namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IRobotCertificateService
 {
-  Task<(IEnumerable<RobotCertificate>?, PaginationHelper?)> GetRobotCertificatesAsync(int pageNumber = 1, int pageSize = 10);
-  Task<RobotCertificate?> GetRobotCertificateAsync(string certificateId);
-  Task<RobotCertificateIssueDto?> RenewRobotCertificateAsync(string certificateId, RobotRenewCertificateRenewDto dto);
-  Task<RootCertificateDto?> GetRootCertificateAsync();
+  Task<ApiResponse<(IEnumerable<RobotCertificateListDto>?, PaginationHelper?)>> GetRobotCertificatesAsync(int pageNumber = 1, int pageSize = 10);
+  Task<ApiResponse<RobotCertificateDto>> GetRobotCertificateAsync(string certificateId);
+  Task<ApiResponse<RobotCertificateIssueDto>> RenewRobotCertificateAsync(string certificateId, RobotCertificateRenewRequestDto robotCertificateRenewRequestDto);
+  Task<ApiResponse<RootCertificateDto>> GetRootCertificateAsync();
 }
 
 public sealed class RobotCertificateService(
-  AuthenticationStateProvider authenticationStateProvider, 
-  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IRobotCertificateService
+    AuthenticationStateProvider authenticationStateProvider, 
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IRobotCertificateService
 {
-  public async Task<(IEnumerable<RobotCertificate>?, PaginationHelper?)> GetRobotCertificatesAsync(int pageNumber = 1, int pageSize = 10)
+  public async Task<ApiResponse<(IEnumerable<RobotCertificateListDto>?, PaginationHelper?)>>  GetRobotCertificatesAsync(int pageNumber = 1, int pageSize = 10)
   {
-    var url = $"setting/certificates?pageNumber={pageNumber}&pageSize={pageSize}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var certificates = await JsonSerializer.DeserializeAsync<IEnumerable<RobotCertificate>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (certificates, PaginationHelper);
+      var url = $"Administration/RobotCertificates?pageNumber={pageNumber}&pageSize={pageSize}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+        var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
+        var robotCertificates = await JsonSerializer.DeserializeAsync<IEnumerable<RobotCertificateListDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<(IEnumerable<RobotCertificateListDto>?, PaginationHelper?)> {
+          Data = (robotCertificates, PaginationHelper),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
-    }
-  }
-
-  public async Task<RobotCertificate?> GetRobotCertificateAsync(string certificateId)
-  {
-    var response = await _httpClient.GetAsync($"setting/certificates/{certificateId}");
-    var certificate = await JsonSerializer.DeserializeAsync<RobotCertificate>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    return certificate;
-  }
-
-  public async Task<RobotCertificateIssueDto?> RenewRobotCertificateAsync(string certificateId, RobotRenewCertificateRenewDto dto)
-  {
-    var json = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync($"setting/certificates/{certificateId}/renew", json);
-    if (response.IsSuccessStatusCode)
-    {
-      return await JsonSerializer.DeserializeAsync<RobotCertificateIssueDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    }
-    else
-    {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 
-  public async Task<RootCertificateDto?> GetRootCertificateAsync()
+  public async Task<ApiResponse<RobotCertificateDto>> GetRobotCertificateAsync(string certificateId)
   {
-    var response = await _httpClient.GetAsync("setting/certificates/root");
-    var rootCertificate = await JsonSerializer.DeserializeAsync<RootCertificateDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    return rootCertificate;
+    try
+    {
+      var response = await _httpClient.GetAsync($"Administration/RobotCertificates/{certificateId}");
+      if (response.IsSuccessStatusCode)
+      {
+        var robotCertificate = await JsonSerializer.DeserializeAsync<RobotCertificateDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<RobotCertificateDto> {
+          Data = robotCertificate,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<RobotCertificateIssueDto>> RenewRobotCertificateAsync(string certificateId, RobotCertificateRenewRequestDto robotCertificateRenewRequestDto)
+  {
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(robotCertificateRenewRequestDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync($"Administration/RobotCertificates/{certificateId}/Renew", content);
+      var robotCertificate = await JsonSerializer.DeserializeAsync<RobotCertificateIssueDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<RobotCertificateIssueDto> {
+          Data = robotCertificate,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<RootCertificateDto>> GetRootCertificateAsync()
+  {
+    try
+    {
+      var response = await _httpClient.GetAsync("Administration/RobotCertificates/Root");
+      if (response.IsSuccessStatusCode)
+      {
+        var rootCertificate = await JsonSerializer.DeserializeAsync<RootCertificateDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<RootCertificateDto> {
+          Data = rootCertificate,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 }
