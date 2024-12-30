@@ -1,5 +1,5 @@
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
-using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Components;
@@ -20,7 +20,7 @@ public sealed partial class TasksTable : AbstractTable
   [Parameter]
   public bool ShowRunningTasks { get; set; } = false;
 
-  private List<AutoTask>? TasksList { get; set; }
+  private List<AutoTaskListDto>? AutoTasks { get; set; }
 
   public bool IsEditable()
   {
@@ -35,8 +35,8 @@ public sealed partial class TasksTable : AbstractTable
     else if (PageSize < 1)
       PageSize = 1;
     var data = await AutoTaskService.GetAutoTasksAsync(ShowProgressId, ShowRunningTasks, DataSearch, 1, PageSize);
-    TasksList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    AutoTasks = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task HandleSearch()
@@ -44,8 +44,8 @@ public sealed partial class TasksTable : AbstractTable
     if (LastDataSearch == DataSearch)
       return;
     var data = await AutoTaskService.GetAutoTasksAsync(ShowProgressId, ShowRunningTasks, DataSearch, 1, PageSize);
-    TasksList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    AutoTasks = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
     LastDataSearch = DataSearch;
   }
 
@@ -65,16 +65,16 @@ public sealed partial class TasksTable : AbstractTable
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
     var data = await AutoTaskService.GetAutoTasksAsync(ShowProgressId, ShowRunningTasks, DataSearch, pageNum, PageSize);
-    TasksList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    AutoTasks = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
-    if (deleteOpt && CurrentPage > 1 && TasksList?.Count == 1)
+    if (deleteOpt && CurrentPage > 1 && AutoTasks?.Count == 1)
       CurrentPage--;
     var data = await AutoTaskService.GetAutoTasksAsync(ShowProgressId, ShowRunningTasks, DataSearch, CurrentPage, PageSize);
-    TasksList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    AutoTasks = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 }

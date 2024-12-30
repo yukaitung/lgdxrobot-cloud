@@ -42,30 +42,28 @@
           <th class="w-1">ID</th>
           <th>Name</th>
           <th>Priority</th>
+          <th>Realm</th>
           <th>Assigned Robot</th>
           <th>Current Progress</th>
           <th>Flow</th>
-          <th class="w-1">Create Time</th>
-          <th class="w-1">Last Update Time</th>
           <th class="w-1"><!-- Action --></th>
           <th class="w-1"><!-- Action --></th>
         </tr>
       </thead>
       <tbody>
-        @if (TasksList != null)
+        @if (AutoTasks != null)
         {
-          @foreach (var task in TasksList)
+          @foreach (var task in AutoTasks)
           {
             var taskId = task.Id;
             <tr>
               <td>@task.Id</td>
               <td>@(string.IsNullOrWhiteSpace(task.Name) ? "-" : task.Name)</td>
               <td>@task.Priority</td>
+              <td>@task.Realm.Name</td>
               <td>@(string.IsNullOrWhiteSpace(task.AssignedRobot?.Name) ? "-" : task.AssignedRobot.Name)</td>
               <td>@task.CurrentProgress.Name</td>
               <td>@task.Flow.Name</td>
-              <td>@task.CreatedAt</td>
-              <td>@task.UpdatedAt</td>
               <td>
                 <a href="@(AppRoutes.Navigation.Tasks.Index + $"/{taskId}?clone=true")" class="page-link link-primary">Clone</a>
               </td>
@@ -81,15 +79,15 @@
         }
       </tbody>
     </table>
-    @if (TasksList != null && TasksList.Count() == 0)
+    @if (AutoTasks != null && AutoTasks.Count() == 0)
     {
       <TableEmpty />
     }
   </div>
   <!-- Footer -->
-  @if (PaginationHelper != null && TasksList != null && TasksList.Count() > 0)
+  @if (PaginationHelper != null && AutoTasks != null && AutoTasks.Count() > 0)
   {
-    <TablePagination PaginationHelper="PaginationHelper" ItemCount="TasksList.Count()"
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="AutoTasks.Count()"
       OnPageChange="HandlePageChange" />
   }
 </div>

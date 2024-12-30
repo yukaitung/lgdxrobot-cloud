@@ -9,6 +9,24 @@ public class AutomationProfile : Profile
 {
   public AutomationProfile()
   {
+    // AutoTasks
+    CreateMap<TaskDetailViewModel, AutoTaskCreateDto>();
+    CreateMap<TaskDetailBody, AutoTaskDetailCreateDto>();
+    CreateMap<TaskDetailViewModel, AutoTaskUpdateDto>();
+    CreateMap<TaskDetailBody, AutoTaskDetailUpdateDto>();
+    CreateMap<AutoTaskDto, TaskDetailViewModel>()
+      .ForMember(d => d.FlowId, opt => opt.MapFrom(s => s.Flow.Id))
+      .ForMember(d => d.FlowName, opt => opt.MapFrom(s => s.Flow.Name))
+      .ForMember(d => d.RealmId, opt => opt.MapFrom(s => s.Realm.Id))
+      .ForMember(d => d.RealmName, opt => opt.MapFrom(s => s.Realm.Name))
+      .ForMember(d => d.AssignedRobotId, opt => opt.MapFrom(s => s.AssignedRobot!.Id))
+      .ForMember(d => d.AssignedRobotName, opt => opt.MapFrom(s => s.AssignedRobot!.Name))
+      .ForMember(d => d.CurrentProgressId, opt => opt.MapFrom(s => s.CurrentProgress.Id))
+      .ForMember(d => d.CurrentProgressName, opt => opt.MapFrom(s => s.CurrentProgress.Name));
+    CreateMap<AutoTaskDetailDto, TaskDetailBody>()
+      .ForMember(d => d.WaypointId, opt => opt.MapFrom(s => s.Waypoint!.Id))
+      .ForMember(d => d.WaypointName, opt => opt.MapFrom(s => s.Waypoint!.Name));
+
     // Flow
     CreateMap<FlowDetailViewModel, FlowCreateDto>();
     CreateMap<FlowDetailBody, FlowDetailCreateDto>();

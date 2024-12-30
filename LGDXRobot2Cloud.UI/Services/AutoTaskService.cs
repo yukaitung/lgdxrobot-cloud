@@ -1,78 +1,209 @@
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using LGDXRobot2Cloud.Utilities.Enums;
-using LGDXRobot2Cloud.UI.Models;
 using Microsoft.AspNetCore.Components.Authorization;
+using LGDXRobot2Cloud.UI.Helpers;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using System.Net;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IAutoTaskService
 {
-  Task<(IEnumerable<AutoTask>?, PaginationHelper?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<AutoTask?> GetAutoTaskAsync(int autoTaskId);
-  Task<bool> AddAutoTaskAsync(AutoTaskCreateDto autoTask);
-  Task<bool> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateDto autoTask);
-  Task<bool> DeleteAutoTaskAsync(int autoTaskId);
-  Task<bool> AbortAutoTaskAsync(int autoTaskId);
+  Task<ApiResponse<(IEnumerable<AutoTaskListDto>?, PaginationHelper?)>> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<ApiResponse<AutoTaskDto>> GetAutoTaskAsync(int autoTaskId);
+  Task<ApiResponse<bool>> AddAutoTaskAsync(AutoTaskCreateDto autoTaskCreateDto);
+  Task<ApiResponse<bool>> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateDto autoTaskUpdateDto);
+  Task<ApiResponse<bool>> DeleteAutoTaskAsync(int autoTaskId);
+  Task<ApiResponse<bool>> AbortAutoTaskAsync(int autoTaskId);
 }
 
 public sealed class AutoTaskService(
-  AuthenticationStateProvider authenticationStateProvider, 
-  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IAutoTaskService
+    AuthenticationStateProvider authenticationStateProvider, 
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IAutoTaskService
 {
-    public async Task<(IEnumerable<AutoTask>?, PaginationHelper?)> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<ApiResponse<(IEnumerable<AutoTaskListDto>?, PaginationHelper?)>> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10)
   {
-    StringBuilder url = new($"navigation/tasks?pageNumber={pageNumber}&pageSize={pageSize}");
-    if (showProgressId != null)
-      url.Append($"&showProgressId={(int)showProgressId}");
-    if (showRunningTasks == true)
-      url.Append("&showRunningTasks=true");
-    var response = await _httpClient.GetAsync(url.ToString());
-    if (response.IsSuccessStatusCode)
+    try
     {
-      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var tasks = await JsonSerializer.DeserializeAsync<IEnumerable<AutoTask>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (tasks, PaginationHelper);
+      StringBuilder url = new($"Automation/AutoTasks?pageNumber={pageNumber}&pageSize={pageSize}");
+      if (showProgressId != null)
+        url.Append($"&showProgressId={(int)showProgressId}");
+      if (showRunningTasks == true)
+        url.Append("&showRunningTasks=true");
+      var response = await _httpClient.GetAsync(url.ToString());
+      if (response.IsSuccessStatusCode)
+      {
+        var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+        var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
+        var autoTasks = await JsonSerializer.DeserializeAsync<IEnumerable<AutoTaskListDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<(IEnumerable<AutoTaskListDto>?, PaginationHelper?)> {
+          Data = (autoTasks, PaginationHelper),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
   
-  public async Task<AutoTask?> GetAutoTaskAsync(int autoTaskId)
+  public async Task<ApiResponse<AutoTaskDto>> GetAutoTaskAsync(int autoTaskId)
   {
-    var response = await _httpClient.GetAsync($"navigation/tasks/{autoTaskId}");
-    var task = await JsonSerializer.DeserializeAsync<AutoTask>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    return task;
+    try
+    {
+      var response = await _httpClient.GetAsync($"Automation/AutoTasks/{autoTaskId}");
+      if (response.IsSuccessStatusCode)
+      {
+        var autoTask = await JsonSerializer.DeserializeAsync<AutoTaskDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<AutoTaskDto> {
+          Data = autoTask,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 
-  public async Task<bool> AddAutoTaskAsync(AutoTaskCreateDto autoTask)
+  public async Task<ApiResponse<bool>>  AddAutoTaskAsync(AutoTaskCreateDto autoTaskCreateDto)
   {
-    var taskJson = new StringContent(JsonSerializer.Serialize(autoTask), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("navigation/tasks", taskJson);
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(autoTaskCreateDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync("Automation/AutoTasks", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 
-  public async Task<bool> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateDto autoTask)
+  public async Task<ApiResponse<bool>> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateDto autoTaskUpdateDto)
   {
-    var taskJson = new StringContent(JsonSerializer.Serialize(autoTask), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PutAsync($"navigation/tasks/{autoTaskId}", taskJson);
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(autoTaskId), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PutAsync($"Automation/AutoTasks/{autoTaskId}", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 
-  public async Task<bool> DeleteAutoTaskAsync(int autoTaskId)
+  public async Task<ApiResponse<bool>> DeleteAutoTaskAsync(int autoTaskId)
   {
-    var response = await _httpClient.DeleteAsync($"navigation/tasks/{autoTaskId}");
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var response = await _httpClient.DeleteAsync($"Automation/AutoTasks/{autoTaskId}");
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 
-  public async Task<bool> AbortAutoTaskAsync(int autoTaskId)
+  public async Task<ApiResponse<bool>>  AbortAutoTaskAsync(int autoTaskId)
   {
-    var response = await _httpClient.PostAsync($"navigation/tasks/{autoTaskId}/abort", null);
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var response = await _httpClient.PostAsync($"Automation/AutoTasks/{autoTaskId}/Abort", null);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 }
