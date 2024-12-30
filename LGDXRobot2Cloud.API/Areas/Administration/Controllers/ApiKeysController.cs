@@ -3,8 +3,8 @@ using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,17 +12,18 @@ using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-namespace LGDXRobot2Cloud.API.Areas.Setting.Controllers;
+namespace LGDXRobot2Cloud.API.Areas.Administration.Controllers;
 
 [ApiController]
-[Area("Setting")]
+[Area("Administration")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
-public class ApiKeysController(
-  IApiKeyRepository apiKeyRepository,
-  IMapper mapper,
-  IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration) : ControllerBase
+public sealed class ApiKeysController(
+    IApiKeyRepository apiKeyRepository,
+    IMapper mapper,
+    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration
+  ) : ControllerBase
 {
   private readonly IApiKeyRepository _apiKeyRepository = apiKeyRepository;
   private readonly IMapper _mapper = mapper;
@@ -38,6 +39,7 @@ public class ApiKeysController(
   }
 
   [HttpGet("")]
+  [ProducesResponseType(typeof(IEnumerable<ApiKeyDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<ApiKeyDto>>> GetApiKeys(string? name, bool isThirdParty = false, int pageNumber = 1, int pageSize = 10)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
@@ -47,6 +49,8 @@ public class ApiKeysController(
   }
 
   [HttpGet("{id}", Name = "GetApiKey")]
+  [ProducesResponseType(typeof(LgdxRoleDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<ApiKeyDto>> GetApiKey(int id)
   {
     var apiKey = await _apiKeyRepository.GetApiKeyAsync(id);
@@ -56,34 +60,35 @@ public class ApiKeysController(
   }
 
   [HttpPost("")]
-  public async Task<ActionResult> CreateApiKey(ApiKeyCreateDto apiKeyDto)
+  [ProducesResponseType(StatusCodes.Status201Created)]
+  public async Task<ActionResult> CreateApiKey(ApiKeyCreateDto apiKeyCreateDto)
   {
-    // Extra validation
-    if (!apiKeyDto.IsThirdParty && !string.IsNullOrEmpty(apiKeyDto.Secret))
-      return BadRequest("The Key field should be empty for LGDXRobot2 API Key.");
     // Generate LGDXRobot2 API Key
-    if (!apiKeyDto.IsThirdParty)
-      apiKeyDto.Secret = GenerateApiKeys();
-    var apiKeyEntity = _mapper.Map<ApiKey>(apiKeyDto);
+    if (!apiKeyCreateDto.IsThirdParty)
+      apiKeyCreateDto.Secret = GenerateApiKeys();
+    var apiKeyEntity = _mapper.Map<ApiKey>(apiKeyCreateDto);
     await _apiKeyRepository.AddApiKeyAsync(apiKeyEntity);
     await _apiKeyRepository.SaveChangesAsync();
-    var returnApiKey = _mapper.Map<ApiKeyDto>(apiKeyEntity);
-    return CreatedAtRoute(nameof(GetApiKey), new { id = returnApiKey.Id }, returnApiKey);
+    var apiKeyDto = _mapper.Map<ApiKeyDto>(apiKeyEntity);
+    return CreatedAtRoute(nameof(GetApiKey), new { id = apiKeyDto.Id }, apiKeyDto);
   }
 
   [HttpPut("{id}")]
-  public async Task<ActionResult> UpdateApiKey(int id, ApiKeyUpdateDto apiKeyDto)
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult> UpdateApiKey(int id, ApiKeyUpdateDto apiKeyUpdateDto)
   {
     var apiKeyEntity = await _apiKeyRepository.GetApiKeyAsync(id);
     if (apiKeyEntity == null)
       return NotFound();
-    _mapper.Map(apiKeyDto, apiKeyEntity);
-    apiKeyEntity.UpdatedAt = DateTime.UtcNow;
+    _mapper.Map(apiKeyUpdateDto, apiKeyEntity);
     await _apiKeyRepository.SaveChangesAsync();
     return NoContent();
   }
 
   [HttpDelete("{id}")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> DeleteApiKey(int id)
   {
     var apiKey = await _apiKeyRepository.GetApiKeyAsync(id);
@@ -94,7 +99,9 @@ public class ApiKeysController(
     return NoContent();
   }
 
-  [HttpGet("{id}/secret")]
+  [HttpGet("{id}/Secret")]
+  [ProducesResponseType(typeof(ApiKeySecretDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<ApiKeySecretDto>> GetApiKeySecret(int id)
   {
     var apiKey = await _apiKeyRepository.GetApiKeyAsync(id);
@@ -103,17 +110,22 @@ public class ApiKeysController(
     return Ok(_mapper.Map<ApiKeySecretDto>(apiKey));
   }
 
-  [HttpPut("{id}/secret")]
-  public async Task<ActionResult> UpdateApiKeySecret(int id, ApiKeySecretDto apiKeyDto)
+  [HttpPut("{id}/Secret")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult> UpdateApiKeySecret(int id, ApiKeySecretUpdateDto apiKeySecretUpdateDto)
   {
     var apiKeyEntity = await _apiKeyRepository.GetApiKeyAsync(id);
     if (apiKeyEntity == null)
       return NotFound();
     // Extra validation
-    if (!apiKeyEntity.IsThirdParty && !string.IsNullOrEmpty(apiKeyDto.Secret))
-      return BadRequest("The LGDXRobot2 API Key cannot be changed.");
-    _mapper.Map(apiKeyDto, apiKeyEntity);
-    apiKeyEntity.UpdatedAt = DateTime.UtcNow;
+    if (!apiKeyEntity.IsThirdParty && !string.IsNullOrEmpty(apiKeySecretUpdateDto.Secret))
+    {
+      ModelState.AddModelError(nameof(apiKeySecretUpdateDto.Secret), "The LGDXRobot2 API Key cannot be changed.");
+      return ValidationProblem();
+    }
+    _mapper.Map(apiKeySecretUpdateDto, apiKeyEntity);
     await _apiKeyRepository.SaveChangesAsync();
     return NoContent();
   }

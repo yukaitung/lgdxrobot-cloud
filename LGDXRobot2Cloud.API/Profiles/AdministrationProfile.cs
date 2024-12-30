@@ -9,10 +9,20 @@ public class AdministrationProfile : Profile
 {
   public AdministrationProfile()
   {
+    // Api Keys
+    CreateMap<ApiKey, ApiKeyDto>();
+    CreateMap<ApiKeyCreateDto, ApiKey>();
+    CreateMap<ApiKeyUpdateDto, ApiKey>();
+    CreateMap<ApiKeySecretUpdateDto, ApiKey>();
+    CreateMap<ApiKey, ApiKeySecretDto>();
+
+    // Roles
     CreateMap<LgdxRole, LgdxRoleDto>();
     CreateMap<LgdxRole, LgdxRoleListDto>();
     CreateMap<LgdxRoleCreateDto, LgdxRole>();
     CreateMap<LgdxRoleUpdateDto, LgdxRole>();
+
+    // Users
     CreateMap<LgdxUser, LgdxUserListDto>();
     CreateMap<LgdxUserUpdateAdminDto, LgdxUser>();
     CreateMap<LgdxUserCreateAdminDto, LgdxUser>();

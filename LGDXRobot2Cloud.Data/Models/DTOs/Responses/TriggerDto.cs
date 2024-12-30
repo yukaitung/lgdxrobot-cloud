@@ -1,3 +1,5 @@
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+
 namespace LGDXRobot2Cloud.Data.Models.DTOs.Responses;
 
 public class TriggerDto
