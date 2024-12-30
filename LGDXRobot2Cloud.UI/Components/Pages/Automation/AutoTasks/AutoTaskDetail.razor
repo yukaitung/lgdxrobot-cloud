@@ -2,7 +2,7 @@
 @attribute [Route(AppRoutes.Navigation.Tasks.Detail)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Tasks/Read")]
 @using LGDXRobot2Cloud.Utilities.Enums
-@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Tasks.Components
+@using LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks.Components
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? (IsEditable() ? "Update Task" : "View Task") : "Create Task")">
@@ -28,80 +28,80 @@
     <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
       <DataAnnotationsValidator />
       <div class="card-body">
-        <ApiErrorAlert Errors="TaskDetailViewModel.Errors" />
+        <ApiErrorAlert Errors="AutoTaskDetailViewModel.Errors" />
         <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
         @if (Id != null)
         {
           <div class="mb-3 row">
             <label class="col-3 col-form-label">ID</label>
             <div class="col">
-              <div class="col form-control-plaintext">@TaskDetailViewModel.Id</div>
+              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.Id</div>
             </div>
           </div>
         }
         <div class="mb-3 row">
-          <label class="col-3 col-form-label" for="@nameof(TaskDetailViewModel.Name)">Name</label>
+          <label class="col-3 col-form-label" for="@nameof(AutoTaskDetailViewModel.Name)">Name</label>
           <div class="col">
             @if (IsEditable())
             {
-              <InputText id="@nameof(TaskDetailViewModel.Name)" type="text" class="form-control" @bind-Value="TaskDetailViewModel.Name" />
-              <ValidationMessage class="invalid-feedback" For="@(() => TaskDetailViewModel.Name)" />
+              <InputText id="@nameof(AutoTaskDetailViewModel.Name)" type="text" class="form-control" @bind-Value="AutoTaskDetailViewModel.Name" />
+              <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.Name)" />
             }
             else
             {
-              <div class="col form-control-plaintext">@TaskDetailViewModel.Name</div>
+              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.Name</div>
             }
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(TaskDetailViewModel.Priority)">Priority</label>
+          <label class="col-3 col-form-label required" for="@nameof(AutoTaskDetailViewModel.Priority)">Priority</label>
           <div class="col">
             @if (IsEditable())
             {
-              <InputNumber id="@nameof(TaskDetailViewModel.Priority)" class="form-control" @bind-Value="TaskDetailViewModel.Priority"  />
-              <ValidationMessage class="invalid-feedback" For="@(() => TaskDetailViewModel.Priority)" />
+              <InputNumber id="@nameof(AutoTaskDetailViewModel.Priority)" class="form-control" @bind-Value="AutoTaskDetailViewModel.Priority"  />
+              <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.Priority)" />
             }
             else
             {
-              <div class="col form-control-plaintext">@TaskDetailViewModel.Priority</div>
+              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.Priority</div>
             }
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(TaskDetailViewModel.FlowId)">Flow</label>
+          <label class="col-3 col-form-label required" for="@nameof(AutoTaskDetailViewModel.FlowId)">Flow</label>
           <div class="col">
             @if (IsEditable())
             {
-              <InputSelect id="@(AdvanceSelectElements[0] + "0")" class="form-control" @bind-Value="TaskDetailViewModel.FlowId">
-                @if (TaskDetailViewModel.FlowId != null)
+              <InputSelect id="@(AdvanceSelectElements[0] + "0")" class="form-control" @bind-Value="AutoTaskDetailViewModel.FlowId">
+                @if (AutoTaskDetailViewModel.FlowId != null)
                 {
-                  <option value="@TaskDetailViewModel.FlowId">@TaskDetailViewModel.FlowName</option>
+                  <option value="@AutoTaskDetailViewModel.FlowId">@AutoTaskDetailViewModel.FlowName</option>
                 }
               </InputSelect>
-              <ValidationMessage class="invalid-feedback" For="@(() => TaskDetailViewModel.FlowId)" />
+              <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.FlowId)" />
             }
             else
             {
-              <div class="col form-control-plaintext">@TaskDetailViewModel.FlowName</div>
+              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.FlowName</div>
             }
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label" for="@nameof(TaskDetailViewModel.AssignedRobotId)">Assign Robot</label>
+          <label class="col-3 col-form-label" for="@nameof(AutoTaskDetailViewModel.AssignedRobotId)">Assign Robot</label>
           <div class="col">
             @if (IsEditable())
             {
-              <InputSelect id="@(AdvanceSelectElements[1] + "0")" class="form-control" @bind-Value="TaskDetailViewModel.AssignedRobotId">
-                @if (TaskDetailViewModel.AssignedRobotId != null)
+              <InputSelect id="@(AdvanceSelectElements[1] + "0")" class="form-control" @bind-Value="AutoTaskDetailViewModel.AssignedRobotId">
+                @if (AutoTaskDetailViewModel.AssignedRobotId != null)
                 {
-                  <option value="@TaskDetailViewModel.AssignedRobotId">@TaskDetailViewModel.AssignedRobotName</option>
+                  <option value="@AutoTaskDetailViewModel.AssignedRobotId">@AutoTaskDetailViewModel.AssignedRobotName</option>
                 }
               </InputSelect>
-              <ValidationMessage class="invalid-feedback" For="@(() => TaskDetailViewModel.AssignedRobotId)" />
+              <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.AssignedRobotId)" />
             }
             else
             {
-              <div class="col form-control-plaintext">@TaskDetailViewModel.AssignedRobotName</div>
+              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.AssignedRobotName</div>
             }
           </div>
         </div>
@@ -110,7 +110,7 @@
           <div class="mb-3 row">
             <label class="col-3 col-form-label">Current Progress</label>
             <div class="col">
-              <div class="col form-control-plaintext">@TaskDetailViewModel.CurrentProgressName</div>
+              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.CurrentProgressName</div>
             </div>
           </div>
         }
@@ -120,7 +120,7 @@
             <label class="col-3 col-form-label pt-0"></label>
             <div class="col">
               <label class="form-check">
-                <input class="form-check-input" type="checkbox" @bind="TaskDetailViewModel.IsTemplate">
+                <input class="form-check-input" type="checkbox" @bind="AutoTaskDetailViewModel.IsTemplate">
                 <span class="form-check-label">Create as Template Task</span>
               </label>
             </div>
@@ -146,10 +146,10 @@
             </tr>
           </thead>
           <tbody>
-            @for (int i = 0; i < TaskDetailViewModel.AutoTaskDetails.Count; i++)
+            @for (int i = 0; i < AutoTaskDetailViewModel.AutoTaskDetails.Count; i++)
             {
               var index = i;
-              var taskDetail = TaskDetailViewModel.AutoTaskDetails[i];
+              var taskDetail = AutoTaskDetailViewModel.AutoTaskDetails[i];
               <tr>
                 <td>
                   @if (taskDetail.Id != null)
@@ -165,7 +165,7 @@
                       <i class="ti ti-arrow-up" style="font-size: 16px;"></i>
                     </button>
                     <button type="button"
-                      class="btn btn-ghost-secondary btn-icon btn @(i >= TaskDetailViewModel.AutoTaskDetails.Count - 1 ? "disabled" : "")"
+                      class="btn btn-ghost-secondary btn-icon btn @(i >= AutoTaskDetailViewModel.AutoTaskDetails.Count - 1 ? "disabled" : "")"
                       @onclick="e => TaskStepMoveDown(index)">
                       <i class="ti ti-arrow-down" style="font-size: 16px;"></i>
                     </button>
@@ -190,38 +190,38 @@
                 <td>
                   @if (IsEditable())
                   {
-                    <input type="text" class="form-control form-control" @bind="TaskDetailViewModel.AutoTaskDetails[index].CustomX">
+                    <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX">
                   }
                   else
                   {
-                    <div class="col col-form-label col-form-label">@TaskDetailViewModel.AutoTaskDetails[index].CustomX</div>
+                    <div class="col col-form-label col-form-label">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX</div>
                   }
                 </td>
                 <td>
                   @if (IsEditable())
                   {
-                    <input type="text" class="form-control form-control" @bind="TaskDetailViewModel.AutoTaskDetails[index].CustomY">
+                    <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY">
                   }
                   else
                   {
-                    <div class="col col-form-label col-form-label">@TaskDetailViewModel.AutoTaskDetails[index].CustomY</div>
+                    <div class="col col-form-label col-form-label">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY</div>
                   }
                 </td>
                 <td>
                   @if (IsEditable())
                   {
-                    <input type="text" class="form-control form-control" @bind="TaskDetailViewModel.AutoTaskDetails[index].CustomRotation">
+                    <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation">
                   }
                   else
                   {
-                    <div class="col col-form-label col-form-label">@TaskDetailViewModel.AutoTaskDetails[index].CustomRotation</div>
+                    <div class="col col-form-label col-form-label">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation</div>
                   }
                 </td>
                 @if (IsEditable())
                 {
                   <td>
                     <button type="button"
-                      class="btn btn-ghost-danger btn-icon btn @(TaskDetailViewModel.AutoTaskDetails.Count <= 1 ? "disabled" : "")"
+                      class="btn btn-ghost-danger btn-icon btn @(AutoTaskDetailViewModel.AutoTaskDetails.Count <= 1 ? "disabled" : "")"
                       @onclick="e => TaskRemoveStep(index)">
                       <i class="ti ti-trash" style="font-size: 16px;"></i>
                     </button>
@@ -267,7 +267,7 @@
           }
         </div>
       }
-      else if (TaskDetailViewModel.CurrentProgressId != (int)ProgressState.Completed && TaskDetailViewModel.CurrentProgressId != (int)ProgressState.Aborted)
+      else if (AutoTaskDetailViewModel.CurrentProgressId != (int)ProgressState.Completed && AutoTaskDetailViewModel.CurrentProgressId != (int)ProgressState.Aborted)
       {
         <div class="card-footer d-flex">
           <button type="button" class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#abortModal">
@@ -285,6 +285,6 @@
     <DeleteEntryModal EntryName="Task" OnDelete="HandleDelete" />
   </AuthorizeView>
   <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Write" Context="AbortModal">
-    <AbortTaskModal OnAbort="HandleAbort" />
+    <AbortAutoTaskModal OnAbort="HandleAbort" />
   </AuthorizeView>
 }

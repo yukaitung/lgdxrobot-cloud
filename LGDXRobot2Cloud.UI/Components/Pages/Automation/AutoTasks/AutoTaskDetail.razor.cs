@@ -10,9 +10,9 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Tasks;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks;
 
-public sealed partial class TaskDetail : ComponentBase, IDisposable
+public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
 {
   [Inject]
   public required IAutoTaskService AutoTaskService { get; set; }
@@ -38,8 +38,8 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
   [Parameter]
   public int? Id { get; set; }
 
-  private DotNetObjectReference<TaskDetail> ObjectReference = null!;
-  private TaskDetailViewModel TaskDetailViewModel { get; set; } = null!;
+  private DotNetObjectReference<AutoTaskDetail> ObjectReference = null!;
+  private AutoTaskDetailViewModel AutoTaskDetailViewModel { get; set; } = null!;
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -52,7 +52,7 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
   public bool IsEditable()
   {
     return Id == null 
-      || TaskDetailViewModel.CurrentProgressId == (int)ProgressState.Template;
+      || AutoTaskDetailViewModel.CurrentProgressId == (int)ProgressState.Template;
   }
 
   [JSInvokable("HandlSelectSearch")]
@@ -95,70 +95,70 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
     int order = int.Parse(elementId[(index + 1)..]);
     if (element == AdvanceSelectElements[0])
     {
-      TaskDetailViewModel.FlowId = id != null ? int.Parse(id) : null;
-      TaskDetailViewModel.FlowName = name;
+      AutoTaskDetailViewModel.FlowId = id != null ? int.Parse(id) : null;
+      AutoTaskDetailViewModel.FlowName = name;
     }
     else if (element == AdvanceSelectElements[1])
     {
-      TaskDetailViewModel.AssignedRobotId = id != null ? Guid.Parse(id) : null;
-      TaskDetailViewModel.AssignedRobotName = name;
+      AutoTaskDetailViewModel.AssignedRobotId = id != null ? Guid.Parse(id) : null;
+      AutoTaskDetailViewModel.AssignedRobotName = name;
     }
     else if (element == AdvanceSelectElements[2])
     {
-      TaskDetailViewModel.AutoTaskDetails[order].WaypointId = id != null ? int.Parse(id) : null;
-      TaskDetailViewModel.AutoTaskDetails[order].WaypointName = name;
+      AutoTaskDetailViewModel.AutoTaskDetails[order].WaypointId = id != null ? int.Parse(id) : null;
+      AutoTaskDetailViewModel.AutoTaskDetails[order].WaypointName = name;
     }
   }
 
   public void TaskAddStep()
   {
-    TaskDetailViewModel.AutoTaskDetails.Add(new TaskDetailBody());
+    AutoTaskDetailViewModel.AutoTaskDetails.Add(new TaskDetailBody());
   }
 
   public async Task TaskStepMoveUp(int i)
   {
     if (i < 1)
       return;
-    (TaskDetailViewModel.AutoTaskDetails[i], TaskDetailViewModel.AutoTaskDetails[i - 1]) = (TaskDetailViewModel.AutoTaskDetails[i - 1], TaskDetailViewModel.AutoTaskDetails[i]);
+    (AutoTaskDetailViewModel.AutoTaskDetails[i], AutoTaskDetailViewModel.AutoTaskDetails[i - 1]) = (AutoTaskDetailViewModel.AutoTaskDetails[i - 1], AutoTaskDetailViewModel.AutoTaskDetails[i]);
     await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i - 1, i);
   }
 
   public async Task TaskStepMoveDown(int i)
   {
-    if (i > TaskDetailViewModel.AutoTaskDetails.Count - 1)
+    if (i > AutoTaskDetailViewModel.AutoTaskDetails.Count - 1)
       return;
-    (TaskDetailViewModel.AutoTaskDetails[i], TaskDetailViewModel.AutoTaskDetails[i + 1]) = (TaskDetailViewModel.AutoTaskDetails[i + 1], TaskDetailViewModel.AutoTaskDetails[i]);
+    (AutoTaskDetailViewModel.AutoTaskDetails[i], AutoTaskDetailViewModel.AutoTaskDetails[i + 1]) = (AutoTaskDetailViewModel.AutoTaskDetails[i + 1], AutoTaskDetailViewModel.AutoTaskDetails[i]);
     await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i, i + 1);
   }
 
   public async Task TaskRemoveStep(int i)
   {
-    if (TaskDetailViewModel.AutoTaskDetails.Count <= 1)
+    if (AutoTaskDetailViewModel.AutoTaskDetails.Count <= 1)
       return;
-    if (i < TaskDetailViewModel.AutoTaskDetails.Count - 1)
+    if (i < AutoTaskDetailViewModel.AutoTaskDetails.Count - 1)
       await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i, i + 1, true);
-    TaskDetailViewModel.AutoTaskDetails.RemoveAt(i);
+    AutoTaskDetailViewModel.AutoTaskDetails.RemoveAt(i);
     InitaisedAdvanceSelect--;
   }
 
   public async Task HandleValidSubmit()
   {
     // Setup Order
-    for (int i = 0; i < TaskDetailViewModel.AutoTaskDetails.Count; i++)
-      TaskDetailViewModel.AutoTaskDetails[i].Order = i;
+    for (int i = 0; i < AutoTaskDetailViewModel.AutoTaskDetails.Count; i++)
+      AutoTaskDetailViewModel.AutoTaskDetails[i].Order = i;
 
     ApiResponse<bool> response;
     if (Id != null)
       // Update
-      response = await AutoTaskService.UpdateAutoTaskAsync((int)Id, Mapper.Map<AutoTaskUpdateDto>(TaskDetailViewModel));
+      response = await AutoTaskService.UpdateAutoTaskAsync((int)Id, Mapper.Map<AutoTaskUpdateDto>(AutoTaskDetailViewModel));
     else
       // Create
-      response = await AutoTaskService.AddAutoTaskAsync(Mapper.Map<AutoTaskCreateDto>(TaskDetailViewModel));
+      response = await AutoTaskService.AddAutoTaskAsync(Mapper.Map<AutoTaskCreateDto>(AutoTaskDetailViewModel));
 
     if (response.IsSuccess)
       NavigationManager.NavigateTo(AppRoutes.Navigation.Tasks.Index);
     else
-      TaskDetailViewModel.Errors = response.Errors;
+      AutoTaskDetailViewModel.Errors = response.Errors;
   }
 
   public async Task HandleDelete()
@@ -169,7 +169,7 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
       if (response.IsSuccess)
         NavigationManager.NavigateTo(AppRoutes.Navigation.Tasks.Index);
       else
-        TaskDetailViewModel.Errors = response.Errors;
+        AutoTaskDetailViewModel.Errors = response.Errors;
     }
   }
 
@@ -181,7 +181,7 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
       if (response.IsSuccess)
         NavigationManager.NavigateTo(AppRoutes.Navigation.Tasks.Index);
       else
-        TaskDetailViewModel.Errors = response.Errors;
+        AutoTaskDetailViewModel.Errors = response.Errors;
     }
   }
 
@@ -197,23 +197,23 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
         if (task != null)
         {
           // Normal Assigement
-          TaskDetailViewModel = Mapper.Map<TaskDetailViewModel>(task);
-          _editContext = new EditContext(TaskDetailViewModel);
+          AutoTaskDetailViewModel = Mapper.Map<AutoTaskDetailViewModel>(task);
+          _editContext = new EditContext(AutoTaskDetailViewModel);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }
       }
       else
       {
-        TaskDetailViewModel = new TaskDetailViewModel();
-        TaskDetailViewModel.AutoTaskDetails.Add(new TaskDetailBody());
-        _editContext = new EditContext(TaskDetailViewModel);
+        AutoTaskDetailViewModel = new AutoTaskDetailViewModel();
+        AutoTaskDetailViewModel.AutoTaskDetails.Add(new TaskDetailBody());
+        _editContext = new EditContext(AutoTaskDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
 
       var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
       if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("Clone", out var param))
       {
-        TaskDetailViewModel.IsClone = bool.Parse(param[0] ?? string.Empty);
+        AutoTaskDetailViewModel.IsClone = bool.Parse(param[0] ?? string.Empty);
         Id = null;
       }
     }
@@ -228,13 +228,13 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitDotNet", ObjectReference);
     }
-    if (InitaisedAdvanceSelect < TaskDetailViewModel.AutoTaskDetails.Count)
+    if (InitaisedAdvanceSelect < AutoTaskDetailViewModel.AutoTaskDetails.Count)
     {
       await JSRuntime.InvokeVoidAsync("InitAdvancedSelectList", 
         AdvanceSelectElements,
         InitaisedAdvanceSelect,
-        TaskDetailViewModel.AutoTaskDetails.Count - InitaisedAdvanceSelect);
-      InitaisedAdvanceSelect = TaskDetailViewModel.AutoTaskDetails.Count;
+        AutoTaskDetailViewModel.AutoTaskDetails.Count - InitaisedAdvanceSelect);
+      InitaisedAdvanceSelect = AutoTaskDetailViewModel.AutoTaskDetails.Count;
     }
   }
 

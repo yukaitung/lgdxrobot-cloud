@@ -21,7 +21,7 @@ public record TaskDetailBody
   public int Order { get; set; }
 }
 
-public class TaskDetailViewModel : FormViewModel
+public class AutoTaskDetailViewModel : FormViewModel
 {
   public int Id { get; set; }
 

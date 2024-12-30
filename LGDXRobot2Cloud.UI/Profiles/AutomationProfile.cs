@@ -10,11 +10,11 @@ public class AutomationProfile : Profile
   public AutomationProfile()
   {
     // AutoTasks
-    CreateMap<TaskDetailViewModel, AutoTaskCreateDto>();
+    CreateMap<AutoTaskDetailViewModel, AutoTaskCreateDto>();
     CreateMap<TaskDetailBody, AutoTaskDetailCreateDto>();
-    CreateMap<TaskDetailViewModel, AutoTaskUpdateDto>();
+    CreateMap<AutoTaskDetailViewModel, AutoTaskUpdateDto>();
     CreateMap<TaskDetailBody, AutoTaskDetailUpdateDto>();
-    CreateMap<AutoTaskDto, TaskDetailViewModel>()
+    CreateMap<AutoTaskDto, AutoTaskDetailViewModel>()
       .ForMember(d => d.FlowId, opt => opt.MapFrom(s => s.Flow.Id))
       .ForMember(d => d.FlowName, opt => opt.MapFrom(s => s.Flow.Name))
       .ForMember(d => d.RealmId, opt => opt.MapFrom(s => s.Realm.Id))

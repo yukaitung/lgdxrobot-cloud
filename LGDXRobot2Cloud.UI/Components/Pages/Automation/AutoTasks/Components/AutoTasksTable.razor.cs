@@ -4,9 +4,9 @@ using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Components;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Tasks.Components;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks.Components;
 
-public sealed partial class TasksTable : AbstractTable
+public sealed partial class AutoTasksTable : AbstractTable
 {
   [Inject]
   public required IAutoTaskService AutoTaskService { get; set; }

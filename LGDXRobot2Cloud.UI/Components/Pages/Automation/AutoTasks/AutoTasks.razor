@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Navigation.Tasks.Index)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Tasks/Read")]
-@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Tasks.Components
+@using LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks.Components
 @using LGDXRobot2Cloud.Utilities.Enums
 @rendermode InteractiveServer
 
@@ -43,24 +43,24 @@
   {
     <div class="row row-cards">
       <div class="col-12">
-        <TasksTable Title="Running Tasks" ShowRunningTasks="true" />
+        <AutoTasksTable Title="Running Tasks" ShowRunningTasks="true" />
       </div>
       <div class="col-12">
-        <TasksTable Title="Waiting Queue" ShowProgressId="@ProgressState.Waiting" />
+        <AutoTasksTable Title="Waiting Queue" ShowProgressId="@ProgressState.Waiting" />
       </div>
     </div>
   }
   else if (CurrentTab == 1)
   {
-    <TasksTable Title="Completed Tasks" ShowProgressId="@ProgressState.Completed" />
+    <AutoTasksTable Title="Completed Tasks" ShowProgressId="@ProgressState.Completed" />
   }
   else if (CurrentTab == 2)
   {
-    <TasksTable Title="Aborted Tasks" ShowProgressId="@ProgressState.Aborted" />
+    <AutoTasksTable Title="Aborted Tasks" ShowProgressId="@ProgressState.Aborted" />
   }
   else if (CurrentTab == 3)
   {
-    <TasksTable Title="Task Templates" ShowProgressId="@ProgressState.Template" />
+    <AutoTasksTable Title="Task Templates" ShowProgressId="@ProgressState.Template" />
   }
 </PageBody>
 
