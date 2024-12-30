@@ -12,6 +12,8 @@ namespace LGDXRobot2Cloud.API.Repositories
     Task AddApiKeyAsync(ApiKey apiKey);
     void DeleteApiKey(ApiKey apiKey);
     Task<bool> SaveChangesAsync();
+
+    Task<IEnumerable<ApiKey>> SearchApiKeysAsync(string name);
   }
 
   public class ApiKeyRepository(LgdxContext context) : IApiKeyRepository
@@ -55,6 +57,18 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<bool> SaveChangesAsync()
     {
       return await _context.SaveChangesAsync() >= 0;
+    }
+
+    public async Task<IEnumerable<ApiKey>> SearchApiKeysAsync(string name)
+    {
+      if (string.IsNullOrWhiteSpace(name))
+      {
+        return await _context.ApiKeys.AsNoTracking().Take(10).ToListAsync();
+      }
+      else
+      {
+        return await _context.ApiKeys.AsNoTracking().Where(w => w.Name.Contains(name)).Take(10).ToListAsync();
+      }
     }
   }
 }

@@ -1,98 +1,247 @@
+using System.Net;
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
-using LGDXRobot2Cloud.UI.Models;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IApiKeyService
 {
-  Task<(IEnumerable<ApiKey>?, PaginationHelper?)> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<ApiKey?> GetApiKeyAsync(int apiKeyId);
-  Task<bool> AddApiKeyAsync(ApiKeyCreateDto apiKey);
-  Task<bool> UpdateApiKeyAsync(int apiKeyId, ApiKeyUpdateDto apiKey);
-  Task<bool> DeleteApiKeyAsync(int apiKeyId);
-  Task<ApiKeySecret?> GetApiKeySecretAsync(int apiKeyId);
-  Task<bool> UpdateApiKeySecretAsync(int apiKeyId, ApiKeySecretDto apiKey);
-  Task<string> SearchApiKeysAsync(string name);
+  Task<ApiResponse<(IEnumerable<ApiKeyDto>?, PaginationHelper?)>> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<ApiResponse<ApiKeyDto>> GetApiKeyAsync(int apiKeyId);
+  Task<ApiResponse<bool>> AddApiKeyAsync(ApiKeyCreateDto apiKeyCreateDto);
+  Task<ApiResponse<bool>> UpdateApiKeyAsync(int apiKeyId, ApiKeyUpdateDto apiKeyUpdateDto);
+  Task<ApiResponse<bool>> DeleteApiKeyAsync(int apiKeyId);
+  Task<ApiResponse<ApiKeySecretDto>> GetApiKeySecretAsync(int apiKeyId);
+  Task<ApiResponse<bool>> UpdateApiKeySecretAsync(int apiKeyId, ApiKeySecretUpdateDto apiKey);
+  Task<ApiResponse<string>> SearchApiKeysAsync(string name);
 }
 
 public sealed class ApiKeyService(
-  AuthenticationStateProvider authenticationStateProvider, 
-  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IApiKeyService
+    AuthenticationStateProvider authenticationStateProvider, 
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IApiKeyService
 {
-  public async Task<(IEnumerable<ApiKey>?, PaginationHelper?)> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<ApiResponse<(IEnumerable<ApiKeyDto>?, PaginationHelper?)>> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10)
   {
-    var url = name != null ? $"setting/apikeys?isThirdParty={isThirdParty}&name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"setting/secret/apikeys?isThirdParty={isThirdParty}&pageNumber={pageNumber}&pageSize={pageSize}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var apiKeys = await JsonSerializer.DeserializeAsync<IEnumerable<ApiKey>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (apiKeys, PaginationHelper);
+      var url = name != null ? $"Administration/ApiKeys?isThirdParty={isThirdParty}&name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"Administration/ApiKeys?isThirdParty={isThirdParty}&pageNumber={pageNumber}&pageSize={pageSize}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+        var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
+        var apiKeys = await JsonSerializer.DeserializeAsync<IEnumerable<ApiKeyDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<(IEnumerable<ApiKeyDto>?, PaginationHelper?)> {
+          Data = (apiKeys, PaginationHelper),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 
-  public async Task<ApiKey?> GetApiKeyAsync(int apiKeyId)
+  public async Task<ApiResponse<ApiKeyDto>> GetApiKeyAsync(int apiKeyId)
   {
-    var response = await _httpClient.GetAsync($"setting/apikeys/{apiKeyId}");
-    var apiKeys = await JsonSerializer.DeserializeAsync<ApiKey>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    return apiKeys;
-  }
-
-  public async Task<bool> AddApiKeyAsync(ApiKeyCreateDto apiKey)
-  {
-    var apiKeyJson = new StringContent(JsonSerializer.Serialize(apiKey), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("setting/apikeys", apiKeyJson);
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<bool> UpdateApiKeyAsync(int apiKeyId, ApiKeyUpdateDto apiKey)
-  {
-    var apiKeyJson = new StringContent(JsonSerializer.Serialize(apiKey), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PutAsync($"setting/apikeys/{apiKeyId}", apiKeyJson);
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<bool> DeleteApiKeyAsync(int apiKeyId)
-  {
-    var response = await _httpClient.DeleteAsync($"setting/apikeys/{apiKeyId}");
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<ApiKeySecret?> GetApiKeySecretAsync(int apiKeyId)
-  {
-    var response = await _httpClient.GetAsync($"setting/apikeys/{apiKeyId}/secret");
-    var apiKeySecret = await JsonSerializer.DeserializeAsync<ApiKeySecret>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    return apiKeySecret;
-  }
-
-  public async Task<bool> UpdateApiKeySecretAsync(int apiKeyId, ApiKeySecretDto apiKey)
-  {
-    var apiKeySecretJson = new StringContent(JsonSerializer.Serialize(apiKey), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PutAsync($"setting/apikeys/{apiKeyId}/secret", apiKeySecretJson);
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<string> SearchApiKeysAsync(string name)
-  {
-    var url = $"setting/apikeys?isThirdParty=true&name={name}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      return await response.Content.ReadAsStringAsync();
+      var response = await _httpClient.GetAsync($"Administration/ApiKeys/{apiKeyId}");
+      if (response.IsSuccessStatusCode)
+      {
+        var apiKey = await JsonSerializer.DeserializeAsync<ApiKeyDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<ApiKeyDto> {
+          Data = apiKey,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> AddApiKeyAsync(ApiKeyCreateDto apiKeyCreateDto)
+  {
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(apiKeyCreateDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync("Administration/ApiKeys", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> UpdateApiKeyAsync(int apiKeyId, ApiKeyUpdateDto apiKeyUpdateDto)
+  {
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(apiKeyUpdateDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PutAsync($"Administration/ApiKeys/{apiKeyId}", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> DeleteApiKeyAsync(int apiKeyId)
+  {
+    try
+    {
+      var response = await _httpClient.DeleteAsync($"Administration/ApiKeys/{apiKeyId}");
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<ApiKeySecretDto>> GetApiKeySecretAsync(int apiKeyId)
+  {
+    try
+    {
+      var response = await _httpClient.GetAsync($"Administration/ApiKeys/{apiKeyId}/Secret");
+      if (response.IsSuccessStatusCode)
+      {
+        var secretDto = await JsonSerializer.DeserializeAsync<ApiKeySecretDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<ApiKeySecretDto> {
+          Data = secretDto,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> UpdateApiKeySecretAsync(int apiKeyId, ApiKeySecretUpdateDto apiKeySecretUpdateDto)
+  {
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(apiKeySecretUpdateDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PutAsync($"Administration/ApiKeys/{apiKeyId}/Secret", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<string>> SearchApiKeysAsync(string name)
+  {
+    try
+    {
+      var url = $"Administration/ApiKeys/Search?name={name}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<string> {
+          Data = await response.Content.ReadAsStringAsync(),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 }

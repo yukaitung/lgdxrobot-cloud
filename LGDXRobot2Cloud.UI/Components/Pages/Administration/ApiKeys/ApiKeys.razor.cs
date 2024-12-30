@@ -1,4 +1,4 @@
-namespace LGDXRobot2Cloud.UI.Components.Pages.Setting.ApiKeys;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.ApiKeys;
 
 public sealed partial class ApiKeys
 {

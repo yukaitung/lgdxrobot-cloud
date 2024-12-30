@@ -56,7 +56,7 @@ public sealed class WaypointService(
   {
     try
     {
-      var response = await _httpClient.GetAsync($"navigation/waypoints/{waypointId}");
+      var response = await _httpClient.GetAsync($"Navigation/Waypoints/{waypointId}");
       if (response.IsSuccessStatusCode)
       {
         var waypoint = await JsonSerializer.DeserializeAsync<WaypointDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);

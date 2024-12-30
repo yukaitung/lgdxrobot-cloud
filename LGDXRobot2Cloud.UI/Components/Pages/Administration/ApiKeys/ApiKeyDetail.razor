@@ -28,14 +28,14 @@
         <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
           <DataAnnotationsValidator />
           <div class="card-body">
-            <SubmitErrorModal Display="@IsError" />
-            <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+            <ApiErrorAlert Errors="ApiKeyDetailViewModel.Errors" />
+            <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
             @if (Id != null)
             {
               <div class="mb-3 row">
                 <label class="col-3 col-form-label">ID</label>
                 <div class="col">
-                  <div class="col form-control-plaintext">@ApiKey.Id</div>
+                  <div class="col form-control-plaintext">@ApiKeyDetailViewModel.Id</div>
                 </div>
               </div>
             }
@@ -57,43 +57,26 @@
               </div>
             }
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="Key-Name">Name</label>
+              <label class="col-3 col-form-label required" for="@nameof(ApiKeyDetailViewModel.Name)">Name</label>
               <div class="col">
-                <InputText id="Key-Name" @bind-Value="ApiKey.Name" type="text" class="form-control"
-                  placeholder="Your API Key name" />
-                <ValidationMessage class="invalid-feedback" For="@(() => ApiKey.Name)" />
+                <InputText id="@nameof(ApiKeyDetailViewModel.Name)" type="text" class="form-control" @bind-Value="ApiKeyDetailViewModel.Name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => ApiKeyDetailViewModel.Name)" />
               </div>
             </div>
             @if (Id == null)
             {
               <div class="mb-3 row">
-                <label class="col-3 col-form-label @(ApiKey.IsThirdParty ? "required" : "")" for="Key-Key">Secret</label>
+                <label class="col-3 col-form-label @(ApiKeyDetailViewModel.IsThirdParty ? "required" : "")" for="@nameof(ApiKeyDetailViewModel.Secret)">Secret</label>
                 <div class="col">
-                  @if (ApiKey.IsThirdParty)
+                  @if (ApiKeyDetailViewModel.IsThirdParty)
                   {
-                    <InputText id="Key-Key" @bind-Value="ApiKey.Secret" type="text" class="form-control"
-                      placeholder="API Key secret" />
-                    <ValidationMessage class="invalid-feedback" For="@(() => ApiKey.Secret)" />
+                    <InputText id="@nameof(ApiKeyDetailViewModel.Secret)" type="text" class="form-control" @bind-Value="ApiKeyDetailViewModel.Secret" />
+                    <ValidationMessage class="invalid-feedback" For="@(() => ApiKeyDetailViewModel.Secret)" />
                   }
                   else
                   {
                     <div class="col form-control-plaintext">Generated automatically</div>
                   }
-                </div>
-              </div>
-            }
-            @if (Id != null)
-            {
-              <div class="mb-3 row">
-                <label class="col-3 col-form-label">Create Time</label>
-                <div class="col">
-                  <div class="col form-control-plaintext">@ApiKey.CreatedAt</div>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-3 col-form-label">Last Update Time</label>
-                <div class="col">
-                  <div class="col form-control-plaintext">@ApiKey.UpdatedAt</div>
                 </div>
               </div>
             }
@@ -126,8 +109,8 @@
           <EditForm EditContext="@_editContextSecret" OnValidSubmit="HandleSetSecret">
             <DataAnnotationsValidator />
             <div class="card-body">
-              <SubmitErrorModal Display="@IsError" />
-              <ValidationErrorModal Display="@_editContextSecret.GetValidationMessages().Any()" />
+              <ApiErrorAlert Errors="ApiKeyDetailViewModel.Errors" />
+              <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
               @if (Id != null)
               {
                 <div class="mb-3 row">
@@ -141,13 +124,13 @@
                 <label class="col-3 col-form-label" for="Key-Secret">Secret</label>
                 <div class="col">
                   <div class="col form-control-plaintext">
-                    @if (GetApiKeySecret == null)
+                    @if (UpdateApiKeySecretViewModel.Secret == null)
                     {
                       <button type="button" class="page-link link-primary" @onclick="HandleGetSecret">Press here to show secret</button>
                     }
                     else
                     {
-                      <span>@GetApiKeySecret.Secret</span>
+                      <span>@UpdateApiKeySecretViewModel.Secret</span>
                     }
                     <small class="form-hint">
                       By pressing the button, an audit log will be created.
@@ -155,20 +138,19 @@
                   </div>
                 </div>
               </div>
-              @if (ApiKey.IsThirdParty)
+              @if (ApiKeyDetailViewModel.IsThirdParty)
               {
                 <div class="mb-3 row">
-                  <label class="col-3 col-form-label required" for="Update-Key-Secre">Update Secret</label>
+                  <label class="col-3 col-form-label required" for="@nameof(UpdateApiKeySecretViewModel.UpdateSecret)">Update Secret</label>
                   <div class="col">
-                    <InputText id="Update-Key-Secret" @bind-Value="UpdateApiKeySecret.Secret" type="text" class="form-control"
-                    placeholder="New API Key secret" />
-                    <ValidationMessage class="invalid-feedback" For="@(() => UpdateApiKeySecret.Secret)" />
+                    <InputText id="@nameof(UpdateApiKeySecretViewModel.UpdateSecret)" type="text" class="form-control"  @bind-Value="UpdateApiKeySecretViewModel!.UpdateSecret" />
+                    <ValidationMessage class="invalid-feedback" For="@(() => UpdateApiKeySecretViewModel.UpdateSecret)" />
                   </div>
                 </div>
               }
             </div>
             <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Write" Context="WriteSecret">
-              @if (ApiKey.IsThirdParty)
+              @if (ApiKeyDetailViewModel.IsThirdParty)
               {
                 <div class="card-footer d-flex">
                   <button type="submit" class="btn btn-primary ms-auto">Update</button>

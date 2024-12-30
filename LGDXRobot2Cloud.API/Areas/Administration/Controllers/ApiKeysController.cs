@@ -48,6 +48,14 @@ public sealed class ApiKeysController(
     return Ok(_mapper.Map<IEnumerable<ApiKeyDto>>(apiKeys));
   }
 
+  [HttpGet("Search")]
+  [ProducesResponseType(typeof(IEnumerable<ApiKeySearchDto>), StatusCodes.Status200OK)]
+  public async Task<ActionResult<IEnumerable<ApiKeySearchDto>>> SearchApiKeys(string name)
+  {
+    var waypoints = await _apiKeyRepository.SearchApiKeysAsync(name);
+    return Ok(_mapper.Map<IEnumerable<ApiKeySearchDto>>(waypoints));
+  }
+
   [HttpGet("{id}", Name = "GetApiKey")]
   [ProducesResponseType(typeof(LgdxRoleDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -11,10 +11,7 @@ namespace LGDXRobot2Cloud.UI.Profiles
   {
     public SettingProfile()
     {
-      // API Key
-      CreateMap<ApiKey, ApiKeyCreateDto>();
-      CreateMap<ApiKey, ApiKeyUpdateDto>();
-      CreateMap<ApiKeySecret, ApiKeySecretDto>();
+      
 
       // User
       CreateMap<LgdxUser, LgdxUserCreateAdminDto>();

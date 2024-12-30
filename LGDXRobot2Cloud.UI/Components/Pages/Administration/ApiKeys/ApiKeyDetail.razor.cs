@@ -1,14 +1,13 @@
 using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Data.Models.DTOs.Responses;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Setting.ApiKeys;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.ApiKeys;
 
 public sealed partial class ApiKeyDetail
 {
@@ -24,47 +23,45 @@ public sealed partial class ApiKeyDetail
   [Parameter]
   public int? Id { get; set; }
 
-  private ApiKey ApiKey { get; set; } = null!;
-  private ApiKeySecret? GetApiKeySecret { get; set; } = null;
-  private ApiKeySecret UpdateApiKeySecret { get; set; } = null!;
+  private ApiKeyDetailViewModel ApiKeyDetailViewModel { get; set; } = null!;
+  private ApiKeyDetailSectretViewModel UpdateApiKeySecretViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private EditContext _editContextSecret = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
-  private bool IsError { get; set; } = false;
 
   // Form
   public void HandleApiKeyKindChanged(object args)
   {
     if (bool.TryParse(args.ToString(), out bool result))      
-      ApiKey.IsThirdParty = result;
+      ApiKeyDetailViewModel.IsThirdParty = result;
   }
 
   public async Task HandleValidSubmit()
   {
-    bool success;
+    ApiResponse<bool> response;
 
     if (Id != null)
       // Update
-      success = await ApiKeyService.UpdateApiKeyAsync((int)Id, Mapper.Map<ApiKeyUpdateDto>(ApiKey));
+      response = await ApiKeyService.UpdateApiKeyAsync((int)Id, Mapper.Map<ApiKeyUpdateDto>(ApiKeyDetailViewModel));
     else
       // Create
-      success = await ApiKeyService.AddApiKeyAsync(Mapper.Map<ApiKeyCreateDto>(ApiKey));
+      response = await ApiKeyService.AddApiKeyAsync(Mapper.Map<ApiKeyCreateDto>(ApiKeyDetailViewModel));
 
-    if (success)
+    if (response.IsSuccess)
       NavigationManager.NavigateTo(AppRoutes.Setting.ApiKeys.Index);
     else
-      IsError = true;
+      ApiKeyDetailViewModel.Errors = response.Errors;
   }
 
   public async Task HandleDelete()
   {
     if (Id != null)
     {
-      bool success = await ApiKeyService.DeleteApiKeyAsync((int)Id);
-      if (success)
+      var response = await ApiKeyService.DeleteApiKeyAsync((int)Id);
+      if (response.IsSuccess)
         NavigationManager.NavigateTo(AppRoutes.Setting.ApiKeys.Index);
       else
-        IsError = true;
+        ApiKeyDetailViewModel.Errors = response.Errors;
     }
   }
 
@@ -72,7 +69,11 @@ public sealed partial class ApiKeyDetail
   {
     if (Id != null)
     {
-      GetApiKeySecret = await ApiKeyService.GetApiKeySecretAsync((int)Id);
+      var response = await ApiKeyService.GetApiKeySecretAsync((int)Id);
+      if (response.IsSuccess)
+        UpdateApiKeySecretViewModel.Secret = response.Data!.Secret;
+      else
+        ApiKeyDetailViewModel.Errors = response.Errors;
     }
   }
 
@@ -80,11 +81,11 @@ public sealed partial class ApiKeyDetail
   {
     if (Id != null)
       {
-        bool success = await ApiKeyService.UpdateApiKeySecretAsync((int)Id, Mapper.Map<ApiKeySecretDto>(UpdateApiKeySecret));
-        if (success)
+        var response = await ApiKeyService.UpdateApiKeySecretAsync((int)Id, new ApiKeySecretUpdateDto { Secret = UpdateApiKeySecretViewModel.UpdateSecret });
+        if (response.IsSuccess)
           NavigationManager.NavigateTo(AppRoutes.Setting.ApiKeys.Index);
         else
-          IsError = true;
+          UpdateApiKeySecretViewModel.Errors = response.Errors;
       }
   }
 
@@ -95,27 +96,24 @@ public sealed partial class ApiKeyDetail
     {
       if (_id != null)
       {
-        var apiKey = await ApiKeyService.GetApiKeyAsync((int)_id);
+        var response = await ApiKeyService.GetApiKeyAsync((int)_id);
+        var apiKey = response.Data;
         if (apiKey != null) 
         {
-          ApiKey = apiKey;
-          ApiKey.IsUpdate = true;
-          _editContext = new EditContext(ApiKey);
+          ApiKeyDetailViewModel = Mapper.Map<ApiKeyDetailViewModel>(apiKey);
+          _editContext = new EditContext(ApiKeyDetailViewModel);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
-
-          UpdateApiKeySecret = new ApiKeySecret
-          {
-            IsThirdParty = apiKey.IsThirdParty
-          };
-          _editContextSecret = new EditContext(UpdateApiKeySecret);
+          _editContextSecret = new EditContext(UpdateApiKeySecretViewModel);
           _editContextSecret.SetFieldCssClassProvider(_customFieldClassProvider);
         }
       }
       else
       {
-        ApiKey = new ApiKey();
-        _editContext = new EditContext(ApiKey);
+        ApiKeyDetailViewModel = new ApiKeyDetailViewModel();
+        _editContext = new EditContext(ApiKeyDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+        _editContextSecret = new EditContext(UpdateApiKeySecretViewModel);
+        _editContextSecret.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
     await base.SetParametersAsync(ParameterView.Empty);
