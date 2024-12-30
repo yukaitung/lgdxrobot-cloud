@@ -9,6 +9,15 @@ public class AutomationProfile : Profile
 {
   public AutomationProfile()
   {
+    // Flow
+    CreateMap<Flow, FlowListDto>();
+    CreateMap<Flow, FlowDto>();
+    CreateMap<Flow, FlowSearchDto>();
+    CreateMap<FlowCreateDto, Flow>();
+    CreateMap<FlowDetailCreateDto, FlowDetail>();
+    CreateMap<FlowUpdateDto, Flow>();
+    CreateMap<FlowDetailUpdateDto, FlowDetail>();
+
     // Progress
     CreateMap<Progress, ProgressDto>();
     CreateMap<Progress, ProgressSearchDto>();

@@ -13,6 +13,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     void DeleteFlow(Flow flow);
     Task<bool> SaveChangesAsync();
 
+    Task<IEnumerable<Flow>> SearchFlowsAsync(string name);
     Task<Flow?> GetFlowProgressesAsync(int flowId);
   }
 
@@ -63,6 +64,18 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<bool> SaveChangesAsync()
     {
       return await _context.SaveChangesAsync() >= 0;
+    }
+
+    public async Task<IEnumerable<Flow>> SearchFlowsAsync(string name)
+    {
+      if (string.IsNullOrWhiteSpace(name))
+      {
+        return await _context.Flows.AsNoTracking().Take(10).ToListAsync();
+      }
+      else
+      {
+        return await _context.Flows.AsNoTracking().Where(w => w.Name.Contains(name)).Take(10).ToListAsync();
+      }
     }
 
     public async Task<Flow?> GetFlowProgressesAsync(int flowId)

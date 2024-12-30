@@ -87,7 +87,8 @@ namespace LGDXRobot2Cloud.API.Repositories
 
     public async Task<Dictionary<int, Progress>> GetProgressesDictFromListAsync(IEnumerable<int> progressIds)
     {
-      return await _context.Progresses.Where(p => progressIds.Contains(p.Id))
+      return await _context.Progresses.AsNoTracking()
+        .Where(p => progressIds.Contains(p.Id))
         .ToDictionaryAsync(p => p.Id, p => p);
     }
   }

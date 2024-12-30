@@ -10,16 +10,6 @@ namespace LGDXRobot2Cloud.API.Profiles
   {
     public NavigationProfile()
     {
-      // Flow
-      CreateMap<Flow, Models.Responses.FlowListDto>();
-      CreateMap<Flow, Models.Responses.FlowDto>();
-      CreateMap<FlowDetail, Models.Responses.FlowDetailDto>();
-      CreateMap<Models.Commands.FlowCreateDto, Models.Commands.FlowUpdateDto>();
-      CreateMap<Models.Commands.FlowDetailCreateDto, Models.Commands.FlowDetailUpdateDto>();
-      CreateMap<Models.Commands.FlowUpdateDto, Flow>();
-      CreateMap<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<FlowDetail>>()
-        .ConvertUsing<FlowDetailUpdateDtoToFlowDetail>();
-      CreateMap<Models.Commands.FlowDetailUpdateDto, FlowDetail>();
       // Tasks
       CreateMap<AutoTask, AutoTaskListDto>();
       CreateMap<AutoTask, Models.Responses.AutoTaskDto>();
@@ -52,19 +42,6 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<RobotUpdateDto, Robot>();
       CreateMap<Robot, RobotSearchDto>();
       CreateMap<RobotChassisInfo, RobotChassisInfoDto>();
-    }
-  }
-
-  public class FlowDetailUpdateDtoToFlowDetail : ITypeConverter<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<FlowDetail>>
-  {
-    public ICollection<FlowDetail> Convert(IEnumerable<Models.Commands.FlowDetailUpdateDto> src, ICollection<FlowDetail> dest, ResolutionContext context)
-    {
-      ICollection<FlowDetail> result = [];
-      foreach(Models.Commands.FlowDetailUpdateDto e in src)
-      {
-        result.Add(context.Mapper.Map<FlowDetail>(e));
-      }
-      return result;
     }
   }
 }
