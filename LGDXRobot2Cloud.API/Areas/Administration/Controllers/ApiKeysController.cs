@@ -25,9 +25,9 @@ public sealed class ApiKeysController(
     IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration
   ) : ControllerBase
 {
-  private readonly IApiKeyRepository _apiKeyRepository = apiKeyRepository;
-  private readonly IMapper _mapper = mapper;
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value;
+  private readonly IApiKeyRepository _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
+  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
 
   private static string GenerateApiKeys()
   {

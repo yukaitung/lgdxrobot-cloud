@@ -49,7 +49,7 @@ public sealed class WaypointsController(
   }
 
   [HttpGet("{id}", Name = "GetWaypoint")]
-  [ProducesResponseType(typeof(RealmDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(WaypointDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<WaypointDto>> GetWaypoint(int id)
   {

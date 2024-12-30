@@ -1,22 +1,22 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LGDXRobot2Cloud.Data.Models.DTOs.Base;
+namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
-public class TriggerBaseDto
+public class TriggerCreateDto
 {
   [Required]
   [MaxLength(50)]
-  public string Name { get; set; } = null!;
+  public required string Name { get; set; }
 
   [Required]
   [MaxLength(200)]
-  public string Url { get; set; } = null!;
+  public required string Url { get; set; }
 
-  public int HttpMethodId { get; set; }
+  public required int HttpMethodId { get; set; }
 
   public string? Body { get; set; }
 
-  public bool SkipOnFailure { get; set; }
+  public required bool SkipOnFailure { get; set; } = false;
   
   public int? ApiKeyInsertLocationId { get; set; }
 

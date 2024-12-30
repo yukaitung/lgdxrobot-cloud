@@ -24,10 +24,10 @@ public sealed class RobotCertificatesController(
     IRobotRepository robotRepository
   ) : ControllerBase
 {
-  private readonly IMapper _mapper = mapper;
-  private readonly IRobotCertificateRepository _robotCertificateRepository = robotCertificateRepository;
-  private readonly IRobotRepository _robotRepository = robotRepository;
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value;
+  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+  private readonly IRobotCertificateRepository _robotCertificateRepository = robotCertificateRepository ?? throw new ArgumentNullException(nameof(robotCertificateRepository));
+  private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
+  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<RobotCertificateListDto>), StatusCodes.Status200OK)]

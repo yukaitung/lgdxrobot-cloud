@@ -13,7 +13,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     void DeleteTrigger(Trigger trigger);
     Task<bool> SaveChangesAsync();
 
-    // Specific Functions
+    Task<IEnumerable<Trigger>> SearchTriggersAsync(string name);
     Task<Dictionary<int, Trigger>> GetTriggersDictFromListAsync(IEnumerable<int> triggerIds);
   }
   
@@ -59,6 +59,18 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<bool> SaveChangesAsync()
     {
       return await _context.SaveChangesAsync() >= 0;
+    }
+
+    public async Task<IEnumerable<Trigger>> SearchTriggersAsync(string name)
+    {
+      if (string.IsNullOrWhiteSpace(name))
+      {
+        return await _context.Triggers.AsNoTracking().Take(10).ToListAsync();
+      }
+      else
+      {
+        return await _context.Triggers.AsNoTracking().Where(w => w.Name.Contains(name)).Take(10).ToListAsync();
+      }
     }
 
     public async Task<Dictionary<int, Trigger>> GetTriggersDictFromListAsync(IEnumerable<int> triggerIds)

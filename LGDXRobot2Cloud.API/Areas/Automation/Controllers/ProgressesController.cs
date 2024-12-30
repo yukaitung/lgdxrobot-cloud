@@ -24,9 +24,9 @@ public sealed class ProgressesController(
     IProgressRepository progressRepository
   ) : ControllerBase
 {
-  private readonly IMapper _mapper = mapper;
-  private readonly IProgressRepository _progressRepository = progressRepository;
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value;
+  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+  private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
+  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<ProgressDto>), StatusCodes.Status200OK)]

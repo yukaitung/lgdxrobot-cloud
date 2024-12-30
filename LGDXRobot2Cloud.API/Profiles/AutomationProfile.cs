@@ -14,5 +14,11 @@ public class AutomationProfile : Profile
     CreateMap<Progress, ProgressSearchDto>();
     CreateMap<ProgressCreateDto, Progress>();
     CreateMap<ProgressUpdateDto, Progress>();
+    // Trigger
+    CreateMap<Trigger, TriggerDto>();
+    CreateMap<Trigger, TriggerListDto>();
+    CreateMap<Trigger, TriggerSearchDto>();
+    CreateMap<TriggerCreateDto, Trigger>();
+    CreateMap<TriggerUpdateDto, Trigger>();
   }
 }
