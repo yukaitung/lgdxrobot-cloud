@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Security.Claims;
 using Entities = LGDXRobot2Cloud.Data.Entities;
-using Models = LGDXRobot2Cloud.UI.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
@@ -93,11 +92,13 @@ internal sealed class PersistingRevalidatingAuthenticationStateProvider : Revali
 
       if (id != null && email != null)
       {
+        // TODO: Logout
+        /*
         state.PersistAsJson(nameof(Models.LgdxUserInfo), new
         {
           Id = id,
           Email = email,
-        });
+        });*/
       }
     }
   }

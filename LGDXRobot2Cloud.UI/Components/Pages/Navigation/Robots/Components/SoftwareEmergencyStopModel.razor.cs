@@ -1,6 +1,5 @@
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
-using Models = LGDXRobot2Cloud.UI.Models;
 using Microsoft.JSInterop;
 using LGDXRobot2Cloud.Data.Contracts;
 
