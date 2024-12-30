@@ -9,7 +9,7 @@ public record FlowDetailUpdateDto
   [Required]
   public required int Order { get; set; }
 
-  [Required]
+  [Required (ErrorMessage = "Please select a progress.")]
   public required int ProgressId { get; set; }
 
   [Required]

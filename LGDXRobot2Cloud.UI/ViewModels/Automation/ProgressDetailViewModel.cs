@@ -14,5 +14,4 @@ public class ProgressDetailViewModel : FormViewModel
   public bool System { get; set; }
 
   public bool Reserved { get; set; }
-
 }
