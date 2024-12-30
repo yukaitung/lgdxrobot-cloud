@@ -16,9 +16,6 @@ namespace LGDXRobot2Cloud.UI.Profiles
       CreateMap<FlowDetail, FlowDetailCreateDto>();
       CreateMap<Flow, FlowUpdateDto>();
       CreateMap<FlowDetail, FlowDetailUpdateDto>();
-      // Progress
-      CreateMap<Progress, ProgressCreateDto>();
-      CreateMap<Progress, ProgressUpdateDto>();
       // Tasks
       CreateMap<AutoTask, AutoTaskCreateDto>();
       CreateMap<AutoTaskDetail, AutoTaskDetailCreateDto>();

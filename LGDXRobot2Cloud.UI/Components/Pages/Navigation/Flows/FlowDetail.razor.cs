@@ -56,7 +56,8 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     string result = string.Empty;
     if (element == AdvanceSelectElements[0])
     {
-      result = await ProgressService.SearchProgressesAsync(name);
+      var response = await ProgressService.SearchProgressesAsync(name);
+      result = response.Data!;
     }
     else if (element == AdvanceSelectElements[1])
     {

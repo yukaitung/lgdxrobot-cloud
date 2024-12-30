@@ -22,45 +22,29 @@
 <PageBody>
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">Node Detail</h3>
+      <h3 class="card-title">Progress Detail</h3>
     </div>
     <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
       <DataAnnotationsValidator />
       <div class="card-body">
-        <SubmitErrorModal Display="@IsError" />
-        <ValidationErrorModal Display="@_editContext.GetValidationMessages().Any()" />
+        <ApiErrorAlert Errors="ProgressDetailViewModel.Errors" />
+        <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
         @if (Id != null)
         {
           <div class="mb-3 row">
             <label class="col-3 col-form-label">ID</label>
             <div class="col">
-              <div class="col form-control-plaintext">@Progress.Id</div>
+              <div class="col form-control-plaintext">@ProgressDetailViewModel.Id</div>
             </div>
           </div>
         }
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="Name">Name</label>
+          <label class="col-3 col-form-label required" for="@nameof(ProgressDetailViewModel.Name)">Name</label>
           <div class="col">
-            <InputText id="Name" @bind-Value="Progress.Name" type="text" class="form-control"
-                placeholder="Your progress name" />
-            <ValidationMessage class="invalid-feedback" For="@(() => Progress.Name)" />
+            <InputText id="@nameof(ProgressDetailViewModel.Name)" type="text" class="form-control" @bind-Value="ProgressDetailViewModel.Name" />
+            <ValidationMessage class="invalid-feedback" For="@(() => ProgressDetailViewModel.Name)" />
           </div>
         </div>
-        @if (Id != null)
-        {
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label">Create Time</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@Progress.CreatedAt</div>
-            </div>
-          </div>
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label">Last Update Time</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@Progress.UpdatedAt</div>
-            </div>
-          </div>
-        }
       </div>
       <div class="card-footer d-flex">
         <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Progresses/Delete" Context="Delete">

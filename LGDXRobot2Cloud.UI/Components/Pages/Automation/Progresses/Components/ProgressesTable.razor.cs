@@ -1,16 +1,16 @@
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
-using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Progresses.Components;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Progresses.Components;
 
 public sealed partial class ProgressesTable : AbstractTable
 {
   [Inject]
   public required IProgressService ProgressService { get; set; }
 
-  private List<Progress>? ProgressesList { get; set; }
+  private List<ProgressDto>? Progresses { get; set; }
   
   public override async Task HandlePageSizeChange(int number)
   {
@@ -20,8 +20,8 @@ public sealed partial class ProgressesTable : AbstractTable
     else if (PageSize < 1)
       PageSize = 1;
     var data = await ProgressService.GetProgressesAsync(DataSearch, 1, PageSize);
-    ProgressesList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Progresses = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task HandleSearch()
@@ -29,8 +29,8 @@ public sealed partial class ProgressesTable : AbstractTable
     if (LastDataSearch == DataSearch)
       return;
     var data = await ProgressService.GetProgressesAsync(DataSearch, 1, PageSize);
-    ProgressesList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Progresses = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
     LastDataSearch = DataSearch;
   }
 
@@ -50,16 +50,16 @@ public sealed partial class ProgressesTable : AbstractTable
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
     var data = await ProgressService.GetProgressesAsync(DataSearch, pageNum, PageSize);
-    ProgressesList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Progresses = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
-    if (deleteOpt && CurrentPage > 1 && ProgressesList?.Count == 1)
+    if (deleteOpt && CurrentPage > 1 && Progresses?.Count == 1)
       CurrentPage--;
     var data = await ProgressService.GetProgressesAsync(DataSearch, CurrentPage, PageSize);
-    ProgressesList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Progresses = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 }

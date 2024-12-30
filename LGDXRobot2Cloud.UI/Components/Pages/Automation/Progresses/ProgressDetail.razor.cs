@@ -1,13 +1,13 @@
 using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.UI.ViewModels.Automation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Progresses;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Progresses;
 
 public sealed partial class ProgressDetail : ComponentBase
 {
@@ -23,36 +23,35 @@ public sealed partial class ProgressDetail : ComponentBase
   [Parameter]
   public int? Id { get; set; }
 
-  private Progress Progress { get; set; } = null!;
+  private ProgressDetailViewModel ProgressDetailViewModel { get; set; } = null!;
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
-  private bool IsError { get; set; } = false;
 
   public async Task HandleValidSubmit()
   {
-    bool success;
+    ApiResponse<bool> response;
 
     if (Id != null)
       // Update
-      success = await ProgressService.UpdateProgressAsync((int)Id, Mapper.Map<ProgressUpdateDto>(Progress));
+      response = await ProgressService.UpdateProgressAsync((int)Id, Mapper.Map<ProgressUpdateDto>(ProgressDetailViewModel));
     else
-      success = await ProgressService.AddProgressAsync(Mapper.Map<ProgressCreateDto>(Progress));
+      response = await ProgressService.AddProgressAsync(Mapper.Map<ProgressCreateDto>(ProgressDetailViewModel));
 
-    if (success)
+    if (response.IsSuccess)
       NavigationManager.NavigateTo(AppRoutes.Navigation.Progresses.Index);
     else
-      IsError = true;
+      ProgressDetailViewModel.Errors = response.Errors;
   }
 
   public async Task HandleDelete()
   {
     if (Id != null)
     {
-      var success = await ProgressService.DeleteProgressAsync((int)Id);
-      if (success)
+      var response = await ProgressService.DeleteProgressAsync((int)Id);
+      if (response.IsSuccess)
         NavigationManager.NavigateTo(AppRoutes.Navigation.Progresses.Index);
       else
-        IsError = true;
+        ProgressDetailViewModel.Errors = response.Errors;
     }
   }
 
@@ -63,17 +62,18 @@ public sealed partial class ProgressDetail : ComponentBase
     {
       if (_id != null)
       {
-        var progress = await ProgressService.GetProgressAsync((int)_id);
+        var response = await ProgressService.GetProgressAsync((int)_id);
+        var progress = response.Data;
         if (progress != null) {
-          Progress = progress;
+          ProgressDetailViewModel = Mapper.Map<ProgressDetailViewModel>(progress);
           _editContext = new EditContext(progress);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }
       }
       else
       {
-        Progress = new Progress();
-        _editContext = new EditContext(Progress);
+        ProgressDetailViewModel = new ProgressDetailViewModel();
+        _editContext = new EditContext(ProgressDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
