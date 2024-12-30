@@ -1,10 +1,9 @@
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
-using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Flows.Components;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Flows.Components;
 
 public sealed partial class FlowsTable : AbstractTable
 {

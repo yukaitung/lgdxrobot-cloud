@@ -8,7 +8,7 @@ using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.ViewModels.Automation;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Flows;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Flows;
 
 public sealed partial class FlowDetail : ComponentBase, IDisposable
 {
