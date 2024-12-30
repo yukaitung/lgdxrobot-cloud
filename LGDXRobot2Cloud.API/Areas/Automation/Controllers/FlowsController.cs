@@ -18,7 +18,7 @@ namespace LGDXRobot2Cloud.API.Areas.Automation.Controllers;
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
-public class FlowsController(
+public sealed class FlowsController(
     IFlowRepository flowRepository,
     IMapper mapper,
     IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,

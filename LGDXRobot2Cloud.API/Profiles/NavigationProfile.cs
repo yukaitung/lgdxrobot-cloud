@@ -10,14 +10,6 @@ namespace LGDXRobot2Cloud.API.Profiles
   {
     public NavigationProfile()
     {
-      // Tasks
-      CreateMap<AutoTask, AutoTaskListDto>();
-      CreateMap<AutoTask, Models.Responses.AutoTaskDto>();
-      CreateMap<Models.Commands.AutoTaskCreateDto, Models.Commands.AutoTaskUpdateDto>();
-      CreateMap<Models.Commands.AutoTaskUpdateDto, AutoTask>();
-      CreateMap<AutoTaskDetail, Models.Responses.AutoTaskDetailDto>();
-      CreateMap<Models.Commands.AutoTaskDetailCreateDto, Models.Commands.AutoTaskDetailUpdateDto>();
-      CreateMap<Models.Commands.AutoTaskDetailUpdateDto, AutoTaskDetail>();
       // Waypoint
       CreateMap<Waypoint, WaypointDto>();
       CreateMap<Waypoint, WaypointListDto>();

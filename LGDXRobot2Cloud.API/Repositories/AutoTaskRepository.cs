@@ -44,9 +44,10 @@ namespace LGDXRobot2Cloud.API.Repositories
         .ThenBy(t => t.Id)
         .Skip(pageSize * (pageNumber - 1))
         .Take(pageSize)
-        .Include(t => t.Flow)
         .Include(t => t.AssignedRobot)
         .Include(t => t.CurrentProgress)
+        .Include(t => t.Flow)
+        .Include(t => t.Realm)
         .ToListAsync();
       return (autoTasks, PaginationHelper);
     }
@@ -54,12 +55,13 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<AutoTask?> GetAutoTaskAsync(int autoTaskId)
     {
       return await _context.AutoTasks.Where(t => t.Id == autoTaskId)
-        .Include(t => t.Details
+        .Include(t => t.AutoTaskDetails
           .OrderBy(td => td.Order))
         .ThenInclude(td => td.Waypoint)
-        .Include(t => t.Flow)
         .Include(t => t.AssignedRobot)
         .Include(t => t.CurrentProgress)
+        .Include(t => t.Flow)
+        .Include(t => t.Realm)
         .FirstOrDefaultAsync();
     }
 

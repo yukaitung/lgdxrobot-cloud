@@ -1,10 +1,12 @@
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 
-public record AutoTaskListDto
+public record AutoTaskDto
 {
   public required int Id { get; set; }
 
   public string? Name { get; set; }
+
+  public required IEnumerable<AutoTaskDetailDto> AutoTaskDetails { get; set; } = [];
 
   public required int Priority { get; set; }
 

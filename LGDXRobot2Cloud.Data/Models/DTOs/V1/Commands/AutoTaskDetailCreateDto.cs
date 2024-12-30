@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LGDXRobot2Cloud.Data.Models.DTOs.Base;
+namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
-public class AutoTaskDetailBaseDto
+public record AutoTaskDetailCreateDto
 {
   public double? CustomX { get; set; }
 

@@ -13,5 +13,5 @@ public class Flow
   [MaxLength(50)]
   public string Name { get; set; } = null!;
 
-  public IList<FlowDetail> FlowDetails { get; set; } = []; // Do not change
+  public ICollection<FlowDetail> FlowDetails { get; set; } = [];
 }

@@ -8,24 +8,24 @@ namespace LGDXRobot2Cloud.Data.DbContexts;
 
 public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbContext<LgdxUser, LgdxRole, string>(options)
 {
-  // Navigation
+  // Administration
+  public DbSet<ApiKey> ApiKeys { get; set; }
+
+  // Automation
   public DbSet<AutoTask> AutoTasks { get; set; }
   public DbSet<AutoTaskDetail> AutoTasksDetail { get; set; }
   public DbSet<Flow> Flows { get; set; }
   public DbSet<FlowDetail> FlowDetails { get; set; }
   public DbSet<Progress> Progresses { get; set; }
   public DbSet<Trigger> Triggers { get; set; }
-  public DbSet<Waypoint> Waypoints { get; set; }
-  public DbSet<Realm> Realms { get; set; }
 
-  // Robot
+  // Navigation
+  public DbSet<Realm> Realms { get; set; }
   public DbSet<Robot> Robots { get; set; }
   public DbSet<RobotCertificate> RobotCertificates { get; set; }
-  public DbSet<RobotSystemInfo> RobotSystemInfos { get; set; }
   public DbSet<RobotChassisInfo> RobotChassisInfos { get; set; }
-
-  // Setting
-  public DbSet<ApiKey> ApiKeys { get; set; }
+  public DbSet<RobotSystemInfo> RobotSystemInfos { get; set; }
+  public DbSet<Waypoint> Waypoints { get; set; }
 
   protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
   {
@@ -38,7 +38,7 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
   {
     // One AutoTask has many AutoTaskDetails
     modelBuilder.Entity<AutoTask>()
-      .HasMany(e => e.Details)
+      .HasMany(e => e.AutoTaskDetails)
       .WithOne(e => e.AutoTask)
       .HasForeignKey(e => e.AutoTaskId)
       .IsRequired();

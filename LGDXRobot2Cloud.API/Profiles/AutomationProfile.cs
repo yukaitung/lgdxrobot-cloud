@@ -9,6 +9,15 @@ public class AutomationProfile : Profile
 {
   public AutomationProfile()
   {
+    // AutoTasks
+    CreateMap<AutoTask, AutoTaskListDto>();
+    CreateMap<AutoTask, AutoTaskDto>();
+    CreateMap<AutoTaskCreateDto, AutoTask>();
+    CreateMap<AutoTaskUpdateDto, AutoTask>();
+    CreateMap<AutoTaskDetail, AutoTaskDetailDto>();
+    CreateMap<AutoTaskDetailCreateDto, AutoTaskDetail>();
+    CreateMap<AutoTaskDetailUpdateDto, AutoTaskDetail>();
+
     // Flow
     CreateMap<Flow, FlowDto>();
     CreateMap<Flow, FlowListDto>();

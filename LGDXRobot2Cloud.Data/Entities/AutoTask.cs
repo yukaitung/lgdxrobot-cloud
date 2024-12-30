@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
-[Table("Navigation.AutoTasks")]
+[Table("Automation.AutoTasks")]
 public class AutoTask
 {
   [Key]
@@ -14,7 +13,7 @@ public class AutoTask
   [MaxLength(50)]
   public string? Name { get; set; }
   
-  public ICollection<AutoTaskDetail> Details { get; set; } = [];
+  public ICollection<AutoTaskDetail> AutoTaskDetails { get; set; } = [];
 
   public int Priority { get; set; }
 
@@ -22,6 +21,11 @@ public class AutoTask
   public Flow Flow { get; set; } = null!;
 
   public int FlowId { get; set; }
+
+  [ForeignKey("RealmId")]
+  public Realm Realm { get; set; } = null!;
+
+  public int RealmId { get; set; }
 
   [ForeignKey("AssignedRobotId")]
   public Robot? AssignedRobot { get; set; }
@@ -37,10 +41,4 @@ public class AutoTask
 
   [MaxLength(32)]
   public string? NextToken { get; set; }
-
-  [Precision(6)]
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-  
-  [Precision(6)]
-  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
