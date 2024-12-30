@@ -11,10 +11,11 @@ public class AdministrationProfile : Profile
   {
     // Api Keys
     CreateMap<ApiKey, ApiKeyDto>();
-    CreateMap<ApiKeyCreateDto, ApiKey>();
-    CreateMap<ApiKeyUpdateDto, ApiKey>();
-    CreateMap<ApiKeySecretUpdateDto, ApiKey>();
     CreateMap<ApiKey, ApiKeySecretDto>();
+    CreateMap<ApiKey, ApiKeySearchDto>();
+    CreateMap<ApiKeyCreateDto, ApiKey>();
+    CreateMap<ApiKeySecretUpdateDto, ApiKey>();
+    CreateMap<ApiKeyUpdateDto, ApiKey>();
 
     // Roles
     CreateMap<LgdxRole, LgdxRoleDto>();
@@ -22,6 +23,7 @@ public class AdministrationProfile : Profile
     CreateMap<LgdxRoleCreateDto, LgdxRole>();
     CreateMap<LgdxRoleUpdateDto, LgdxRole>();
 
+    // Robot Certificate
     CreateMap<RobotCertificate, RobotCertificateListDto>();
     CreateMap<RobotCertificate, RobotCertificateDto>();
 

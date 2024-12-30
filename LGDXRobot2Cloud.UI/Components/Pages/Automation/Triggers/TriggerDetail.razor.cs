@@ -131,8 +131,12 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
       return;
     if (elementId == SelectId)
     {
-      var result = await ApiKeyService.SearchApiKeysAsync(name);
-      await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", SelectId, result);
+      var response = await ApiKeyService.SearchApiKeysAsync(name);
+      if (response.IsSuccess)
+      {
+        var result = response.Data;
+        await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", SelectId, result);
+      }
     }
   }
 

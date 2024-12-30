@@ -1,3 +1,4 @@
+@using LGDXRobot2Cloud.Utilities.Enums
 @inherits AbstractTable
 
 <div class="card">
@@ -42,6 +43,7 @@
           <th class="w-1">ID</th>
           <th>Name</th>
           <th>URL</th>
+          <th class="w-1">HTTP Method</th>
           <th class="w-1"><!-- Action --></th>
         </tr>
       </thead>
@@ -55,6 +57,7 @@
               <td>@trigger.Id</td>
               <td>@trigger.Name</td>
               <td>@trigger.Url</td>
+              <td>@(((TriggerHttpMethod)trigger.HttpMethodId).ToEnumMember())</td>
               <td class="text-end">
                 <a href="@(AppRoutes.Navigation.Triggers.Index + $"/{triggerId}")" class="page-link link-primary">Edit</a>
               </td>
