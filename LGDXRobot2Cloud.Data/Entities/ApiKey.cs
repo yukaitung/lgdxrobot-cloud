@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
-[Table("Setting.ApiKeys")]
+[Table("Administration.ApiKeys")]
 public class ApiKey
 {
   [Key]

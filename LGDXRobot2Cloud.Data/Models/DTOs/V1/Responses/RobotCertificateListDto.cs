@@ -1,10 +1,8 @@
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 
-public record RobotCertificateDto
+public record RobotCertificateListDto
 {
   public required Guid Id { get; set; }
-
-  public required RobotSearchDto Robot { get; set; }
   
   public required string Thumbprint { get; set; }
 

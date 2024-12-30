@@ -22,6 +22,9 @@ public class AdministrationProfile : Profile
     CreateMap<LgdxRoleCreateDto, LgdxRole>();
     CreateMap<LgdxRoleUpdateDto, LgdxRole>();
 
+    CreateMap<RobotCertificate, RobotCertificateListDto>();
+    CreateMap<RobotCertificate, RobotCertificateDto>();
+
     // Users
     CreateMap<LgdxUser, LgdxUserListDto>();
     CreateMap<LgdxUserUpdateAdminDto, LgdxUser>();
