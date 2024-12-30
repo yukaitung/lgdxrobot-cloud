@@ -109,8 +109,8 @@
           <EditForm EditContext="@_editContextSecret" OnValidSubmit="HandleSetSecret">
             <DataAnnotationsValidator />
             <div class="card-body">
-              <ApiErrorAlert Errors="ApiKeyDetailViewModel.Errors" />
-              <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
+              <ApiErrorAlert Errors="UpdateApiKeySecretViewModel.Errors" />
+              <FormValidationErrorAlert Errors="@_editContextSecret.GetValidationMessages()" />
               @if (Id != null)
               {
                 <div class="mb-3 row">

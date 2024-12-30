@@ -7,7 +7,7 @@ public class ApiKeyDetailViewModel : FormViewModel, IValidatableObject
 {
   public int Id { get; set; }
 
-  [Required]
+  [Required (ErrorMessage = "Please enter a name.")]
   [MaxLength(50)]
   public string Name { get; set; } = null!;
 
