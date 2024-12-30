@@ -3,8 +3,8 @@ using LGDXRobot2Cloud.UI.Components.Shared.Table;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Setting.Certificates.Components;
-public sealed partial class CertificatesTable : AbstractTable
+namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.RobotCertificates.Components;
+public sealed partial class RobotCertificatesTable : AbstractTable
 {
   [Inject]
   public required IRobotCertificateService RobotCertificateService { get; set; }

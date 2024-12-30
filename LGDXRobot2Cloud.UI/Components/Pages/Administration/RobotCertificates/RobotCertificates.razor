@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Setting.Certificates.Index)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Setting/Certificates/Read")]
-@using LGDXRobot2Cloud.UI.Components.Pages.Setting.Certificates.Components
+@using LGDXRobot2Cloud.UI.Components.Pages.Administration.RobotCertificates.Components
 @rendermode InteractiveServer
 
 <PageHeader Title="Robot Certificates">
@@ -19,7 +19,7 @@
 </PageHeader>
 
 <PageBody>
-  <CertificatesTable />
+  <RobotCertificatesTable />
 </PageBody>
 
 <div class="modal modal-blur fade" id="rootCertificate" tabindex="-1" aria-modal="true" role="dialog">

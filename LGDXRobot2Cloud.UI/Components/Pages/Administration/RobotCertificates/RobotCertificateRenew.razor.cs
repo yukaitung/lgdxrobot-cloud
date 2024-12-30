@@ -7,9 +7,9 @@ using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Setting.Certificates;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.RobotCertificates;
 
-public sealed partial class CertificateRenew
+public sealed partial class RobotCertificateRenew
 {
   [Inject]
   public required IRobotCertificateService RobotCertificateService { get; set; }

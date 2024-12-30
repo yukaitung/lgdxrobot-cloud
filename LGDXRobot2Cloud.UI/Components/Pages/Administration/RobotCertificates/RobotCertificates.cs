@@ -2,9 +2,9 @@ using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Setting.Certificates;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.RobotCertificates;
 
-public sealed partial class Certificates : ComponentBase
+public sealed partial class RobotCertificates : ComponentBase
 {
   [Inject]
   public required IRobotCertificateService RobotCertificateService { get; set; }

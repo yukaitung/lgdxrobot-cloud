@@ -1,13 +1,12 @@
 using AutoMapper;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Setting.Certificates;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.RobotCertificates;
 
-public sealed partial class CertificateDetail
+public sealed partial class RobotCertificateDetail
 {
   [Inject]
   public NavigationManager NavigationManager { get; set; } = default!;
