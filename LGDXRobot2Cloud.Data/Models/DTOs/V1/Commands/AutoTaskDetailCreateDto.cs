@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
-public record AutoTaskDetailCreateDto
+public record AutoTaskDetailCreateDto : IValidatableObject
 {
   public double? CustomX { get; set; }
 
@@ -12,6 +12,14 @@ public record AutoTaskDetailCreateDto
   
   public int? WaypointId { get; set; }
 
-  [Required]
-  public int Order { get; set; }
+  [Required (ErrorMessage = "Please enter the order.")]
+  public required int Order { get; set; }
+
+  public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+  {
+    if (WaypointId == null && CustomX == null && CustomY == null && CustomRotation == null)
+    {
+      yield return new ValidationResult("Please enter a waypoint or a custom coordinate.", [nameof(AutoTaskCreateDto.AutoTaskDetails)]);
+    }
+  }
 }
