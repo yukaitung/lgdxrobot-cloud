@@ -1,7 +1,10 @@
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.UI.Models;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -9,74 +12,178 @@ namespace LGDXRobot2Cloud.UI.Services;
 
 public interface IFlowService
 {
-  Task<(IEnumerable<Flow>?, PaginationHelper?)> GetFlowsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<Flow?> GetFlowAsync(int flowId);
-  Task<bool> AddFlowAsync(FlowCreateDto flow);
-  Task<bool> UpdateFlowAsync(int flowId, FlowUpdateDto flow);
-  Task<bool> DeleteFlowAsync(int flowId);
-  Task<string> SearchFlowsAsync(string name);
+  Task<ApiResponse<(IEnumerable<FlowListDto>?, PaginationHelper?)>> GetFlowsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<ApiResponse<FlowDto>> GetFlowAsync(int flowId);
+  Task<ApiResponse<bool>> AddFlowAsync(FlowCreateDto flowCreateDto);
+  Task<ApiResponse<bool>> UpdateFlowAsync(int flowId, FlowUpdateDto flowUpdateDto);
+  Task<ApiResponse<bool>> DeleteFlowAsync(int flowId);
+  Task<ApiResponse<string>> SearchFlowsAsync(string name);
 }
 
 public sealed class FlowService(
-  AuthenticationStateProvider authenticationStateProvider, 
-  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), IFlowService
+    AuthenticationStateProvider authenticationStateProvider, 
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IFlowService
 {
-  public async Task<(IEnumerable<Flow>?, PaginationHelper?)> GetFlowsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<ApiResponse<(IEnumerable<FlowListDto>?, PaginationHelper?)>> GetFlowsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
-    var url = name != null ? $"navigation/flows?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/flows?pageNumber={pageNumber}&pageSize={pageSize}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var flows = await JsonSerializer.DeserializeAsync<IEnumerable<Flow>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (flows, PaginationHelper);
+      var url = name != null ? $"Automation/Flows?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"Automation/Flows?pageNumber={pageNumber}&pageSize={pageSize}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+        var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
+        var flows = await JsonSerializer.DeserializeAsync<IEnumerable<FlowListDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<(IEnumerable<FlowListDto>?, PaginationHelper?)> {
+          Data = (flows, PaginationHelper),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 
-  public async Task<Flow?> GetFlowAsync(int flowId)
+  public async Task<ApiResponse<FlowDto>> GetFlowAsync(int flowId)
   {
-    var response = await _httpClient.GetAsync($"navigation/flows/{flowId}");
-    var flow = await JsonSerializer.DeserializeAsync<Flow>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    return flow;
+    try
+    {
+      var response = await _httpClient.GetAsync($"Automation/Flows/{flowId}");
+      if (response.IsSuccessStatusCode)
+      {
+        var flow = await JsonSerializer.DeserializeAsync<FlowDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<FlowDto> {
+          Data = flow,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
 
-  public async Task<bool> AddFlowAsync(FlowCreateDto flow)
+  public async Task<ApiResponse<bool>> AddFlowAsync(FlowCreateDto flowCreateDto)
   {
-    var flowJson = new StringContent(JsonSerializer.Serialize(flow), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("navigation/flows", flowJson);
-    return response.IsSuccessStatusCode;
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(flowCreateDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync("Automation/Flows", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
   }
   
-  public async Task<bool> UpdateFlowAsync(int flowId, FlowUpdateDto flow)
+  public async Task<ApiResponse<bool>> UpdateFlowAsync(int flowId, FlowUpdateDto flowUpdateDto)
   {
-    var flowJson = new StringContent(JsonSerializer.Serialize(flow), Encoding.UTF8, "application/json");
-    Console.WriteLine(flowJson.ReadAsStringAsync().Result);
-    var response = await _httpClient.PutAsync($"navigation/flows/{flowId}", flowJson);
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<bool> DeleteFlowAsync(int flowId)
-  {
-    var response = await _httpClient.DeleteAsync($"navigation/flows/{flowId}");
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<string> SearchFlowsAsync(string name)
-  {
-    var url = $"navigation/flows?name={name}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      return await response.Content.ReadAsStringAsync();
+      var content = new StringContent(JsonSerializer.Serialize(flowUpdateDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PutAsync($"Automation/Flows/{flowId}", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> DeleteFlowAsync(int flowId)
+  {
+    try
+    {
+      var response = await _httpClient.DeleteAsync($"Automation/Flows/{flowId}");
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<string>> SearchFlowsAsync(string name)
+  {
+    try
+    {
+      var url = $"Automation/Flows/Search?name={name}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<string> {
+          Data = await response.Content.ReadAsStringAsync(),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 }

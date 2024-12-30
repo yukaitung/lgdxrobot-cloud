@@ -69,7 +69,8 @@ public sealed partial class TaskDetail : ComponentBase, IDisposable
     string result = string.Empty;
     if (element == AdvanceSelectElements[0])
     {
-      result = await FlowService.SearchFlowsAsync(name);
+      var response = await FlowService.SearchFlowsAsync(name);
+      result = response.Data!;
     }
     else if (element == AdvanceSelectElements[1])
     {

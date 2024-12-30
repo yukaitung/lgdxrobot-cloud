@@ -77,11 +77,11 @@ namespace LGDXRobot2Cloud.API.Repositories
     {
       if (string.IsNullOrWhiteSpace(name))
       {
-        return await _context.Progresses.AsNoTracking().Take(10).ToListAsync();
+        return await _context.Progresses.AsNoTracking().Where(w => w.Reserved == false).Take(10).ToListAsync();
       }
       else
       {
-        return await _context.Progresses.AsNoTracking().Where(w => w.Name.Contains(name)).Take(10).ToListAsync();
+        return await _context.Progresses.AsNoTracking().Where(w => w.Name.Contains(name) && w.Reserved == false).Take(10).ToListAsync();
       }
     }
 

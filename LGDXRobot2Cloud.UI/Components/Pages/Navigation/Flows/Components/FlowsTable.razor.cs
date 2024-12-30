@@ -1,3 +1,4 @@
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
 using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
@@ -13,7 +14,7 @@ public sealed partial class FlowsTable : AbstractTable
   [Parameter]
   public EventCallback<int> OnIdSelected { get; set; }
 
-  private List<Flow>? FlowsList { get; set; }
+  private List<FlowListDto>? Flows { get; set; }
   
   public override async Task HandlePageSizeChange(int number)
   {
@@ -23,8 +24,8 @@ public sealed partial class FlowsTable : AbstractTable
     else if (PageSize < 1)
       PageSize = 1;
     var data = await FlowService.GetFlowsAsync(DataSearch, 1, PageSize);
-    FlowsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Flows = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task HandleSearch()
@@ -32,8 +33,8 @@ public sealed partial class FlowsTable : AbstractTable
     if (LastDataSearch == DataSearch)
       return;
     var data = await FlowService.GetFlowsAsync(DataSearch, 1, PageSize);
-    FlowsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Flows = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
     LastDataSearch = DataSearch;
   }
 
@@ -53,16 +54,16 @@ public sealed partial class FlowsTable : AbstractTable
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
     var data = await FlowService.GetFlowsAsync(DataSearch, pageNum, PageSize);
-    FlowsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Flows = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
-    if (deleteOpt && CurrentPage > 1 && FlowsList?.Count == 1)
+    if (deleteOpt && CurrentPage > 1 && Flows?.Count == 1)
       CurrentPage--;
     var data = await FlowService.GetFlowsAsync(DataSearch, CurrentPage, PageSize);
-    FlowsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+    Flows = data.Data.Item1?.ToList();
+    PaginationHelper = data.Data.Item2;
   }
 }

@@ -6,5 +6,5 @@ public record FlowDto
 
   public required string Name { get; set; }
 
-  public required IEnumerable<FlowDetailDto> FlowDetails { get; set; } = [];
+  public required IList<FlowDetailDto> FlowDetails { get; set; } = [];
 }

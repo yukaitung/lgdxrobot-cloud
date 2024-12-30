@@ -1,12 +1,12 @@
 using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
 using LGDXRobot2Cloud.UI.Helpers;
-using Model = LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using LGDXRobot2Cloud.UI.Constants;
+using LGDXRobot2Cloud.UI.ViewModels.Automation;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Flows;
 
@@ -34,13 +34,12 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
   public int? Id { get; set; }
 
   private DotNetObjectReference<FlowDetail> ObjectReference = null!;
-  private Model.Flow Flow { get; set; } = null!;
+  private FlowDetailViewModel FlowDetailViewModel { get; set; } = null!;
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
-  private bool IsError { get; set; } = false;
 
   // Form helping variables
-  private readonly string[] AdvanceSelectElements = ["ProgressId-", "TriggerdId-"];
+  private readonly string[] AdvanceSelectElements = [$"{nameof(FlowDetailBody.ProgressId)}-", $"{nameof(FlowDetailBody.TriggerId)}-"];
   private int InitaisedAdvanceSelect { get; set; } = 0;
 
   // Form
@@ -79,82 +78,82 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     int order = int.Parse(elementId[(index + 1)..]);
     if (element == AdvanceSelectElements[0] && id != null)
     {
-      Flow.FlowDetails[order].ProgressId = id;
-      Flow.FlowDetails[order].ProgressName = name;
+      FlowDetailViewModel.FlowDetails[order].ProgressId = id;
+      FlowDetailViewModel.FlowDetails[order].ProgressName = name;
     }
     else if (element == AdvanceSelectElements[1])
     {
-      Flow.FlowDetails[order].TriggerId = id;
-      Flow.FlowDetails[order].TriggerName = name;
+      FlowDetailViewModel.FlowDetails[order].TriggerId = id;
+      FlowDetailViewModel.FlowDetails[order].TriggerName = name;
     }
   }
 
   public void HandleProceedConditionChange(int i, object? args)
   {
     if (args != null)
-      Flow.FlowDetails[i].AutoTaskNextControllerId = int.Parse(args.ToString() ?? string.Empty);
+      FlowDetailViewModel.FlowDetails[i].AutoTaskNextControllerId = int.Parse(args.ToString() ?? string.Empty);
   }
 
   public void FlowAddStep()
   {
-    Flow.FlowDetails.Add(new Model.FlowDetail());
+    FlowDetailViewModel.FlowDetails.Add(new FlowDetailBody());
   }
 
   public async Task FlowStepMoveUp(int i)
   {
     if (i < 1)
       return;
-    (Flow.FlowDetails[i], Flow.FlowDetails[i - 1]) = (Flow.FlowDetails[i - 1], Flow.FlowDetails[i]);
+    (FlowDetailViewModel.FlowDetails[i], FlowDetailViewModel.FlowDetails[i - 1]) = (FlowDetailViewModel.FlowDetails[i - 1], FlowDetailViewModel.FlowDetails[i]);
     await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i - 1, i);
   }
 
   public async Task FlowStepMoveDown(int i)
   {
-    if (i > Flow.FlowDetails.Count - 1)
+    if (i > FlowDetailViewModel.FlowDetails.Count - 1)
       return;
-    (Flow.FlowDetails[i], Flow.FlowDetails[i + 1]) = (Flow.FlowDetails[i + 1], Flow.FlowDetails[i]);
+    (FlowDetailViewModel.FlowDetails[i], FlowDetailViewModel.FlowDetails[i + 1]) = (FlowDetailViewModel.FlowDetails[i + 1], FlowDetailViewModel.FlowDetails[i]);
     await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i, i + 1);
   }
 
   public async Task FlowRemoveStep(int i)
   {
-    if (Flow.FlowDetails.Count <= 1)
+    if (FlowDetailViewModel.FlowDetails.Count <= 1)
       return;
-    if (i < Flow.FlowDetails.Count - 1)
+    if (i < FlowDetailViewModel.FlowDetails.Count - 1)
       await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i, i + 1, true);
-    Flow.FlowDetails.RemoveAt(i);
+    FlowDetailViewModel.FlowDetails.RemoveAt(i);
     InitaisedAdvanceSelect--;
   }
 
   public async Task HandleValidSubmit()
   {
     // Setup Order
-    for (int i = 0; i < Flow.FlowDetails.Count; i++)
-      Flow.FlowDetails[i].Order = i;
+    for (int i = 0; i < FlowDetailViewModel.FlowDetails.Count; i++)
+      FlowDetailViewModel.FlowDetails[i].Order = i;
     
-    bool success;
+    ApiResponse<bool> response;
     if (Id != null)
       // Update
-      success = await FlowService.UpdateFlowAsync((int)Id, Mapper.Map<FlowUpdateDto>(Flow));
+      response = await FlowService.UpdateFlowAsync((int)Id, Mapper.Map<FlowUpdateDto>(FlowDetailViewModel));
     else
       // Create
-      success = await FlowService.AddFlowAsync(Mapper.Map<FlowCreateDto>(Flow));
+      response = await FlowService.AddFlowAsync(Mapper.Map<FlowCreateDto>(FlowDetailViewModel));
 
-    if (success)
+    if (response.IsSuccess)
       NavigationManager.NavigateTo(AppRoutes.Navigation.Flows.Index);
     else
-      IsError = true;
+      response.Errors = FlowDetailViewModel.Errors;
   }
 
   public async Task HandleDelete()
   {
     if (Id != null)
     {
-      var success = await FlowService.DeleteFlowAsync((int)Id);
-      if (success)
+      var response = await FlowService.DeleteFlowAsync((int)Id);
+      if (response.IsSuccess)
         NavigationManager.NavigateTo(AppRoutes.Navigation.Flows.Index);
       else
-        IsError = true;
+        response.Errors = FlowDetailViewModel.Errors;
     }
   }
 
@@ -165,26 +164,20 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     {
       if (_id != null)
       {
-        var flow = await FlowService.GetFlowAsync((int)_id);
+        var response = await FlowService.GetFlowAsync((int)_id);
+        var flow = response.Data;
         if (flow != null)
         {
-          Flow = flow;
-          for (int i = 0; i < Flow.FlowDetails.Count; i++)
-          {
-            Flow.FlowDetails[i].ProgressName = flow.FlowDetails[i].Progress?.Name;
-            Flow.FlowDetails[i].ProgressId = flow.FlowDetails[i].Progress?.Id;
-            Flow.FlowDetails[i].TriggerId = flow.FlowDetails[i].Trigger?.Id;
-            Flow.FlowDetails[i].TriggerName = flow.FlowDetails[i].Trigger?.Name;
-          }
-          _editContext = new EditContext(Flow);
+          FlowDetailViewModel = Mapper.Map<FlowDetailViewModel>(flow);
+          _editContext = new EditContext(FlowDetailViewModel);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }
       }
       else
       {
-        Flow = new Model.Flow();
-        Flow.FlowDetails.Add(new Model.FlowDetail());
-        _editContext = new EditContext(Flow);
+        FlowDetailViewModel = new FlowDetailViewModel();
+        FlowDetailViewModel.FlowDetails.Add(new FlowDetailBody());
+        _editContext = new EditContext(FlowDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
@@ -199,13 +192,13 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitDotNet", ObjectReference);
     }
-    if (InitaisedAdvanceSelect < Flow.FlowDetails.Count)
+    if (InitaisedAdvanceSelect < FlowDetailViewModel.FlowDetails.Count)
     {
       await JSRuntime.InvokeVoidAsync("InitAdvancedSelectList", 
         AdvanceSelectElements,
         InitaisedAdvanceSelect,
-        Flow.FlowDetails.Count - InitaisedAdvanceSelect);
-      InitaisedAdvanceSelect = Flow.FlowDetails.Count;
+        FlowDetailViewModel.FlowDetails.Count - InitaisedAdvanceSelect);
+      InitaisedAdvanceSelect = FlowDetailViewModel.FlowDetails.Count;
     }
   }
 

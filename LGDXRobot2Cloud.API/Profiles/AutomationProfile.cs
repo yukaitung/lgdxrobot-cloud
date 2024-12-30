@@ -10,13 +10,14 @@ public class AutomationProfile : Profile
   public AutomationProfile()
   {
     // Flow
-    CreateMap<Flow, FlowListDto>();
     CreateMap<Flow, FlowDto>();
+    CreateMap<Flow, FlowListDto>();
     CreateMap<Flow, FlowSearchDto>();
     CreateMap<FlowCreateDto, Flow>();
+    CreateMap<FlowDetail, FlowDetailDto>();
     CreateMap<FlowDetailCreateDto, FlowDetail>();
-    CreateMap<FlowUpdateDto, Flow>();
     CreateMap<FlowDetailUpdateDto, FlowDetail>();
+    CreateMap<FlowUpdateDto, Flow>();
 
     // Progress
     CreateMap<Progress, ProgressDto>();

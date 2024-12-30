@@ -7,5 +7,5 @@ public record FlowUpdateDto
   [Required]
   public required string Name { get; set; }
   
-  public required IEnumerable<FlowDetailUpdateDto> FlowDetails { get; set; } = [];
+  public required IList<FlowDetailUpdateDto> FlowDetails { get; set; } = [];
 }

@@ -11,11 +11,6 @@ namespace LGDXRobot2Cloud.UI.Profiles
   {
     public NavigationProfile()
     {
-      // Flow
-      CreateMap<Flow, FlowCreateDto>();
-      CreateMap<FlowDetail, FlowDetailCreateDto>();
-      CreateMap<Flow, FlowUpdateDto>();
-      CreateMap<FlowDetail, FlowDetailUpdateDto>();
       // Tasks
       CreateMap<AutoTask, AutoTaskCreateDto>();
       CreateMap<AutoTaskDetail, AutoTaskDetailCreateDto>();
