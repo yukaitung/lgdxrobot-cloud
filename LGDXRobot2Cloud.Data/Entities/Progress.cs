@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
-[Table("Navigation.Progresses")]
+[Table("Automation.Progresses")]
 public class Progress
 {
   [Key]
@@ -17,10 +16,4 @@ public class Progress
   public bool System { get; set; } = false;
 
   public bool Reserved { get; set; } = false;
-
-  [Precision(3)]
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-  
-  [Precision(3)]
-  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -14,7 +14,7 @@ namespace LGDXRobot2Cloud.API.Repositories
     void DeleteProgress(Progress progress);
     Task<bool> SaveChangesAsync();
 
-    // Specific Functions
+    Task<IEnumerable<Progress>> SearchProgressesAsync(string name);
     Task<Dictionary<int, Progress>> GetProgressesDictFromListAsync(IEnumerable<int> progressIds);
   }
   
@@ -71,6 +71,18 @@ namespace LGDXRobot2Cloud.API.Repositories
     public async Task<bool> SaveChangesAsync()
     {
       return await _context.SaveChangesAsync() >= 0;
+    }
+
+    public async Task<IEnumerable<Progress>> SearchProgressesAsync(string name)
+    {
+      if (string.IsNullOrWhiteSpace(name))
+      {
+        return await _context.Progresses.AsNoTracking().Take(10).ToListAsync();
+      }
+      else
+      {
+        return await _context.Progresses.AsNoTracking().Where(w => w.Name.Contains(name)).Take(10).ToListAsync();
+      }
     }
 
     public async Task<Dictionary<int, Progress>> GetProgressesDictFromListAsync(IEnumerable<int> progressIds)

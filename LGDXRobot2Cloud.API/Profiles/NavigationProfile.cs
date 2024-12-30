@@ -20,10 +20,6 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<IEnumerable<Models.Commands.FlowDetailUpdateDto>, ICollection<FlowDetail>>()
         .ConvertUsing<FlowDetailUpdateDtoToFlowDetail>();
       CreateMap<Models.Commands.FlowDetailUpdateDto, FlowDetail>();
-      // Progress
-      CreateMap<Progress, Models.Responses.ProgressDto>();
-      CreateMap<Models.Commands.ProgressCreateDto, Progress>();
-      CreateMap<Models.Commands.ProgressUpdateDto, Progress>();
       // Tasks
       CreateMap<AutoTask, AutoTaskListDto>();
       CreateMap<AutoTask, Models.Responses.AutoTaskDto>();
