@@ -1,81 +1,189 @@
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Helpers;
+using LGDXRobot2Cloud.Utilities.Helpers;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Text;
 using System.Text.Json;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
-using LGDXRobot2Cloud.Utilities.Helpers;
-using LGDXRobot2Cloud.UI.Models;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
 public interface ITriggerService
 {
-  Task<(IEnumerable<Trigger>?, PaginationHelper?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<Trigger?> GetTriggerAsync(int triggerId);
-  Task<bool> AddTriggerAsync(TriggerCreateDto trigger);
-  Task<bool> UpdateTriggerAsync(int triggerId, TriggerUpdateDto trigger);
-  Task<bool> DeleteTriggerAsync(int triggerId);
-  Task<string> SearchTriggersAsync(string name);
+  Task<ApiResponse<(IEnumerable<TriggerListDto>?, PaginationHelper?)>> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
+  Task<ApiResponse<TriggerDto>> GetTriggerAsync(int triggerId);
+  Task<ApiResponse<bool>> AddTriggerAsync(TriggerCreateDto triggerCreateDto);
+  Task<ApiResponse<bool>> UpdateTriggerAsync(int triggerId, TriggerUpdateDto triggerUpdateDto);
+  Task<ApiResponse<bool>> DeleteTriggerAsync(int triggerId);
+  Task<ApiResponse<string>>SearchTriggersAsync(string name);
 }
 
 public sealed class TriggerService(
-  AuthenticationStateProvider authenticationStateProvider, 
-  HttpClient httpClient) : BaseService(authenticationStateProvider, httpClient), ITriggerService
+    AuthenticationStateProvider authenticationStateProvider, 
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), ITriggerService
 {
-  public async Task<(IEnumerable<Trigger>?, PaginationHelper?)> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
+  public async Task<ApiResponse<(IEnumerable<TriggerListDto>?, PaginationHelper?)>> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
-    var url = name != null ? $"navigation/triggers?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"navigation/triggers?pageNumber={pageNumber}&pageSize={pageSize}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-      var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-      var triggers = await JsonSerializer.DeserializeAsync<IEnumerable<Trigger>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      return (triggers, PaginationHelper);
+      var url = name != null ? $"Automation/Triggers?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"Navigation/Waypoints?pageNumber={pageNumber}&pageSize={pageSize}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
+        var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
+        var triggers = await JsonSerializer.DeserializeAsync<IEnumerable<TriggerListDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<(IEnumerable<TriggerListDto>?, PaginationHelper?)> {
+          Data = (triggers, PaginationHelper),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 
-  public async Task<Trigger?> GetTriggerAsync(int triggerId)
+  public async Task<ApiResponse<TriggerDto>> GetTriggerAsync(int triggerId)
   {
-    var response = await _httpClient.GetAsync($"navigation/triggers/{triggerId}");
-    var trigger = await JsonSerializer.DeserializeAsync<Trigger>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-    return trigger;
-  }
-
-  public async Task<bool> AddTriggerAsync(TriggerCreateDto trigger)
-  {
-    var triggerJson = new StringContent(JsonSerializer.Serialize(trigger), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PostAsync("navigation/triggers", triggerJson);
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<bool> UpdateTriggerAsync(int triggerId, TriggerUpdateDto trigger)
-  {
-    var triggerJson = new StringContent(JsonSerializer.Serialize(trigger), Encoding.UTF8, "application/json");
-    var response = await _httpClient.PutAsync($"navigation/triggers/{triggerId}", triggerJson);
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<bool> DeleteTriggerAsync(int triggerId)
-  {
-    var response = await _httpClient.DeleteAsync($"navigation/triggers/{triggerId}");
-    return response.IsSuccessStatusCode;
-  }
-
-  public async Task<string> SearchTriggersAsync(string name)
-  {
-    var url = $"navigation/triggers?name={name}";
-    var response = await _httpClient.GetAsync(url);
-    if (response.IsSuccessStatusCode)
+    try
     {
-      return await response.Content.ReadAsStringAsync();
+      var response = await _httpClient.GetAsync($"Automation/Triggers/{triggerId}");
+      if (response.IsSuccessStatusCode)
+      {
+        var trigger = await JsonSerializer.DeserializeAsync<TriggerDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<TriggerDto> {
+          Data = trigger,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
     }
-    else
+    catch (Exception ex)
     {
-      throw new Exception($"The API service returns status code {response.StatusCode}.");
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> AddTriggerAsync(TriggerCreateDto triggerCreateDto)
+  {
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(triggerCreateDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PostAsync("Automation/Triggers", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> UpdateTriggerAsync(int triggerId, TriggerUpdateDto triggerUpdateDto)
+  {
+    try
+    {
+      var content = new StringContent(JsonSerializer.Serialize(triggerUpdateDto), Encoding.UTF8, "application/json");
+      var response = await _httpClient.PutAsync($"Automation/Triggers/{triggerId}", content);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> DeleteTriggerAsync(int triggerId)
+  {
+    try
+    {
+      var response = await _httpClient.DeleteAsync($"Automation/Triggers/{triggerId}");
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<string>>SearchTriggersAsync(string name)
+  {
+    try
+    {
+      var url = $"Automation/Triggers/Search?name={name}";
+      var response = await _httpClient.GetAsync(url);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<string> {
+          Data = await response.Content.ReadAsStringAsync(),
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
     }
   }
 }

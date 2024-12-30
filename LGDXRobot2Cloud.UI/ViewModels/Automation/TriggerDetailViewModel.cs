@@ -1,21 +1,18 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using LGDXRobot2Cloud.UI.ViewModels.Shared;
 
-namespace LGDXRobot2Cloud.Data.Entities;
+namespace LGDXRobot2Cloud.UI.ViewModels.Automation;
 
-[Table("Automation.Triggers")]
-public class Trigger
+public class TriggerDetailViewModel : FormViewModel
 {
-  [Key]
-  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
   public int Id { get; set; }
 
+  [Required (ErrorMessage = "Please enter a name.")]
   [MaxLength(50)]
-  [Required]
   public string Name { get; set; } = null!;
 
-  [MaxLength(200)]
   [Required]
+  [MaxLength(200)]
   public string Url { get; set; } = null!;
 
   public int HttpMethodId { get; set; }
@@ -24,13 +21,15 @@ public class Trigger
 
   public bool SkipOnFailure { get; set; }
 
+  // API Keys
+  public bool ApiKeyRequired { get; set; }
+  
   public int? ApiKeyInsertLocationId { get; set; }
 
   [MaxLength(50)]
-  public string? ApiKeyFieldName { get; set; } // Header name or Json name
-
-  [ForeignKey("ApiKeyId")]
-  public ApiKey? ApiKey { get; set; }
+  public string? ApiKeyFieldName { get; set; }
 
   public int? ApiKeyId { get; set; }
+
+  public string? ApiKeyName { get; set; }
 }

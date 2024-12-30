@@ -1,16 +1,16 @@
 using System.Text;
 using System.Text.Json;
 using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.Commands;
+using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Models;
 using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.UI.ViewModels.Automation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 
-namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Triggers;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Triggers;
 
 public sealed partial class TriggerDetail : ComponentBase, IDisposable
 {
@@ -40,13 +40,12 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
   public int? Id { get; set; }
 
   private DotNetObjectReference<TriggerDetail> ObjectReference = null!;
-  private Trigger Trigger { get; set; } = null!;
+  private TriggerDetailViewModel TriggerDetailViewModel { get; set; } = null!;
   private List<BodyData> Body { get; set; } = [];
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
-  private bool IsError { get; set; } = false;
 
-  private readonly string SelectId = "ApiKeyId";
+  private readonly string SelectId = $"{nameof(TriggerDetailViewModel.ApiKeyId)}";
 
   private string GenerateBodyJson()
   {
@@ -117,12 +116,12 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
   // Form
   public void HandleHttpMethod(object args)
   {
-    Trigger.HttpMethodId = int.Parse(args.ToString() ?? string.Empty);
+    TriggerDetailViewModel.HttpMethodId = int.Parse(args.ToString() ?? string.Empty);
   }
 
   public void HandleApiKeyInsertAt(object args)
   {
-    Trigger.ApiKeyInsertLocationId = int.Parse(args.ToString() ?? string.Empty);
+    TriggerDetailViewModel.ApiKeyInsertLocationId = int.Parse(args.ToString() ?? string.Empty);
   }
 
   [JSInvokable("HandlSelectSearch")]
@@ -142,38 +141,37 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
   {
     if (elementId == SelectId)
     {
-      Trigger.ApiKeyId = id;
-      Trigger.ApiKeyName = name;
+      TriggerDetailViewModel.ApiKeyId = id;
+      TriggerDetailViewModel.ApiKeyName = name;
     }
   }
 
   public async Task HandleValidSubmit()
   {
-    bool success;
-    Trigger.Body = GenerateBodyJson();
-
+    TriggerDetailViewModel.Body = GenerateBodyJson();
+    ApiResponse<bool> response;
     if (Id != null)
       // Update
-      success = await TriggerService.UpdateTriggerAsync((int)Id, Mapper.Map<TriggerUpdateDto>(Trigger));
+      response = await TriggerService.UpdateTriggerAsync((int)Id, Mapper.Map<TriggerUpdateDto>(TriggerDetailViewModel));
     else
       // Create
-      success = await TriggerService.AddTriggerAsync(Mapper.Map<TriggerCreateDto>(Trigger));
+      response = await TriggerService.AddTriggerAsync(Mapper.Map<TriggerCreateDto>(TriggerDetailViewModel));
     
-    if (success)
+    if (response.IsSuccess)
       NavigationManager.NavigateTo(AppRoutes.Navigation.Triggers.Index);
     else 
-      IsError = true;
+      TriggerDetailViewModel.Errors = response.Errors;
   }
 
   public async Task HandleDelete()
   {
     if (Id != null)
     {
-      var success = await TriggerService.DeleteTriggerAsync((int)Id);
-      if (success)
+      var response = await TriggerService.DeleteTriggerAsync((int)Id);
+      if (response.IsSuccess)
         NavigationManager.NavigateTo(AppRoutes.Navigation.Triggers.Index);
       else
-        IsError = true;
+        TriggerDetailViewModel.Errors = response.Errors;
     }
   }
 
@@ -202,25 +200,26 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
     {
       if (_id != null)
       {
-        var trigger = await TriggerService.GetTriggerAsync((int)_id);
+        var response = await TriggerService.GetTriggerAsync((int)_id);
+        var trigger = response.Data;
         if (trigger != null)
         {
-          Trigger = trigger;
+          TriggerDetailViewModel = Mapper.Map<TriggerDetailViewModel>(trigger);
           if (trigger.ApiKey != null)
           {
-            Trigger.ApiKeyRequired = true;
-            Trigger.ApiKeyId = trigger.ApiKey.Id;
-            Trigger.ApiKeyName = trigger.ApiKey.Name;
+            TriggerDetailViewModel.ApiKeyRequired = true;
+            TriggerDetailViewModel.ApiKeyId = trigger.ApiKey.Id;
+            TriggerDetailViewModel.ApiKeyName = trigger.ApiKey.Name;
           }
           ConvertBodyJson(trigger.Body?.ToString() ?? string.Empty);
-          _editContext = new EditContext(Trigger);
+          _editContext = new EditContext(TriggerDetailViewModel);
           _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
         }
       }
       else
       {
-        Trigger = new Trigger();
-        _editContext = new EditContext(Trigger);
+        TriggerDetailViewModel = new TriggerDetailViewModel();
+        _editContext = new EditContext(TriggerDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
@@ -235,7 +234,7 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitDotNet", ObjectReference);
     }
-    if (Trigger.ApiKeyRequired)
+    if (TriggerDetailViewModel.ApiKeyRequired)
     {
       await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", SelectId);
     }

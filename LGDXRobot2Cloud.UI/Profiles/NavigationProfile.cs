@@ -21,9 +21,6 @@ namespace LGDXRobot2Cloud.UI.Profiles
       CreateMap<AutoTaskDetail, AutoTaskDetailCreateDto>();
       CreateMap<AutoTask, AutoTaskUpdateDto>();
       CreateMap<AutoTaskDetail, AutoTaskDetailUpdateDto>();
-      // Triggers
-      CreateMap<Trigger, TriggerCreateDto>();
-      CreateMap<Trigger, TriggerUpdateDto>();
       // Waypoint
       CreateMap<WaypointDto, WaypointDetailViewModel>()
         .ForMember(d => d.RealmId, opt => opt.MapFrom(s => s.Realm.Id))

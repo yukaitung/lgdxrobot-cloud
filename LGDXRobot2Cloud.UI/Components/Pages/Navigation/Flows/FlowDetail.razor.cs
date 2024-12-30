@@ -61,11 +61,8 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     }
     else if (element == AdvanceSelectElements[1])
     {
-      result = await TriggerService.SearchTriggersAsync(name);
-    }
-    else if (element == AdvanceSelectElements[2])
-    {
-      result = await TriggerService.SearchTriggersAsync(name);
+      var response = await TriggerService.SearchTriggersAsync(name);
+      result = response.Data!;
     }
     await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
   }

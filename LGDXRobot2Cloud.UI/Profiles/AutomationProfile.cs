@@ -13,5 +13,9 @@ public class AutomationProfile : Profile
     CreateMap<ProgressDto, ProgressDetailViewModel>();
     CreateMap<ProgressDetailViewModel, ProgressCreateDto>();
     CreateMap<ProgressDetailViewModel, ProgressUpdateDto>();
+    // Trigger
+    CreateMap<TriggerDto, TriggerDetailViewModel>();
+    CreateMap<TriggerDetailViewModel, TriggerCreateDto>();
+    CreateMap<TriggerDetailViewModel, TriggerUpdateDto>();
   }
 }
