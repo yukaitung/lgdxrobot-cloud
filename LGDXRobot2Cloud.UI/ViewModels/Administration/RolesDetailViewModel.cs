@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using LGDXRobot2Cloud.UI.ViewModels.Shared;
 
-namespace LGDXRobot2Cloud.UI.ViewModels.Administration.Roles;
+namespace LGDXRobot2Cloud.UI.ViewModels.Administration;
 
 public sealed class RolesDetailViewModel : FormViewModel, IValidatableObject
 {
