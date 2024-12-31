@@ -1,7 +1,7 @@
 using System.Reflection;
-using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.UI.Authorisation;
 using LGDXRobot2Cloud.UI.Components;
+using LGDXRobot2Cloud.UI.Consumers;
 using LGDXRobot2Cloud.UI.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication;
@@ -17,13 +17,20 @@ builder.Services.AddMassTransit(cfg =>
 {
 	var entryAssembly = Assembly.GetEntryAssembly();
   cfg.AddConsumers(entryAssembly);
-
 	cfg.UsingRabbitMq((context, cfg) =>
 	{
 		cfg.Host(builder.Configuration["RabbitMq:Host"], builder.Configuration["RabbitMq:VirtualHost"], h =>
 		{
 			h.Username(builder.Configuration["RabbitMq:Username"] ?? string.Empty);
 			h.Password(builder.Configuration["RabbitMq:Password"] ?? string.Empty);
+		});
+		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
+		{
+			e.ConfigureConsumer<RobotCommandsConsumer>(context);
+		});
+		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
+		{
+			e.ConfigureConsumer<RobotDataConsumer>(context);
 		});
 		cfg.ConfigureEndpoints(context);
 	});

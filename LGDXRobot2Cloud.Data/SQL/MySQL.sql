@@ -20,7 +20,7 @@ BEGIN
   END;
 
   -- Ensure no running task for robot
-  SELECT COUNT(*) INTO pRunningTasks FROM `Navigation.AutoTasks` AS T
+  SELECT COUNT(*) INTO pRunningTasks FROM `Automation.AutoTasks` AS T
     WHERE T.`AssignedRobotId` = pRobotId
     AND T.`CurrentProgressId` != 1
     AND T.`CurrentProgressId` != 2
@@ -29,7 +29,7 @@ BEGIN
 
   IF pRunningTasks = 0 THEN
     START TRANSACTION;
-    SELECT T.`Id`, T.`FlowId` INTO pTaskId, pFlowId FROM `Navigation.AutoTasks` AS T 
+    SELECT T.`Id`, T.`FlowId` INTO pTaskId, pFlowId FROM `Automation.AutoTasks` AS T 
       WHERE T.`CurrentProgressId` = 2 AND (T.`AssignedRobotId` = pRobotId OR T.`AssignedRobotId` IS NULL)
       ORDER BY T.`Priority` DESC, T.`AssignedRobotId` DESC, T.`Id`
       LIMIT 1 FOR UPDATE SKIP LOCKED;
@@ -38,7 +38,7 @@ BEGIN
       SELECT F.`ProgressId`, F.`Order` INTO pProgressId, pProgressOrder FROM `Navigation.FlowDetails` AS F 
         WHERE `FlowId` = pFlowId ORDER BY `Order` LIMIT 1;
 
-      UPDATE `Navigation.AutoTasks`
+      UPDATE `Automation.AutoTasks`
         SET  `AssignedRobotId`      = pRobotId
             ,`CurrentProgressId`    = pProgressId
             ,`CurrentProgressOrder` = pProgressOrder
@@ -50,9 +50,9 @@ BEGIN
   END IF;
 
   IF pTaskId IS NOT NULL THEN
-    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = pTaskId;
+    SELECT * FROM `Automation.AutoTasks` AS T WHERE `Id` = pTaskId;
   ELSE
-    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = NULL;
+    SELECT * FROM `Automation.AutoTasks` AS T WHERE `Id` = NULL;
   END IF;
 END //
 
@@ -79,7 +79,7 @@ BEGIN
 
   START TRANSACTION;
   SELECT T.`FlowId`, T.`CurrentProgressOrder` INTO pFlowId, pCurrentProgressOrder 
-    FROM `Navigation.AutoTasks` AS T
+    FROM `Automation.AutoTasks` AS T
     WHERE T.`Id` = pTaskId AND T.`AssignedRobotId` = pRobotId AND T.`NextToken` = pNextToken
     LIMIT 1 FOR UPDATE NOWAIT;
 
@@ -90,7 +90,7 @@ BEGIN
 
     IF pNextProgressId IS NOT NULL AND pNextProgressOrder IS NOT NULL THEN
       -- Next progress
-      UPDATE `Navigation.AutoTasks`
+      UPDATE `Automation.AutoTasks`
         SET  `CurrentProgressId`    = pNextProgressId
             ,`CurrentProgressOrder` = pNextProgressOrder
             ,`NextToken`            = (SELECT MD5(CONCAT(pRobotId, " ", pTaskId, " ", pNextProgressId, " ", UTC_TIMESTAMP(6))))
@@ -99,7 +99,7 @@ BEGIN
       SET pTaskUpdated = 1;
     ELSE
       -- Complete
-      UPDATE `Navigation.AutoTasks`
+      UPDATE `Automation.AutoTasks`
         SET  `CurrentProgressId`    = 3
             ,`CurrentProgressOrder` = NULL
             ,`NextToken`            = NULL
@@ -111,9 +111,9 @@ BEGIN
   COMMIT;
 
   IF pTaskUpdated = 1 THEN
-    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = pTaskId;
+    SELECT * FROM `Automation.AutoTasks` AS T WHERE `Id` = pTaskId;
   ELSE
-    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = NULL;
+    SELECT * FROM `Automation.AutoTasks` AS T WHERE `Id` = NULL;
   END IF;
 END //
 
@@ -137,12 +137,12 @@ BEGIN
 
   START TRANSACTION;
   SELECT COUNT(*) INTO pTaskCount
-    FROM `Navigation.AutoTasks` AS T
+    FROM `Automation.AutoTasks` AS T
     WHERE T.`Id` = pTaskId AND T.`AssignedRobotId` = pRobotId AND T.`NextToken` = nextToken
     LIMIT 1 FOR UPDATE NOWAIT;
   
   IF pTaskCount = 1 THEN
-    UPDATE `Navigation.AutoTasks`
+    UPDATE `Automation.AutoTasks`
       SET  `CurrentProgressId`    = 4
           ,`CurrentProgressOrder` = NULL
           ,`NextToken`            = NULL
@@ -153,9 +153,9 @@ BEGIN
   COMMIT;
 
   IF pTaskAborted = 1 THEN
-    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = pTaskId;
+    SELECT * FROM `Automation.AutoTasks` AS T WHERE `Id` = pTaskId;
   ELSE
-    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = NULL;
+    SELECT * FROM `Automation.AutoTasks` AS T WHERE `Id` = NULL;
   END IF;
 END //
 
@@ -177,12 +177,12 @@ BEGIN
 
   START TRANSACTION;
   SELECT COUNT(*) INTO pTaskCount
-    FROM `Navigation.AutoTasks` AS T
+    FROM `Automation.AutoTasks` AS T
     WHERE T.`Id` = pTaskId
     LIMIT 1 FOR UPDATE NOWAIT;
   
   IF pTaskCount = 1 THEN
-    UPDATE `Navigation.AutoTasks`
+    UPDATE `Automation.AutoTasks`
       SET  `CurrentProgressId`    = 4
           ,`CurrentProgressOrder` = NULL
           ,`NextToken`            = NULL
@@ -193,9 +193,9 @@ BEGIN
   COMMIT;
 
   IF pTaskAborted = 1 THEN
-    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = pTaskId;
+    SELECT * FROM `Automation.AutoTasks` AS T WHERE `Id` = pTaskId;
   ELSE
-    SELECT * FROM `Navigation.AutoTasks` AS T WHERE `Id` = NULL;
+    SELECT * FROM `Automation.AutoTasks` AS T WHERE `Id` = NULL;
   END IF;
 END //
 
@@ -217,12 +217,12 @@ BEGIN
 
   START TRANSACTION;
   SELECT T.`CurrentProgressId` INTO pProgressId
-    FROM `Navigation.AutoTasks` AS T
+    FROM `Automation.AutoTasks` AS T
     WHERE T.`Id` = pTaskId
     LIMIT 1 FOR UPDATE NOWAIT;
 
   IF pProgressId = 1 OR pProgressId = 2 THEN
-    DELETE FROM `Navigation.AutoTasks` WHERE `Id` = pTaskId;
+    DELETE FROM `Automation.AutoTasks` WHERE `Id` = pTaskId;
     SET pTaskDeleted = 1;
   END IF;
   COMMIT;
