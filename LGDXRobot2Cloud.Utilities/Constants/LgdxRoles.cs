@@ -11,7 +11,7 @@ public static class LgdxRoles
   public static Dictionary<Guid, LgdxRoleData> Default { get; set; } = new()
   {
     {
-      new Guid("07b16cb2-5daf-4d0b-a67f-13f80eff2833"), 
+      new Guid("01942232-62d5-7db2-a566-f720e44ade0d"), 
       new LgdxRoleData
       {
         Name = "Global Administrator",
@@ -21,7 +21,7 @@ public static class LgdxRoles
       }
     },
     {
-      new Guid("0fb45ce9-d492-4cbc-8e58-24de5deb193d"), 
+      new Guid("01942232-62d5-7b98-9fbb-137f811c2ad9"), 
       new LgdxRoleData
       {
         Name = "Global Auditor",
@@ -31,7 +31,7 @@ public static class LgdxRoles
       }
     },
     {
-      new Guid("62779402-22d2-4c66-83d4-5d1aab7b2834"), 
+      new Guid("01942232-62d5-734a-b2fe-5caf8b22deda"), 
       new LgdxRoleData
       {
         Name = "Robot Administrator",
@@ -41,7 +41,7 @@ public static class LgdxRoles
       }
     },
     {
-      new Guid("f14119aa-00de-4404-94c1-89440104be7e"), 
+      new Guid("01942232-62d5-7dda-99de-e041a0ec179b"), 
       new LgdxRoleData
       {
         Name = "Robot Auditor",
@@ -51,7 +51,7 @@ public static class LgdxRoles
       }
     },
     {
-      new Guid("ca7fb8ed-d7b0-423f-b241-5740e1fd6475"), 
+      new Guid("01942232-62d5-7a90-99c0-3716b4fd2bb1"), 
       new LgdxRoleData
       {
         Name = "Navigation Administrator",
@@ -61,7 +61,7 @@ public static class LgdxRoles
       }
     },
     {
-      new Guid("69525f08-e48f-4c52-8ab7-3ed41ac269af"), 
+      new Guid("01942232-62d5-718a-b69a-044ac485ea0c"), 
       new LgdxRoleData
       {
         Name = "Navigation Auditor",
@@ -71,7 +71,7 @@ public static class LgdxRoles
       }
     },
     {
-      new Guid("b5ffffa8-238e-47e9-8db1-99b7c7591a1d"), 
+      new Guid("01942232-62d5-7218-a36f-b37da58d0066"), 
       new LgdxRoleData
       {
         Name = "Tasks Administrator",
@@ -81,7 +81,7 @@ public static class LgdxRoles
       }
     },
     {
-      new Guid("3abb5eea-d7b5-4756-98a1-7f5dc4e98af9"), 
+      new Guid("01942232-62d5-7ad9-8fe5-4ca5135d3d5f"), 
       new LgdxRoleData
       {
         Name = "Tasks Auditor",
@@ -91,7 +91,7 @@ public static class LgdxRoles
       } 
     },
     {
-      new Guid("8493293c-74d2-48e8-ce83-0671007c5d7a"), 
+      new Guid("01942232-62d5-755d-8cc6-dd069622cca5"), 
       new LgdxRoleData
       {
         Name = "Tasks Operator",
@@ -99,6 +99,14 @@ public static class LgdxRoles
           "LGDXRobot2Cloud.API/Tasks/Write",
           "LGDXRobot2Cloud.API/Tasks/Delete"
         ]
+      } 
+    },
+    {
+      new Guid("01942232-62d5-7d00-b742-e41e7421bf8f"), 
+      new LgdxRoleData
+      {
+        Name = "Notification Email Recipient",
+        Scopes = []
       } 
     }
   };

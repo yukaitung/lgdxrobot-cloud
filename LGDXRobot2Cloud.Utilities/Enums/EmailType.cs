@@ -3,10 +3,11 @@ namespace LGDXRobot2Cloud.Utilities.Enums;
 public enum EmailType
 {
   Welcome = 1,
-  PasswordReset = 2,
-  PasswordUpdate = 3,
-  RobotStuck = 4,
-  AutoTaskAbort = 5,
-  TriggerFailed = 6,
-  RobotCertificateExipre = 7,
+  WelcomePasswordSet = 2,
+  PasswordReset = 3,
+  PasswordUpdate = 4,
+  RobotStuck = 5,
+  AutoTaskAbort = 6,
+  TriggerFailed = 7,
+  RobotCertificateExipre = 8
 }

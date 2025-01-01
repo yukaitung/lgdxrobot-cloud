@@ -5,6 +5,7 @@ using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +22,7 @@ namespace LGDXRobot2Cloud.API.Areas.Administration.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public class UsersController(
+    IBus bus,
     ILgdxUsersRepository lgdxUsersRepository,
     IMapper mapper,
     IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
@@ -29,6 +31,7 @@ public class UsersController(
     UserManager<LgdxUser> userManager
   ) : ControllerBase
 {
+  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly ILgdxUsersRepository _lgdxUsersRepository = lgdxUsersRepository ?? throw new ArgumentNullException(nameof(lgdxUsersRepository));
   private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
   private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2Configuration));
@@ -74,7 +77,7 @@ public class UsersController(
       Name = lgdxUserCreateAdminDto.Name,
       NormalizedEmail = lgdxUserCreateAdminDto.Email.ToUpper(),
       NormalizedUserName = lgdxUserCreateAdminDto.UserName.ToUpper(),
-      SecurityStamp = Guid.NewGuid().ToString("D"),
+      SecurityStamp = Guid.NewGuid().ToString(),
       UserName = lgdxUserCreateAdminDto.UserName
     };
     if (lgdxUserCreateAdminDto.Password != null)
