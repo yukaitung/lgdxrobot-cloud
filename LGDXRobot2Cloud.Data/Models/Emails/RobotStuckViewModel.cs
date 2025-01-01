@@ -10,13 +10,9 @@ public record RobotStuckViewModel
 
   public required string RealmName { get; set; }
 
-  public required int AutoTaskId { get; set; }
-
-  public string AutoTaskName { get; set; } = string.Empty;
-
   public required string Time { get; set; }
 
-  public required double X { get; set; }
+  public required string X { get; set; }
 
-  public required double Y { get; set; }
+  public required string Y { get; set; }
 }

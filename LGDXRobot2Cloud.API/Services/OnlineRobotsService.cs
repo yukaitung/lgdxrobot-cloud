@@ -1,8 +1,10 @@
+using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Utilities.Enums;
 using MassTransit;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -40,10 +42,12 @@ public interface IOnlineRobotsService
 
 public class OnlineRobotsService(
     IBus bus,
+    IEmailService emailService,
     IMemoryCache memoryCache
   ) : IOnlineRobotsService
 {
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+  private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly string OnlineRobotsKey = "OnlineRobotsService_OnlineRobots";
 
@@ -155,7 +159,8 @@ public class OnlineRobotsService(
     {
       if (!_memoryCache.TryGetValue<bool>($"OnlineRobotsService_RobotStuck_{robotId}", out var _))
       {
-        // First time
+        // First stuck in 5 minutes
+        await _emailService.SendRobotStuckEmailAsync(robotId, data.Position.X, data.Position.Y);
       }
       _memoryCache.Set($"OnlineRobotsService_RobotStuck_{robotId}", true, TimeSpan.FromMinutes(5));
     }

@@ -33,6 +33,7 @@ public sealed class EmailService (
       EmailType.WelcomePasswordSet => new WelcomePasswordSetStrategy(emailContract, _emailLinksConfiguration, _htmlRenderer),
       EmailType.PasswordReset => new PasswordResetStrategy(emailContract, _emailLinksConfiguration, _htmlRenderer),
       EmailType.PasswordUpdate => new PasswordUpdateStrategy(emailContract, _htmlRenderer),
+      EmailType.RobotStuck => new RobotStuckStrategy(emailContract, _htmlRenderer),
       _ => throw new ArgumentOutOfRangeException(nameof(emailContract.EmailType)),
     };
   }

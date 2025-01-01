@@ -150,4 +150,9 @@ public class LgdxRolesHelper
   {
     return DefaultRoles.ContainsKey(roleId);
   }
+
+  public static Guid GetSystemRoleId(LgdxRoleType roleType)
+  {
+    return DefaultRoles.First(r => r.Value.RoleType == roleType).Key;
+  }
 }

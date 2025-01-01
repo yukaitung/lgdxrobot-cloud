@@ -35,7 +35,7 @@ BEGIN
       LIMIT 1 FOR UPDATE SKIP LOCKED;
 
     IF pTaskId IS NOT NULL AND pFlowId IS NOT NULL THEN
-      SELECT F.`ProgressId`, F.`Order` INTO pProgressId, pProgressOrder FROM `Navigation.FlowDetails` AS F 
+      SELECT F.`ProgressId`, F.`Order` INTO pProgressId, pProgressOrder FROM `Automation.FlowDetails` AS F 
         WHERE `FlowId` = pFlowId ORDER BY `Order` LIMIT 1;
 
       UPDATE `Automation.AutoTasks`
@@ -43,7 +43,6 @@ BEGIN
             ,`CurrentProgressId`    = pProgressId
             ,`CurrentProgressOrder` = pProgressOrder
             ,`NextToken`            = (SELECT MD5(CONCAT(pRobotId, " ", pTaskId, " ", pProgressId, " ", UTC_TIMESTAMP(6))))
-            ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = pTaskId;
     END IF;
     COMMIT;
@@ -85,7 +84,7 @@ BEGIN
 
   IF pFlowId IS NOT NULL AND pCurrentProgressOrder IS NOT NULL THEN
     -- Getting order for next progress
-    SELECT F.`ProgressId`, F.`Order` INTO pNextProgressId, pNextProgressOrder FROM `Navigation.FlowDetails` AS F 
+    SELECT F.`ProgressId`, F.`Order` INTO pNextProgressId, pNextProgressOrder FROM `Automation.FlowDetails` AS F 
       WHERE `FlowId` = pFlowId AND `Order` > pCurrentProgressOrder LIMIT 1;
 
     IF pNextProgressId IS NOT NULL AND pNextProgressOrder IS NOT NULL THEN
@@ -94,7 +93,6 @@ BEGIN
         SET  `CurrentProgressId`    = pNextProgressId
             ,`CurrentProgressOrder` = pNextProgressOrder
             ,`NextToken`            = (SELECT MD5(CONCAT(pRobotId, " ", pTaskId, " ", pNextProgressId, " ", UTC_TIMESTAMP(6))))
-            ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = pTaskId;
       SET pTaskUpdated = 1;
     ELSE
@@ -103,7 +101,6 @@ BEGIN
         SET  `CurrentProgressId`    = 3
             ,`CurrentProgressOrder` = NULL
             ,`NextToken`            = NULL
-            ,`UpdatedAt`            = UTC_TIMESTAMP(6)
         WHERE `Id` = pTaskId;
       SET pTaskUpdated = 1;
     END IF;
@@ -146,7 +143,6 @@ BEGIN
       SET  `CurrentProgressId`    = 4
           ,`CurrentProgressOrder` = NULL
           ,`NextToken`            = NULL
-          ,`UpdatedAt`            = UTC_TIMESTAMP(6)
       WHERE `Id` = pTaskId;
     SET pTaskAborted = 1;
   END IF;
@@ -186,7 +182,6 @@ BEGIN
       SET  `CurrentProgressId`    = 4
           ,`CurrentProgressOrder` = NULL
           ,`NextToken`            = NULL
-          ,`UpdatedAt`            = UTC_TIMESTAMP(6)
       WHERE `Id` = pTaskId;
     SET pTaskAborted = 1;
   END IF;

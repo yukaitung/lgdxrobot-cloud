@@ -1,15 +1,40 @@
 <LayoutView Layout="@typeof(MainLayout)">
   <h1>Action Needed: Your Robot Encountered an Issue</h1>
   <p>
-    We noticed that your robot, [Robot Name/ID], encountered a problem during its operation. 
-    It appears to be stuck and requires your attention.
-    <br />
+    We noticed that your robot encountered a problem during its operation. It appears to be stuck and requires your attention.
+  </p>
+  <p>
     Here are the details:
     <ul>
-      <li>Realm:</li>
-      <li>Task:</li>
-      <li>Time:</li>
-      <li>Location:</li>
+      <li>Robot ID: @RobotId</li>
+      <li>Robot Name: @RobotName</li>
+      <li>Realm Id: @RealmId</li>
+      <li>Realm Name: @RealmName</li>
+      <li>Time of Incident: @Time</li>
+      <li>Coordinates: X = @(X)m, Y = @(Y)m</li>
     </ul>
   </p>
 </LayoutView>
+
+@code {
+  [Parameter]
+  public string RobotId { get; set; } = string.Empty;
+
+  [Parameter]
+  public string RobotName { get; set; } = string.Empty;
+
+  [Parameter]
+  public string RealmId { get; set; } = string.Empty;
+
+  [Parameter]
+  public string RealmName { get; set; } = string.Empty;
+
+  [Parameter]
+  public string Time { get; set; } = string.Empty;
+
+  [Parameter]
+  public string X { get; set; } = string.Empty;
+
+  [Parameter]
+  public string Y { get; set; } = string.Empty;
+}

@@ -179,7 +179,7 @@ builder.Services.AddHttpClient<ITriggerService, TriggerService>();
 // Custom Services
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
-builder.Services.AddSingleton<IOnlineRobotsService, OnlineRobotsService>();
+builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
 
 // Identity Repositories
 builder.Services.AddScoped<ILgdxUsersRepository, LgdxUsersRepository>();
