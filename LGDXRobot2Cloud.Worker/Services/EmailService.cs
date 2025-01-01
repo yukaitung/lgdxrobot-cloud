@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.Worker.Strategies.Email;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
@@ -14,17 +15,19 @@ public interface IEmailService
   Task SendEmailAsync(EmailContract emailContract);
 }
 
-public sealed class EmailService(
-    IOptionsSnapshot<EmailConfiguration> emailConfiguration
+public sealed class EmailService (
+    IOptionsSnapshot<EmailConfiguration> emailConfiguration,
+    HtmlRenderer htmlRenderer
   ) : IEmailService
 {
   private readonly EmailConfiguration _emailConfiguration = emailConfiguration.Value ?? throw new ArgumentNullException(nameof(emailConfiguration));
+  private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
 
   private IEmailStrategy CreateEmailStrategy(EmailContract emailContract)
   {
     return emailContract.EmailType switch
     {
-      EmailType.Welcome => new WelcomeStrategy(emailContract),
+      EmailType.Welcome => new WelcomeStrategy(emailContract, _htmlRenderer),
       _ => throw new ArgumentOutOfRangeException(nameof(emailContract.EmailType)),
     };
   }
