@@ -1,39 +1,26 @@
 @attribute [Route(AppRoutes.Identity.Login)]
-@layout EmptyLayout
+@layout AuthLayout
 
 <div style="display: none;">
   <PageTitle>Log In | LGDXRobot2 Cloud</PageTitle>
 </div>
 
-<div class="page page-center">
-  <div class="container container-tight py-4">
-    <div class="text-center mb-4">
-      <a class="navbar-brand navbar-brand-autodark">
-        <img src="/img/logo.png" height="32" alt="LGDXRobot2" class="navbar-brand-image">
-      </a>
-    </div>
-    <div class="card card-md">
-      <div class="card-body">
-        <h2 class="h2 text-center mb-4">Welcome</h2>
-        <EditForm EditContext="_editContext" method="post" OnValidSubmit="HandleLogin" FormName="Login">
-          <DataAnnotationsValidator />
-          <ApiErrorAlert Errors="LoginViewModel.Errors" />
-          <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
-          <div class="mb-3">
-            <label class="form-label" for="@nameof(LoginViewModel.Username)">Username</label>
-            <InputText id="@nameof(LoginViewModel.Username)" class="form-control" type="text" @bind-Value="LoginViewModel.Username" />
-            <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.Username)" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label" for="@nameof(LoginViewModel.Password)">Password</label>
-            <InputText id="@nameof(LoginViewModel.Password)" class="form-control" type="password" @bind-Value="LoginViewModel.Password" />
-          </div>
-          <a href="@AppRoutes.Identity.ForgotPassword">Forgot password</a>
-          <div class="form-footer">
-            <button type="submit" class="btn btn-primary w-100">Log In</button>
-          </div>
-        </EditForm>
-      </div>
-    </div>
+<h2 class="h2 text-center mb-4">Welcome</h2>
+<EditForm EditContext="_editContext" method="post" OnValidSubmit="HandleLogin" FormName="Login">
+  <DataAnnotationsValidator />
+  <ApiErrorAlert Errors="LoginViewModel.Errors" />
+  <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
+  <div class="mb-3">
+    <label class="form-label" for="@nameof(LoginViewModel.Username)">Username</label>
+    <InputText id="@nameof(LoginViewModel.Username)" class="form-control" type="text" @bind-Value="LoginViewModel.Username" />
+    <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.Username)" />
   </div>
-</div>
+  <div class="mb-3">
+    <label class="form-label" for="@nameof(LoginViewModel.Password)">Password</label>
+    <InputText id="@nameof(LoginViewModel.Password)" class="form-control" type="password" @bind-Value="LoginViewModel.Password" />
+  </div>
+  <a href="@AppRoutes.Identity.ForgotPassword">Forgot password</a>
+  <div class="form-footer">
+    <button type="submit" class="btn btn-primary w-100">Log In</button>
+  </div>
+</EditForm>

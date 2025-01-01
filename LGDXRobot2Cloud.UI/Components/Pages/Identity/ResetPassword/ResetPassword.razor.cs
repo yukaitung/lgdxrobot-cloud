@@ -27,6 +27,9 @@ public sealed partial class ResetPassword : ComponentBase
   [SupplyParameterFromQuery]
   private string Email { get; set; } = null!;
 
+  [SupplyParameterFromQuery]
+  private bool NewUser { get; set; } = false;
+
   [SupplyParameterFromForm]
   public ResetPasswordViewModel ResetPasswordViewModel { get; set; } = new();
 
