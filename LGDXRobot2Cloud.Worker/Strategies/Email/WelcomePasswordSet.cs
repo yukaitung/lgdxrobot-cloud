@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Contracts;
+using LGDXRobot2Cloud.Worker.Configurations;
 using LGDXRobot2Cloud.Worker.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -9,10 +10,12 @@ namespace LGDXRobot2Cloud.Worker.Strategies.Email;
 
 public class WelcomePasswordSetStrategy(
     EmailContract emailContract,
+    EmailLinksConfiguration emailLinksConfiguration,
     HtmlRenderer htmlRenderer
   ) : IEmailStrategy
 {
   private readonly EmailContract _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
+  private readonly EmailLinksConfiguration _emailLinksConfiguration = emailLinksConfiguration ?? throw new ArgumentNullException(nameof(emailLinksConfiguration));
   private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
   protected readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
 
@@ -21,7 +24,10 @@ public class WelcomePasswordSetStrategy(
     var html = await _htmlRenderer.Dispatcher.InvokeAsync(async () =>
     {
       var metadata = JsonSerializer.Deserialize<Dictionary<string, string>>(emailContract.Metadata!, _jsonSerializerOptions);
-      var dictionary = new Dictionary<string, object?>();
+      var dictionary = new Dictionary<string, object?>
+      {
+        { "Url", $"{_emailLinksConfiguration.AccessUrl}{_emailLinksConfiguration.PasswordResetPath}" }
+      };
       foreach (var data in metadata!)
       {
         dictionary.Add(data.Key, data.Value);

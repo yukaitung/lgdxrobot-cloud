@@ -1,15 +1,18 @@
 <LayoutView Layout="@typeof(MainLayout)">
   <h1>Welcome To LGDXRobot2</h1>
   <p>
-    Your account has been successfully created! Your username is <b>@UserName</b>. To get started, log in to your account:
+    Your account has been successfully created! To get started, log in to your account with your username <b>@UserName</b>, with password provided by your administrator:
   </p>
-  <Button HREF="https://www.google.com">Login Now</Button>
+  <Button HREF="@Url">Login Now</Button>
   <p>
-    Or you can use this link instead: <Link HREF="https://www.google.com">www.google.com</Link>
+    Or you can use this link instead: <Link HREF="@Url">@Url</Link>
   </p>
 </LayoutView>
 
 @code {
   [Parameter]
   public string UserName { get; set; } = string.Empty;
+
+  [Parameter]
+  public string Url { get; set; } = string.Empty;
 }

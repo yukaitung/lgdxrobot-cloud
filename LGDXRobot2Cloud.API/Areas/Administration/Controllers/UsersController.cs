@@ -130,7 +130,7 @@ public class UsersController(
         {
           Username = lgdxUserCreateAdminDto.UserName,
           Email = lgdxUserCreateAdminDto.Email,
-          Token = token
+          Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
         })
       });
     }

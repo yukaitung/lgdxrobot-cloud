@@ -1,4 +1,4 @@
-using LGDXRobot2Cloud.API.Configurations;
+using LGDXRobot2Cloud.Worker.Configurations;
 using LGDXRobot2Cloud.Worker.Consumers;
 using LGDXRobot2Cloud.Worker.Services;
 using MassTransit;
@@ -13,6 +13,9 @@ builder.Configuration.AddJsonFile("secrets.json", true, true);
  */
 builder.Services.Configure<EmailConfiguration>(
 	builder.Configuration.GetSection("Email")
+);
+builder.Services.Configure<EmailLinksConfiguration>(
+	builder.Configuration.GetSection("EmailLinks")
 );
 
 /*

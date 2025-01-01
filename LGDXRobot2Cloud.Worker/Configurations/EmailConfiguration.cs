@@ -1,12 +1,17 @@
-namespace LGDXRobot2Cloud.API.Configurations;
+namespace LGDXRobot2Cloud.Worker.Configurations;
 
 public class EmailConfiguration
 {
-  public string FromName { get; set; } = string.Empty;
-  public string FromAddress { get; set; } = string.Empty;
-  public string Host { get; set; } = string.Empty;
-  public int Port { get; set; }
-  public string Username { get; set; } = string.Empty;
-  public string Password { get; set; } = string.Empty;
-  public string PasswordResetUri { get; set; } = string.Empty;
+  // SMTP Settings
+  public required string FromName { get; set; }
+
+  public required string FromAddress { get; set; } 
+
+  public required string Host { get; set; }
+
+  public required int Port { get; set; }
+
+  public required string Username { get; set; }
+
+  public required string Password { get; set; } 
 }

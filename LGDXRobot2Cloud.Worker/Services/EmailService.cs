@@ -1,6 +1,6 @@
-using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Utilities.Enums;
+using LGDXRobot2Cloud.Worker.Configurations;
 using LGDXRobot2Cloud.Worker.Strategies.Email;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -17,18 +17,20 @@ public interface IEmailService
 
 public sealed class EmailService (
     IOptionsSnapshot<EmailConfiguration> emailConfiguration,
+    IOptionsSnapshot<EmailLinksConfiguration> emailLinksConfiguration,
     HtmlRenderer htmlRenderer
   ) : IEmailService
 {
   private readonly EmailConfiguration _emailConfiguration = emailConfiguration.Value ?? throw new ArgumentNullException(nameof(emailConfiguration));
+  private readonly EmailLinksConfiguration _emailLinksConfiguration = emailLinksConfiguration.Value ?? throw new ArgumentNullException(nameof(_emailLinksConfiguration));
   private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
 
   private IEmailStrategy CreateEmailStrategy(EmailContract emailContract)
   {
     return emailContract.EmailType switch
     {
-      EmailType.Welcome => new WelcomeStrategy(emailContract, _htmlRenderer),
-      EmailType.WelcomePasswordSet => new WelcomePasswordSetStrategy(emailContract, _htmlRenderer),
+      EmailType.Welcome => new WelcomeStrategy(emailContract, _emailLinksConfiguration, _htmlRenderer),
+      EmailType.WelcomePasswordSet => new WelcomePasswordSetStrategy(emailContract, _emailLinksConfiguration, _htmlRenderer),
       _ => throw new ArgumentOutOfRangeException(nameof(emailContract.EmailType)),
     };
   }
