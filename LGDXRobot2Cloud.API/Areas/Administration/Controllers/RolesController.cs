@@ -6,6 +6,7 @@ using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.Utilities.Constants;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -31,11 +32,6 @@ public sealed class RolesController(
   private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
   private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
   private readonly RoleManager<LgdxRole> _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
-
-  private static bool IsSystemRole(Guid roleId)
-  {
-    return LgdxRoles.Default.ContainsKey(roleId);
-  }
   
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<LgdxRoleListDto>), StatusCodes.Status200OK)]
@@ -105,7 +101,7 @@ public sealed class RolesController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> UpdateRole(Guid id, LgdxRoleUpdateDto lgdxRoleUpdateDto)
   {
-    if (IsSystemRole(id))
+    if (LgdxRolesHelper.IsSystemRole(id))
     {
       ModelState.AddModelError(nameof(LgdxRoleUpdateDto), "Cannot update system role.");
       return ValidationProblem();
@@ -156,7 +152,7 @@ public sealed class RolesController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<IActionResult> DeleteRole(Guid id)
   {
-    if (IsSystemRole(id))
+    if (LgdxRolesHelper.IsSystemRole(id))
     {
       ModelState.AddModelError(nameof(id), "Cannot delete system role.");
       return ValidationProblem();

@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
-using LGDXRobot2Cloud.Utilities.Constants;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +20,7 @@ public class InitializeDataRunner(LgdxContext context,
      * Identity
      */
     // Roles
-    var defaultRoles = LgdxRoles.Default;
+    var defaultRoles = LgdxRolesHelper.DefaultRoles;
     foreach (var (key, value) in defaultRoles)
     {
       var role = new LgdxRole{
@@ -50,7 +50,7 @@ public class InitializeDataRunner(LgdxContext context,
       Name = "Admin",
       NormalizedEmail = "admin@example.com".ToUpper(),
       NormalizedUserName = "ADMIN",
-      SecurityStamp = Guid.NewGuid().ToString("D"),
+      SecurityStamp = Guid.NewGuid().ToString(),
       UserName = "admin"
     };
 
