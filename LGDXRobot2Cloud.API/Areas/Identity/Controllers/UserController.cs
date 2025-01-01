@@ -1,14 +1,11 @@
 using System.Security.Claims;
-using System.Text.Json;
 using AutoMapper;
-using LGDXRobot2Cloud.Data.Contracts;
+using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.Data.Models.Emails;
-using LGDXRobot2Cloud.Utilities.Enums;
-using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,12 +18,12 @@ namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public sealed class UserController(
-    IBus bus,
+    IEmailService emailService,
     IMapper mapper,
     UserManager<LgdxUser> userManager
   ) : ControllerBase
 {
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+  private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
@@ -92,22 +89,13 @@ public sealed class UserController(
       }
       return ValidationProblem();
     }
-    List<EmailRecipient> recipient = [
-      new EmailRecipient
-      {
-        Email = user.Email!,
-        Name = user.Name!
-      }
-    ];
-    await _bus.Publish(new EmailContract{
-      EmailType = EmailType.PasswordUpdate,
-      Recipients = recipient,
-      Metadata = JsonSerializer.Serialize(new PasswordUpdateViewModel
-      {
+    await _emailService.SendPasswordUpdateEmailAsync(
+      user.Email!,
+      user.Name!,
+      new PasswordUpdateViewModel {
         UserName = user.UserName!,
         Time = DateTime.Now.ToString("dd MMMM yyyy, hh:mm:ss tt")
-      })
-    });
+      });
     return NoContent();
   }
 }

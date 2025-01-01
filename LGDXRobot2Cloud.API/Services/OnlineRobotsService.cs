@@ -111,9 +111,10 @@ public class OnlineRobotsService(
     }
     _memoryCache.Set($"OnlineRobotsService_RobotData_Pause_{robotId}", true, TimeSpan.FromSeconds(1));
     
+    var robotStatus = ConvertRobotStatus(data.RobotStatus);
     await _bus.Publish(new RobotDataContract {
       RobotId = robotId,
-      RobotStatus = ConvertRobotStatus(data.RobotStatus),
+      RobotStatus = robotStatus,
       CriticalStatus = new RobotCriticalStatus {
         HardwareEmergencyStop = data.CriticalStatus.HardwareEmergencyStop,
         SoftwareEmergencyStop = data.CriticalStatus.SoftwareEmergencyStop,
@@ -148,6 +149,15 @@ public class OnlineRobotsService(
           }
         });
       }
+    }
+
+    if (robotStatus == RobotStatus.Stuck)
+    {
+      if (!_memoryCache.TryGetValue<bool>($"OnlineRobotsService_RobotStuck_{robotId}", out var _))
+      {
+        // First time
+      }
+      _memoryCache.Set($"OnlineRobotsService_RobotStuck_{robotId}", true, TimeSpan.FromMinutes(5));
     }
   }
 

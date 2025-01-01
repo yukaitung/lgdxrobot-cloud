@@ -2,6 +2,7 @@ using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
+using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Constants;
@@ -176,6 +177,7 @@ builder.Services.AddAuthorizationBuilder()
  */
 builder.Services.AddHttpClient<ITriggerService, TriggerService>();
 // Custom Services
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddSingleton<IOnlineRobotsService, OnlineRobotsService>();
 

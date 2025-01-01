@@ -2,13 +2,11 @@ using AutoMapper;
 using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
-using LGDXRobot2Cloud.Data.Contracts;
+using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.Data.Models.Emails;
-using LGDXRobot2Cloud.Utilities.Enums;
-using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +24,7 @@ namespace LGDXRobot2Cloud.API.Areas.Administration.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public class UsersController(
-    IBus bus,
+    IEmailService emailService,
     ILgdxUsersRepository lgdxUsersRepository,
     IMapper mapper,
     IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
@@ -35,7 +33,7 @@ public class UsersController(
     UserManager<LgdxUser> userManager
   ) : ControllerBase
 {
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+  private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly ILgdxUsersRepository _lgdxUsersRepository = lgdxUsersRepository ?? throw new ArgumentNullException(nameof(lgdxUsersRepository));
   private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
   private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2Configuration));
@@ -110,51 +108,32 @@ public class UsersController(
       }
       return ValidationProblem();
     }
-    userEntity = await _userManager.FindByNameAsync(lgdxUserCreateAdminDto.UserName);
 
+    userEntity = await _userManager.FindByNameAsync(lgdxUserCreateAdminDto.UserName);
     // Send Email
     if (string.IsNullOrWhiteSpace(lgdxUserCreateAdminDto.Password))
     {
-      var token = await _userManager.GeneratePasswordResetTokenAsync(userEntity!);
       // No password is specified
-      List<EmailRecipient> recipient = [
-        new EmailRecipient
-        {
-          Email = lgdxUserCreateAdminDto.Email,
-          Name = lgdxUserCreateAdminDto.Name
-        }
-      ];
-      await _bus.Publish(new EmailContract{
-        EmailType = EmailType.WelcomePasswordSet,
-        Recipients = recipient,
-        Metadata = JsonSerializer.Serialize(new WelcomePasswordSetViewModel
-        {
+      var token = await _userManager.GeneratePasswordResetTokenAsync(userEntity!);
+      await _emailService.SendWellcomePasswordSetEmailAsync(
+        lgdxUserCreateAdminDto.Email, 
+        lgdxUserCreateAdminDto.Name, 
+        new WelcomePasswordSetViewModel {
           UserName = lgdxUserCreateAdminDto.UserName,
           Email = lgdxUserCreateAdminDto.Email,
           Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
-        })
-      });
+        });
     }
     else
     {
       // Password is specified
-      List<EmailRecipient> recipient = [
-        new EmailRecipient
-        {
-          Email = lgdxUserCreateAdminDto.Email,
-          Name = lgdxUserCreateAdminDto.Name
-        }
-      ];
-      await _bus.Publish(new EmailContract{
-        EmailType = EmailType.Welcome,
-        Recipients = recipient,
-        Metadata = JsonSerializer.Serialize(new WelcomeViewModel
-        {
+      await _emailService.SendWelcomeEmailAsync(
+        lgdxUserCreateAdminDto.Email, 
+        lgdxUserCreateAdminDto.Name, 
+        new WelcomeViewModel {
           UserName = lgdxUserCreateAdminDto.UserName
-        })
-      });
+        });
     }
-
     var lgdxUserDto = _mapper.Map<LgdxUserDto>(userEntity);
     return CreatedAtAction(nameof(GetUser), new { id = lgdxUserDto.Id }, lgdxUserDto);
   }
