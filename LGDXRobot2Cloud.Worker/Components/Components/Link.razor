@@ -1,0 +1,17 @@
+<a class="btn" 
+href="@HREF"
+style="
+  -webkit-text-decoration-skip: ink;
+  color: rgba(5,89,167,1);
+  text-decoration-skip-ink: auto;
+">
+  @ChildContent
+</a>
+
+@code {
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+
+  [Parameter]
+  public string? HREF { get; set; }
+}
