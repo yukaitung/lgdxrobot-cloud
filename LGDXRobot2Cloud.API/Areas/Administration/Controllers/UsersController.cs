@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 
 namespace LGDXRobot2Cloud.API.Areas.Administration.Controllers;
@@ -128,7 +129,7 @@ public class UsersController(
         Recipients = recipient,
         Metadata = JsonSerializer.Serialize(new WelcomePasswordSetViewModel
         {
-          Username = lgdxUserCreateAdminDto.UserName,
+          UserName = lgdxUserCreateAdminDto.UserName,
           Email = lgdxUserCreateAdminDto.Email,
           Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
         })
@@ -149,7 +150,7 @@ public class UsersController(
         Recipients = recipient,
         Metadata = JsonSerializer.Serialize(new WelcomeViewModel
         {
-          Username = lgdxUserCreateAdminDto.UserName
+          UserName = lgdxUserCreateAdminDto.UserName
         })
       });
     }
