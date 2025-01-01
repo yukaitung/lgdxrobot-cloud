@@ -1,8 +1,12 @@
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.Data.Models.Emails;
+using LGDXRobot2Cloud.Utilities.Enums;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 
@@ -20,11 +25,13 @@ namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public sealed class AuthController(
+    IBus bus,
     ILgdxRoleRepository lgdxRoleRepository,
     IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
     UserManager<LgdxUser> userManager
   ) : ControllerBase
 {
+  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly ILgdxRoleRepository _lgdxRoleRepository = lgdxRoleRepository ?? throw new ArgumentNullException(nameof(lgdxRoleRepository));
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2SecretConfiguration));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -142,8 +149,23 @@ public sealed class AuthController(
       return Ok();
     }
     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-    Console.WriteLine($"Your password reset link is ?Token={Convert.ToBase64String(Encoding.UTF8.GetBytes(token))}&Email={user.Email}");
-    // TODO: Send email
+    List<EmailRecipient> recipient = [
+      new EmailRecipient
+      {
+        Email = user.Email!,
+        Name = user.Name!
+      }
+    ];
+    await _bus.Publish(new EmailContract{
+      EmailType = EmailType.PasswordReset,
+      Recipients = recipient,
+      Metadata = JsonSerializer.Serialize(new PasswordResetViewModel
+      {
+        UserName = user.UserName!,
+        Email = user.Email!,
+        Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
+      })
+    });
     return Ok();
   }
 
@@ -169,6 +191,22 @@ public sealed class AuthController(
       }
       return ValidationProblem();
     }
+    List<EmailRecipient> recipient = [
+      new EmailRecipient
+      {
+        Email = user.Email!,
+        Name = user.Name!
+      }
+    ];
+    await _bus.Publish(new EmailContract{
+      EmailType = EmailType.PasswordUpdate,
+      Recipients = recipient,
+      Metadata = JsonSerializer.Serialize(new PasswordUpdateViewModel
+      {
+        UserName = user.UserName!,
+        Time = DateTime.Now.ToString("dd MMMM yyyy, hh:mm:ss tt")
+      })
+    });
     return Ok();
   }
 }
