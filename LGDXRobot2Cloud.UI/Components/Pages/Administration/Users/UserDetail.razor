@@ -63,7 +63,7 @@
           <div class="mb-3 row">
             <label class="col-3 col-form-label" for="@nameof(UserDetailViewModel.Password)">Password</label>
             <div class="col">
-              <InputText id="@nameof(UserDetailViewModel.Password)"t ype="password" class="form-control" @bind-Value="UserDetailViewModel.Password" />
+              <InputText id="@nameof(UserDetailViewModel.Password)" type="password" class="form-control" @bind-Value="UserDetailViewModel.Password" />
               <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Password)" />
               <small class="form-hint">
                 The user receives a welcome email to set a password if none is specified.
