@@ -7,6 +7,6 @@ public enum EmailType
   PasswordUpdate = 3,
   RobotStuck = 4,
   AutoTaskAbort = 5,
-  TriggerError = 6,
-  CertificateExipre = 7,
+  TriggerFailed = 6,
+  RobotCertificateExipre = 7,
 }
