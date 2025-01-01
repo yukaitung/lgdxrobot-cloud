@@ -7,7 +7,7 @@ using MimeKit;
 
 namespace LGDXRobot2Cloud.Worker.Strategies.Email;
 
-public class WelcomeStrategy(
+public class WelcomePasswordSetStrategy(
     EmailContract emailContract,
     HtmlRenderer htmlRenderer
   ) : IEmailStrategy
@@ -27,7 +27,7 @@ public class WelcomeStrategy(
         dictionary.Add(data.Key, data.Value);
       }
       var parameters = ParameterView.FromDictionary(dictionary);
-      var output = await _htmlRenderer.RenderComponentAsync<Welcome>(parameters);
+      var output = await _htmlRenderer.RenderComponentAsync<WelcomePasswordSet>(parameters);
       return output.ToHtmlString();
     });
 

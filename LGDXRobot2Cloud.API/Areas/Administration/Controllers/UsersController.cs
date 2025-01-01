@@ -2,9 +2,12 @@ using AutoMapper;
 using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.Data.Models.Emails;
+using LGDXRobot2Cloud.Utilities.Enums;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -107,6 +110,50 @@ public class UsersController(
       return ValidationProblem();
     }
     userEntity = await _userManager.FindByNameAsync(lgdxUserCreateAdminDto.UserName);
+
+    // Send Email
+    if (string.IsNullOrWhiteSpace(lgdxUserCreateAdminDto.Password))
+    {
+      var token = await _userManager.GeneratePasswordResetTokenAsync(userEntity!);
+      // No password is specified
+      List<EmailRecipient> recipient = [
+        new EmailRecipient
+        {
+          Email = lgdxUserCreateAdminDto.Email,
+          Name = lgdxUserCreateAdminDto.Name
+        }
+      ];
+      await _bus.Publish(new EmailContract{
+        EmailType = EmailType.WelcomePasswordSet,
+        Recipients = recipient,
+        Metadata = JsonSerializer.Serialize(new WelcomePasswordSetViewModel
+        {
+          Username = lgdxUserCreateAdminDto.UserName,
+          Email = lgdxUserCreateAdminDto.Email,
+          Token = token
+        })
+      });
+    }
+    else
+    {
+      // Password is specified
+      List<EmailRecipient> recipient = [
+        new EmailRecipient
+        {
+          Email = lgdxUserCreateAdminDto.Email,
+          Name = lgdxUserCreateAdminDto.Name
+        }
+      ];
+      await _bus.Publish(new EmailContract{
+        EmailType = EmailType.Welcome,
+        Recipients = recipient,
+        Metadata = JsonSerializer.Serialize(new WelcomeViewModel
+        {
+          Username = lgdxUserCreateAdminDto.UserName
+        })
+      });
+    }
+
     var lgdxUserDto = _mapper.Map<LgdxUserDto>(userEntity);
     return CreatedAtAction(nameof(GetUser), new { id = lgdxUserDto.Id }, lgdxUserDto);
   }

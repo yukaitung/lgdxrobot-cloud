@@ -28,6 +28,7 @@ public sealed class EmailService (
     return emailContract.EmailType switch
     {
       EmailType.Welcome => new WelcomeStrategy(emailContract, _htmlRenderer),
+      EmailType.WelcomePasswordSet => new WelcomePasswordSetStrategy(emailContract, _htmlRenderer),
       _ => throw new ArgumentOutOfRangeException(nameof(emailContract.EmailType)),
     };
   }
