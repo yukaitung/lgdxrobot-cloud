@@ -1,16 +1,58 @@
+@using LGDXRobot2Cloud.Utilities.Enums
 <LayoutView Layout="@typeof(MainLayout)">
-  <h1>Alert: API Call Failed for Robot Task</h1>
+  <h1>Action Needed: Trigger Failed for Robot Task</h1>
   <p>
-    We encountered an issue while executing the API call trigger for your robot, [Robot Name/ID], during its task.
-    <br />
+    We encountered an issue while executing the API call trigger for your robot during its task.
+  </p>
+  <p>
     Here are the details:
     <ul>
-      <li>Task:</li>
-      <li>API Endpoint:</li>
-      <li>Time of Failure:</li>
-      <li>Reason:</li>
+      <li>Trigger ID: @TriggerId</li>
+      <li>Trigger Name: @TriggerName</li>
+      <li>Trigger URL: @TriggerUrl</li>
+      <li>HTTP Method: @(((TriggerHttpMethod)int.Parse(HttpMethodId)).ToEnumMember())</li>
+      <li>Task ID: @AutoTaskId</li>
+      <li>Task Name: @AutoTaskName</li>
+      <li>Robot ID: @RobotName</li>
+      <li>Robot Name: @RobotId</li>
+      <li>Realm ID: @RealmId</li>
+      <li>Realm Name: @RealmName</li>
     </ul>
+  </p>
+  <p>
     This issue may impact the robot's operation. 
     Please check the system logs and retry the API call from the [Dashboard Link].
   </p>
 </LayoutView>
+
+@code {
+  [Parameter]
+  public string TriggerId { get; set; } = string.Empty;
+
+  [Parameter]
+  public string TriggerName { get; set; } = string.Empty;
+
+  [Parameter]
+  public string TriggerUrl { get; set; } = string.Empty;
+
+  [Parameter]
+  public string HttpMethodId { get; set; } = "1";
+
+  [Parameter]
+  public string AutoTaskId { get; set; } = string.Empty;
+
+  [Parameter]
+  public string AutoTaskName { get; set; } = string.Empty;
+
+  [Parameter]
+  public string RobotId { get; set; } = string.Empty;
+
+  [Parameter]
+  public string RobotName { get; set; } = string.Empty;
+
+  [Parameter]
+  public string RealmId { get; set; } = string.Empty;
+
+  [Parameter]
+  public string RealmName { get; set; } = string.Empty;
+}

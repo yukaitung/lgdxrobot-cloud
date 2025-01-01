@@ -87,13 +87,13 @@ public class AutoTaskSchedulerService(
         AutoTaskNextControllerId = flowDetail.AutoTaskNextControllerId,
         NextToken = task.NextToken,
         AutoTaskId = task.Id,
-        AutoTaskName = task.Name!,
+        AutoTaskName = task.Name ?? string.Empty,
         AutoTaskCurrentProgressId = task.CurrentProgressId,
         AutoTaskCurrentProgressName = task.CurrentProgress.Name!,
         RobotId = (Guid) task.AssignedRobotId!,
-        RobotName = task.AssignedRobot!.Name,
+        RobotName = "ROBOT NAME",
         RealmId = task.RealmId,
-        RealmName = task.Realm.Name!,
+        RealmName = "REALM NAME",
       });
     }
 

@@ -34,6 +34,7 @@ public sealed class EmailService (
       EmailType.PasswordReset => new PasswordResetStrategy(emailContract, _emailLinksConfiguration, _htmlRenderer),
       EmailType.PasswordUpdate => new PasswordUpdateStrategy(emailContract, _htmlRenderer),
       EmailType.RobotStuck => new RobotStuckStrategy(emailContract, _htmlRenderer),
+      EmailType.TriggerFailed => new TriggerFailedStrategy(emailContract, _htmlRenderer),
       _ => throw new ArgumentOutOfRangeException(nameof(emailContract.EmailType)),
     };
   }

@@ -40,11 +40,11 @@ public sealed class TriggersController(
   }
 
   [HttpGet("Search")]
-  [ProducesResponseType(typeof(IEnumerable<ProgressSearchDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<ProgressSearchDto>>> SearchProgresses(string name)
+  [ProducesResponseType(typeof(IEnumerable<TriggerSearchDto>), StatusCodes.Status200OK)]
+  public async Task<ActionResult<IEnumerable<TriggerSearchDto>>> SearchProgresses(string name)
   {
     var progresses = await _triggerRepository.SearchTriggersAsync(name);
-    return Ok(_mapper.Map<IEnumerable<ProgressSearchDto>>(progresses));
+    return Ok(_mapper.Map<IEnumerable<TriggerSearchDto>>(progresses));
   }
 
   [HttpGet("{id}", Name = "GetTrigger")]

@@ -1,7 +1,9 @@
+using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Worker.Configurations;
 using LGDXRobot2Cloud.Worker.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -20,6 +22,15 @@ builder.Services.Configure<EmailLinksConfiguration>(
 /*
  * Infrastructure
  */
+var connectionString = builder.Configuration["MySQLConnectionString"];
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
+builder.Services.AddDbContext<LgdxContext>(
+	dbContextOptions => dbContextOptions
+		.UseMySql(connectionString, serverVersion)
+		.LogTo(Console.WriteLine, LogLevel.Information)
+		.EnableSensitiveDataLogging()
+		.EnableDetailedErrors()
+);
 builder.Services.AddMassTransit(cfg =>
 {
   var entryAssembly = Assembly.GetEntryAssembly();
