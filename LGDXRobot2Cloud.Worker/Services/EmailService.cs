@@ -34,14 +34,16 @@ public sealed class EmailService (
 
   public async Task SendEmailAsync(EmailContract emailContract)
   {
-
-    var emailStrategy = CreateEmailStrategy(emailContract);
-    var message = await emailStrategy.BuildEmailAsync();
-    message.From.Add(new MailboxAddress(_emailConfiguration.FromName, _emailConfiguration.FromAddress));
     using var client = new SmtpClient();
     await client.ConnectAsync(_emailConfiguration.Host, _emailConfiguration.Port, SecureSocketOptions.StartTls);
     await client.AuthenticateAsync(_emailConfiguration.Username, _emailConfiguration.Password);
-    await client.SendAsync(message);
+    var emailStrategy = CreateEmailStrategy(emailContract);
+    var messages = await emailStrategy.BuildEmailAsync();
+    foreach (var message in messages)
+    {
+      message.From.Add(new MailboxAddress(_emailConfiguration.FromName, _emailConfiguration.FromAddress));
+      await client.SendAsync(message);
+    }
     await client.DisconnectAsync(true);
   }
 }

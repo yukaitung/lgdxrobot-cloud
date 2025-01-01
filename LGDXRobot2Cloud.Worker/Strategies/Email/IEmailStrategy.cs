@@ -4,5 +4,5 @@ namespace LGDXRobot2Cloud.Worker.Strategies.Email;
 
 public interface IEmailStrategy
 {
-  Task<MimeMessage> BuildEmailAsync();
+  Task<IEnumerable<MimeMessage>> BuildEmailAsync();
 }
