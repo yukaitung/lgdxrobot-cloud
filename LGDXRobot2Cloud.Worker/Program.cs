@@ -1,5 +1,4 @@
 using LGDXRobot2Cloud.Worker.Configurations;
-using LGDXRobot2Cloud.Worker.Consumers;
 using LGDXRobot2Cloud.Worker.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Components.Web;
@@ -42,7 +41,7 @@ builder.Services.AddMassTransit(cfg =>
  */
 builder.Services.AddTransient<HtmlRenderer>();
 builder.Services.AddTransient<IEmailService, EmailService>();
-builder.Services.AddHttpClient<AutoTaskTriggerConsumer>();
+builder.Services.AddHttpClient<ITriggerService, TriggerService>();
 
 var host = builder.Build();
 host.Run();

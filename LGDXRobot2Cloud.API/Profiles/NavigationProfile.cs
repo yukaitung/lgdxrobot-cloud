@@ -34,6 +34,7 @@ namespace LGDXRobot2Cloud.API.Profiles
       CreateMap<RobotUpdateDto, Robot>();
       CreateMap<Robot, RobotSearchDto>();
       CreateMap<RobotChassisInfo, RobotChassisInfoDto>();
+      CreateMap<RobotSystemInfo, RobotSystemInfoDto>();
     }
   }
 }

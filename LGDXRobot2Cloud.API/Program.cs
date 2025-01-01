@@ -175,7 +175,6 @@ builder.Services.AddAuthorizationBuilder()
 /*
  * LGDX Depency Injection
  */
-builder.Services.AddHttpClient<ITriggerService, TriggerService>();
 // Custom Services
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();

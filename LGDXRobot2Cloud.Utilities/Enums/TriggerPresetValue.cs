@@ -22,9 +22,9 @@ public enum TriggerPresetValue
   [EnumMember(Value = "Robot Name")]
   RobotName = 6,
 
-  [EnumMember(Value = "Robot Address")]
-  RobotAddress = 7,
+  [EnumMember(Value = "Realm ID")]
+  RealmId = 7,
 
-  [EnumMember(Value = "Robot Namespace")]
-  RobotNamespace = 8
+  [EnumMember(Value = "Realm Name")]
+  RealmName = 8
 }

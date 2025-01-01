@@ -1,7 +1,9 @@
 using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Utilities.Enums;
+using MassTransit;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace LGDXRobot2Cloud.API.Services;
@@ -18,21 +20,21 @@ public interface IAutoTaskSchedulerService
 public class AutoTaskSchedulerService(
     IAutoTaskDetailRepository autoTaskDetailRepository,
     IAutoTaskRepository autoTaskRepository,
+    IBus bus,
     IDistributedCache cache,
     IFlowDetailRepository flowDetailRepository,
     IOnlineRobotsService onlineRobotsService,
-    IProgressRepository progressRepository,
-    ITriggerService triggerService
+    IProgressRepository progressRepository
   ) : IAutoTaskSchedulerService
 {
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
+  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly DistributedCacheEntryOptions _cacheEntryOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
   private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
   private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
   private readonly IFlowDetailRepository _flowDetailRepository = flowDetailRepository ?? throw new ArgumentNullException(nameof(flowDetailRepository));
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
   private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
-  private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
 
   private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
   {
@@ -79,7 +81,20 @@ public class AutoTaskSchedulerService(
     var flowDetail = await _flowDetailRepository.GetFlowDetailAsync(task.FlowId, (int) task.CurrentProgressOrder!);
     if (!ignoreTrigger && flowDetail!.Trigger != null)
     {
-      await _triggerService.InitiateTriggerAsync(task, flowDetail);
+      // Fire trigger
+      await _bus.Publish(new AutoTaskTriggerContract {
+        Trigger = flowDetail.Trigger,
+        AutoTaskNextControllerId = flowDetail.AutoTaskNextControllerId,
+        NextToken = task.NextToken,
+        AutoTaskId = task.Id,
+        AutoTaskName = task.Name!,
+        AutoTaskCurrentProgressId = task.CurrentProgressId,
+        AutoTaskCurrentProgressName = task.CurrentProgress.Name!,
+        RobotId = (Guid) task.AssignedRobotId!,
+        RobotName = task.AssignedRobot!.Name,
+        RealmId = task.RealmId,
+        RealmName = task.Realm.Name!,
+      });
     }
 
     List<RobotClientsDof> waypoints = [];
