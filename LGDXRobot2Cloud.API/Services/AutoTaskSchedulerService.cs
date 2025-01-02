@@ -1,9 +1,11 @@
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Contracts;
+using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Utilities.Enums;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace LGDXRobot2Cloud.API.Services;
@@ -24,7 +26,8 @@ public class AutoTaskSchedulerService(
     IDistributedCache cache,
     IFlowDetailRepository flowDetailRepository,
     IOnlineRobotsService onlineRobotsService,
-    IProgressRepository progressRepository
+    IProgressRepository progressRepository,
+    LgdxContext context
   ) : IAutoTaskSchedulerService
 {
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
@@ -35,6 +38,7 @@ public class AutoTaskSchedulerService(
   private readonly IFlowDetailRepository _flowDetailRepository = flowDetailRepository ?? throw new ArgumentNullException(nameof(flowDetailRepository));
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
   private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
+  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
   {
@@ -82,6 +86,8 @@ public class AutoTaskSchedulerService(
     if (!ignoreTrigger && flowDetail!.Trigger != null)
     {
       // Fire trigger
+      string robotName = _context.Robots.AsNoTracking().Where(r => r.Id == task.AssignedRobotId).FirstOrDefault()?.Name ?? string.Empty;
+      string realmName = _context.Realms.AsNoTracking().Where(r => r.Id == task.RealmId).FirstOrDefault()?.Name ?? string.Empty;
       await _bus.Publish(new AutoTaskTriggerContract {
         Trigger = flowDetail.Trigger,
         AutoTaskNextControllerId = flowDetail.AutoTaskNextControllerId,
@@ -91,9 +97,9 @@ public class AutoTaskSchedulerService(
         AutoTaskCurrentProgressId = task.CurrentProgressId,
         AutoTaskCurrentProgressName = task.CurrentProgress.Name!,
         RobotId = (Guid) task.AssignedRobotId!,
-        RobotName = "ROBOT NAME",
+        RobotName = robotName,
         RealmId = task.RealmId,
-        RealmName = "REALM NAME",
+        RealmName = realmName,
       });
     }
 

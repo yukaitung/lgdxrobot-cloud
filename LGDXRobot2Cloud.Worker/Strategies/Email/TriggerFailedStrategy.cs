@@ -36,7 +36,7 @@ public class TriggerFailedStrategy(
     {
       var message = new MimeMessage();
       message.To.Add(new MailboxAddress(to.Name, to.Email));
-      message.Subject = "Action Needed: Trigger Failed for Robot Task";
+      message.Subject = "Action Needed: Trigger Failed for Task";
       var emailBodyBuilder = new BodyBuilder
       {
         TextBody = html,

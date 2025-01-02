@@ -32,7 +32,37 @@
         margin-bottom: 0 !important;
       }
 
-      @@media only screen and (max-width: 500px) {
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      tr:first-child > td {
+        border-style: solid;
+        border-top-color: rgba(97, 104, 118, 0.16);
+        border-top-width: 1px;
+      }
+
+      td {
+        border-width: 0;
+        border-bottom-color: rgba(97, 104, 118, 0.16);
+        border-bottom-width: 1px;
+        border-style: solid;
+        color: #182433;
+        font-size: 14px;
+        font-weight: 400;
+        padding: 8px;
+      }
+
+      td:first-child {
+        width: 30%;
+      }
+
+      td:not(:first-child) {
+        color: rgba(108,122,145,1) !important;
+      }
+
+      @@media only screen and (max-width: 550px) {
         .email-container {
           padding-right: 0;
           padding-left: 0;

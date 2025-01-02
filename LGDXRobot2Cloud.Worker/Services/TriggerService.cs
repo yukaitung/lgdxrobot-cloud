@@ -126,6 +126,8 @@ public class TriggerService(
             TriggerName = autoTaskTriggerContract.Trigger.Name,
             TriggerUrl = autoTaskTriggerContract.Trigger.Url,
             HttpMethodId = autoTaskTriggerContract.Trigger.HttpMethodId.ToString(),
+            StatusCode = ((int)httpResult.StatusCode).ToString(),
+            Reason = httpResult.ReasonPhrase ?? string.Empty,
             AutoTaskId = autoTaskTriggerContract.AutoTaskId.ToString(),
             AutoTaskName = autoTaskTriggerContract.AutoTaskName,
             RobotId = autoTaskTriggerContract.RobotId.ToString(),

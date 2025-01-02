@@ -10,6 +10,10 @@ public record TriggerFailedViewModel
 
   public required string HttpMethodId { get; set; }
 
+  public required string StatusCode { get; set; }
+
+  public required string Reason { get; set; }
+
   public required string AutoTaskId { get; set; }
 
   public required string AutoTaskName { get; set; }
