@@ -6,7 +6,7 @@ service RobotClientsService {
   rpc Greet (RobotClientsGreet) returns (RobotClientsGreetRespond);
   rpc Exchange (RobotClientsExchange) returns (RobotClientsRespond);
   rpc AutoTaskNext (RobotClientsNextToken) returns (RobotClientsRespond);
-  rpc AutoTaskAbort (RobotClientsNextToken) returns (RobotClientsRespond);
+  rpc AutoTaskAbort (RobotClientsAbortToken) returns (RobotClientsRespond);
 }
 
 /*
@@ -122,4 +122,20 @@ message RobotClientsExchange {
 message RobotClientsNextToken {
   int32 TaskId = 1;
   string NextToken = 2;
+}
+
+/*
+** AutoTaskAbort
+*/
+enum RobotClientsAbortReason {
+  Reserved = 0;
+  UserApi = 1;
+  Robot = 2;
+  NavStack = 3;
+}
+
+message RobotClientsAbortToken {
+  int32 TaskId = 1;
+  string NextToken = 2;
+  RobotClientsAbortReason AbortReason = 3;
 }

@@ -1,14 +1,67 @@
+@using LGDXRobot2Cloud.Utilities.Enums
 <LayoutView Layout="@typeof(MainLayout)">
-  <h1>Task Aborted: Robot [Robot Name/ID]</h1>
+  <h1>Task Aborted</h1>
   <p>
-    We wanted to inform you that the task assigned to your robot, [Robot Name/ID], has been aborted.
-    <br />
-    Here are the details:
-    <ul>
-      <li>Task:</li>
-      <li>Start:</li>
-      <li>Reason for Abortion:</li>
-    </ul>
-    You can review the task details and take necessary actions on the [Dashboard Link].
+    We wanted to inform you that the task assigned to your robot has been aborted.
+  </p>
+  <p>
+    <table>
+      <tr><td>Task ID</td><td>@AutoTaskId</td></tr>
+      <tr><td>Task Name</td><td>@AutoTaskName</td></tr>
+      <tr><td>Abort Reason</td><td>@GenerateAbortReason();</td></tr>
+      <tr><td>Robot ID</td><td>@RobotId</td></tr>
+      <tr><td>Robot Name</td><td>@RobotName</td></tr>
+      <tr><td>Realm ID</td><td>@RealmId</td></tr>
+      <tr><td>Realm Name</td><td>@RealmName</td></tr>
+      <tr><td>Time</td><td>@Time</td></tr>
+    </table>
+  </p>
+  <p>
+    You can review the task details and take necessary actions on the UI.
   </p>
 </LayoutView>
+
+@code {
+  [Parameter]
+  public string AutoTaskId { get; set; } = string.Empty;
+
+  [Parameter]
+  public string AutoTaskName { get; set; } = string.Empty;
+
+  [Parameter]
+  public string AbortReason { get; set; } = "0";
+
+  [Parameter]
+  public string RobotId { get; set; } = string.Empty;
+
+  [Parameter]
+  public string RobotName { get; set; } = string.Empty;
+
+  [Parameter]
+  public string RealmId { get; set; } = string.Empty;
+
+  [Parameter]
+  public string RealmName { get; set; } = string.Empty;
+
+  [Parameter]
+  public string Time { get; set; } = string.Empty;
+
+  public string GenerateAbortReason()
+  {
+    if (int.TryParse(AbortReason, out int reason))
+    {
+      switch (reason)
+      {
+        case (int)AutoTaskAbortReason.UserApi:
+          return "Aborted by user / API";
+        case (int)AutoTaskAbortReason.Robot:
+          return "Aborted by robot";
+        case (int)AutoTaskAbortReason.NavStack:
+          return "Task rejected by NAV stack";
+        default:
+          return string.Empty;
+      }
+    }
+    return string.Empty;
+  }
+}

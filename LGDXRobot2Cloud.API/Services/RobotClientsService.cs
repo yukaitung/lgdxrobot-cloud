@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using static LGDXRobot2Cloud.Protos.RobotClientsService;
+using LGDXRobot2Cloud.Utilities.Enums;
 
 namespace LGDXRobot2Cloud.API.Services;
 
@@ -210,7 +211,7 @@ public class RobotClientsService(
     };
   }
 
-  public override async Task<RobotClientsRespond> AutoTaskAbort(RobotClientsNextToken request, ServerCallContext context)
+  public override async Task<RobotClientsRespond> AutoTaskAbort(RobotClientsAbortToken request, ServerCallContext context)
   {
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
@@ -220,7 +221,8 @@ public class RobotClientsService(
 
     await _onlineRobotsService.SetAbortTaskAsync((Guid)robotId, false);
 
-    var task = await _autoTaskSchedulerService.AutoTaskAbortAsync((Guid)robotId, request.TaskId, request.NextToken);
+    AutoTaskAbortReason autoTaskAbortReason = (AutoTaskAbortReason)(int)request.AbortReason;
+    var task = await _autoTaskSchedulerService.AutoTaskAbortAsync((Guid)robotId, request.TaskId, request.NextToken, autoTaskAbortReason);
     return new RobotClientsRespond {
       Status = task != null ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
       Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),

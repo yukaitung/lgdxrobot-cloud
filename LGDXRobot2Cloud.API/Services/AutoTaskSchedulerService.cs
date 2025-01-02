@@ -1,4 +1,5 @@
 using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
@@ -14,7 +15,7 @@ public interface IAutoTaskSchedulerService
 {
   Task ResetIgnoreRobotAsync();
   Task<RobotClientsAutoTask?> GetAutoTaskAsync(Guid robotId);
-  Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token);
+  Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason);
   Task<RobotClientsAutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token);
   Task<RobotClientsAutoTask?> AutoTaskNextManualAsync(AutoTask autoTask);
 }
@@ -27,7 +28,8 @@ public class AutoTaskSchedulerService(
     IFlowDetailRepository flowDetailRepository,
     IOnlineRobotsService onlineRobotsService,
     IProgressRepository progressRepository,
-    LgdxContext context
+    LgdxContext context,
+    IEmailService emailService
   ) : IAutoTaskSchedulerService
 {
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
@@ -39,6 +41,7 @@ public class AutoTaskSchedulerService(
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
   private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
 
   private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
   {
@@ -172,13 +175,14 @@ public class AutoTaskSchedulerService(
     return await GenerateTaskDetail(currentTask, ignoreTrigger);
   }
 
-  public async Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token)
+  public async Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason)
   {
     var task = await _autoTaskRepository.AutoTaskAbortAsync(robotId, taskId, token);
     if (task == null)
     {
       return null;
     }
+    await _emailService.SendAutoTaskAbortEmailAsync(robotId, taskId, autoTaskAbortReason);
     var progress = await _progressRepository.GetProgressAsync(task.CurrentProgressId);
     task.CurrentProgress = progress!;
     return await GenerateTaskDetail(task);
