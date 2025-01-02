@@ -5,7 +5,6 @@ using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using LGDXRobot2Cloud.Data.Models.Emails;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -89,13 +88,7 @@ public sealed class UserController(
       }
       return ValidationProblem();
     }
-    await _emailService.SendPasswordUpdateEmailAsync(
-      user.Email!,
-      user.Name!,
-      new PasswordUpdateViewModel {
-        UserName = user.UserName!,
-        Time = DateTime.Now.ToString("dd MMMM yyyy, hh:mm:ss tt")
-      });
+    await _emailService.SendPasswordUpdateEmailAsync(user.Email!, user.Name!, user.UserName!);
     return NoContent();
   }
 }

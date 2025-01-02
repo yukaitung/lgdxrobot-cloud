@@ -4,7 +4,6 @@ using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using LGDXRobot2Cloud.Data.Models.Emails;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -146,14 +145,7 @@ public sealed class AuthController(
       return Ok();
     }
     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-    await _emailService.SendPasswordResetEmailAsync(
-      user.Email!,
-      user.Name!,
-      new PasswordResetViewModel {
-        UserName = user.UserName!,
-        Email = user.Email!,
-        Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
-      });
+    await _emailService.SendPasswordResetEmailAsync(user.Email!, user.Name!, user.UserName!, token);
     return Ok();
   }
 
@@ -179,13 +171,7 @@ public sealed class AuthController(
       }
       return ValidationProblem();
     }
-    await _emailService.SendPasswordUpdateEmailAsync(
-      user.Email!,
-      user.Name!,
-      new PasswordUpdateViewModel {
-        UserName = user.UserName!,
-        Time = DateTime.Now.ToString("dd MMMM yyyy, hh:mm:ss tt")
-      });
+    await _emailService.SendPasswordUpdateEmailAsync(user.Email!, user.Name!, user.UserName!);
     return Ok();
   }
 }

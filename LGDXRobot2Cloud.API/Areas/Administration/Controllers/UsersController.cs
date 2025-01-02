@@ -118,11 +118,9 @@ public class UsersController(
       await _emailService.SendWellcomePasswordSetEmailAsync(
         lgdxUserCreateAdminDto.Email, 
         lgdxUserCreateAdminDto.Name, 
-        new WelcomePasswordSetViewModel {
-          UserName = lgdxUserCreateAdminDto.UserName,
-          Email = lgdxUserCreateAdminDto.Email,
-          Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
-        });
+        lgdxUserCreateAdminDto.UserName,
+        token
+      );
     }
     else
     {
@@ -130,9 +128,8 @@ public class UsersController(
       await _emailService.SendWelcomeEmailAsync(
         lgdxUserCreateAdminDto.Email, 
         lgdxUserCreateAdminDto.Name, 
-        new WelcomeViewModel {
-          UserName = lgdxUserCreateAdminDto.UserName
-        });
+        lgdxUserCreateAdminDto.UserName
+      );
     }
     var lgdxUserDto = _mapper.Map<LgdxUserDto>(userEntity);
     return CreatedAtAction(nameof(GetUser), new { id = lgdxUserDto.Id }, lgdxUserDto);

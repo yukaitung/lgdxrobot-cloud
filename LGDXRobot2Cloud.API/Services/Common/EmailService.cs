@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.DbContexts;
@@ -11,10 +12,10 @@ namespace LGDXRobot2Cloud.API.Services.Common;
 
 public interface IEmailService
 {
-  Task SendWelcomeEmailAsync(string recipientEmail, string recipientName, WelcomeViewModel welcomeViewModel);
-  Task SendWellcomePasswordSetEmailAsync(string recipientEmail, string recipientName, WelcomePasswordSetViewModel welcomePasswordSetViewModel);
-  Task SendPasswordResetEmailAsync(string recipientEmail, string recipientName, PasswordResetViewModel passwordResetViewModel);
-  Task SendPasswordUpdateEmailAsync(string recipientEmail, string recipientName, PasswordUpdateViewModel passwordUpdateViewModel);
+  Task SendWelcomeEmailAsync(string recipientEmail, string recipientName, string userName);
+  Task SendWellcomePasswordSetEmailAsync(string recipientEmail, string recipientName, string userName, string token);
+  Task SendPasswordResetEmailAsync(string recipientEmail, string recipientName, string userName, string token);
+  Task SendPasswordUpdateEmailAsync(string recipientEmail, string recipientName, string userName);
   Task SendRobotStuckEmailAsync(Guid robotId, double x, double y);
   Task SendAutoTaskAbortEmailAsync(Guid robotId, int taskId, AutoTaskAbortReason autoTaskAbortReason);
 }
@@ -42,7 +43,7 @@ public sealed class EmailService(
       .ToListAsync() ?? [];
   }
 
-  public async Task SendWelcomeEmailAsync(string recipientEmail, string recipientName, WelcomeViewModel welcomeViewModel)
+  public async Task SendWelcomeEmailAsync(string recipientEmail, string recipientName, string userName)
   {
     var emailContract = new EmailContract
     {
@@ -52,12 +53,14 @@ public sealed class EmailService(
         Email = recipientEmail,
         Name = recipientName
       }],
-      Metadata = JsonSerializer.Serialize(welcomeViewModel)
+      Metadata = JsonSerializer.Serialize(new WelcomeViewModel {
+        UserName = userName
+      })
     };
     await _bus.Publish(emailContract);
   }
 
-  public async Task SendWellcomePasswordSetEmailAsync(string recipientEmail, string recipientName, WelcomePasswordSetViewModel welcomePasswordSetViewModel)
+  public async Task SendWellcomePasswordSetEmailAsync(string recipientEmail, string recipientName, string userName, string token)
   {
     var emailContract = new EmailContract
     {
@@ -67,12 +70,16 @@ public sealed class EmailService(
         Email = recipientEmail,
         Name = recipientName
       }],
-      Metadata = JsonSerializer.Serialize(welcomePasswordSetViewModel)
+      Metadata = JsonSerializer.Serialize(new WelcomePasswordSetViewModel {
+        UserName = userName,
+        Email = recipientEmail,
+        Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
+      })
     };
     await _bus.Publish(emailContract);
   }
 
-  public async Task SendPasswordResetEmailAsync(string recipientEmail, string recipientName, PasswordResetViewModel passwordResetViewModel)
+  public async Task SendPasswordResetEmailAsync(string recipientEmail, string recipientName, string userName, string token)
   {
     var emailContract = new EmailContract
     {
@@ -82,12 +89,16 @@ public sealed class EmailService(
         Email = recipientEmail,
         Name = recipientName
       }],
-      Metadata = JsonSerializer.Serialize(passwordResetViewModel)
+      Metadata = JsonSerializer.Serialize(new PasswordResetViewModel{
+        UserName = userName,
+        Email = recipientEmail,
+        Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
+      })
     };
     await _bus.Publish(emailContract);
   }
 
-  public async Task SendPasswordUpdateEmailAsync(string recipientEmail, string recipientName, PasswordUpdateViewModel passwordUpdateViewModel)
+  public async Task SendPasswordUpdateEmailAsync(string recipientEmail, string recipientName, string userName)
   {
     var emailContract = new EmailContract
     {
@@ -97,7 +108,10 @@ public sealed class EmailService(
         Email = recipientEmail,
         Name = recipientName
       }],
-      Metadata = JsonSerializer.Serialize(passwordUpdateViewModel)
+      Metadata = JsonSerializer.Serialize(new PasswordUpdateViewModel{
+        UserName = userName,
+        Time = DateTime.Now.ToString("dd MMMM yyyy, hh:mm:ss tt")
+      })
     };
     await _bus.Publish(emailContract);
   }
