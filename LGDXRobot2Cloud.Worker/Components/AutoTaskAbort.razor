@@ -7,8 +7,8 @@
   <p>
     <table>
       <tr><td>Task ID</td><td>@AutoTaskId</td></tr>
-      <tr><td>Task Name</td><td>@AutoTaskName</td></tr>
-      <tr><td>Abort Reason</td><td>@GenerateAbortReason();</td></tr>
+      <tr><td>Task Name</td><td>@(AutoTaskName != string.Empty ? AutoTaskName : "<None>")</td></tr>
+      <tr><td>Abort Reason</td><td>@GenerateAbortReason()</td></tr>
       <tr><td>Robot ID</td><td>@RobotId</td></tr>
       <tr><td>Robot Name</td><td>@RobotName</td></tr>
       <tr><td>Realm ID</td><td>@RealmId</td></tr>
