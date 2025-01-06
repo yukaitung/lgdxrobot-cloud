@@ -9,6 +9,6 @@ public class AutoTaskTriggerConsumer(ITriggerService triggerService) : IConsumer
 
   public async Task Consume(ConsumeContext<AutoTaskTriggerContract> context)
   {
-    await _triggerService.TriggerAsync(context.Message.Trigger, context.Message.Body);
+    await _triggerService.TriggerAsync(context.Message);
   }
 }

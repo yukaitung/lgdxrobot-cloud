@@ -21,6 +21,16 @@ public sealed class TriggerService (
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
+  private string GetRobotName(Guid robotId)
+  {
+    return _context.Robots.AsNoTracking().Where(r => r.Id == robotId).FirstOrDefault()?.Name ?? string.Empty;
+  }
+
+  private string GetRealmName(int realmId)
+  {
+    return _context.Realms.AsNoTracking().Where(r => r.Id == realmId).FirstOrDefault()?.Name ?? string.Empty;
+  }
+
   private string GeneratePresetValue(int i, AutoTask autoTask)
   {
     return i switch
@@ -30,9 +40,9 @@ public sealed class TriggerService (
       (int)TriggerPresetValue.AutoTaskCurrentProgressId => $"{autoTask.CurrentProgressId}",
       (int)TriggerPresetValue.AutoTaskCurrentProgressName => $"\"{autoTask.CurrentProgress.Name!}\"",
       (int)TriggerPresetValue.RobotId => $"\"{autoTask.AssignedRobotId}\"",
-      (int)TriggerPresetValue.RobotName => $"\"{_context.Robots.AsNoTracking().Where(r => r.Id == autoTask.AssignedRobotId).FirstOrDefault()?.Name ?? string.Empty}\"",
+      (int)TriggerPresetValue.RobotName => $"\"{GetRobotName((Guid)autoTask.AssignedRobotId!)}\"",
       (int)TriggerPresetValue.RealmId => $"\"{autoTask.RealmId}\"",
-      (int)TriggerPresetValue.RealmName => $"\"{_context.Realms.AsNoTracking().Where(r => r.Id == autoTask.RealmId).FirstOrDefault()?.Name ?? string.Empty}\"",
+      (int)TriggerPresetValue.RealmName => $"\"{GetRealmName(autoTask.RealmId)}\"",
       _ => string.Empty,
     };
   }
@@ -61,7 +71,13 @@ public sealed class TriggerService (
 
       await _bus.Publish(new AutoTaskTriggerContract {
         Trigger = trigger,
-        Body = bodyDictionary
+        Body = bodyDictionary,
+        AutoTaskId = autoTask.Id,
+        AutoTaskName = autoTask.Name!,
+        RobotId = (Guid)autoTask.AssignedRobotId!,
+        RobotName = GetRobotName((Guid)autoTask.AssignedRobotId!),
+        RealmId = autoTask.RealmId,
+        RealmName = GetRealmName(autoTask.RealmId),
       });
     }
   }

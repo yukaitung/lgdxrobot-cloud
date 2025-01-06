@@ -12,7 +12,7 @@ namespace LGDXRobot2Cloud.Worker.Services;
 
 public interface ITriggerService
 {
-  Task<bool> TriggerAsync(Trigger trigger, Dictionary<string, string> body);
+  Task TriggerAsync(AutoTaskTriggerContract autoTaskTriggerContract);
 }
 
 public class TriggerService(
@@ -25,26 +25,29 @@ public class TriggerService(
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly HttpClient _httpClient = httpClient;
 
-  public async Task<bool> TriggerAsync(Trigger trigger, Dictionary<string, string> body)
+  public async Task TriggerAsync(AutoTaskTriggerContract autoTaskTriggerContract)
   {
+    var trigger = autoTaskTriggerContract.Trigger;
+    var body = autoTaskTriggerContract.Body;
+    var apiKeyFieldName = trigger.ApiKeyFieldName ?? "Key";
+
     if (trigger.ApiKeyId != null)
     {
       var apiKey = await _context.ApiKeys.Where(a => a.Id == trigger.ApiKeyId).FirstOrDefaultAsync();
       switch (trigger.ApiKeyInsertLocationId)
       {
         case (int) ApiKeyInsertLocation.Header:
-          _httpClient.DefaultRequestHeaders.Add(trigger.ApiKeyFieldName ?? "Key", apiKey?.Secret);
+          _httpClient.DefaultRequestHeaders.Add(apiKeyFieldName, apiKey?.Secret);
           break;
         case (int) ApiKeyInsertLocation.Body:
-          body.Add(trigger.ApiKeyFieldName ?? "Key", apiKey?.Secret ?? string.Empty);
+          body.Add(apiKeyFieldName, apiKey?.Secret ?? string.Empty);
           break;
       }
     }
 
-    var bodyStr = body != null ? JsonSerializer.Serialize(body) : string.Empty;
+    var bodyStr = JsonSerializer.Serialize(body);
     var requestBody = new StringContent(bodyStr, Encoding.UTF8, "application/json");
     HttpResponseMessage? httpResult = null;
-    bool result = true;
     switch (trigger.HttpMethodId)
     {
       case (int) TriggerHttpMethod.Get:
@@ -63,11 +66,20 @@ public class TriggerService(
         httpResult = await _httpClient.DeleteAsync(trigger.Url);
         break;
       default:
-        result = false;
         break;
     }
     if (httpResult != null && !httpResult.IsSuccessStatusCode) 
     {
+      // Add to trigger retry
+      body.Remove(apiKeyFieldName);
+      await _context.TriggerRetries.AddAsync(new TriggerRetry{
+        TriggerId = trigger.Id,
+        AutoTaskId = autoTaskTriggerContract.AutoTaskId,
+        Body = JsonSerializer.Serialize(body)
+      });
+      await _context.SaveChangesAsync();
+
+      // Send email
       List<string> recipientIds = await _context.UserRoles.AsNoTracking()
         .Where(ur => ur.RoleId == LgdxRolesHelper.GetSystemRoleId(LgdxRoleType.EmailRecipient).ToString())
         .Select(ur => ur.UserId).ToListAsync();
@@ -91,18 +103,15 @@ public class TriggerService(
             HttpMethodId = trigger.HttpMethodId.ToString(),
             StatusCode = ((int)httpResult.StatusCode).ToString(),
             Reason = httpResult.ReasonPhrase ?? string.Empty,
-            AutoTaskId = "Pending",
-            AutoTaskName = "Pending",
-            RobotId = "Pending",
-            RobotName = "Pending",
-            RealmId = "Pending",
-            RealmName = "Pending",
+            AutoTaskId = autoTaskTriggerContract.AutoTaskId.ToString(),
+            AutoTaskName = autoTaskTriggerContract.AutoTaskName,
+            RobotId = autoTaskTriggerContract.RobotId.ToString(),
+            RobotName = autoTaskTriggerContract.RobotName,
+            RealmId = autoTaskTriggerContract.RealmId.ToString(),
+            RealmName = autoTaskTriggerContract.RealmName,
           })
         });
       }
-      result = false;
     }
-
-    return result || trigger.SkipOnFailure;
   }
 }

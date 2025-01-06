@@ -18,6 +18,7 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
   public DbSet<FlowDetail> FlowDetails { get; set; }
   public DbSet<Progress> Progresses { get; set; }
   public DbSet<Trigger> Triggers { get; set; }
+  public DbSet<TriggerRetry> TriggerRetries { get; set; }
 
   // Navigation
   public DbSet<Realm> Realms { get; set; }
