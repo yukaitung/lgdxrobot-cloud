@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.DbContexts;
+using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.Emails;
 using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.Utilities.Helpers;
@@ -11,7 +12,7 @@ namespace LGDXRobot2Cloud.Worker.Services;
 
 public interface ITriggerService
 {
-  Task<bool> TriggerAsync(AutoTaskTriggerContract autoTaskTriggerContract);
+  Task<bool> TriggerAsync(Trigger trigger, Dictionary<string, string> body);
 }
 
 public class TriggerService(
@@ -24,61 +25,23 @@ public class TriggerService(
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly HttpClient _httpClient = httpClient;
 
-  private static string GeneratePresetValue(int i, AutoTaskTriggerContract autoTaskTriggerContract)
+  public async Task<bool> TriggerAsync(Trigger trigger, Dictionary<string, string> body)
   {
-    return i switch
+    if (trigger.ApiKeyId != null)
     {
-      (int)TriggerPresetValue.AutoTaskId => $"{autoTaskTriggerContract.AutoTaskId}",
-      (int)TriggerPresetValue.AutoTaskName => $"\"{autoTaskTriggerContract.AutoTaskName}\"",
-      (int)TriggerPresetValue.AutoTaskCurrentProgressId => $"{autoTaskTriggerContract.AutoTaskCurrentProgressId}",
-      (int)TriggerPresetValue.AutoTaskCurrentProgressName => $"\"{autoTaskTriggerContract.AutoTaskCurrentProgressName}\"",
-      (int)TriggerPresetValue.RobotId => $"\"{autoTaskTriggerContract.RobotId}\"",
-      (int)TriggerPresetValue.RobotName => $"\"{autoTaskTriggerContract.RobotName}\"",
-      (int)TriggerPresetValue.RealmId => $"\"{autoTaskTriggerContract.RealmId}\"",
-      (int)TriggerPresetValue.RealmName => $"\"{autoTaskTriggerContract.RealmName}\"",
-      _ => string.Empty,
-    };
-  }
-
-  public async Task<bool> TriggerAsync(AutoTaskTriggerContract autoTaskTriggerContract)
-  {
-    var trigger = autoTaskTriggerContract.Trigger;
-    var bodyDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(trigger.Body ?? "{}");
-    if (bodyDictionary != null)
-    {
-      // Replace Preset Value
-      foreach (var pair in bodyDictionary)
+      var apiKey = await _context.ApiKeys.Where(a => a.Id == trigger.ApiKeyId).FirstOrDefaultAsync();
+      switch (trigger.ApiKeyInsertLocationId)
       {
-        if (pair.Value.Length >= 5) // ((1)) has 5 characters
-        {
-          if (int.TryParse(pair.Value[2..^2], out int p))
-          {
-            bodyDictionary[pair.Key] = GeneratePresetValue(p, autoTaskTriggerContract);
-          }
-        }
-      }
-      // Add Next Token
-      if (autoTaskTriggerContract.AutoTaskNextControllerId != (int) AutoTaskNextController.Robot && autoTaskTriggerContract.NextToken != null)
-      {
-        bodyDictionary.Add("Lgdx2NextToken", autoTaskTriggerContract.NextToken);
-      }
-      // Add API Key
-      if (trigger.ApiKeyId != null)
-      {
-        var apiKey = await _context.ApiKeys.Where(a => a.Id == trigger.ApiKeyId).FirstOrDefaultAsync();
-        switch (trigger.ApiKeyInsertLocationId)
-        {
-          case (int) ApiKeyInsertLocation.Header:
-            _httpClient.DefaultRequestHeaders.Add(trigger.ApiKeyFieldName ?? "Key", apiKey?.Secret);
-            break;
-          case (int) ApiKeyInsertLocation.Body:
-            bodyDictionary.Add(trigger.ApiKeyFieldName ?? "Key", apiKey?.Secret ?? string.Empty);
-            break;
-        }
+        case (int) ApiKeyInsertLocation.Header:
+          _httpClient.DefaultRequestHeaders.Add(trigger.ApiKeyFieldName ?? "Key", apiKey?.Secret);
+          break;
+        case (int) ApiKeyInsertLocation.Body:
+          body.Add(trigger.ApiKeyFieldName ?? "Key", apiKey?.Secret ?? string.Empty);
+          break;
       }
     }
 
-    var bodyStr = bodyDictionary != null ? JsonSerializer.Serialize(bodyDictionary) : string.Empty;
+    var bodyStr = body != null ? JsonSerializer.Serialize(body) : string.Empty;
     var requestBody = new StringContent(bodyStr, Encoding.UTF8, "application/json");
     HttpResponseMessage? httpResult = null;
     bool result = true;
@@ -122,18 +85,18 @@ public class TriggerService(
           EmailType = EmailType.TriggerFailed,
           Recipients = recipients,
           Metadata = JsonSerializer.Serialize(new TriggerFailedViewModel {
-            TriggerId = autoTaskTriggerContract.Trigger.Id.ToString(),
-            TriggerName = autoTaskTriggerContract.Trigger.Name,
-            TriggerUrl = autoTaskTriggerContract.Trigger.Url,
-            HttpMethodId = autoTaskTriggerContract.Trigger.HttpMethodId.ToString(),
+            TriggerId = trigger.Id.ToString(),
+            TriggerName = trigger.Name,
+            TriggerUrl = trigger.Url,
+            HttpMethodId = trigger.HttpMethodId.ToString(),
             StatusCode = ((int)httpResult.StatusCode).ToString(),
             Reason = httpResult.ReasonPhrase ?? string.Empty,
-            AutoTaskId = autoTaskTriggerContract.AutoTaskId.ToString(),
-            AutoTaskName = autoTaskTriggerContract.AutoTaskName,
-            RobotId = autoTaskTriggerContract.RobotId.ToString(),
-            RobotName = autoTaskTriggerContract.RobotName,
-            RealmId = autoTaskTriggerContract.RealmId.ToString(),
-            RealmName = autoTaskTriggerContract.RealmName,
+            AutoTaskId = "Pending",
+            AutoTaskName = "Pending",
+            RobotId = "Pending",
+            RobotName = "Pending",
+            RealmId = "Pending",
+            RealmName = "Pending",
           })
         });
       }

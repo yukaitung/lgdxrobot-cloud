@@ -1,4 +1,5 @@
 using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.API.Services.Automation;
 using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.DbContexts;
@@ -23,24 +24,22 @@ public interface IAutoTaskSchedulerService
 public class AutoTaskSchedulerService(
     IAutoTaskDetailRepository autoTaskDetailRepository,
     IAutoTaskRepository autoTaskRepository,
-    IBus bus,
     IDistributedCache cache,
     IFlowDetailRepository flowDetailRepository,
     IOnlineRobotsService onlineRobotsService,
     IProgressRepository progressRepository,
-    LgdxContext context,
+    ITriggerService triggerService,
     IEmailService emailService
   ) : IAutoTaskSchedulerService
 {
   private readonly IAutoTaskDetailRepository _autoTaskDetailRepository = autoTaskDetailRepository ?? throw new ArgumentNullException(nameof(autoTaskDetailRepository));
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly DistributedCacheEntryOptions _cacheEntryOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
   private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
   private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
   private readonly IFlowDetailRepository _flowDetailRepository = flowDetailRepository ?? throw new ArgumentNullException(nameof(flowDetailRepository));
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
   private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
-  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
 
   private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
@@ -88,22 +87,7 @@ public class AutoTaskSchedulerService(
     var flowDetail = await _flowDetailRepository.GetFlowDetailAsync(task.FlowId, (int) task.CurrentProgressOrder!);
     if (!ignoreTrigger && flowDetail!.Trigger != null)
     {
-      // Fire trigger
-      string robotName = _context.Robots.AsNoTracking().Where(r => r.Id == task.AssignedRobotId).FirstOrDefault()?.Name ?? string.Empty;
-      string realmName = _context.Realms.AsNoTracking().Where(r => r.Id == task.RealmId).FirstOrDefault()?.Name ?? string.Empty;
-      await _bus.Publish(new AutoTaskTriggerContract {
-        Trigger = flowDetail.Trigger,
-        AutoTaskNextControllerId = flowDetail.AutoTaskNextControllerId,
-        NextToken = task.NextToken,
-        AutoTaskId = task.Id,
-        AutoTaskName = task.Name ?? string.Empty,
-        AutoTaskCurrentProgressId = task.CurrentProgressId,
-        AutoTaskCurrentProgressName = task.CurrentProgress.Name!,
-        RobotId = (Guid) task.AssignedRobotId!,
-        RobotName = robotName,
-        RealmId = task.RealmId,
-        RealmName = realmName,
-      });
+      await _triggerService.InitialiseTriggerAsync(task, flowDetail, flowDetail.Trigger);
     }
 
     List<RobotClientsDof> waypoints = [];
