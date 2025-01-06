@@ -13,6 +13,15 @@ public static class AppRoutes
     public const string User = "/User";
   }
 
+  public static class Automation
+  {
+    public static class TriggerRetries
+    {
+      public const string Index = "/Automation/TriggerRetries";
+      public const string Detail = "/Automation/TriggerRetries/{Id:int}";
+    }
+  }
+
   public static class Navigation
   {
     public static class Maps

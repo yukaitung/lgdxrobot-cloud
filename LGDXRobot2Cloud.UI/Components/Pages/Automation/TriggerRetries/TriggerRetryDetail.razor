@@ -1,0 +1,91 @@
+@using LGDXRobot2Cloud.Utilities.Enums
+@attribute [Route(AppRoutes.Automation.TriggerRetries.Detail)]
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<PageHeader Title="Trigger Retry Detail">
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="mb-1">
+        <ol class="breadcrumb" aria-label="breadcrumbs">
+          <li class="breadcrumb-item"><a href="javascript:history.back()">◀ Return</a></li>
+        </ol>
+      </div>
+      <h2 class="page-title">
+        Trigger Retry Detail
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Trigger Retry Detail</h3>
+    </div>
+    <div class="card-body">
+      <div class="mb-3 row">
+        <label class="col-3 col-form-label">ID</label>
+        <div class="col">
+          <div class="col form-control-plaintext">@TriggerRetry.Id</div>
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-3 col-form-label">Trigger ID</label>
+        <div class="col">
+          <div class="col form-control-plaintext">@TriggerRetry.Trigger.Id</div>
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-3 col-form-label">Trigger Name</label>
+        <div class="col">
+          <div class="col form-control-plaintext">@TriggerRetry.Trigger.Name</div>
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-3 col-form-label">Trigger URL</label>
+        <div class="col">
+          <div class="col form-control-plaintext">@TriggerRetry.Trigger.Url</div>
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-3 col-form-label">Trigger Method</label>
+        <div class="col">
+          <div class="col form-control-plaintext">@(((TriggerHttpMethod)TriggerRetry.Trigger.HttpMethodId).ToEnumMember())</div>
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-3 col-form-label">Task ID</label>
+        <div class="col">
+          <div class="col form-control-plaintext">@TriggerRetry.AutoTask.Id</div>
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-3 col-form-label">Task Name</label>
+        <div class="col">
+          <div class="col form-control-plaintext">@(TriggerRetry.AutoTask.Name ?? "<None>")</div>
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-3 col-form-label">Body</label>
+        <div class="col">
+          <div class="col form-control-plaintext">@TriggerRetry.Body</div>
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-3 col-form-label">Created At</label>
+        <div class="col">
+          <div class="col form-control-plaintext">@TriggerRetry.CreatedAt</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer d-flex">
+      <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        Delete
+      </a>
+      <button class="btn btn-primary ms-auto">Retry</button>
+    </div>
+  </div>
+</PageBody>
+
+<DeleteEntryModal EntryName="Trigger Retry" OnDelete="HandleDelete" />

@@ -1,0 +1,18 @@
+@attribute [Route(AppRoutes.Automation.TriggerRetries.Index)]
+@attribute [Authorize]
+@using LGDXRobot2Cloud.UI.Components.Pages.Automation.TriggerRetries.Components;
+@rendermode InteractiveServer
+
+<PageHeader Title="Trigger Retries">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Trigger Retries
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <TriggerRetriesTable />
+</PageBody>

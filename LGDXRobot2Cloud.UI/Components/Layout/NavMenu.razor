@@ -55,6 +55,11 @@
 						</div>
 					</NavDropdown>
 				</AuthorizeView>
+				<NavDropdown title="Automation" href="automation">
+					<NavLink class="dropdown-item" href="@AppRoutes.Automation.TriggerRetries.Index">
+						Trigger Retries
+					</NavLink>
+				</NavDropdown>
 				<AuthorizeView Policy="ValidateLgdxUserAccess/Robot" Context="Robot">
 					<NavDropdown title="Robot" href="robot">
 						<div class="dropdown-menu-column">

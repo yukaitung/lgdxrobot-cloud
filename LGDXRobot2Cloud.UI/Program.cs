@@ -54,6 +54,9 @@ builder.Services.AddHttpClient<ITriggerService, TriggerService>(configureAction)
 builder.Services.AddHttpClient<IWaypointService, WaypointService>(configureAction);
 builder.Services.AddHttpClient<IRealmService, RealmService>(configureAction);
 
+// Automation
+builder.Services.AddHttpClient<ITriggerRetryService, TriggerRetryService>(configureAction);
+
 // Robot
 builder.Services.AddHttpClient<IRobotService, RobotService>(configureAction);
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
