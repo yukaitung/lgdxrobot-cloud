@@ -10,7 +10,7 @@ public record AutoTaskTriggerContract
 
   public required int AutoTaskId { get; set; }
 
-  public required string AutoTaskName { get; set; }
+  public string AutoTaskName { get; set; } = string.Empty;
 
   public required Guid RobotId { get; set; }
 

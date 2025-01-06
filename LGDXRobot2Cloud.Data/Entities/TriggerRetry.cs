@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
@@ -22,4 +23,7 @@ public class TriggerRetry
 
   [Column(TypeName = "TEXT")]
   public string Body { get; set; } = null!;
+
+  [Precision(3)]
+  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
