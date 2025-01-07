@@ -16,40 +16,16 @@ public class LgdxExpectionHandlingMiddleware(RequestDelegate next)
     }
     catch (Exception ex)
     {
-      await HandleExceptionAsync(context, ex);
+      if (ex is ILgdxExceptionBase casted)
+      {
+        await HandleExceptionAsync(context, casted);
+      }
     }
   }
 
-  private static void HandleNotFoundExceptionAsync(HttpContext context)
+  private static async Task HandleExceptionAsync(HttpContext context, ILgdxExceptionBase ex)
   {
-    context.Response.StatusCode = StatusCodes.Status404NotFound;
-  }
-
-  private static async Task HandleValidationExceptionAsync(HttpContext context, LgdxValidationExpection ex)
-  {
-    context.Response.ContentType = "application/json";
-    context.Response.StatusCode = StatusCodes.Status400BadRequest;
-    ModelStateDictionary modelState = new();
-    modelState.AddModelError(ex.Key, ex.Message);
-    var problemDetailsFactory = context.RequestServices.GetRequiredService<ProblemDetailsFactory>();
-    var response = problemDetailsFactory.CreateValidationProblemDetails(
-      context,
-      modelState
-    );
-    await context.Response.WriteAsJsonAsync(response);
-  }
-
-  private static async Task HandleExceptionAsync(HttpContext context, Exception ex)
-  {
-    switch (ex)
-    {
-      case LgdxNotFoundException:
-        HandleNotFoundExceptionAsync(context);
-        break;
-      case LgdxValidationExpection:
-        await HandleValidationExceptionAsync(context, (LgdxValidationExpection) ex);
-        break;
-    }
+    await ex.HandleExceptionAsync(context);
   }
 }
 

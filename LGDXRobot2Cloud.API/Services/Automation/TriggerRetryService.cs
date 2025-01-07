@@ -75,16 +75,21 @@ public class TriggerRetryService (
   {
     var triggerRetry = await _context.TriggerRetries.AsNoTracking()
       .Where(tr => tr.Id == triggerRetryId)
-      .FirstOrDefaultAsync() ?? throw new LgdxNotFoundException();
+      .FirstOrDefaultAsync() ?? throw new LgdxNotFound404Exception();
 
     var autoTask = await _context.AutoTasks.AsNoTracking()
       .Where(at => at.Id == triggerRetry.AutoTaskId)
-      .FirstOrDefaultAsync() ?? throw new LgdxValidationExpection(nameof(triggerRetry.AutoTaskId), "AutoTask ID is invalid.");
+      .FirstOrDefaultAsync() ?? throw new LgdxValidation400Expection(nameof(triggerRetry.AutoTaskId), "AutoTask ID is invalid.");
 
     var trigger = await _context.Triggers.AsNoTracking()
       .Where(t => t.Id == triggerRetry.TriggerId)
-      .FirstOrDefaultAsync() ?? throw new LgdxValidationExpection(nameof(triggerRetry.TriggerId), "Trigger ID is invalid.");
+      .FirstOrDefaultAsync() ?? throw new LgdxValidation400Expection(nameof(triggerRetry.TriggerId), "Trigger ID is invalid.");
 
     await _triggerService.RetryTriggerAsync(autoTask, trigger, triggerRetry.Body);
+
+    if (!await DeleteTriggerRetryAsync(triggerRetryId))
+    {
+      throw new LgdxBusiness500Exception("Failed to delete trigger retry.");
+    }
   }
 }
