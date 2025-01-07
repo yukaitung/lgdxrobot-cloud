@@ -1,8 +1,10 @@
+using System.Net;
 using System.Text.Json;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
@@ -11,6 +13,7 @@ public interface ITriggerRetryService
   Task<ApiResponse<(IEnumerable<TriggerRetryListDto>?, PaginationHelper?)>> GetTriggerRetriesAsync(int pageNumber = 1, int pageSize = 10);
   Task<ApiResponse<TriggerRetryDto>> GetTriggerRetryAsync(int triggerRetryId);
   Task<ApiResponse<bool>> DeleteTriggerRetryAsync(int triggerRetryId);
+  Task<ApiResponse<bool>> RetryTriggerRetryAsync(int triggerRetryId);
 }
 
 public sealed class TriggerRetryService (
@@ -78,6 +81,37 @@ public sealed class TriggerRetryService (
       {
         return new ApiResponse<bool> {
           Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else
+      {
+        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
+      }
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<bool>> RetryTriggerRetryAsync(int triggerRetryId)
+  {
+    try
+    {
+      var response = await _httpClient.PostAsync($"Automation/TriggerRetries/{triggerRetryId}/Retry", null);
+      if (response.IsSuccessStatusCode)
+      {
+        return new ApiResponse<bool> {
+          Data = response.IsSuccessStatusCode,
+          IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        return new ApiResponse<bool> {
+          Errors = validationProblemDetails?.Errors,
           IsSuccess = response.IsSuccessStatusCode
         };
       }

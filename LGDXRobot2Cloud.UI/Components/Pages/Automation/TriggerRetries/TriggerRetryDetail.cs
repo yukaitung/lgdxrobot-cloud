@@ -20,8 +20,22 @@ public sealed partial class TriggerRetryDetail : ComponentBase
 
   public IDictionary<string,string[]>? Errors { get; set; }
 
+  public async Task HandleRetry()
+  {
+    Errors?.Clear();
+    if (Id != null)
+    {
+      var response = await TriggerRetryService.RetryTriggerRetryAsync((int)Id);
+      if (response.IsSuccess)
+        NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
+      else
+        Errors = response.Errors;
+    }
+  }
+
   public async Task HandleDelete()
   {
+    Errors?.Clear();
     if (Id != null)
     {
       var response = await TriggerRetryService.DeleteTriggerRetryAsync((int)Id);
