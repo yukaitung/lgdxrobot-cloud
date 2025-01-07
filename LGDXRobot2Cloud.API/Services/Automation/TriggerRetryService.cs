@@ -1,3 +1,4 @@
+using LGDXRobot2Cloud.API.Exceptions;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Models.Business.Automation;
 using LGDXRobot2Cloud.Utilities.Helpers;
@@ -10,12 +11,15 @@ public interface ITriggerRetryService
   Task<(IEnumerable<TriggerRetryListBusinessModel>, PaginationHelper)> GetTriggerRetriesAsync(int pageNumber, int pageSize);
   Task<TriggerRetryBusinessModel?> GetTriggerRetryAsync(int triggerRetryId);
   Task<bool> DeleteTriggerRetryAsync(int triggerRetryId);
+  Task RetryTriggerRetryAsync(int triggerRetryId);
 }
 
 public class TriggerRetryService (
+  ITriggerService triggerService,
   LgdxContext context
 ) : ITriggerRetryService
 {
+  private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   public async Task<(IEnumerable<TriggerRetryListBusinessModel>, PaginationHelper)> GetTriggerRetriesAsync(int pageNumber, int pageSize)
@@ -65,5 +69,22 @@ public class TriggerRetryService (
   {
     return await _context.TriggerRetries.Where(tr => tr.Id == triggerRetryId)
       .ExecuteDeleteAsync() >= 1;
+  }
+
+  public async Task RetryTriggerRetryAsync(int triggerRetryId)
+  {
+    var triggerRetry = await _context.TriggerRetries.AsNoTracking()
+      .Where(tr => tr.Id == triggerRetryId)
+      .FirstOrDefaultAsync() ?? throw new LgdxNotFoundException();
+
+    var autoTask = await _context.AutoTasks.AsNoTracking()
+      .Where(at => at.Id == triggerRetry.AutoTaskId)
+      .FirstOrDefaultAsync() ?? throw new LgdxValidationExpection(nameof(triggerRetry.AutoTaskId), "AutoTask ID is invalid.");
+
+    var trigger = await _context.Triggers.AsNoTracking()
+      .Where(t => t.Id == triggerRetry.TriggerId)
+      .FirstOrDefaultAsync() ?? throw new LgdxValidationExpection(nameof(triggerRetry.TriggerId), "Trigger ID is invalid.");
+
+    await _triggerService.RetryTriggerAsync(autoTask, trigger, triggerRetry.Body);
   }
 }

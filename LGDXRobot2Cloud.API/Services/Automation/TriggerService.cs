@@ -11,6 +11,7 @@ namespace LGDXRobot2Cloud.API.Services.Automation;
 public interface ITriggerService
 {
   Task InitialiseTriggerAsync(AutoTask autoTask, FlowDetail flowDetail, Trigger trigger);
+  Task RetryTriggerAsync(AutoTask autoTask, Trigger trigger, string body);
 }
 
 public sealed class TriggerService (
@@ -69,6 +70,24 @@ public sealed class TriggerService (
         bodyDictionary.Add("NextToken", autoTask.NextToken);
       }
 
+      await _bus.Publish(new AutoTaskTriggerContract {
+        Trigger = trigger,
+        Body = bodyDictionary,
+        AutoTaskId = autoTask.Id,
+        AutoTaskName = autoTask.Name!,
+        RobotId = (Guid)autoTask.AssignedRobotId!,
+        RobotName = GetRobotName((Guid)autoTask.AssignedRobotId!),
+        RealmId = autoTask.RealmId,
+        RealmName = GetRealmName(autoTask.RealmId),
+      });
+    }
+  }
+
+  public async Task RetryTriggerAsync(AutoTask autoTask, Trigger trigger, string body)
+  {
+    var bodyDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(body ?? "{}");
+    if (bodyDictionary != null)
+    {
       await _bus.Publish(new AutoTaskTriggerContract {
         Trigger = trigger,
         Body = bodyDictionary,

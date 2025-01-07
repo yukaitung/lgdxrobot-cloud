@@ -1,5 +1,6 @@
 using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
+using LGDXRobot2Cloud.API.Middleware;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
 using LGDXRobot2Cloud.API.Services.Automation;
@@ -224,5 +225,6 @@ app.MapControllerRoute(
 	name: "Area",
 	pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 app.MapGrpcService<RobotClientsService>();
+app.UseLgdxExpectionHandling();
 
 app.Run();
