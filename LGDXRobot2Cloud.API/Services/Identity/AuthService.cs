@@ -111,10 +111,7 @@ public class AuthService(
       if (!incrementLockoutResult.Succeeded)
       {
         // Return the same failure we do when resetting the lockout fails after a correct password.
-        foreach (var error in incrementLockoutResult.Errors)
-        {
-          throw new LgdxValidation400Expection(error.Code, error.Description);
-        }
+        throw new LgdxIdentity400Expection(incrementLockoutResult.Errors);
       }
       if (await _userManager.IsLockedOutAsync(user))
       {
@@ -143,10 +140,7 @@ public class AuthService(
     var result = await _userManager.ResetPasswordAsync(user, resetPasswordRequestBusinessModel.Token, resetPasswordRequestBusinessModel.NewPassword);
     if (!result.Succeeded)
     {
-      foreach (var error in result.Errors)
-      {
-        throw new LgdxValidation400Expection(error.Code, error.Description);
-      }
+      throw new LgdxIdentity400Expection(result.Errors);
     }
     await _emailService.SendPasswordUpdateEmailAsync(user.Email!, user.Name!, user.UserName!);
   }
