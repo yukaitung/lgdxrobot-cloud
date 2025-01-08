@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Identity;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 
@@ -13,4 +14,17 @@ public record ResetPasswordRequestDto
 
   [Required (ErrorMessage = "Please enter a new password.")]
   public required string NewPassword { get; set; }
+}
+
+public static class ResetPasswordRequestDtoExtensions
+{
+  public static ResetPasswordRequestBusinessModel ToBusinessModel (this ResetPasswordRequestDto resetPasswordRequestDto)
+  {
+    return new ResetPasswordRequestBusinessModel
+    {
+      Email = resetPasswordRequestDto.Email,
+      Token = resetPasswordRequestDto.Token,
+      NewPassword = resetPasswordRequestDto.NewPassword
+    };
+  }
 }
