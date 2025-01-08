@@ -77,7 +77,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 	});
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, LgdxAuthenticationStateProvider>();
 
 // Policy
 builder.Services.AddScoped<IAuthorizationHandler, ValidateLgdxUserAccessHandler>();
