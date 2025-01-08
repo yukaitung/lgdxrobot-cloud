@@ -26,8 +26,9 @@ public interface IRealmService
 public sealed class RealmService (
     AuthenticationStateProvider authenticationStateProvider, 
     HttpClient httpClient,
+    ITokenService tokenService,
     IMemoryCache memoryCache
-  ) : BaseService(authenticationStateProvider, httpClient), IRealmService
+  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IRealmService
 {
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 

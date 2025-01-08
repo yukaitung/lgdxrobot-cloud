@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.Circuits;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +47,9 @@ var configureAction = (HttpClient client) =>
 		client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? string.Empty);
 	};
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, CircuitHandlerService>());
 
+builder.Services.AddSingleton<ITokenService, TokenService>();
 // Navigation
 builder.Services.AddHttpClient<IAutoTaskService, AutoTaskService>(configureAction);
 builder.Services.AddHttpClient<IFlowService, FlowService>(configureAction);

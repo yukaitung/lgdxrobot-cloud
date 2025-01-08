@@ -23,11 +23,13 @@ public sealed class AuthService : IAuthService
 {
   private readonly HttpClient _httpClient;
   private readonly JsonSerializerOptions _jsonSerializerOptions;
+  private readonly ITokenService _tokenService;
 
-  public AuthService(HttpClient httpClient)
+  public AuthService(HttpClient httpClient, ITokenService tokenService)
   {
     _httpClient = httpClient;
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
+    _tokenService = tokenService;
   }
 
   public async Task<ApiResponse<bool>> LoginAsync(HttpContext context, LoginRequestDto loginRequestDto)
@@ -42,10 +44,10 @@ public sealed class AuthService : IAuthService
         var accessToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponseDto!.AccessToken);
         var identity = new ClaimsIdentity([], CookieAuthenticationDefaults.AuthenticationScheme);
         identity.AddClaims(accessToken.Claims);
-        identity.AddClaim(new Claim("access_token", loginResponseDto!.AccessToken));
         var user = new ClaimsPrincipal(identity);
         var authProperties = new AuthenticationProperties{};
         await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user, authProperties);
+        _tokenService.Login(user, loginResponseDto.AccessToken, loginResponseDto.RefreshToken);
         return new ApiResponse<bool> {
           Data = response.IsSuccessStatusCode,
           IsSuccess = response.IsSuccessStatusCode

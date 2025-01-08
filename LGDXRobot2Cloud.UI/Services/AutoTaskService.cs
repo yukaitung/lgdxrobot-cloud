@@ -23,8 +23,9 @@ public interface IAutoTaskService
 
 public sealed class AutoTaskService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient
-  ) : BaseService(authenticationStateProvider, httpClient), IAutoTaskService
+    HttpClient httpClient,
+    ITokenService tokenService
+  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IAutoTaskService
 {
   public async Task<ApiResponse<(IEnumerable<AutoTaskListDto>?, PaginationHelper?)>> GetAutoTasksAsync(ProgressState? showProgressId = null, bool? showRunningTasks = null, string? name = null, int pageNumber = 1, int pageSize = 10)
   {

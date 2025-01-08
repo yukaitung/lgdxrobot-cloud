@@ -22,8 +22,9 @@ public interface ITriggerService
 
 public sealed class TriggerService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient
-  ) : BaseService(authenticationStateProvider, httpClient), ITriggerService
+    HttpClient httpClient,
+    ITokenService tokenService
+  ) : BaseService(authenticationStateProvider, httpClient, tokenService), ITriggerService
 {
   public async Task<ApiResponse<(IEnumerable<TriggerListDto>?, PaginationHelper?)>> GetTriggersAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
