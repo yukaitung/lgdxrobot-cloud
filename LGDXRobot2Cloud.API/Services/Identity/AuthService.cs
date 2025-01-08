@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Exceptions;
@@ -7,6 +8,7 @@ using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.Business.Identity;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -33,7 +35,7 @@ public class AuthService(
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2SecretConfiguration));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
-  private JwtSecurityToken GenerateJwtToken(List<Claim> claims, int expiresMins)
+  private JwtSecurityToken GenerateJwtToken(List<Claim> claims, DateTime notBefore, DateTime expires)
   {
     var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobot2SecretConfiguration.LgdxUserJwtSecret));
     var credentials = new SigningCredentials(securityKey, _lgdxRobot2SecretConfiguration.LgdxUserJwtAlgorithm);
@@ -41,45 +43,51 @@ public class AuthService(
       _lgdxRobot2SecretConfiguration.LgdxUserJwtIssuer,
       _lgdxRobot2SecretConfiguration.LgdxUserJwtIssuer,
       claims,
-      DateTime.UtcNow,
-      DateTime.UtcNow.AddMinutes(expiresMins),
+      notBefore,
+      expires,
       credentials);
   }
 
-  private async Task<JwtSecurityToken?> CheckPasswordAndGenerateTokenAsync(LgdxUser user, string password)
+  private async Task<string> GenerateAccessTokenAsync(LgdxUser user, DateTime notBefore, DateTime expires)
   {
-    if (await _userManager.CheckPasswordAsync(user, password))
+    var userRoles = await _userManager.GetRolesAsync(user);
+    var Claims = new List<Claim>
     {
-      var userRoles = await _userManager.GetRolesAsync(user);
-      var Claims = new List<Claim>
-      {
-        new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-        new (ClaimTypes.Name, user.UserName ?? string.Empty),
-        new (ClaimTypes.Email, user.Email ?? string.Empty),
-        new ("fullname", user.Name ?? string.Empty),
-      };
-      // Add Roles         
-      foreach (var userRole in userRoles)
-      {
-        Claims.Add(new Claim(ClaimTypes.Role, userRole));
-      }
-      // Add Role Claims
-      {
-        var roles = await _lgdxRoleRepository.GetRolesAsync(userRoles);
-        List<string> roleIds = roles.Select(r => r.Id).ToList();
-        var roleClaims = await _lgdxRoleRepository.GetRolesClaimsAsync(roleIds);
-        foreach (var roleClaim in roleClaims)
-        {
-          Claims.Add(new Claim(roleClaim.ClaimType!, roleClaim.ClaimValue!));
-        }
-      }
-      return GenerateJwtToken(Claims, _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins);
-    }
-    else
+      new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+      new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+      new (ClaimTypes.Name, user.UserName ?? string.Empty),
+      new (ClaimTypes.Email, user.Email ?? string.Empty),
+      new ("fullname", user.Name ?? string.Empty),
+    };
+    // Add Roles         
+    foreach (var userRole in userRoles)
     {
-      return null;
+      Claims.Add(new Claim(ClaimTypes.Role, userRole));
     }
+    // Add Role Claims
+    {
+      var roles = await _lgdxRoleRepository.GetRolesAsync(userRoles);
+      List<string> roleIds = roles.Select(r => r.Id).ToList();
+      var roleClaims = await _lgdxRoleRepository.GetRolesClaimsAsync(roleIds);
+      foreach (var roleClaim in roleClaims)
+      {
+        Claims.Add(new Claim(roleClaim.ClaimType!, roleClaim.ClaimValue!));
+      }
+    }
+    var token = GenerateJwtToken(Claims, notBefore, expires);
+    return new JwtSecurityTokenHandler().WriteToken(token);
+  }
+
+  private string GenerateRefreshToken(LgdxUser user, DateTime notBefore, DateTime expires)
+  {
+    var Claims = new List<Claim>
+    {
+      new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+      new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+    };
+    var token = GenerateJwtToken(Claims, notBefore, expires);
+    var tokenStr = new JwtSecurityTokenHandler().WriteToken(token);
+    return tokenStr;
   }
 
   public async Task<LoginResponseBusinessModel> LoginAsync(LoginRequestBusinessModel loginRequestBusinessModel)
@@ -93,14 +101,23 @@ public class AuthService(
     }
 
     // Check password and generate token
-    var token = await CheckPasswordAndGenerateTokenAsync(user, loginRequestBusinessModel.Password);
-    if (token != null)
+    if (await _userManager.CheckPasswordAsync(user, loginRequestBusinessModel.Password))
     {
-      // Password is correct
+      var notBefore = DateTime.UtcNow;
+      var accessExpires = notBefore.AddMinutes(_lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins);
+      var refreshExpires = notBefore.AddMinutes(_lgdxRobot2SecretConfiguration.LgdxUserRefreshTokenExpiresMins);
+      var accessToken = await GenerateAccessTokenAsync(user, notBefore, accessExpires);
+      var refreshToken = GenerateRefreshToken(user, notBefore, refreshExpires);
+      user.RefreshTokenHash = LgdxHelper.GenerateSha256Hash(refreshToken);
+      var result = await _userManager.UpdateAsync(user);
+      if (!result.Succeeded)
+      {
+        throw new LgdxIdentity400Expection(result.Errors);
+      }
       return new LoginResponseBusinessModel 
       {
-        AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-        RefreshToken = new JwtSecurityTokenHandler().WriteToken(token),
+        AccessToken = accessToken,
+        RefreshToken = refreshToken,
         ExpiresMins = _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins
       };
     }
@@ -147,6 +164,51 @@ public class AuthService(
 
   public async Task<RefreshTokenResponseBusinessModel> RefreshTokenAsync(RefreshTokenRequestBusinessModel refreshTokenRequestBusinessModel)
   {
-    throw new NotImplementedException();
+    // Validate the refresh token
+    var tokenHandler = new JwtSecurityTokenHandler();
+    TokenValidationParameters validationParameters = new()
+    {
+			ValidateIssuer = true,
+			ValidateAudience = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
+			ValidIssuer = _lgdxRobot2SecretConfiguration.LgdxUserJwtIssuer,
+			ValidAudience = _lgdxRobot2SecretConfiguration.LgdxUserJwtIssuer,
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobot2SecretConfiguration.LgdxUserJwtSecret)),
+			ClockSkew = TimeSpan.Zero
+		};
+    ClaimsPrincipal principal = tokenHandler.ValidateToken(refreshTokenRequestBusinessModel.RefreshToken, validationParameters, out SecurityToken validatedToken) 
+      ?? throw new LgdxValidation400Expection(nameof(refreshTokenRequestBusinessModel.RefreshToken), "Invalid refresh token.");
+
+    // The token is valid, check the database
+    var userId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+      ?? throw new LgdxValidation400Expection(nameof(refreshTokenRequestBusinessModel.RefreshToken), "The user ID is not found in the token.");
+    var user = await _userManager.FindByIdAsync(userId)
+      ?? throw new LgdxValidation400Expection(nameof(refreshTokenRequestBusinessModel.RefreshToken), "User not found.");
+    if (user.RefreshTokenHash != LgdxHelper.GenerateSha256Hash(refreshTokenRequestBusinessModel.RefreshToken))
+    {
+      throw new LgdxValidation400Expection(nameof(refreshTokenRequestBusinessModel.RefreshToken), "The refresh token is used.");
+    }
+
+    // Generate new token pair and update the database
+    var notBefore = DateTime.UtcNow;
+    var accessExpires = notBefore.AddMinutes(_lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins);
+    var refreshExpires = validatedToken.ValidTo; // Reauthenticate to extend the expiration time
+    var accessToken = await GenerateAccessTokenAsync(user, notBefore, accessExpires);
+    var refreshToken = GenerateRefreshToken(user, notBefore, refreshExpires);
+    user.RefreshTokenHash = LgdxHelper.GenerateSha256Hash(refreshToken);
+    var result = await _userManager.UpdateAsync(user);
+    if (!result.Succeeded)
+    {
+      throw new LgdxIdentity400Expection(result.Errors);
+    }
+
+    // Generate new token pair
+    return new RefreshTokenResponseBusinessModel()
+    {
+      AccessToken = accessToken,
+      RefreshToken = refreshToken,
+      ExpiresMins = _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins
+    };
   }
 }

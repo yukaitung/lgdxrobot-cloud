@@ -5,10 +5,12 @@ using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
 using LGDXRobot2Cloud.API.Services.Automation;
 using LGDXRobot2Cloud.API.Services.Common;
+using LGDXRobot2Cloud.API.Services.Identity;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Constants;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -178,11 +180,13 @@ builder.Services.AddAuthorizationBuilder()
  * LGDX Depency Injection
  */
 // Custom Services
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();
 builder.Services.AddScoped<ITriggerService, TriggerService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 // Identity Repositories
 builder.Services.AddScoped<ILgdxUsersRepository, LgdxUsersRepository>();

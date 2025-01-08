@@ -44,4 +44,14 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     await _authService.ResetPasswordAsync(resetPasswordRequestDto.ToBusinessModel());
     return Ok();
   }
+
+  [AllowAnonymous]
+  [HttpPost("Refresh")]
+  [ProducesResponseType(typeof(RefreshTokenResponseDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult> Refresh(RefreshTokenRequestDto refreshTokenRequestDto)
+  {
+    var result = await _authService.RefreshTokenAsync(refreshTokenRequestDto.ToBusinessModel());
+    return Ok(result.ToDto());
+  }
 }
