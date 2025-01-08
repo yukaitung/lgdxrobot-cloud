@@ -47,7 +47,8 @@ public sealed class AuthService : IAuthService
         var user = new ClaimsPrincipal(identity);
         var authProperties = new AuthenticationProperties{};
         await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user, authProperties);
-        _tokenService.Login(user, loginResponseDto.AccessToken, loginResponseDto.RefreshToken);
+        var refreshToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponseDto!.RefreshToken);
+        _tokenService.Login(user, loginResponseDto.AccessToken, loginResponseDto.RefreshToken, accessToken.ValidTo, refreshToken.ValidTo);
         return new ApiResponse<bool> {
           Data = response.IsSuccessStatusCode,
           IsSuccess = response.IsSuccessStatusCode
