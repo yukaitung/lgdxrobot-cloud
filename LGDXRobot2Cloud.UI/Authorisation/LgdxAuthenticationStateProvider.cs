@@ -6,24 +6,21 @@ using Microsoft.AspNetCore.Components.Server;
 
 namespace LGDXRobot2Cloud.UI.Authorisation;
 
-internal sealed class LgdxAuthenticationStateProvider : RevalidatingServerAuthenticationStateProvider
+internal sealed class LgdxAuthenticationStateProvider(
+    ILoggerFactory loggerFactory, 
+    IRefreshTokenService refreshTokenService,
+    ITokenService tokenService, 
+    NavigationManager navigationManager
+  ) : RevalidatingServerAuthenticationStateProvider(loggerFactory)
 {
-  private Task<AuthenticationState>? authenticationStateTask;
-  private readonly ITokenService _tokenService;
-  private readonly NavigationManager _navigationManager;
+  private readonly ITokenService _tokenService = tokenService;
+  private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
+  private readonly NavigationManager _navigationManager = navigationManager;
 
-  protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(1);
+  protected override TimeSpan RevalidationInterval => TimeSpan.FromSeconds(30);
 
-  public LgdxAuthenticationStateProvider(ILoggerFactory loggerFactory, ITokenService tokenService, NavigationManager navigationManager) : base(loggerFactory)
+    protected override async Task<bool> ValidateAuthenticationStateAsync(AuthenticationState authenticationState, CancellationToken cancellationToken)
   {
-    AuthenticationStateChanged += OnAuthenticationStateChanged;
-    _tokenService = tokenService;
-    _navigationManager = navigationManager;
-  }
-
-  protected override async Task<bool> ValidateAuthenticationStateAsync(AuthenticationState authenticationState, CancellationToken cancellationToken)
-  {
-    
     if (authenticationState.User.Identity?.IsAuthenticated == true)
     {
       var user = authenticationState.User;
@@ -33,28 +30,26 @@ internal sealed class LgdxAuthenticationStateProvider : RevalidatingServerAuthen
       }
 
       var refreshTokenExpiresAt = _tokenService.GetRefreshTokenExpiresAt(user);
-      if (DateTime.Now > refreshTokenExpiresAt)
+      if (DateTime.UtcNow > refreshTokenExpiresAt)
       {
         _navigationManager.NavigateTo(AppRoutes.Identity.Login);
       }
 
       var accessTokenExpiresAt = _tokenService.GetAccessTokenExpiresAt(user);
-      if (DateTime.Now.AddMinutes(1) > accessTokenExpiresAt)
+      if (DateTime.UtcNow.AddMinutes(1) > accessTokenExpiresAt)
       {
-        //await _tokenRefreshService.RefreshTokenAsync();
+        var result = await _refreshTokenService.RefreshTokenAsync(user, _tokenService.GetRefreshToken(user));
+        if (result.IsSuccess)
+        {
+          _tokenService.RefreshAccessToken(user, result.Data!.AccessToken, result.Data.RefreshToken);
+        }
       }
     }
     return true;
   }
 
-  private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
-  {
-    authenticationStateTask = task;
-  }
-
   protected override void Dispose(bool disposing)
   {
-    AuthenticationStateChanged -= OnAuthenticationStateChanged;
     base.Dispose(disposing);
   }
 }
