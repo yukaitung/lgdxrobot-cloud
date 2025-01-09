@@ -34,17 +34,4 @@ public class CircuitHandlerService(
     RevalidateLogin();
     return base.OnCircuitOpenedAsync(circuit, cancellationToken);
   }
-
-  public override Task OnCircuitClosedAsync(Circuit circuit, CancellationToken cancellationToken)
-  {
-    var user = _authenticationStateProvider.GetAuthenticationStateAsync().Result.User;
-    _tokenService.Logout(user);
-    return base.OnCircuitClosedAsync(circuit, cancellationToken);
-  }
-
-  public override Task OnConnectionUpAsync(Circuit circuit, CancellationToken cancellationToken)
-  {
-    RevalidateLogin();
-    return base.OnConnectionUpAsync(circuit, cancellationToken);
-  }
 }

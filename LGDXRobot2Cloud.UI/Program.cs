@@ -1,6 +1,7 @@
 using System.Reflection;
 using LGDXRobot2Cloud.UI.Authorisation;
 using LGDXRobot2Cloud.UI.Components;
+using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Consumers;
 using LGDXRobot2Cloud.UI.Services;
 using MassTransit;
@@ -78,7 +79,7 @@ builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(config
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(cfg =>
 	{
-		cfg.LoginPath = "/login";
+		cfg.LoginPath = AppRoutes.Identity.Login;
 	});
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
@@ -112,7 +113,7 @@ app.MapRazorComponents<App>()
 app.MapPost("api/Logout", async (HttpContext context) =>
 {
 	await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-	return TypedResults.LocalRedirect("/Login");
+	return TypedResults.LocalRedirect(AppRoutes.Identity.Login);
 }).RequireAuthorization();
 
 app.Run();

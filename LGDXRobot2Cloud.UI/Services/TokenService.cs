@@ -18,61 +18,110 @@ public interface ITokenService
 
 public class TokenService : ITokenService
 {
-  private readonly ConcurrentDictionary<string, string> AccessTokens = new();
-  private readonly ConcurrentDictionary<string, string> RefreshTokens = new();
-  private readonly ConcurrentDictionary<string, DateTime> AccessTokenExpiresAt = new();
-  private readonly ConcurrentDictionary<string, DateTime> RefreshTokenExpiresAt = new();
+  private readonly ConcurrentDictionary<string, Token> Tokens = new();
+
+  private record Token
+  {
+    public required string AccessToken { set; get; }
+    public required string RefreshToken { set; get; }
+    public required DateTime AccessTokenExpiresAt { set; get; }
+    public required DateTime RefreshTokenExpiresAt { set; get; }
+  }
 
   private static string GenerateAccessKey(ClaimsPrincipal user)
   {
     var userId = user.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value;
-    return $"{userId}";
+    return $"TokenService_{userId}";
   }
 
   public void Login(ClaimsPrincipal user, string accessToken, string refreshToken, DateTime accessTokenExpiresAt, DateTime refreshTokenExpiresAt)
   {
-    AccessTokens.TryAdd(GenerateAccessKey(user), accessToken);
-    RefreshTokens.TryAdd(GenerateAccessKey(user), refreshToken);
-    AccessTokenExpiresAt.TryAdd(GenerateAccessKey(user), accessTokenExpiresAt);
-    RefreshTokenExpiresAt.TryAdd(GenerateAccessKey(user), refreshTokenExpiresAt);
+    Tokens.TryAdd(GenerateAccessKey(user), new Token { 
+      AccessToken = accessToken,
+      RefreshToken = refreshToken,
+      AccessTokenExpiresAt = accessTokenExpiresAt,
+      RefreshTokenExpiresAt = refreshTokenExpiresAt
+    });
   }
 
   public bool IsLoggedIn(ClaimsPrincipal user)
   {
-    return AccessTokens.ContainsKey(GenerateAccessKey(user));
+    if (Tokens.TryGetValue(GenerateAccessKey(user), out Token? token))
+    {
+      return token != null && DateTime.UtcNow < token.RefreshTokenExpiresAt;
+    }
+    else
+    {
+      return false;
+    }
   }
 
   public string GetAccessToken(ClaimsPrincipal user)
   {
-    return AccessTokens.TryGetValue(GenerateAccessKey(user), out var accessToken) ? accessToken : string.Empty;
+    if (Tokens.TryGetValue(GenerateAccessKey(user), out Token? token))
+    {
+      return token!.AccessToken ?? string.Empty;
+    }
+    else
+    {
+      return string.Empty;
+    }
   }
 
   public DateTime GetAccessTokenExpiresAt(ClaimsPrincipal user)
   {
-    return AccessTokenExpiresAt.TryGetValue(GenerateAccessKey(user), out var accessTokenExpiresAt) ? accessTokenExpiresAt : DateTime.MinValue;
+    if (Tokens.TryGetValue(GenerateAccessKey(user), out Token? token))
+    {
+      return token!.AccessTokenExpiresAt;
+    }
+    else
+    {
+      return DateTime.MinValue;
+    }
   }
 
   public string GetRefreshToken(ClaimsPrincipal user)
   {
-    return RefreshTokens.TryGetValue(GenerateAccessKey(user), out var refreshToken) ? refreshToken : string.Empty;
+    if (Tokens.TryGetValue(GenerateAccessKey(user), out Token? token))
+    {
+      return token!.RefreshToken ?? string.Empty;
+    }
+    else
+    {
+      return string.Empty;
+    }
   }
 
   public DateTime GetRefreshTokenExpiresAt(ClaimsPrincipal user)
   {
-    return RefreshTokenExpiresAt.TryGetValue(GenerateAccessKey(user), out var refreshTokenExpiresAt) ? refreshTokenExpiresAt : DateTime.MinValue;
+    if (Tokens.TryGetValue(GenerateAccessKey(user), out Token? token))
+    {
+      return token!.RefreshTokenExpiresAt;
+    }
+    else
+    {
+      return DateTime.MinValue;
+    }
   }
 
   public void RefreshAccessToken(ClaimsPrincipal user, string accessToken, string refreshToken)
   {
-    AccessTokens.TryUpdate(GenerateAccessKey(user), accessToken, AccessTokens[GenerateAccessKey(user)]);
-    RefreshTokens.TryUpdate(GenerateAccessKey(user), refreshToken, RefreshTokens[GenerateAccessKey(user)]);
+    if (Tokens.TryGetValue(GenerateAccessKey(user), out Token? token))
+    {
+      if (token != null)
+      {
+        Tokens.TryUpdate(GenerateAccessKey(user), new Token {
+          AccessToken = accessToken,
+          RefreshToken = refreshToken,
+          AccessTokenExpiresAt = token.AccessTokenExpiresAt, 
+          RefreshTokenExpiresAt = token.RefreshTokenExpiresAt
+        }, token);
+      }
+    }
   }
 
   public void Logout(ClaimsPrincipal user)
   {
-    AccessTokens.TryRemove(GenerateAccessKey(user), out _);
-    RefreshTokens.TryRemove(GenerateAccessKey(user), out _);
-    AccessTokenExpiresAt.TryRemove(GenerateAccessKey(user), out _);
-    RefreshTokenExpiresAt.TryRemove(GenerateAccessKey(user), out _);
+    Tokens.TryRemove(GenerateAccessKey(user), out _);
   }
 }
