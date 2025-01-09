@@ -24,12 +24,7 @@
 						<div class="dropdown-menu-column">
 							<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Maps" Context="NavigationMaps">
 								<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Maps.Index">
-									Maps
-								</NavLink>
-							</AuthorizeView>
-							<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks" Context="NavigationTasks">
-								<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Tasks.Index">
-									Tasks
+									Realms
 								</NavLink>
 							</AuthorizeView>
 							<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Waypoints" Context="NavigationWaypoints">
@@ -37,32 +32,6 @@
 									Waypoints
 								</NavLink>
 							</AuthorizeView>
-							<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Flows" Context="NavigationFlows">
-								<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Flows.Index">
-									Flows
-								</NavLink>
-							</AuthorizeView>
-							<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Triggers" Context="NavigationTriggers">
-								<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Triggers.Index">
-									Triggers
-								</NavLink>
-							</AuthorizeView>
-							<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Progresses" Context="NavigationProgresses">
-									<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Progresses.Index">
-									Progresses
-								</NavLink>
-							</AuthorizeView>
-						</div>
-					</NavDropdown>
-				</AuthorizeView>
-				<NavDropdown title="Automation" href="automation">
-					<NavLink class="dropdown-item" href="@AppRoutes.Automation.TriggerRetries.Index">
-						Trigger Retries
-					</NavLink>
-				</NavDropdown>
-				<AuthorizeView Policy="ValidateLgdxUserAccess/Robot" Context="Robot">
-					<NavDropdown title="Robot" href="robot">
-						<div class="dropdown-menu-column">
 							<AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots" Context="RobotRobots">
 								<NavLink class="dropdown-item" href="@AppRoutes.Robot.Robots.Index">
 									Robots
@@ -71,9 +40,33 @@
 						</div>
 					</NavDropdown>
 				</AuthorizeView>
-				<!-- TODO -->
+				<NavDropdown title="Automation" href="automation">
+					<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks" Context="NavigationTasks">
+						<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Tasks.Index">
+							Tasks
+						</NavLink>
+					</AuthorizeView>
+					<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Flows" Context="NavigationFlows">
+						<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Flows.Index">
+							Flows
+						</NavLink>
+					</AuthorizeView>
+					<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Progresses" Context="NavigationProgresses">
+							<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Progresses.Index">
+							Progresses
+						</NavLink>
+					</AuthorizeView>
+					<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Triggers" Context="NavigationTriggers">
+						<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Triggers.Index">
+							Triggers
+						</NavLink>
+					</AuthorizeView>
+					<NavLink class="dropdown-item" href="@AppRoutes.Automation.TriggerRetries.Index">
+						Trigger Retries
+					</NavLink>
+				</NavDropdown>
 				<AuthorizeView Policy="ValidateLgdxUserAccess/Setting" Context="RobotSetting">
-					<NavDropdown title="Setting" href="setting">
+					<NavDropdown title="Administration" href="setting">
 						<div class="dropdown-menu-column">
 							<AuthorizeView Policy="ValidateLgdxUserAccess/Identity/Users" Context="IdentityUsers">
 								<NavLink class="dropdown-item" href="@AppRoutes.Setting.Users.Index">
