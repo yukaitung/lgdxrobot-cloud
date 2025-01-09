@@ -24,9 +24,8 @@ public interface IApiKeyService
 
 public sealed class ApiKeyService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient,
-    ITokenService tokenService
-  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IApiKeyService
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IApiKeyService
 {
   public async Task<ApiResponse<(IEnumerable<ApiKeyDto>?, PaginationHelper?)>> GetApiKeysAsync(bool isThirdParty, string? name = null, int pageNumber = 1, int pageSize = 10)
   {

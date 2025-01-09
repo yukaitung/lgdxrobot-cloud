@@ -26,9 +26,8 @@ public interface IRealmService
 public sealed class RealmService (
     AuthenticationStateProvider authenticationStateProvider, 
     HttpClient httpClient,
-    ITokenService tokenService,
     IMemoryCache memoryCache
-  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IRealmService
+  ) : BaseService(authenticationStateProvider, httpClient), IRealmService
 {
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
@@ -218,7 +217,8 @@ public sealed class RealmService (
       else
       {
         // Default Realm if not found
-        RealmDto map = new RealmDto {
+        RealmDto map = new()
+        {
           Id = 0,
           Name = "Default",
           Description = "Default Realm",
@@ -228,7 +228,6 @@ public sealed class RealmService (
           OriginY = 0.0,
           OriginRotation = 0.0
         };
-        _memoryCache.Set($"RealmService_GetDefaultRealm", map);
         return new ApiResponse<RealmDto> {
           Data = map,
           IsSuccess = true

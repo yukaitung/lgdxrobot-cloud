@@ -23,13 +23,11 @@ public sealed class AuthService : IAuthService
 {
   private readonly HttpClient _httpClient;
   private readonly JsonSerializerOptions _jsonSerializerOptions;
-  private readonly ITokenService _tokenService;
 
-  public AuthService(HttpClient httpClient, ITokenService tokenService)
+  public AuthService(HttpClient httpClient)
   {
     _httpClient = httpClient;
     _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-    _tokenService = tokenService;
   }
 
   public async Task<ApiResponse<bool>> LoginAsync(HttpContext context, LoginRequestDto loginRequestDto)
@@ -42,13 +40,17 @@ public sealed class AuthService : IAuthService
       {
         var loginResponseDto = await JsonSerializer.DeserializeAsync<LoginResponseDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         var accessToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponseDto!.AccessToken);
+        var refreshToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponseDto!.RefreshToken);
         var identity = new ClaimsIdentity([], CookieAuthenticationDefaults.AuthenticationScheme);
         identity.AddClaims(accessToken.Claims);
+        identity.AddClaim(new Claim("access_token", loginResponseDto.AccessToken));
+        identity.AddClaim(new Claim("refresh_token", loginResponseDto.RefreshToken));
         var user = new ClaimsPrincipal(identity);
-        var authProperties = new AuthenticationProperties{};
+        var authProperties = new AuthenticationProperties{
+          IsPersistent = false,
+          ExpiresUtc = refreshToken.ValidTo
+        };
         await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user, authProperties);
-        var refreshToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponseDto!.RefreshToken);
-        _tokenService.Login(user, loginResponseDto.AccessToken, loginResponseDto.RefreshToken, accessToken.ValidTo, refreshToken.ValidTo);
         return new ApiResponse<bool> {
           Data = response.IsSuccessStatusCode,
           IsSuccess = response.IsSuccessStatusCode

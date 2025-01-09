@@ -21,9 +21,8 @@ public interface IUsersService
 
 public sealed class UsersService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient,
-    ITokenService tokenService
-  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IUsersService
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IUsersService
 {
   public async Task<ApiResponse<(IEnumerable<LgdxUserListDto>?, PaginationHelper?)>> GetUsersAsync(string? name = null, int pageNum = 1, int pageSize = 10)
   {

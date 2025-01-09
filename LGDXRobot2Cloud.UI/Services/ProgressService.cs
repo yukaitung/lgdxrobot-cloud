@@ -22,9 +22,8 @@ public interface IProgressService
 
 public sealed class ProgressService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient,
-    ITokenService tokenService
-  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IProgressService
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IProgressService
 {
   public async Task<ApiResponse<(IEnumerable<ProgressDto>?, PaginationHelper?)>> GetProgressesAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {

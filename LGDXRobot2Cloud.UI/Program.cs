@@ -47,9 +47,7 @@ var configureAction = (HttpClient client) =>
 		client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? string.Empty);
 	};
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, CircuitHandlerService>());
 
-builder.Services.AddSingleton<ITokenService, TokenService>();
 // Navigation
 builder.Services.AddHttpClient<IAutoTaskService, AutoTaskService>(configureAction);
 builder.Services.AddHttpClient<IFlowService, FlowService>(configureAction);
@@ -79,6 +77,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 	.AddCookie(cfg =>
 	{
 		cfg.LoginPath = "/login";
+		cfg.Cookie.HttpOnly = true;
+		cfg.Cookie.SameSite = SameSiteMode.Strict;
 	});
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();

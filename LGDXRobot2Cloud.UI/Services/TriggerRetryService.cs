@@ -18,9 +18,8 @@ public interface ITriggerRetryService
 
 public sealed class TriggerRetryService (
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient,
-    ITokenService tokenService
-  ) : BaseService(authenticationStateProvider, httpClient, tokenService), ITriggerRetryService
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), ITriggerRetryService
 {
   public async Task<ApiResponse<(IEnumerable<TriggerRetryListDto>?, PaginationHelper?)>> GetTriggerRetriesAsync(int pageNumber = 1, int pageSize = 10)
   {

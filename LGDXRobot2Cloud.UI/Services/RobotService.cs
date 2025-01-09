@@ -26,9 +26,8 @@ public interface IRobotService
 
 public sealed class RobotService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient,
-    ITokenService tokenService
-  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IRobotService
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IRobotService
 {
   public async Task<ApiResponse<(IEnumerable<RobotListDto>?, PaginationHelper?)>> GetRobotsAsync(string? name, int pageNumber, int pageSize)
   {

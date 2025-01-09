@@ -22,9 +22,8 @@ public interface IFlowService
 
 public sealed class FlowService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient,
-    ITokenService tokenService
-  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IFlowService
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IFlowService
 {
   public async Task<ApiResponse<(IEnumerable<FlowListDto>?, PaginationHelper?)>> GetFlowsAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {

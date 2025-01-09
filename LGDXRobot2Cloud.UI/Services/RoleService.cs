@@ -22,9 +22,8 @@ public interface IRoleService
 
 public sealed class RoleService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient,
-    ITokenService tokenService
-  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IRoleService
+    HttpClient httpClient
+  ) : BaseService(authenticationStateProvider, httpClient), IRoleService
 {
   public async Task<ApiResponse<(IEnumerable<LgdxRoleDto>?, PaginationHelper?)>> GetRolesAsync(string? name = null, int pageNumber = 1, int pageSize = 10)
   {
