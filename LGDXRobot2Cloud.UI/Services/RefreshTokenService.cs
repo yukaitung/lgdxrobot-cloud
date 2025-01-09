@@ -14,7 +14,7 @@ public interface IRefreshTokenService
 
 public sealed class RefreshTokenService : IRefreshTokenService
 {
-  private  HttpClient _httpClient;
+  private readonly HttpClient _httpClient;
   private readonly JsonSerializerOptions _jsonSerializerOptions;
 
   public RefreshTokenService(HttpClient httpClient)
