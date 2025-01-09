@@ -22,8 +22,9 @@ public interface IWaypointService
 
 public sealed class WaypointService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient
-  ) : BaseService(authenticationStateProvider, httpClient), IWaypointService
+    HttpClient httpClient,
+    ITokenService tokenService
+  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IWaypointService
 {
   public async Task<ApiResponse<(IEnumerable<WaypointListDto>?, PaginationHelper?)>> GetWaypointsAsync(string? name, int pageNumber, int pageSize)
   {

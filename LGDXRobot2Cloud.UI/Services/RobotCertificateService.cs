@@ -18,8 +18,9 @@ public interface IRobotCertificateService
 
 public sealed class RobotCertificateService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient
-  ) : BaseService(authenticationStateProvider, httpClient), IRobotCertificateService
+    HttpClient httpClient,
+    ITokenService tokenService
+  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IRobotCertificateService
 {
   public async Task<ApiResponse<(IEnumerable<RobotCertificateListDto>?, PaginationHelper?)>>  GetRobotCertificatesAsync(int pageNumber = 1, int pageSize = 10)
   {

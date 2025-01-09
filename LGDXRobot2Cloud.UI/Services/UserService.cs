@@ -19,8 +19,9 @@ public interface IUserService
 
 public sealed class UserService(
     AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient
-  ) : BaseService(authenticationStateProvider, httpClient), IUserService
+    HttpClient httpClient,
+    ITokenService tokenService
+  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IUserService
 {
   public async Task<ApiResponse<LgdxUserDto>> GetUserAsync()
   {
