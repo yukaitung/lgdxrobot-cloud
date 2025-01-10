@@ -162,7 +162,7 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
       response = await TriggerService.AddTriggerAsync(Mapper.Map<TriggerCreateDto>(TriggerDetailViewModel));
     
     if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Triggers.Index);
+      NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
     else 
       TriggerDetailViewModel.Errors = response.Errors;
   }
@@ -173,7 +173,7 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
     {
       var response = await TriggerService.DeleteTriggerAsync((int)Id);
       if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Navigation.Triggers.Index);
+        NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
       else
         TriggerDetailViewModel.Errors = response.Errors;
     }

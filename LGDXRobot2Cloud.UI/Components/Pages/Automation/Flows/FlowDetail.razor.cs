@@ -140,7 +140,7 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
       response = await FlowService.AddFlowAsync(Mapper.Map<FlowCreateDto>(FlowDetailViewModel));
 
     if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Flows.Index);
+      NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
     else
       response.Errors = FlowDetailViewModel.Errors;
   }
@@ -151,7 +151,7 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     {
       var response = await FlowService.DeleteFlowAsync((int)Id);
       if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Navigation.Flows.Index);
+        NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
       else
         response.Errors = FlowDetailViewModel.Errors;
     }

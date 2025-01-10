@@ -65,10 +65,10 @@
               <td>@task.CurrentProgress.Name</td>
               <td>@task.Flow.Name</td>
               <td>
-                <a href="@(AppRoutes.Navigation.Tasks.Index + $"/{taskId}?clone=true")" class="page-link link-primary">Clone</a>
+                <a href="@(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}?clone=true")" class="page-link link-primary">Clone</a>
               </td>
               <td class="text-end">
-                <a href="@(AppRoutes.Navigation.Tasks.Index + $"/{taskId}")" class="page-link link-primary">@(IsEditable() ? "Edit" : "View")</a>
+                <a href="@(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}")" class="page-link link-primary">@(IsEditable() ? "Edit" : "View")</a>
               </td>
             </tr>
           }

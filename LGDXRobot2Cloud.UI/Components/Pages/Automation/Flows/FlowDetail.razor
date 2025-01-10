@@ -1,5 +1,5 @@
-@attribute [Route(AppRoutes.Navigation.Flows.Create)]
-@attribute [Route(AppRoutes.Navigation.Flows.Detail)]
+@attribute [Route(AppRoutes.Automation.Flows.Create)]
+@attribute [Route(AppRoutes.Automation.Flows.Detail)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Flows/Read")]
 @using LGDXRobot2Cloud.Utilities.Enums
 @rendermode InteractiveServer
@@ -9,7 +9,7 @@
     <div class="col">
       <div class="mb-1">
         <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Flows.Index">◀ Return</a></li>
+          <li class="breadcrumb-item"><a href="@AppRoutes.Automation.Flows.Index">◀ Return</a></li>
         </ol>
       </div>
       <h2 class="page-title">

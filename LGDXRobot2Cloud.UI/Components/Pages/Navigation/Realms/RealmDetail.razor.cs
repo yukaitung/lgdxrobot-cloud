@@ -64,7 +64,7 @@ public sealed partial class RealmDetail : ComponentBase
       response = await RealmService.AddRealmAsync(Mapper.Map<RealmCreateDto>(RealmDetailViewModel));
 
     if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Maps.Index);
+      NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
     else 
       RealmDetailViewModel.Errors = response.Errors;
   }
@@ -75,7 +75,7 @@ public sealed partial class RealmDetail : ComponentBase
     {
       var response = await RealmService.DeleteRealmAsync((int)Id);
       if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Navigation.Maps.Index);
+        NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
       else
         RealmDetailViewModel.Errors = response.Errors;
     }

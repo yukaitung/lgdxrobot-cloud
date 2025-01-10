@@ -1,5 +1,5 @@
-@attribute [Route(AppRoutes.Navigation.Maps.Create)]
-@attribute [Route(AppRoutes.Navigation.Maps.Detail)]
+@attribute [Route(AppRoutes.Navigation.Realms.Create)]
+@attribute [Route(AppRoutes.Navigation.Realms.Detail)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Maps/Read")]
 @rendermode InteractiveServer
 
@@ -8,7 +8,7 @@
     <div class="col">
       <div class="mb-1">
         <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Maps.Index">◀ Return</a></li>
+          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Realms.Index">◀ Return</a></li>
         </ol>
       </div>
       <h2 class="page-title">

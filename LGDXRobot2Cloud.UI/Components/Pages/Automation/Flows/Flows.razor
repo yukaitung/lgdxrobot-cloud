@@ -1,4 +1,4 @@
-@attribute [Route(AppRoutes.Navigation.Flows.Index)]
+@attribute [Route(AppRoutes.Automation.Flows.Index)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Flows/Read")]
 @using LGDXRobot2Cloud.UI.Components.Pages.Automation.Flows.Components
 @rendermode InteractiveServer
@@ -12,7 +12,7 @@
     </div>
     <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Flows/Write">
       <div class="col-auto ms-auto">
-        <a href="@AppRoutes.Navigation.Flows.Create" type="button" class="btn btn-primary">
+        <a href="@AppRoutes.Automation.Flows.Create" type="button" class="btn btn-primary">
           Create Flow
         </a>
       </div>

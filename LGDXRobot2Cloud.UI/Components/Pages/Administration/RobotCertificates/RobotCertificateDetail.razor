@@ -1,4 +1,4 @@
-@attribute [Route(AppRoutes.Setting.Certificates.Detail)]
+@attribute [Route(AppRoutes.Administration.Certificates.Detail)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Setting/Certificates/Read")]
 @rendermode InteractiveServer
 
@@ -7,7 +7,7 @@
     <div class="col">
       <div class="mb-1">
         <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Setting.Certificates.Index">◀ Return</a></li>
+          <li class="breadcrumb-item"><a href="@AppRoutes.Administration.Certificates.Index">◀ Return</a></li>
         </ol>
       </div>
       <h2 class="page-title">
@@ -72,7 +72,7 @@
           </div>
           <div class="card-footer d-flex">
             <AuthorizeView Policy="ValidateLgdxUserAccess/Setting/Certificates/Write" Context="Write">
-              <a href="@(AppRoutes.Setting.Certificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
+              <a href="@(AppRoutes.Administration.Certificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
                 Renew Certificate
               </a>
             </AuthorizeView>

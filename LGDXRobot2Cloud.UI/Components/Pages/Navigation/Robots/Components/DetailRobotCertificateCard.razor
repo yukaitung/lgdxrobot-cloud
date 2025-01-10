@@ -32,7 +32,7 @@
   {
     <div class="card-footer d-flex">
       <AuthorizeView Policy="ValidateLgdxUserAccess/Setting/Certificates/Write" Context="CertificateRenew">
-        <a href="@(AppRoutes.Setting.Certificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
+        <a href="@(AppRoutes.Administration.Certificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
           Renew Certificate
         </a>
       </AuthorizeView>

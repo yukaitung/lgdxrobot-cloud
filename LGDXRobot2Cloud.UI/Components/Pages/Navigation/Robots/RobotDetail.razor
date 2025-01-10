@@ -1,4 +1,4 @@
-@attribute [Route(AppRoutes.Robot.Robots.Detail)]
+@attribute [Route(AppRoutes.Navigation.Robots.Detail)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/Robots/Read")]
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components
@@ -9,7 +9,7 @@
     <div class="col">
       <div class="mb-1">
         <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Robot.Robots.Index">◀ Return</a></li>
+          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Robots.Index">◀ Return</a></li>
         </ol>
       </div>
       @if (RobotDetailViewModel != null)

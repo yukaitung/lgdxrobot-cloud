@@ -1,5 +1,5 @@
-@attribute [Route(AppRoutes.Navigation.Triggers.Create)]
-@attribute [Route(AppRoutes.Navigation.Triggers.Detail)]
+@attribute [Route(AppRoutes.Automation.Triggers.Create)]
+@attribute [Route(AppRoutes.Automation.Triggers.Detail)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Triggers/Read")]
 @using LGDXRobot2Cloud.Utilities.Enums
 @rendermode InteractiveServer
@@ -9,7 +9,7 @@
     <div class="col">
       <div class="mb-1">
         <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Triggers.Index">◀ Return</a></li>
+          <li class="breadcrumb-item"><a href="@AppRoutes.Automation.Triggers.Index">◀ Return</a></li>
         </ol>
       </div>
       <h2 class="page-title">

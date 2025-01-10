@@ -1,5 +1,5 @@
-@attribute [Route(AppRoutes.Setting.Roles.Detail)]
-@attribute [Route(AppRoutes.Setting.Roles.Create)]
+@attribute [Route(AppRoutes.Administration.Roles.Detail)]
+@attribute [Route(AppRoutes.Administration.Roles.Create)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Identity/Roles/Read")]
 @rendermode InteractiveServer
 
@@ -8,7 +8,7 @@
     <div class="col">
       <div class="mb-1">
         <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Setting.Roles.Index">◀ Return</a></li>
+          <li class="breadcrumb-item"><a href="@AppRoutes.Administration.Roles.Index">◀ Return</a></li>
         </ol>
       </div>
       <h2 class="page-title">

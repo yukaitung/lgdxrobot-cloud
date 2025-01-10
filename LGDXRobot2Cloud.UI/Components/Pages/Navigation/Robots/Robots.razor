@@ -1,4 +1,4 @@
-@attribute [Route(AppRoutes.Robot.Robots.Index)]
+@attribute [Route(AppRoutes.Navigation.Robots.Index)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/Robots/Read")]
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components
@@ -19,7 +19,7 @@
           <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
         </div>
         <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Write" Context="Create">
-          <a href="@AppRoutes.Robot.Robots.Create" type="button" class="btn btn-primary">
+          <a href="@AppRoutes.Navigation.Robots.Create" type="button" class="btn btn-primary">
             Create Robot
           </a>
         </AuthorizeView>
@@ -63,7 +63,7 @@
               </div>
             </div>
             <div class="d-flex">
-              <a href="@(AppRoutes.Robot.Robots.Index + $"/{id}")" class="card-btn">
+              <a href="@(AppRoutes.Navigation.Robots.Index + $"/{id}")" class="card-btn">
                 Manage
               </a>
               <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Write" Context="Control">

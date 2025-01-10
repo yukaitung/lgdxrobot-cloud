@@ -98,7 +98,7 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
       response = await UsersService.AddUserAsync(Mapper.Map<LgdxUserCreateAdminDto>(UserDetailViewModel));
     
     if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Setting.Users.Index);
+      NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
     else
       UserDetailViewModel.Errors = response.Errors;
   }
@@ -109,7 +109,7 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
     {
       var response = await UsersService.DeleteUserAsync(Id);
       if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Setting.Users.Index);
+        NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
       else
         UserDetailViewModel.Errors = response.Errors;
     }

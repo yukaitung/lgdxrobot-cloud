@@ -228,7 +228,6 @@ public sealed class RealmService (
           OriginY = 0.0,
           OriginRotation = 0.0
         };
-        _memoryCache.Set($"RealmService_GetDefaultRealm", map);
         return new ApiResponse<RealmDto> {
           Data = map,
           IsSuccess = true

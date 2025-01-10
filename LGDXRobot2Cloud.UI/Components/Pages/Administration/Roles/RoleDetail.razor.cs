@@ -53,7 +53,7 @@ public sealed partial class RoleDetail : ComponentBase
       response = await RoleService.AddRoleAsync(Mapper.Map<LgdxRoleCreateDto>(RolesDetailViewModel));
     }
     if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Setting.Roles.Index);
+      NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
     else
       RolesDetailViewModel.Errors = response.Errors;
   }
@@ -64,7 +64,7 @@ public sealed partial class RoleDetail : ComponentBase
     {
       var response = await RoleService.DeleteRoleAsync(Id);
       if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Setting.Roles.Index);
+        NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
       else
         RolesDetailViewModel.Errors = response.Errors;
     }

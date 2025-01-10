@@ -1,5 +1,5 @@
-@attribute [Route(AppRoutes.Setting.Users.Detail)]
-@attribute [Route(AppRoutes.Setting.Users.Create)]
+@attribute [Route(AppRoutes.Administration.Users.Detail)]
+@attribute [Route(AppRoutes.Administration.Users.Create)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Identity/Users/Read")]
 @rendermode InteractiveServer
 
@@ -8,7 +8,7 @@
     <div class="col">
       <div class="mb-1">
         <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Setting.Users.Index">◀ Return</a></li>
+          <li class="breadcrumb-item"><a href="@AppRoutes.Administration.Users.Index">◀ Return</a></li>
         </ol>
       </div>
       <h2 class="page-title">

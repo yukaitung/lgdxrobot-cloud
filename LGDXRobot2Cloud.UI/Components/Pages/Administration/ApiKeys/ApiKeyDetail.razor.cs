@@ -48,7 +48,7 @@ public sealed partial class ApiKeyDetail
       response = await ApiKeyService.AddApiKeyAsync(Mapper.Map<ApiKeyCreateDto>(ApiKeyDetailViewModel));
 
     if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Setting.ApiKeys.Index);
+      NavigationManager.NavigateTo(AppRoutes.Administration.ApiKeys.Index);
     else
       ApiKeyDetailViewModel.Errors = response.Errors;
   }
@@ -59,7 +59,7 @@ public sealed partial class ApiKeyDetail
     {
       var response = await ApiKeyService.DeleteApiKeyAsync((int)Id);
       if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Setting.ApiKeys.Index);
+        NavigationManager.NavigateTo(AppRoutes.Administration.ApiKeys.Index);
       else
         ApiKeyDetailViewModel.Errors = response.Errors;
     }
@@ -83,7 +83,7 @@ public sealed partial class ApiKeyDetail
       {
         var response = await ApiKeyService.UpdateApiKeySecretAsync((int)Id, new ApiKeySecretUpdateDto { Secret = UpdateApiKeySecretViewModel.UpdateSecret });
         if (response.IsSuccess)
-          NavigationManager.NavigateTo(AppRoutes.Setting.ApiKeys.Index);
+          NavigationManager.NavigateTo(AppRoutes.Administration.ApiKeys.Index);
         else
           UpdateApiKeySecretViewModel.Errors = response.Errors;
       }

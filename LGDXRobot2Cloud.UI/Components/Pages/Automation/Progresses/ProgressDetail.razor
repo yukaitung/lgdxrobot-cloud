@@ -1,5 +1,5 @@
-@attribute [Route(AppRoutes.Navigation.Progresses.Create)]
-@attribute [Route(AppRoutes.Navigation.Progresses.Detail)]
+@attribute [Route(AppRoutes.Automation.Progresses.Create)]
+@attribute [Route(AppRoutes.Automation.Progresses.Detail)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Progresses/Read")]
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -9,7 +9,7 @@
     <div class="col">
       <div class="mb-1">
         <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Progresses.Index">◀ Return</a></li>
+          <li class="breadcrumb-item"><a href="@AppRoutes.Automation.Progresses.Index">◀ Return</a></li>
         </ol>
       </div>
       <h2 class="page-title">

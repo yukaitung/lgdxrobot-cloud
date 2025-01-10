@@ -44,7 +44,7 @@ public sealed partial class RobotDetail
   {
     var response = await RobotService.DeleteRobotAsync(RobotDetailViewModel!.Id.ToString());
     if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Robot.Robots.Index);
+      NavigationManager.NavigateTo(AppRoutes.Navigation.Robots.Index);
     else
       RobotDetailViewModel.Errors = response.Errors;
   }

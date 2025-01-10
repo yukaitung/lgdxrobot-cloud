@@ -59,7 +59,7 @@ public sealed partial class CreateRobot
     }
     else 
     {
-      NavigationManager.NavigateTo(AppRoutes.Robot.Robots.Index);
+      NavigationManager.NavigateTo(AppRoutes.Navigation.Robots.Index);
     }
   }
 

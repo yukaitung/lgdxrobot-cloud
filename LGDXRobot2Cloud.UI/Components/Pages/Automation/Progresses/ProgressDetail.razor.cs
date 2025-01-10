@@ -38,7 +38,7 @@ public sealed partial class ProgressDetail : ComponentBase
       response = await ProgressService.AddProgressAsync(Mapper.Map<ProgressCreateDto>(ProgressDetailViewModel));
 
     if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Progresses.Index);
+      NavigationManager.NavigateTo(AppRoutes.Automation.Progresses.Index);
     else
       ProgressDetailViewModel.Errors = response.Errors;
   }
@@ -49,7 +49,7 @@ public sealed partial class ProgressDetail : ComponentBase
     {
       var response = await ProgressService.DeleteProgressAsync((int)Id);
       if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Navigation.Progresses.Index);
+        NavigationManager.NavigateTo(AppRoutes.Automation.Progresses.Index);
       else
         ProgressDetailViewModel.Errors = response.Errors;
     }

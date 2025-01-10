@@ -169,7 +169,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
       response = await AutoTaskService.AddAutoTaskAsync(Mapper.Map<AutoTaskCreateDto>(AutoTaskDetailViewModel));
 
     if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Tasks.Index);
+      NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
     else
       AutoTaskDetailViewModel.Errors = response.Errors;
   }
@@ -180,7 +180,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     {
       var response = await AutoTaskService.DeleteAutoTaskAsync((int)Id);
       if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Navigation.Tasks.Index);
+        NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
       else
         AutoTaskDetailViewModel.Errors = response.Errors;
     }
@@ -192,7 +192,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     {
       var response = await AutoTaskService.AbortAutoTaskAsync((int)Id);
       if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Navigation.Tasks.Index);
+        NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
       else
         AutoTaskDetailViewModel.Errors = response.Errors;
     }

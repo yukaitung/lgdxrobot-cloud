@@ -1,5 +1,5 @@
-@attribute [Route(AppRoutes.Setting.ApiKeys.Detail)]
-@attribute [Route(AppRoutes.Setting.ApiKeys.Create)]
+@attribute [Route(AppRoutes.Administration.ApiKeys.Detail)]
+@attribute [Route(AppRoutes.Administration.ApiKeys.Create)]
 @attribute [Authorize (Policy = "ValidateLgdxUserAccess/Setting/ApiKeys/Read")]
 @rendermode InteractiveServer
 
@@ -8,7 +8,7 @@
     <div class="col">
       <div class="mb-1">
         <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Setting.ApiKeys.Index">◀ Return</a></li>
+          <li class="breadcrumb-item"><a href="@AppRoutes.Administration.ApiKeys.Index">◀ Return</a></li>
         </ol>
       </div>
       <h2 class="page-title">
