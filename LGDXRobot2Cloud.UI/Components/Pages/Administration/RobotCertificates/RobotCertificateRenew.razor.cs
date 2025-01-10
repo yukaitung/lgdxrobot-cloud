@@ -34,7 +34,7 @@ public sealed partial class RobotCertificateRenew
   public async Task ReturnLastPage()
   {
     var redirect = await ProtectedSessionStorage.GetAsync<string>("redirectUrl");
-    string uri = redirect.Value ?? AppRoutes.Administration.Certificates.Index;
+    string uri = redirect.Value ?? AppRoutes.Administration.RobotCertificates.Index;
     NavigationManager.NavigateTo(uri);
   }
 

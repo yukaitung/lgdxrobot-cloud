@@ -6,11 +6,7 @@
 <PageHeader Title="@(Id != null ? "Edit Role" : "Create Role")">
   <div class="row align-items-center">
     <div class="col">
-      <div class="mb-1">
-        <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Administration.Roles.Index">◀ Return</a></li>
-        </ol>
-      </div>
+      <ReturnLink Fallback="@AppRoutes.Administration.Roles.Index" />
       <h2 class="page-title">
         @(Id != null ? "Edit Role" : "Create Role")
       </h2>

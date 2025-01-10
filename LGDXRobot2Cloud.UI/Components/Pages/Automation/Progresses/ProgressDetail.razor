@@ -7,11 +7,7 @@
 <PageHeader Title="@(Id != null ? "Edit Progress" : "Create Progress")">
   <div class="row align-items-center">
     <div class="col">
-      <div class="mb-1">
-        <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Automation.Progresses.Index">◀ Return</a></li>
-        </ol>
-      </div>
+      <ReturnLink Fallback="@AppRoutes.Automation.Progresses.Index" />
       <h2 class="page-title">
         @(Id != null ? "Edit Progress" : "Create Progress")
       </h2>

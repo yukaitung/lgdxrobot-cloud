@@ -7,11 +7,7 @@
 <PageHeader Title="Robots">
   <div class="row align-items-center">
     <div class="col">
-      <div class="mb-1">
-        <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Robots.Index">◀ Return</a></li>
-        </ol>
-      </div>
+      <ReturnLink Fallback="@AppRoutes.Navigation.Robots.Index" />
       @if (RobotDetailViewModel != null)
       {
         <h2 class="page-title">

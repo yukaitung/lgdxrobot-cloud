@@ -6,11 +6,7 @@
 <PageHeader Title="@(Id != null ? "Edit Waypoint" : "Create Waypoint")">
   <div class="row align-items-center">
     <div class="col">
-      <div class="mb-1">
-        <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Waypoints.Index">◀ Return</a></li>
-        </ol>
-      </div>
+      <ReturnLink Fallback="@AppRoutes.Navigation.Waypoints.Index" />
       <h2 class="page-title">
         @(Id != null ? "Edit Waypoint" : "Create Waypoint")
       </h2>

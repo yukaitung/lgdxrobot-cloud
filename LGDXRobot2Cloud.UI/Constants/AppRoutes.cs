@@ -78,11 +78,11 @@ public static class AppRoutes
       public const string SecretDetail = "/Administration/Apikeys/{Id:int}/Secret";
     }
 
-    public static class Certificates
+    public static class RobotCertificates
     {
-      public const string Index = "/Administration/Certificates";
-      public const string Detail = "/Administration/Certificates/{Id}";
-      public const string Renew = "/Administration/Certificates/{Id}/Renew";
+      public const string Index = "/Administration/RobotCertificates";
+      public const string Detail = "/Administration/RobotCertificates/{Id}";
+      public const string Renew = "/Administration/RobotCertificates/{Id}/Renew";
     }
 
     public static class Users

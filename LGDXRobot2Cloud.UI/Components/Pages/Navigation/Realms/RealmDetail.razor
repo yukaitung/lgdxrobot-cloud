@@ -6,11 +6,7 @@
 <PageHeader Title="@(Id != null ? "Edit Realm" : "Create Realm")">
   <div class="row align-items-center">
     <div class="col">
-      <div class="mb-1">
-        <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Navigation.Realms.Index">◀ Return</a></li>
-        </ol>
-      </div>
+      <ReturnLink Fallback="@AppRoutes.Administration.ApiKeys.Index" />
       <h2 class="page-title">
         @(Id != null ? "Edit Realm" : "Create Realm")
       </h2>

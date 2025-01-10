@@ -6,11 +6,7 @@
 <PageHeader Title="@(Id != null ? "Edit API Key" : "Create API Key")">
   <div class="row align-items-center">
     <div class="col">
-      <div class="mb-1">
-        <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="@AppRoutes.Administration.ApiKeys.Index">◀ Return</a></li>
-        </ol>
-      </div>
+      <ReturnLink Fallback="@AppRoutes.Administration.ApiKeys.Index" />
       <h2 class="page-title">
         @(Id != null ? "Edit API Key" : "Create API Key")
       </h2>
