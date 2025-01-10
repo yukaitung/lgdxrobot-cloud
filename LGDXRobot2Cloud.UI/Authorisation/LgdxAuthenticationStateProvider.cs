@@ -31,12 +31,13 @@ internal sealed class LgdxAuthenticationStateProvider(
     var refreshTokenExpiresAt = _tokenService.GetRefreshTokenExpiresAt(user);
     if (DateTime.UtcNow > refreshTokenExpiresAt)
     {
+      _tokenService.Logout(user);
       _navigationManager.NavigateTo(AppRoutes.Identity.Login);
       return false;
     }
 
     var accessTokenExpiresAt = _tokenService.GetAccessTokenExpiresAt(user);
-    if (DateTime.UtcNow.AddMinutes(1) > accessTokenExpiresAt)
+    if (DateTime.UtcNow.AddMinutes(1) >= accessTokenExpiresAt)
     {
       var result = await _refreshTokenService.RefreshTokenAsync(user, _tokenService.GetRefreshToken(user));
       if (result.IsSuccess)

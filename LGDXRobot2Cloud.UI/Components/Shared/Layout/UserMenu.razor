@@ -1,0 +1,20 @@
+<AuthorizeView>
+  <Authorized>
+    <div class="dropdown">
+      <button class="btn" data-bs-toggle="dropdown" style="padding: 7px;">
+        <i class="ti ti-user" style="font-size: 20px;"></i>
+      </button>
+      <div class="mt-2 dropdown-menu  dropdown-menu-end dropdown-menu-arrow">
+        <a class="dropdown-item">
+          Change Realm
+        </a>
+        <a class="dropdown-item" href="@AppRoutes.Identity.User">
+          Profile
+        </a>
+        <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#logoutModal">
+          Logout
+        </a>
+      </div>
+    </div>
+  </Authorized>
+</AuthorizeView>
