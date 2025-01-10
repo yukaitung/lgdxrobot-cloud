@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Administration.ApiKeys.Detail)]
 @attribute [Route(AppRoutes.Administration.ApiKeys.Create)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Setting/ApiKeys/Read")]
+@attribute [Authorize (Policy = Permissions.Administration.ApiKeys.Read)]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit API Key" : "Create API Key")">
@@ -78,7 +78,7 @@
             }
           </div>
           <div class="card-footer d-flex">
-            <AuthorizeView Policy="ValidateLgdxUserAccess/Setting/ApiKeys/Delete" Context="Delete">
+            <AuthorizeView Policy=@Permissions.Administration.ApiKeys.Delete Context="DeleteButton">
               @if (Id != null)
               {
                 <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
@@ -86,7 +86,7 @@
                 </a>
               }
             </AuthorizeView>
-            <AuthorizeView Policy="ValidateLgdxUserAccess/Setting/ApiKeys/Write" Context="Write">
+            <AuthorizeView Policy=@Permissions.Administration.ApiKeys.Write Context="Write">
               <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
             </AuthorizeView>
           </div>
@@ -145,7 +145,7 @@
                 </div>
               }
             </div>
-            <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Write" Context="WriteSecret">
+            <AuthorizeView Policy=@Permissions.Administration.ApiKeys.Write Context="WriteSecret">
               @if (ApiKeyDetailViewModel.IsThirdParty)
               {
                 <div class="card-footer d-flex">
@@ -160,7 +160,7 @@
   </div>
 </PageBody>
 
-<AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Delete" Context="DeleteModal">
+<AuthorizeView Policy=@Permissions.Administration.ApiKeys.Delete Context="DeleteModal">
   @if (Id != null)
   {
     <DeleteEntryModal EntryName="API Key" OnDelete="HandleDelete" />

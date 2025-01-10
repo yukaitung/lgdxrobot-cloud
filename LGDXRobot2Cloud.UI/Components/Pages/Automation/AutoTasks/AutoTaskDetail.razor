@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Automation.AutoTasks.Create)]
 @attribute [Route(AppRoutes.Automation.AutoTasks.Detail)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Tasks/Read")]
+@attribute [Authorize (Policy = Permissions.Automation.AutoTasks.Read)]
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks.Components
 @rendermode InteractiveServer
@@ -264,12 +264,12 @@
         <div class="card-footer d-flex">
           @if (Id != null)
           {
-            <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Delete" Context="Delete">
+            <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Delete" Context="DeleteButton">
               <button type="button" class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                 Delete
               </button>
             </AuthorizeView>
-            <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Write" Context="Write">
+            <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write" Context="Write">
               <button type="submit" class="btn btn-primary ms-auto">
                 Update
               </button>
@@ -278,7 +278,7 @@
           }
           else
           {
-            <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Write" Context="Create">
+            <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write" Context="Create">
               <button type="submit" class="btn btn-primary ms-auto">
                 Create
               </button>
@@ -300,10 +300,10 @@
 
 @if (Id != null)
 {
-  <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Delete" Context="DeleteModal">
+  <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Delete" Context="DeleteModal">
     <DeleteEntryModal EntryName="Task" OnDelete="HandleDelete" />
   </AuthorizeView>
-  <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Tasks/Write" Context="AbortModal">
+  <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write" Context="AbortModal">
     <AbortAutoTaskModal OnAbort="HandleAbort" />
   </AuthorizeView>
 }

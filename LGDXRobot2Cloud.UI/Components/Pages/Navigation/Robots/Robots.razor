@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Navigation.Robots.Index)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/Robots/Read")]
+@attribute [Authorize (Policy = Permissions.Navigation.Robots.Read)]
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components
 @rendermode InteractiveServer
@@ -18,7 +18,7 @@
           <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
           <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
         </div>
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Write" Context="Create">
+        <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="Create">
           <a href="@AppRoutes.Navigation.Robots.Create" type="button" class="btn btn-primary">
             Create Robot
           </a>
@@ -66,7 +66,7 @@
               <a href="@(AppRoutes.Navigation.Robots.Index + $"/{id}")" class="card-btn">
                 Manage
               </a>
-              <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Write" Context="Control">
+              <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="Control">
                 @if (RobotsData[id]!.RobotStatus != RobotStatus.Offline)
                 {
                   <a class="card-btn dropdown-toggle" data-bs-toggle="dropdown" style="cursor: pointer;" @onclick="(e) => HandleRobotSelect(robot)">
@@ -117,7 +117,7 @@
   </div>
 </PageBody>
 
-<AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Nodes/Write" Context="ControlModal">
+<AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ControlModal">
   <PauseTaskAssigementModel RobotCommands="SelectedRobotCommands" />
   <SoftwareEmergencyStopModel RobotCommands="SelectedRobotCommands" />
 </AuthorizeView>

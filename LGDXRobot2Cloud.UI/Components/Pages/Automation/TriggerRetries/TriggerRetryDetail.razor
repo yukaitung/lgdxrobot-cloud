@@ -1,6 +1,6 @@
 @using LGDXRobot2Cloud.Utilities.Enums
 @attribute [Route(AppRoutes.Automation.TriggerRetries.Detail)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = Permissions.Automation.TriggerRetries.Read)]
 @rendermode InteractiveServer
 
 <PageHeader Title="Trigger Retry Detail">
@@ -76,12 +76,18 @@
       </div>
     </div>
     <div class="card-footer d-flex">
-      <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-        Delete
-      </a>
-      <button class="btn btn-primary ms-auto" @onclick="HandleRetry">Retry</button>
+      <AuthorizeView Policy="@Permissions.Automation.TriggerRetries.Delete" Context="DeleteButton">
+        <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+          Delete
+        </a>
+      </AuthorizeView>
+      <AuthorizeView Policy="@Permissions.Automation.TriggerRetries.Write" Context="RetryButton">
+        <button class="btn btn-primary ms-auto" @onclick="HandleRetry">Retry</button>
+      </AuthorizeView>
     </div>
   </div>
 </PageBody>
 
-<DeleteEntryModal EntryName="Trigger Retry" OnDelete="HandleDelete" />
+<AuthorizeView Policy="@Permissions.Automation.TriggerRetries.Delete" Context="DeleteModal">
+  <DeleteEntryModal EntryName="Trigger Retry" OnDelete="HandleDelete" />
+</AuthorizeView>

@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Navigation.Realms.Create)]
 @attribute [Route(AppRoutes.Navigation.Realms.Detail)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Maps/Read")]
+@attribute [Authorize (Policy = Permissions.Navigation.Realms.Read)]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Realm" : "Create Realm")">
@@ -88,7 +88,7 @@
         </div>
       </div>
       <div class="card-footer d-flex">
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Waypoints/Delete" Context="Delete">
+        <AuthorizeView Policy="@Permissions.Navigation.Realms.Delete" Context="DeleteModal">
           @if (Id != null)
           {
             <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
@@ -96,7 +96,7 @@
             </a>
           }
         </AuthorizeView>
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Waypoints/Write" Context="Write">
+        <AuthorizeView Policy="@Permissions.Navigation.Realms.Write" Context="Write">
           <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
         </AuthorizeView>
       </div>
@@ -104,7 +104,7 @@
   </div>
 </PageBody>
 
-<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Flows/Delete" Context="DeleteModal">
+<AuthorizeView Policy="@Permissions.Navigation.Realms.Delete" Context="DeleteModal">
   @if (Id != null)
   {
     <DeleteEntryModal EntryName="Realm" OnDelete="HandleDelete" />

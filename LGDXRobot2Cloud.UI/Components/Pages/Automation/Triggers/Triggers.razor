@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Automation.Triggers.Index)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Triggers/Read")]
+@attribute [Authorize (Policy = Permissions.Automation.Triggers.Read)]
 @using LGDXRobot2Cloud.UI.Components.Pages.Automation.Triggers.Components
 @rendermode InteractiveServer
 
@@ -10,7 +10,7 @@
         Triggers
       </h2>
     </div>
-    <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Triggers/Write">
+    <AuthorizeView Policy="@Permissions.Automation.Triggers.Write">
       <div class="col-auto ms-auto">
         <a href="@AppRoutes.Automation.Triggers.Create" type="button" class="btn btn-primary">
           Create Trigger

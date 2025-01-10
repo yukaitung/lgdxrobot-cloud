@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Navigation.Robots.Create)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/Robots/Write")]
+@attribute [Authorize (Policy = Permissions.Navigation.Robots.Write)]
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components
 @rendermode InteractiveServer

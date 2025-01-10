@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Automation.Progresses.Index)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Progresses/Read")]
+@attribute [Authorize (Policy = Permissions.Automation.Progresses.Read)]
 @using LGDXRobot2Cloud.UI.Components.Pages.Automation.Progresses.Components;
 @rendermode InteractiveServer
 
@@ -10,7 +10,7 @@
         Progresses
       </h2>
     </div>
-    <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Progresses/Write">
+    <AuthorizeView Policy="@Permissions.Automation.Progresses.Write">
       <div class="col-auto ms-auto">
         <a href="@AppRoutes.Automation.Progresses.Create" type="button" class="btn btn-primary">
           Create Progress

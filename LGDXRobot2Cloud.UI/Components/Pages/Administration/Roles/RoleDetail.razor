@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Administration.Roles.Detail)]
 @attribute [Route(AppRoutes.Administration.Roles.Create)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Identity/Roles/Read")]
+@attribute [Authorize (Policy = Permissions.Administration.Roles.Read)]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Role" : "Create Role")">
@@ -94,7 +94,7 @@
         </div>
       </div>
       <div class="card-footer d-flex">
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Identity/Roles/Delete" Context="Delete">
+        <AuthorizeView Policy=@Permissions.Administration.Roles.Delete Context="DeleteButton">
           @if (Id != null)
           {
             <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
@@ -102,7 +102,7 @@
             </a>
           }
         </AuthorizeView>
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Identity/Roles/Write" Context="Write">
+        <AuthorizeView Policy=@Permissions.Administration.Roles.Write Context="Write">
           <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
         </AuthorizeView>
       </div>
@@ -110,7 +110,7 @@
   </div>
 </PageBody>
 
-<AuthorizeView Policy="ValidateLgdxUserAccess/Identity/Roles/Delete" Context="DeleteModal">
+<AuthorizeView Policy=@Permissions.Administration.Roles.Delete Context="DeleteModal">
   @if (Id != null)
   {
     <DeleteEntryModal EntryName="Scope" OnDelete="HandleDelete" />

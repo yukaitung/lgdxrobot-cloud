@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Administration.RobotCertificates.Index)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Setting/Certificates/Read")]
+@attribute [Authorize (Policy = Permissions.Administration.RobotCertificates.Read)]
 @using LGDXRobot2Cloud.UI.Components.Pages.Administration.RobotCertificates.Components
 @rendermode InteractiveServer
 

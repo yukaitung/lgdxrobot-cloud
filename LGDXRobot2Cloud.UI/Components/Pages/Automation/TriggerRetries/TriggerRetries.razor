@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Automation.TriggerRetries.Index)]
-@attribute [Authorize]
+@attribute [Authorize (Policy = Permissions.Automation.Progresses.Read)]
 @using LGDXRobot2Cloud.UI.Components.Pages.Automation.TriggerRetries.Components;
 @rendermode InteractiveServer
 

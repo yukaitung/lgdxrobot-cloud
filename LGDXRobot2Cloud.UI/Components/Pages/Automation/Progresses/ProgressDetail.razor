@@ -1,7 +1,6 @@
 @attribute [Route(AppRoutes.Automation.Progresses.Create)]
 @attribute [Route(AppRoutes.Automation.Progresses.Detail)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Progresses/Read")]
-@attribute [Authorize]
+@attribute [Authorize (Policy = Permissions.Automation.Progresses.Write)]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Progress" : "Create Progress")">
@@ -43,7 +42,7 @@
         </div>
       </div>
       <div class="card-footer d-flex">
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Progresses/Delete" Context="Delete">
+        <AuthorizeView Policy="@Permissions.Automation.Progresses.Delete" Context="DeleteButton">
           @if (Id != null)
           {
             <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
@@ -51,7 +50,7 @@
             </a>
           }
         </AuthorizeView>
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Progresses/Write" Context="Write">
+        <AuthorizeView Policy="@Permissions.Automation.Progresses.Write" Context="Write">
           <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
         </AuthorizeView>
       </div>
@@ -59,7 +58,7 @@
   </div>
 </PageBody>
 
-<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Progresses/Delete" Context="DeleteModal">
+<AuthorizeView Policy="@Permissions.Automation.Progresses.Delete" Context="DeleteModal">
   @if (Id != null)
   {
     <DeleteEntryModal EntryName="Progress" OnDelete="HandleDelete" />

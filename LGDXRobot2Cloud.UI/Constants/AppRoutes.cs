@@ -72,10 +72,10 @@ public static class AppRoutes
   {
     public static class ApiKeys
     {
-      public const string Index = "/Administration/Apikeys";
-      public const string Create = "/Administration/Apikeys/Create";
-      public const string Detail = "/Administration/Apikeys/{Id:int}";
-      public const string SecretDetail = "/Administration/Apikeys/{Id:int}/Secret";
+      public const string Index = "/Administration/ApiKeys";
+      public const string Create = "/Administration/ApiKeys/Create";
+      public const string Detail = "/Administration/ApiKeys/{Id:int}";
+      public const string SecretDetail = "/Administration/ApiKeys/{Id:int}/Secret";
     }
 
     public static class RobotCertificates

@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Administration.RobotCertificates.Detail)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Setting/Certificates/Read")]
+@attribute [Authorize (Policy = Permissions.Administration.RobotCertificates.Read)]
 @rendermode InteractiveServer
 
 <PageHeader Title="Robot Certificates">
@@ -67,7 +67,7 @@
             </div>
           </div>
           <div class="card-footer d-flex">
-            <AuthorizeView Policy="ValidateLgdxUserAccess/Setting/Certificates/Write" Context="Write">
+            <AuthorizeView Policy=@Permissions.Administration.RobotCertificates.Write Context="Write">
               <a href="@(AppRoutes.Administration.RobotCertificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
                 Renew Certificate
               </a>

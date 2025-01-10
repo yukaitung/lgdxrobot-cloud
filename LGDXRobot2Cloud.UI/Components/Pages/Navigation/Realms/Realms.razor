@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Navigation.Realms.Index)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Maps/Read")]
+@attribute [Authorize (Policy = Permissions.Navigation.Realms.Read)]
 @using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Realms.Components
 @rendermode InteractiveServer
 
@@ -10,7 +10,7 @@
         Realms
       </h2>
     </div>
-    <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Maps/Write">
+    <AuthorizeView Policy="@Permissions.Navigation.Realms.Write">
       <div class="col-auto ms-auto">
         <a href="@AppRoutes.Navigation.Realms.Create" type="button" class="btn btn-primary">
           Create Realm

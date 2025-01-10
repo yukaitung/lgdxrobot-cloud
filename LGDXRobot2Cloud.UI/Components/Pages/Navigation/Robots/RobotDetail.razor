@@ -1,5 +1,5 @@
 @attribute [Route(AppRoutes.Navigation.Robots.Detail)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Robot/Robots/Read")]
+@attribute [Authorize (Policy = Permissions.Navigation.Robots.Read)]
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components
 @rendermode InteractiveServer
@@ -26,7 +26,7 @@
         </div>
       }
     </div>
-    <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Write" Context="Control">
+    <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="Control">
       @if (RobotData != null && RobotCommands != null && RobotData.RobotStatus != RobotStatus.Offline)
       {
         <div class="col-md-auto ms-auto d-print-none">
@@ -92,14 +92,14 @@
             <h3 class="card-title">Delete Robot</h3>
           </div>
           <div class="card-body">
-            <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Delete" Context="Delete">
+            <AuthorizeView Policy="@Permissions.Navigation.Robots.Delete" Context="DeleteButton">
               <button type="button" class="btn btn-danger d-none d-sm-inline-block ms-auto" data-bs-toggle="modal"
                 data-bs-target="#deleteModal">
                 Delete Robot
               </button>
             </AuthorizeView>
           </div>
-          <AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Delete" Context="DeleteModel">
+          <AuthorizeView Policy="@Permissions.Navigation.Robots.Delete" Context="DeleteModel">
             <DeleteEntryModal EntryName="Robot" OnDelete="HandleDelete" />
           </AuthorizeView>
         </div>
@@ -108,7 +108,7 @@
   </div>
 </PageBody>
 
-<AuthorizeView Policy="ValidateLgdxUserAccess/Robot/Robots/Write" Context="ControlModel">
+<AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ControlModel">
   <PauseTaskAssigementModel RobotCommands="RobotCommands" />
   <SoftwareEmergencyStopModel RobotCommands="RobotCommands" />
 </AuthorizeView>

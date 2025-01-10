@@ -1,13 +1,14 @@
 <div class="mb-1">
   <ol class="breadcrumb" aria-label="breadcrumbs">
     <li class="breadcrumb-item"><button class="btn-link p-0 border-0" onclick="
-      history.back();
-      var timer = setTimeout(() => {
-        window.location = @($"\"{Fallback}\"");
+      const prevUrl = window.location.pathname;
+      window.history.back();
+      setTimeout(() => {
+        if (prevUrl === window.location.pathname)
+        {
+          window.location = @($"\"{Fallback}\"");
+        }      
       }, 100);
-      addEventListener('pageOnDestroy',()=>{
-          window.clearTimeout(timer)
-      });
     ">◀ Return</button></li>
   </ol>
 </div>

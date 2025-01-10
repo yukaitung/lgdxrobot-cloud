@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Navigation.Waypoints.Create)]
 @attribute [Route(AppRoutes.Navigation.Waypoints.Detail)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Waypoints/Read")]
+@attribute [Authorize (Policy = Permissions.Navigation.Waypoints.Read)]
 @rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Waypoint" : "Create Waypoint")">
@@ -91,7 +91,7 @@
         </div>
       </div>
       <div class="card-footer d-flex">
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Waypoints/Delete" Context="Delete">
+        <AuthorizeView Policy="@Permissions.Navigation.Waypoints.Delete" Context="DeleteButton">
           @if (Id != null)
           {
             <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
@@ -99,7 +99,7 @@
             </a>
           }
         </AuthorizeView>
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Waypoints/Write" Context="Write">
+        <AuthorizeView Policy="@Permissions.Navigation.Waypoints.Write" Context="Write">
           <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
         </AuthorizeView>
       </div>
@@ -107,7 +107,7 @@
   </div>
 </PageBody>
 
-<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Flows/Delete" Context="DeleteModal">
+<AuthorizeView Policy="@Permissions.Navigation.Waypoints.Delete" Context="DeleteModal">
   @if (Id != null)
   {
     <DeleteEntryModal EntryName="Waypoint" OnDelete="HandleDelete" />

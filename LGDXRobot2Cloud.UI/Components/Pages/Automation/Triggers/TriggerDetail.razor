@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Automation.Triggers.Create)]
 @attribute [Route(AppRoutes.Automation.Triggers.Detail)]
-@attribute [Authorize (Policy = "ValidateLgdxUserAccess/Navigation/Triggers/Read")]
+@attribute [Authorize (Policy = Permissions.Automation.Triggers.Read)]
 @using LGDXRobot2Cloud.Utilities.Enums
 @rendermode InteractiveServer
 
@@ -177,7 +177,7 @@
         }
       </div>
       <div class="card-footer d-flex">
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Triggers/Delete" Context="Delete">
+        <AuthorizeView Policy="@Permissions.Automation.Triggers.Delete" Context="DeleteButton">
           @if (Id != null)
           {
             <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
@@ -185,7 +185,7 @@
             </a>
           }
         </AuthorizeView>
-        <AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Triggers/Write" Context="Write">
+        <AuthorizeView Policy="@Permissions.Automation.Triggers.Write" Context="Write">
           <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
         </AuthorizeView>
       </div>
@@ -193,7 +193,7 @@
   </div>
 </PageBody>
 
-<AuthorizeView Policy="ValidateLgdxUserAccess/Navigation/Triggers/Delete" Context="DeleteModal">
+<AuthorizeView Policy="@Permissions.Automation.Triggers.Delete" Context="DeleteModal">
   @if (Id != null)
   {
     <DeleteEntryModal EntryName="Progress" OnDelete="HandleDelete" />
