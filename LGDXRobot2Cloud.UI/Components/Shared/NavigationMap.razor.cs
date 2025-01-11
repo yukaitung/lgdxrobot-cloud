@@ -2,6 +2,7 @@ using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.JSInterop;
 
@@ -21,11 +22,27 @@ public sealed partial class NavigationMap : ComponentBase
   [Inject]
   public required IRobotDataService RobotDataService { get; set; }
 
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
   private RealmDto Map { get; set; } = null!;
   private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = [];
 
   protected override async Task OnInitializedAsync() 
   {
+    // Get Realm
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    var response = await RealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
+    var map = response.Data;
+    if (map != null)
+    {
+      Map = map;
+    }
+    // Set Online Robots
     var onlineRobots = RobotDataService.GetOnlineRobots();
     foreach (var robotId in onlineRobots)
     {
@@ -34,12 +51,6 @@ public sealed partial class NavigationMap : ComponentBase
       {
         RobotsData.Add(robotId, robotData);
       }
-    }
-    var response = await RealmService.GetDefaultRealmAsync();
-    var map = response.Data;
-    if (map != null)
-    {
-      Map = map;
     }
   }
 

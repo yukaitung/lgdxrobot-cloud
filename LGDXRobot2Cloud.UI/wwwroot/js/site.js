@@ -11,11 +11,17 @@ function CloseModal(modalId) {
 var DotNetObject = {};
 function InitDotNet(dotNetObject) {
   DotNetObject = dotNetObject;
+  /*
   AdvancedSelectDict = {};
   AdvancedSelectBuffer = {};
   AdvancedSelectOptions = {};
   AdvancedSelectIsOnHold = {};
-  AdvancedSelectTimer = {};
+  AdvancedSelectTimer = {};*/
+}
+
+var ChangeRealmObject = {}
+function InitChangeRealm(dotNetObject) {
+  ChangeRealmObject = dotNetObject;
 }
 
 /*
@@ -91,7 +97,14 @@ var AdvanceSelectEventHandler = function(elementId)
     {
       if (arguments[0].length == 0)
       {
-        DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, null, null);
+        if (elementId === "ChangeRealm")
+        {
+          ChangeRealmObject.invokeMethodAsync('HandleSelectChange', elementId, null, null);
+        }
+        else
+        {
+          DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, null, null);
+        }
       }
       else 
       {
@@ -104,7 +117,14 @@ var AdvanceSelectEventHandler = function(elementId)
         if (AdvancedSelectOptions[elementId] != undefined && AdvancedSelectOptions[elementId][optionId] != undefined) 
         {
           const optionName = AdvancedSelectOptions[elementId][optionId];
-          DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, optionId, optionName);
+          if (elementId === "ChangeRealm")
+          {
+            ChangeRealmObject.invokeMethodAsync('HandleSelectChange', elementId, optionId, optionName);
+          }
+          else
+          {
+            DotNetObject.invokeMethodAsync('HandleSelectChange', elementId, optionId, optionName);
+          }
         }
       }
     }
@@ -123,7 +143,14 @@ function AdvanceSelectInput(e) {
 
 function AdvanceSelectSearch(elementId) {
   var idShort = elementId.substring(0, (elementId.length - TS_CONTROL.length))
-  DotNetObject.invokeMethodAsync('HandlSelectSearch', idShort, AdvancedSelectBuffer[elementId]);
+  if (idShort === "ChangeRealm")
+  {
+    ChangeRealmObject.invokeMethodAsync('HandlSelectSearch', idShort, AdvancedSelectBuffer[elementId]);
+  }
+  else
+  {
+    DotNetObject.invokeMethodAsync('HandlSelectSearch', idShort, AdvancedSelectBuffer[elementId]);
+  }
   AdvancedSelectIsOnHold[elementId] = false;
 }
 

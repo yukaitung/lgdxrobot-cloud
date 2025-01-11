@@ -21,6 +21,7 @@ public interface IRealmService
 
   Task<ApiResponse<string>> SearchRealmsAsync(string name);
   Task<ApiResponse<RealmDto>> GetDefaultRealmAsync();
+  Task<ApiResponse<RealmDto>> GetCurrrentRealmAsync(int? realmId);
 }
 
 public sealed class RealmService (
@@ -31,6 +32,7 @@ public sealed class RealmService (
   ) : BaseService(authenticationStateProvider, httpClient, tokenService), IRealmService
 {
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+  private readonly MemoryCacheEntryOptions _memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
 
   public async Task<ApiResponse<(IEnumerable<RealmListDto>?, PaginationHelper?)>> GetRealmsAsync(string? name, int pageNumber, int pageSize)
   {
@@ -70,6 +72,13 @@ public sealed class RealmService (
         return new ApiResponse<RealmDto> {
           Data = realm,
           IsSuccess = response.IsSuccessStatusCode
+        };
+      }
+      else if (response.StatusCode == HttpStatusCode.NotFound)
+      {
+        return new ApiResponse<RealmDto> {
+          Data = null,
+          IsSuccess = false
         };
       }
       else
@@ -194,6 +203,20 @@ public sealed class RealmService (
     }
   }
 
+  private RealmDto GetEmptyRealm()
+  {
+    return new RealmDto {
+      Id = 0,
+      Name = "Default",
+      Description = "Default Realm",
+      Image = "",
+      Resolution = 0.0,
+      OriginX = 0.0,
+      OriginY = 0.0,
+      OriginRotation = 0.0
+    };
+  }
+
   public async Task<ApiResponse<RealmDto>> GetDefaultRealmAsync()
   {
     if (_memoryCache.TryGetValue($"RealmService_GetDefaultRealm", out RealmDto? cachedMap))
@@ -209,7 +232,7 @@ public sealed class RealmService (
       if (response.IsSuccessStatusCode)
       {
         var map = await JsonSerializer.DeserializeAsync<RealmDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-        _memoryCache.Set($"RealmService_GetDefaultRealm", map);
+        _memoryCache.Set($"RealmService_GetDefaultRealm", map, _memoryCacheEntryOptions);
         return new ApiResponse<RealmDto> {
           Data = map,
           IsSuccess = true
@@ -217,19 +240,8 @@ public sealed class RealmService (
       }
       else
       {
-        // Default Realm if not found
-        RealmDto map = new RealmDto {
-          Id = 0,
-          Name = "Default",
-          Description = "Default Realm",
-          Image = "",
-          Resolution = 0.0,
-          OriginX = 0.0,
-          OriginY = 0.0,
-          OriginRotation = 0.0
-        };
         return new ApiResponse<RealmDto> {
-          Data = map,
+          Data = GetEmptyRealm(),
           IsSuccess = true
         };
       }
@@ -237,6 +249,37 @@ public sealed class RealmService (
     catch (Exception ex)
     {
       throw new Exception(ApiHelper.ApiErrorMessage, ex);
+    }
+  }
+
+  public async Task<ApiResponse<RealmDto>> GetCurrrentRealmAsync(int? realmId)
+  {
+    if (realmId == null)
+    {
+      return await GetDefaultRealmAsync();
+    }
+
+    if (_memoryCache.TryGetValue($"RealmService_GetCurrrentRealmAsync_{realmId}", out RealmDto? cachedMap))
+    {
+      return new ApiResponse<RealmDto> {
+        Data = cachedMap,
+        IsSuccess = true
+      };
+    }
+    
+    var response = await GetRealmAsync((int)realmId);
+    if (response.IsSuccess)
+    {
+      var realm = response.Data;
+      _memoryCache.Set($"RealmService_GetCurrrentRealmAsync_{realmId}", realm, _memoryCacheEntryOptions);
+      return response;
+    }
+    else
+    {
+      return new ApiResponse<RealmDto> {
+        Data = GetEmptyRealm(),
+        IsSuccess = true
+      };
     }
   }
 }

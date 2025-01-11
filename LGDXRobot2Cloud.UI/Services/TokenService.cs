@@ -13,7 +13,14 @@ public interface ITokenService
   string GetRefreshToken(ClaimsPrincipal user);
   DateTime GetRefreshTokenExpiresAt(ClaimsPrincipal user);
   void RefreshAccessToken(ClaimsPrincipal user, string accessToken, string refreshToken);
+  SessionSettings GetSessionSettings(ClaimsPrincipal user);
+  void UpdateSessionSettings(ClaimsPrincipal user, SessionSettings sessionSettings);
   void Logout(ClaimsPrincipal user);
+}
+
+public record SessionSettings
+{
+  public int? CurrentRealmId { get; set; }
 }
 
 public class TokenService : ITokenService
@@ -26,6 +33,7 @@ public class TokenService : ITokenService
     public required string RefreshToken { set; get; }
     public required DateTime AccessTokenExpiresAt { set; get; }
     public required DateTime RefreshTokenExpiresAt { set; get; }
+    public SessionSettings SessionSettings { set; get; } = new();
   }
 
   private static string GenerateAccessKey(ClaimsPrincipal user)
@@ -118,6 +126,25 @@ public class TokenService : ITokenService
         }, token);
       }
     }
+  }
+
+  public SessionSettings GetSessionSettings(ClaimsPrincipal user)
+  {
+    if (Tokens.TryGetValue(GenerateAccessKey(user), out Token? token))
+    {
+      return token!.SessionSettings;
+    }
+    else
+    {
+      return new SessionSettings();
+    }
+  }
+
+  public void UpdateSessionSettings(ClaimsPrincipal user, SessionSettings sessionSettings)
+  {
+    Tokens.TryGetValue(GenerateAccessKey(user), out Token? token);
+    token!.SessionSettings = sessionSettings;
+    Tokens.TryUpdate(GenerateAccessKey(user), token, token);
   }
 
   public void Logout(ClaimsPrincipal user)
