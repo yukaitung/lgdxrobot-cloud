@@ -57,7 +57,7 @@
               <td>@trigger.Id</td>
               <td>@trigger.Name</td>
               <td>@trigger.Url</td>
-              <td>@(((TriggerHttpMethod)trigger.HttpMethodId).ToEnumMember())</td>
+              <td>@(((TriggerHttpMethod)trigger.HttpMethodId!).ToEnumMember())</td>
               <td class="text-end">
                 <a href="@(AppRoutes.Automation.Triggers.Index + $"/{triggerId}")" class="page-link link-primary">Edit</a>
               </td>

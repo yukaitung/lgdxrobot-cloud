@@ -1,10 +1,7 @@
-using System.Text;
 using System.Text.Json;
-using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Automation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -14,105 +11,28 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Triggers;
 
 public sealed partial class TriggerDetail : ComponentBase, IDisposable
 {
-  private record BodyData
-  {
-    public string Key { get; set; } = string.Empty;
-    public int Value { get; set; } = 0;
-    public string CustomValue { get; set; } = string.Empty;
-  }
-
-  [Inject]
-  public required ITriggerService TriggerService { get; set; }
-
-  [Inject]
-  public required IApiKeyService ApiKeyService { get; set; }
+  
 
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
-  public required IJSRuntime JSRuntime { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IMapper Mapper { get; set; }
+  public required IJSRuntime JSRuntime { get; set; }
 
   [Parameter]
   public int? Id { get; set; }
 
   private DotNetObjectReference<TriggerDetail> ObjectReference = null!;
-  private TriggerDetailViewModel TriggerDetailViewModel { get; set; } = null!;
-  private List<BodyData> Body { get; set; } = [];
+  private TriggerDetailViewModel TriggerDetailViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
   private readonly string SelectId = $"{nameof(TriggerDetailViewModel.ApiKeyId)}";
 
-  private string GenerateBodyJson()
-  {
-    StringBuilder s = new();
-    for (int i = 0; i < Body.Count; i++)
-    {
-      var row = Body[i];
-      if (row.Value == 0)
-      {
-        s.Append($"\"{row.Key}\":\"{row.CustomValue}\"");
-        if (i < Body.Count - 1)
-          s.Append(',');
-      }
-      else
-      {
-        s.Append($"\"{row.Key}\":\"(({row.Value}))\"");
-        if (i < Body.Count - 1)
-          s.Append(',');
-      }
-    }
-    s.Insert(0, '{');
-    s.Append('}');
-    return s.ToString();
-  }
-
-  private void ConvertBodyJson(string body)
-  {
-    try
-    {
-      var bodyDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(body);
-      if (bodyDictionary == null)
-      {
-        return;
-      }
-        
-      foreach (var pair in bodyDictionary)
-      {
-        bool isPreset = false;
-        int preset = 0;
-        if (pair.Value.Length >= 5) // ((1)) has 5 characters
-        {
-          if (int.TryParse(pair.Value[2..^2], out int p))
-          {
-            isPreset = true;
-            preset = p;
-          }
-          else
-          {
-            isPreset = false;
-          }
-        }
-
-        var row = new BodyData
-        {
-          Key = pair.Key,
-          Value = preset,
-          CustomValue = isPreset ? string.Empty : pair.Value
-        };
-        Body.Add(row);
-      }
-    }
-    catch (Exception)
-    {
-      return;
-    }
-  }
-
+ 
   // Form
   public void HandleHttpMethod(object args)
   {
@@ -131,12 +51,11 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
       return;
     if (elementId == SelectId)
     {
-      var response = await ApiKeyService.SearchApiKeysAsync(name);
-      if (response.IsSuccess)
-      {
-        var result = response.Data;
-        await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", SelectId, result);
-      }
+      var response = await LgdxApiClient.Administration.ApiKeys.Search.GetAsync(x => x.QueryParameters = new() {
+        Name = name
+      });
+      string result = JsonSerializer.Serialize(response);
+      await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", SelectId, result);
     }
   }
 
@@ -152,49 +71,41 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
 
   public async Task HandleValidSubmit()
   {
-    TriggerDetailViewModel.Body = GenerateBodyJson();
-    ApiResponse<bool> response;
     if (Id != null)
+    {
       // Update
-      response = await TriggerService.UpdateTriggerAsync((int)Id, Mapper.Map<TriggerUpdateDto>(TriggerDetailViewModel));
+      await LgdxApiClient.Automation.Triggers[(int)Id].PutAsync(TriggerDetailViewModel.ToUpdateDto());
+    }
     else
+    {
       // Create
-      response = await TriggerService.AddTriggerAsync(Mapper.Map<TriggerCreateDto>(TriggerDetailViewModel));
-    
-    if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
-    else 
-      TriggerDetailViewModel.Errors = response.Errors;
+      await LgdxApiClient.Automation.Triggers.PostAsync(TriggerDetailViewModel.ToCreateDto());
+    }
+    NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
   }
 
   public async Task HandleDelete()
   {
-    if (Id != null)
-    {
-      var response = await TriggerService.DeleteTriggerAsync((int)Id);
-      if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
-      else
-        TriggerDetailViewModel.Errors = response.Errors;
-    }
+    await LgdxApiClient.Automation.Triggers[(int)Id!].DeleteAsync();
+    NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
   }
 
   public void BodyAddStep()
   {
-    Body.Add(new BodyData());
+    TriggerDetailViewModel.BodyDataList.Add(new BodyData());
   }
 
   public void BodyRemoveStep(int i)
   {
-    if (Body.Count <= 1)
+    if (TriggerDetailViewModel.BodyDataList.Count <= 1)
       return;
-    Body.RemoveAt(i);
+    TriggerDetailViewModel.BodyDataList.RemoveAt(i);
   }
 
   public void HandleBodyPresetChange(int i, object? args)
   {
     if (args != null)
-      Body[i].Value = int.Parse(args.ToString()!);
+      TriggerDetailViewModel.BodyDataList[i].Value = int.Parse(args.ToString()!);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
@@ -204,25 +115,13 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
     {
       if (_id != null)
       {
-        var response = await TriggerService.GetTriggerAsync((int)_id);
-        var trigger = response.Data;
-        if (trigger != null)
-        {
-          TriggerDetailViewModel = Mapper.Map<TriggerDetailViewModel>(trigger);
-          if (trigger.ApiKey != null)
-          {
-            TriggerDetailViewModel.ApiKeyRequired = true;
-            TriggerDetailViewModel.ApiKeyId = trigger.ApiKey.Id;
-            TriggerDetailViewModel.ApiKeyName = trigger.ApiKey.Name;
-          }
-          ConvertBodyJson(trigger.Body?.ToString() ?? string.Empty);
-          _editContext = new EditContext(TriggerDetailViewModel);
-          _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
-        }
+        var trigger = await LgdxApiClient.Automation.Triggers[(int)_id].GetAsync();
+        TriggerDetailViewModel.FromDto(trigger!);
+        _editContext = new EditContext(TriggerDetailViewModel);
+        _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
       else
       {
-        TriggerDetailViewModel = new TriggerDetailViewModel();
         _editContext = new EditContext(TriggerDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }

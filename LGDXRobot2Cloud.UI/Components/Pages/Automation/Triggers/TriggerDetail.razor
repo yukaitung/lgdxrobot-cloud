@@ -73,7 +73,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (int i = 0; i < Body.Count; i++)
+                @for (int i = 0; i < TriggerDetailViewModel.BodyDataList.Count; i++)
                 {
                   var index = i;
                   <tr>
@@ -81,10 +81,10 @@
                       <div class="col col-form-label col-form-label-sm">@(index + 1)</div>
                     </td>
                     <td>
-                      <input type="text" class="form-control form-control" @bind="Body[index].Key">
+                      <input type="text" class="form-control form-control" @bind="TriggerDetailViewModel.BodyDataList[index].Key">
                     </td>
                     <td>
-                      <select class="form-select" value="@Body[index].Value" @onchange="@((e) => HandleBodyPresetChange(index, e.Value ?? string.Empty))">
+                      <select class="form-select" value="@TriggerDetailViewModel.BodyDataList[index].Value" @onchange="@((e) => HandleBodyPresetChange(index, e.Value ?? string.Empty))">
                         <option value="0">Custom Value</option>
                         @foreach (TriggerPresetValue preset in Enum.GetValues(typeof(TriggerPresetValue)))
                         {
@@ -93,11 +93,11 @@
                       </select>
                     </td>
                     <td>
-                      <input type="text" class="form-control" @bind="Body[index].CustomValue" disabled="@(Body[index].Value != 0)">
+                      <input type="text" class="form-control" @bind="TriggerDetailViewModel.BodyDataList[index].CustomValue" disabled="@(TriggerDetailViewModel.BodyDataList[index].Value != 0)">
                     </td>
                     <td>
                       <button type="button"
-                        class="btn btn-ghost-danger btn-icon btn @(Body.Count <= 1 ? "disabled" : "")" @onclick="e => BodyRemoveStep(index)">
+                        class="btn btn-ghost-danger btn-icon btn @(TriggerDetailViewModel.BodyDataList.Count <= 1 ? "disabled" : "")" @onclick="e => BodyRemoveStep(index)">
                         <i class="ti ti-trash" style="font-size: 16px;"></i>
                       </button>
                     </td>
