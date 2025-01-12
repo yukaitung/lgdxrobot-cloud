@@ -56,10 +56,10 @@
             var triggerRetriesId = triggerRetries.Id;
             <tr>
               <td>@triggerRetries.Id</td>
-              <td>@triggerRetries.Trigger.Id</td>
-              <td>@triggerRetries.Trigger.Name</td>
-              <td>@triggerRetries.AutoTask.Id</td>
-              <td>@(triggerRetries.AutoTask.Name ?? "<None>")</td>
+              <td>@triggerRetries.Trigger!.Id</td>
+              <td>@triggerRetries.Trigger!.Name</td>
+              <td>@triggerRetries.AutoTask!.Id</td>
+              <td>@(triggerRetries.AutoTask!.Name ?? "<None>")</td>
               <td>@triggerRetries.CreatedAt</td>
               <td class="text-end">
                 <a href="@(AppRoutes.Automation.TriggerRetries.Index + $"/{triggerRetriesId}")" class="page-link link-primary">View</a>

@@ -1,6 +1,6 @@
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Constants;
-using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.TriggerRetries;
@@ -11,39 +11,23 @@ public sealed partial class TriggerRetryDetail : ComponentBase
   public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
-  public required ITriggerRetryService TriggerRetryService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Parameter]
   public int? Id { get; set; }
 
   private TriggerRetryDto TriggerRetry { get; set; } = null!;
 
-  public IDictionary<string,string[]>? Errors { get; set; }
-
   public async Task HandleRetry()
   {
-    Errors?.Clear();
-    if (Id != null)
-    {
-      var response = await TriggerRetryService.RetryTriggerRetryAsync((int)Id);
-      if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
-      else
-        Errors = response.Errors;
-    }
+    await LgdxApiClient.Automation.TriggerRetries[(int)Id!].Retry.PostAsync();
+    NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
   }
 
   public async Task HandleDelete()
   {
-    Errors?.Clear();
-    if (Id != null)
-    {
-      var response = await TriggerRetryService.DeleteTriggerRetryAsync((int)Id);
-      if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
-      else
-        Errors = response.Errors;
-    }
+    await LgdxApiClient.Automation.TriggerRetries[(int)Id!].DeleteAsync();
+    NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
@@ -53,12 +37,8 @@ public sealed partial class TriggerRetryDetail : ComponentBase
     {
       if (_id != null)
       {
-        var response = await TriggerRetryService.GetTriggerRetryAsync((int)_id);
-        var triggerRetry = response.Data;
-        if (triggerRetry != null) 
-        {
-          TriggerRetry = triggerRetry;
-        }
+        var triggerRetry = await LgdxApiClient.Automation.TriggerRetries[(int)_id].GetAsync();
+        TriggerRetry = triggerRetry!;
       }
       else
       {

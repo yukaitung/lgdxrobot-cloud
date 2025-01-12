@@ -29,37 +29,37 @@
       <div class="mb-3 row">
         <label class="col-3 col-form-label">Trigger ID</label>
         <div class="col">
-          <div class="col form-control-plaintext">@TriggerRetry.Trigger.Id</div>
+          <div class="col form-control-plaintext">@TriggerRetry.Trigger!.Id</div>
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-3 col-form-label">Trigger Name</label>
         <div class="col">
-          <div class="col form-control-plaintext">@TriggerRetry.Trigger.Name</div>
+          <div class="col form-control-plaintext">@TriggerRetry.Trigger!.Name</div>
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-3 col-form-label">Trigger URL</label>
         <div class="col">
-          <div class="col form-control-plaintext">@TriggerRetry.Trigger.Url</div>
+          <div class="col form-control-plaintext">@TriggerRetry.Trigger!.Url</div>
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-3 col-form-label">Trigger Method</label>
         <div class="col">
-          <div class="col form-control-plaintext">@(((TriggerHttpMethod)TriggerRetry.Trigger.HttpMethodId).ToEnumMember())</div>
+          <div class="col form-control-plaintext">@(((TriggerHttpMethod)TriggerRetry.Trigger.HttpMethodId!).ToEnumMember())</div>
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-3 col-form-label">Task ID</label>
         <div class="col">
-          <div class="col form-control-plaintext">@TriggerRetry.AutoTask.Id</div>
+          <div class="col form-control-plaintext">@TriggerRetry.AutoTask!.Id</div>
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-3 col-form-label">Task Name</label>
         <div class="col">
-          <div class="col form-control-plaintext">@(TriggerRetry.AutoTask.Name ?? "<None>")</div>
+          <div class="col form-control-plaintext">@(TriggerRetry.AutoTask!.Name ?? "<None>")</div>
         </div>
       </div>
       <div class="mb-3 row">
