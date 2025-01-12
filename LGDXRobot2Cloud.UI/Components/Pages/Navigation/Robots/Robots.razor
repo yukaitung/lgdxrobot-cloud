@@ -34,7 +34,7 @@
     <div class="row row-deck row-cards">
       @foreach (var robot in RobotsList)
       {
-        var id = robot.Id;
+        Guid id = (Guid)robot.Id!;
         <div class="col-sm-6 col-md-4">
           <div class="card">
             <RobotCardTop RobotStatus="@RobotsData[id]!.RobotStatus" />

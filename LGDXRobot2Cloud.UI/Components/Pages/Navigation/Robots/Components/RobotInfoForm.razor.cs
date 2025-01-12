@@ -1,4 +1,5 @@
-using LGDXRobot2Cloud.UI.Services;
+using System.Text.Json;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -8,10 +9,10 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components;
 public sealed partial class RobotInfoForm : ComponentBase, IDisposable
 {
   [Inject]
-  public required IJSRuntime JSRuntime { get; set; }
-
+  public required LgdxApiClient LgdxApiClient { get; set; }
+  
   [Inject]
-  public required IRealmService RealmService { get; set; }
+  public required IJSRuntime JSRuntime { get; set; }
 
   [Parameter]
   public RobotDetailViewModel? Robot { get; set; }
@@ -24,8 +25,11 @@ public sealed partial class RobotInfoForm : ComponentBase, IDisposable
   {
     if (string.IsNullOrWhiteSpace(name))
       return;
-    var response = await RealmService.SearchRealmsAsync(name);
-    await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, response.Data);
+    var result = await LgdxApiClient.Navigation.Realms.Search.GetAsync(x => x.QueryParameters = new() {
+      Name = name
+    });
+    string response = JsonSerializer.Serialize(result);
+    await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
   }
 
   [JSInvokable("HandleSelectChange")]

@@ -1,4 +1,4 @@
-@using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses
+@using LGDXRobot2Cloud.UI.Client.Models
 @using LGDXRobot2Cloud.UI.ViewModels.Navigation
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
@@ -31,7 +31,7 @@
   @if (RobotCertificate != null)
   {
     <div class="card-footer d-flex">
-      <AuthorizeView Policy="ValidateLgdxUserAccess/Setting/Certificates/Write" Context="CertificateRenew">
+      <AuthorizeView Policy="@Permissions.Administration.RobotCertificates.Write" Context="CertificateRenew">
         <a href="@(AppRoutes.Administration.RobotCertificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
           Renew Certificate
         </a>

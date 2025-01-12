@@ -1,15 +1,17 @@
-using LGDXRobot2Cloud.Utilities.Helpers;
-using LGDXRobot2Cloud.UI.Services;
-using Microsoft.AspNetCore.Components;
 using LGDXRobot2Cloud.Data.Contracts;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
+using LGDXRobot2Cloud.UI.Helpers;
+using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.Utilities.Helpers;
+using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots;
 
 public sealed partial class Robots : ComponentBase
 {
   [Inject]
-  public required IRobotService RobotService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
   public required IRobotDataService RobotDataService { get; set; }
@@ -34,26 +36,27 @@ public sealed partial class Robots : ComponentBase
     }
     foreach(var robot in robots)
     {
-      var robotData = RobotDataService.GetRobotData(robot.Id);
+      Guid robotId = (Guid)robot.Id!;
+      var robotData = RobotDataService.GetRobotData(robotId);
       if (robotData != null)
       {
-        RobotsData[robot.Id] = robotData;
+        RobotsData[robotId] = robotData;
       }
       else
       {
-        RobotsData[robot.Id] = new RobotDataContract{
-          RobotId = robot.Id
+        RobotsData[robotId] = new RobotDataContract{
+          RobotId = robotId
         };
       }
-      var robotCommands = RobotDataService.GetRobotCommands(robot.Id);
+      var robotCommands = RobotDataService.GetRobotCommands(robotId);
       if (robotCommands != null)
       {
-        RobotsCommands[robot.Id] = robotCommands;
+        RobotsCommands[robotId] = robotCommands;
       }
       else
       {
-        RobotsCommands[robot.Id] = new RobotCommandsContract{
-          RobotId = robot.Id
+        RobotsCommands[robotId] = new RobotCommandsContract{
+          RobotId = robotId
         };
       };
     }
@@ -63,11 +66,19 @@ public sealed partial class Robots : ComponentBase
   {
     if (LastDataSearch == DataSearch)
       return;
-    var response = await RobotService.GetRobotsAsync(DataSearch, 1, PageSize);
-    var data = response.Data;
-    SetRobotsData(data.Item1);
-    RobotsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        Name = DataSearch,
+        PageNumber = 1,
+        PageSize = PageSize
+      };
+    });
+    SetRobotsData(robots);
+    RobotsList = robots;
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
     LastDataSearch = DataSearch;
   }
 
@@ -86,28 +97,44 @@ public sealed partial class Robots : ComponentBase
     CurrentPage = pageNum;
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
-    var response = await RobotService.GetRobotsAsync(DataSearch, pageNum, PageSize);
-    var data = response.Data;
-    SetRobotsData(data.Item1);
-    RobotsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        Name = DataSearch,
+        PageNumber = pageNum,
+        PageSize = PageSize
+      };
+    });
+    SetRobotsData(robots);
+    RobotsList = robots;
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public async Task Refresh(bool deleteOpt = false)
   {
     if (deleteOpt && CurrentPage > 1 && RobotsList?.Count == 1)
       CurrentPage--;
-    var response = await RobotService.GetRobotsAsync(DataSearch, CurrentPage, PageSize);
-    var data = response.Data;
-    SetRobotsData(data.Item1);
-    RobotsList = data.Item1?.ToList();
-    PaginationHelper = data.Item2;
-    StateHasChanged();
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        Name = DataSearch,
+        PageNumber = CurrentPage,
+        PageSize = PageSize
+      };
+    });
+    SetRobotsData(robots);
+    RobotsList = robots;
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
+    //StateHasChanged();
   }
 
   public void HandleRobotSelect(RobotListDto robot)
   {
-    SelectedRobotCommands = RobotsCommands[robot.Id];
+    SelectedRobotCommands = RobotsCommands[(Guid)robot.Id!];
   }
 
   protected override async Task OnInitializedAsync()

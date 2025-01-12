@@ -1,4 +1,4 @@
-@using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses
+@using LGDXRobot2Cloud.UI.Client.Models
 @using LGDXRobot2Cloud.UI.ViewModels.Navigation
 
 <div class="card">
@@ -14,7 +14,7 @@
         </tr>
         <tr>
           <td>CPU Endianness</td>
-          <td>@(RobotSystemInfo != null ? (RobotSystemInfo.IsLittleEndian ? "Little-endian" : "Big-endian") : "-")
+          <td>@(RobotSystemInfo != null ? ((bool)RobotSystemInfo.IsLittleEndian! ? "Little-endian" : "Big-endian") : "-")
           </td>
         </tr>
         <tr>
@@ -39,7 +39,7 @@
         </tr>
         <tr>
           <td>System Type</td>
-          <td>@(RobotSystemInfo != null ? (RobotSystemInfo.Is32Bit ? "32 Bit" : "64 Bit") : "-")</td>
+          <td>@(RobotSystemInfo != null ? ((bool)RobotSystemInfo.Is32Bit! ? "32 Bit" : "64 Bit") : "-")</td>
         </tr>
         <tr>
           <td>MCU Serial Number</td>

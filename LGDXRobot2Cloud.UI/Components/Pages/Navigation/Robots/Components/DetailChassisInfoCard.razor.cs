@@ -1,7 +1,5 @@
-using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -11,10 +9,7 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components;
 public sealed partial class DetailChassisInfoCard
 {
   [Inject]
-  public required IRobotService RobotService { get; set; }
-
-  [Inject]
-  public required IMapper Mapper { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Parameter]
   public RobotDetailViewModel? Robot { get; set; }
@@ -27,9 +22,7 @@ public sealed partial class DetailChassisInfoCard
 
   public async Task HandleValidSubmit()
   {
-    var response = await RobotService.UpdateRobotChassisInfoAsync(Robot!.Id.ToString(), Mapper.Map<RobotChassisInfoUpdateDto>(RobotChassisInfo));
-    if (!response.IsSuccess)
-      RobotChassisInfo!.Errors = response.Errors;
+    await LgdxApiClient.Navigation.Robots[Robot!.Id].Chassis.PutAsync(RobotChassisInfo!.ToUpdateDto());
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)

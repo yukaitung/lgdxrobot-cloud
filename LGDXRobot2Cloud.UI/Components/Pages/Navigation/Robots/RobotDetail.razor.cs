@@ -1,6 +1,6 @@
-using AutoMapper;
 using LGDXRobot2Cloud.Data.Contracts;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
@@ -10,10 +10,7 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots;
 public sealed partial class RobotDetail
 {
   [Inject]
-  public required IMapper Mapper { get; set; }
-
-  [Inject]
-  public required IRobotService RobotService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
   public required IRobotDataService RobotDataService { get; set; }
@@ -24,10 +21,10 @@ public sealed partial class RobotDetail
   [Parameter]
   public string Id { get; set; } = string.Empty;
 
-  private RobotDetailViewModel? RobotDetailViewModel { get; set; } = null!;
+  private RobotDetailViewModel RobotDetailViewModel { get; set; } = new();
   private RobotCertificateDto? RobotCertificate { get; set; } = null!;
   private RobotSystemInfoDto? RobotSystemInfoDto { get; set; } = null!;
-  private RobotChassisInfoViewModel? RobotChassisInfoViewModel { get; set; } = null!;
+  private RobotChassisInfoViewModel RobotChassisInfoViewModel { get; set; } = new();
   private IEnumerable<AutoTaskListDto>? AutoTasks { get; set; }
   private RobotDataContract? RobotData { get; set; }
   private RobotCommandsContract? RobotCommands { get; set; }
@@ -42,27 +39,23 @@ public sealed partial class RobotDetail
 
   public async Task HandleDelete()
   {
-    var response = await RobotService.DeleteRobotAsync(RobotDetailViewModel!.Id.ToString());
-    if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Robots.Index);
-    else
-      RobotDetailViewModel.Errors = response.Errors;
+    await LgdxApiClient.Navigation.Robots[RobotDetailViewModel!.Id].DeleteAsync();
+    NavigationManager.NavigateTo(AppRoutes.Navigation.Robots.Index);
   }
 
   protected override async Task OnInitializedAsync()
   {
-    var response = await RobotService.GetRobotAsync(Id);
-    var data = response.Data;
-    if (data != null)
+    if (Guid.TryParse(Id, out Guid _id))
     {
-      RobotDetailViewModel = Mapper.Map<RobotDetailViewModel>(data);
-      RobotCertificate = data.RobotCertificate;
-      RobotSystemInfoDto = data.RobotSystemInfo;
-      RobotChassisInfoViewModel = Mapper.Map<RobotChassisInfoViewModel>(data.RobotChassisInfo);
-      AutoTasks = data.AssignedTasks;
+      var robot = await LgdxApiClient.Navigation.Robots[_id].GetAsync();
+      RobotDetailViewModel.FromDto(robot!);
+      RobotCertificate = robot!.RobotCertificate;
+      RobotSystemInfoDto = robot!.RobotSystemInfo;
+      RobotChassisInfoViewModel.FromDto(robot!.RobotChassisInfo!);
+      AutoTasks = robot.AssignedTasks;
+      RobotData = RobotDataService.GetRobotData(RobotDetailViewModel!.Id);
+      RobotCommands = RobotDataService.GetRobotCommands(RobotDetailViewModel!.Id);
     }
-    RobotData = RobotDataService.GetRobotData(RobotDetailViewModel!.Id);
-    RobotCommands = RobotDataService.GetRobotCommands(RobotDetailViewModel!.Id);
     await base.OnInitializedAsync();
   }
 }

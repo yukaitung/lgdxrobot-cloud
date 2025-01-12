@@ -16,7 +16,6 @@
           }
           <h3>@(RobotCommands.Commands.PauseTaskAssigement ? "Resume Task Assigment" : "Pause Task Assigment")</h3>
           <div class="text-secondary">
-            <ApiErrorAlert Errors="Errors" />
             <div class="text-secondary">
               @(RobotCommands.Commands.PauseTaskAssigement ?
                 $"The robot will start receiving task." :
