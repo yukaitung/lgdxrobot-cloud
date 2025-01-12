@@ -51,7 +51,7 @@ public sealed class FlowsController(
   }
 
   [HttpGet("{id}", Name = "GetFlow")]
-  [ProducesResponseType(typeof(IEnumerable<FlowDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(FlowDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<FlowDto>> GetFlow(int id)
   {

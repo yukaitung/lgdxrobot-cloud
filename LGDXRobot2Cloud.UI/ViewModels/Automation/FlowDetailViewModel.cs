@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.ViewModels.Shared;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Automation;
@@ -42,5 +43,50 @@ public class FlowDetailViewModel : FormViewModel, IValidatableObject
         yield return validationResult;
       }
     }
+  }
+}
+
+public static class FlowDetailViewModelExtensions
+{
+  public static void FromDto(this FlowDetailViewModel flowDetailViewModel, FlowDto flowDto)
+  {
+    flowDetailViewModel.Id = (int)flowDto.Id!;
+    flowDetailViewModel.Name = flowDto.Name!;
+    flowDetailViewModel.FlowDetails = flowDto.FlowDetails!.Select(t => new FlowDetailBody {
+      Id = t.Id,
+      Order = (int)t.Order!,
+      ProgressId = t.Progress!.Id,
+      ProgressName = t.Progress!.Name,
+      TriggerId = t.Trigger?.Id,
+      TriggerName = t.Trigger?.Name,
+      AutoTaskNextControllerId = (int)t.AutoTaskNextControllerId!
+    }).ToList();
+  }
+
+  public static FlowUpdateDto ToUpdateDto(this FlowDetailViewModel flowDetailViewModel)
+  {
+    return new FlowUpdateDto {
+      Name = flowDetailViewModel.Name,
+      FlowDetails = flowDetailViewModel.FlowDetails.Select(t => new FlowDetailUpdateDto {
+        Id = t.Id,
+        Order = t.Order!,
+        ProgressId = t.ProgressId,
+        TriggerId = t.TriggerId,
+        AutoTaskNextControllerId = t.AutoTaskNextControllerId!
+      }).ToList()
+    };
+  }
+
+  public static FlowCreateDto ToCreateDto(this FlowDetailViewModel flowDetailViewModel)
+  {
+    return new FlowCreateDto {
+      Name = flowDetailViewModel.Name,
+      FlowDetails = flowDetailViewModel.FlowDetails.Select(t => new FlowDetailCreateDto {
+        Order = t.Order,
+        ProgressId = t.ProgressId,
+        TriggerId = t.TriggerId,
+        AutoTaskNextControllerId = t.AutoTaskNextControllerId!
+      }).ToList()
+    };
   }
 }

@@ -1,40 +1,30 @@
-using AutoMapper;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.ViewModels.Automation;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.UI.Client;
+using System.Text.Json;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Flows;
 
 public sealed partial class FlowDetail : ComponentBase, IDisposable
 {
   [Inject]
-  public required IFlowService FlowService { get; set; }
-
-  [Inject]
-  public required IProgressService ProgressService { get; set; }
-
-  [Inject]
-  public required ITriggerService TriggerService { get; set; }
-
-  [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
-  public required IJSRuntime JSRuntime { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IMapper Mapper { get; set; }
+  public required IJSRuntime JSRuntime { get; set; }
 
   [Parameter]
   public int? Id { get; set; }
 
   private DotNetObjectReference<FlowDetail> ObjectReference = null!;
-  private FlowDetailViewModel FlowDetailViewModel { get; set; } = null!;
+  private FlowDetailViewModel FlowDetailViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -55,13 +45,17 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     string result = string.Empty;
     if (element == AdvanceSelectElements[0])
     {
-      var response = await ProgressService.SearchProgressesAsync(name);
-      result = response.Data!;
+      var response = await LgdxApiClient.Automation.Progresses.Search.GetAsync(x => x.QueryParameters = new() {
+        Name = name
+      });
+      result = JsonSerializer.Serialize(response);
     }
     else if (element == AdvanceSelectElements[1])
     {
-      var response = await TriggerService.SearchTriggersAsync(name);
-      result = response.Data!;
+      var response = await LgdxApiClient.Automation.Triggers.Search.GetAsync(x => x.QueryParameters = new() {
+        Name = name
+      });
+      result = JsonSerializer.Serialize(response);
     }
     await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
   }
@@ -131,30 +125,23 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     for (int i = 0; i < FlowDetailViewModel.FlowDetails.Count; i++)
       FlowDetailViewModel.FlowDetails[i].Order = i;
     
-    ApiResponse<bool> response;
     if (Id != null)
+    {
       // Update
-      response = await FlowService.UpdateFlowAsync((int)Id, Mapper.Map<FlowUpdateDto>(FlowDetailViewModel));
+      await LgdxApiClient.Automation.Flows[FlowDetailViewModel.Id].PutAsync(FlowDetailViewModel.ToUpdateDto());
+    }
     else
+    {
       // Create
-      response = await FlowService.AddFlowAsync(Mapper.Map<FlowCreateDto>(FlowDetailViewModel));
-
-    if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
-    else
-      response.Errors = FlowDetailViewModel.Errors;
+      await LgdxApiClient.Automation.Flows.PostAsync(FlowDetailViewModel.ToCreateDto());
+    }
+    NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
   }
 
   public async Task HandleDelete()
   {
-    if (Id != null)
-    {
-      var response = await FlowService.DeleteFlowAsync((int)Id);
-      if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
-      else
-        response.Errors = FlowDetailViewModel.Errors;
-    }
+    await LgdxApiClient.Automation.Flows[FlowDetailViewModel.Id].DeleteAsync();
+    NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
@@ -164,18 +151,13 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     {
       if (_id != null)
       {
-        var response = await FlowService.GetFlowAsync((int)_id);
-        var flow = response.Data;
-        if (flow != null)
-        {
-          FlowDetailViewModel = Mapper.Map<FlowDetailViewModel>(flow);
-          _editContext = new EditContext(FlowDetailViewModel);
-          _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
-        }
+        var flow = await LgdxApiClient.Automation.Flows[(int)_id].GetAsync();
+        FlowDetailViewModel.FromDto(flow!);
+        _editContext = new EditContext(FlowDetailViewModel);
+        _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
       else
       {
-        FlowDetailViewModel = new FlowDetailViewModel();
         FlowDetailViewModel.FlowDetails.Add(new FlowDetailBody());
         _editContext = new EditContext(FlowDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);

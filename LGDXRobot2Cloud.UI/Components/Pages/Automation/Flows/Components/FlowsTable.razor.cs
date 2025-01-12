@@ -1,6 +1,7 @@
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
-using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.UI.Helpers;
 using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Flows.Components;
@@ -8,10 +9,7 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Flows.Components;
 public sealed partial class FlowsTable : AbstractTable
 {
   [Inject]
-  public required IFlowService FlowService { get; set; }
-
-  [Parameter]
-  public EventCallback<int> OnIdSelected { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   private List<FlowListDto>? Flows { get; set; }
   
@@ -22,18 +20,34 @@ public sealed partial class FlowsTable : AbstractTable
       PageSize = 100;
     else if (PageSize < 1)
       PageSize = 1;
-    var data = await FlowService.GetFlowsAsync(DataSearch, 1, PageSize);
-    Flows = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Flows = await LgdxApiClient.Automation.Flows.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = 1,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task HandleSearch()
   {
     if (LastDataSearch == DataSearch)
       return;
-    var data = await FlowService.GetFlowsAsync(DataSearch, 1, PageSize);
-    Flows = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Flows = await LgdxApiClient.Automation.Flows.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = 1,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
     LastDataSearch = DataSearch;
   }
 
@@ -52,17 +66,33 @@ public sealed partial class FlowsTable : AbstractTable
     CurrentPage = pageNum;
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
-    var data = await FlowService.GetFlowsAsync(DataSearch, pageNum, PageSize);
-    Flows = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Flows = await LgdxApiClient.Automation.Flows.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = pageNum,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
     if (deleteOpt && CurrentPage > 1 && Flows?.Count == 1)
       CurrentPage--;
-    var data = await FlowService.GetFlowsAsync(DataSearch, CurrentPage, PageSize);
-    Flows = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+    
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Flows = await LgdxApiClient.Automation.Flows.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = CurrentPage,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 }
