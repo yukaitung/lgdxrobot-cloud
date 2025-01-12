@@ -56,9 +56,7 @@ var configureAction = (HttpClient client) =>
   { 
 		client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? string.Empty);
 	};
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddHttpClient<IAuthService, AuthService>(configureAction);
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();

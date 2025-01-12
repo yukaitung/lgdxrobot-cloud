@@ -1,7 +1,5 @@
-using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Identity;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -10,12 +8,9 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Identity.ForgotPassword;
 
 public sealed partial class ForgotPassword : ComponentBase
 {
-  [Inject] 
-  public required IAuthService AuthService { get; set; }
-
   [Inject]
-  public required IMapper Mapper { get; set; }
-
+  public required LgdxApiClient LgdxApiClient { get; set; }
+  
   [SupplyParameterFromForm]
   private ForgotPasswordViewModel ForgotPasswordViewModel { get; set; } = new();
 
@@ -31,14 +26,7 @@ public sealed partial class ForgotPassword : ComponentBase
 
   public async Task HandleForgotPassword()
   {
-    var result = await AuthService.ForgotPasswordAsync(Mapper.Map<ForgotPasswordRequestDto>(ForgotPasswordViewModel));
-    if (result.IsSuccess)
-    {
-      ForgotPasswordViewModel.IsSuccess = true;
-    }
-    else
-    {
-      ForgotPasswordViewModel.Errors = result.Errors;
-    }
+    await LgdxApiClient.Identity.Auth.ForgotPassword.PostAsync(ForgotPasswordViewModel.ToForgotPasswordRequestDto());
+    ForgotPasswordViewModel.IsSuccess = true;
   }
 }

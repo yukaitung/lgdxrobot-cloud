@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.UI.Client.Models;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Identity;
 
@@ -25,5 +26,17 @@ public sealed class ResetPasswordViewModel : IValidatableObject
       yield return new ValidationResult("The new password dos not match.", [nameof(NewPassword)]);
       yield return new ValidationResult("The new password dos not match.", [nameof(ConfirmPassword)]);
     }
+  }
+}
+
+public static class ResetPasswordViewModelExtensions
+{
+  public static ResetPasswordRequestDto ToResetPasswordRequestDto(this ResetPasswordViewModel resetPasswordViewModel)
+  {
+    return new ResetPasswordRequestDto {
+      Email = resetPasswordViewModel.Email,
+      Token = resetPasswordViewModel.Token,
+      NewPassword = resetPasswordViewModel.NewPassword
+    };
   }
 }

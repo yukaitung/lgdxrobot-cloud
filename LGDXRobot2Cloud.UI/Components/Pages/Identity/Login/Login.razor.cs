@@ -1,8 +1,11 @@
-using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Identity;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -11,10 +14,10 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Identity.Login;
 public sealed partial class Login : ComponentBase
 {
   [Inject]
-  public required IAuthService AuthService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IMapper Mapper { get; set; }
+  public required ITokenService TokenService { get; set; }
 
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
@@ -40,12 +43,19 @@ public sealed partial class Login : ComponentBase
 
   public async Task HandleLogin()
   {
-    var response = await AuthService.LoginAsync(HttpContext, Mapper.Map<LoginRequestDto>(LoginViewModel));
-    if (!response.IsSuccess)
-    {
-      LoginViewModel.Errors = response?.Errors;
-      return;
-    }
+    var loginResponseDto = await LgdxApiClient.Identity.Auth.Login.PostAsync(LoginViewModel.ToLoginRequestDto());
+    var accessToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponseDto!.AccessToken);
+    var refreshToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponseDto!.RefreshToken);
+    var identity = new ClaimsIdentity(accessToken.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var user = new ClaimsPrincipal(identity);
+    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
+      user, 
+      new AuthenticationProperties{
+        IsPersistent = false,
+        ExpiresUtc = refreshToken.ValidTo
+      });
+    TokenService.Login(user, loginResponseDto!.AccessToken!, loginResponseDto!.RefreshToken!, accessToken.ValidTo, refreshToken.ValidTo);
+
     NavigationManager.NavigateTo(ReturnUrl ?? "/");
   }
 }

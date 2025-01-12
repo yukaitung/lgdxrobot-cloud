@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.UI.Client.Models;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Identity;
 
@@ -11,4 +12,14 @@ public sealed record ForgotPasswordViewModel
   public IDictionary<string,string[]>? Errors { get; set; }
 
   public bool IsSuccess { get; set; } = false;
+}
+
+public static class ForgotPasswordViewModelExtensions
+{
+  public static ForgotPasswordRequestDto ToForgotPasswordRequestDto(this ForgotPasswordViewModel forgotPasswordViewModel)
+  {
+    return new ForgotPasswordRequestDto {
+      Email = forgotPasswordViewModel.Email
+    };
+  }
 }
