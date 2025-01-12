@@ -47,7 +47,7 @@ public sealed class ProgressesController(
   }
 
   [HttpGet("{id}", Name = "GetProgress")]
-  [ProducesResponseType(typeof(IEnumerable<ProgressDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ProgressDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<ProgressDto>> GetProgress(int id)
   {

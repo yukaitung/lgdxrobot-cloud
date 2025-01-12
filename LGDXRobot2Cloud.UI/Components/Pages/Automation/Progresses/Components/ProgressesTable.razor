@@ -55,10 +55,10 @@
             <tr>
               <td>@progress.Id</td>
               <td>@progress.Name</td>
-              <td>@(progress.System ? "Yes" : "No")</td>
-              <td>@(progress.Reserved ? "Yes" : "No")</td>
+              <td>@((bool)progress.System! ? "Yes" : "No")</td>
+              <td>@((bool)progress.Reserved! ? "Yes" : "No")</td>
               <td class="text-end">
-              @if (!progress.System)
+              @if (!(bool)progress.System)
               {
                 <a href="@(AppRoutes.Automation.Progresses.Index + $"/{progressId}")" class="page-link link-primary">Edit</a>
               }
