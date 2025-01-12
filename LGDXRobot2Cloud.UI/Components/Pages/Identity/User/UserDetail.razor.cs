@@ -1,21 +1,15 @@
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.UI.ViewModels.Identity;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using AutoMapper;
-using LGDXRobot2Cloud.UI.ViewModels.Identity;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Identity.User;
 
 public sealed partial class UserDetail : ComponentBase
 {
   [Inject]
-  public required IUserService UserService { get; set; }
-
-  [Inject]
-  public required IMapper Mapper { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   private UserDetailViewModel UserDetailViewModel { get; set; } = new();
   private UserDetailPasswordViewModel UserDetailPasswordViewModel { get; set; } = new();
@@ -25,32 +19,12 @@ public sealed partial class UserDetail : ComponentBase
 
   public async Task HandleValidSubmit()
   {
-    var respone = await UserService.UpdateUserAsync(Mapper.Map<LgdxUserUpdateDto>(UserDetailViewModel));
-    if (respone.IsSuccess)
-    {
-      UserDetailViewModel.Errors = null;
-      UserDetailViewModel.IsSuccess = true;
-    }
-    else
-    {
-      UserDetailViewModel.Errors = respone.Errors;
-      UserDetailViewModel.IsSuccess = false;
-    }
+    await LgdxApiClient.Identity.User.PutAsync(UserDetailViewModel.ToUpdateDto());
   }
 
   public async Task HandleValidSubmitPassword()
   {
-    var respone = await UserService.UpdatePasswordAsync(Mapper.Map<UpdatePasswordRequestDto>(UserDetailPasswordViewModel));
-    if (respone.IsSuccess)
-    {
-      UserDetailPasswordViewModel.Errors = null;
-      UserDetailPasswordViewModel.IsSuccess = true;
-    }
-    else
-    {
-      UserDetailPasswordViewModel.Errors = respone.Errors;
-      UserDetailPasswordViewModel.IsSuccess = false;
-    }
+    await LgdxApiClient.Identity.User.Password.PostAsync(UserDetailPasswordViewModel.ToUpdateDto());
   }
 
   protected override async Task OnInitializedAsync() 
@@ -58,8 +32,8 @@ public sealed partial class UserDetail : ComponentBase
     _editContextPassword = new EditContext(UserDetailPasswordViewModel);
     _editContextPassword.SetFieldCssClassProvider(_customFieldClassProvider);
     _editContext = new EditContext(UserDetailViewModel); // This must go first
-    var response = await UserService.GetUserAsync();
-    UserDetailViewModel = Mapper.Map<UserDetailViewModel>(response.Data);
+    var user = await LgdxApiClient.Identity.User.GetAsync();
+    UserDetailViewModel.FromDto(user!);
     _editContext = new EditContext(UserDetailViewModel);
     _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
   }

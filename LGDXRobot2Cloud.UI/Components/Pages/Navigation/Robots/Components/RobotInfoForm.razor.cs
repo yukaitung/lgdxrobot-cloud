@@ -33,14 +33,14 @@ public sealed partial class RobotInfoForm : ComponentBase, IDisposable
   }
 
   [JSInvokable("HandleSelectChange")]
-  public void HandleSelectChange(string elementId, int? id, string? name)
+  public void HandleSelectChange(string elementId, string? id, string? name)
   {
     if (string.IsNullOrWhiteSpace(name))
       return;
     var index = elementId.IndexOf('-');
     if (index == -1 || index + 1 == elementId.Length)
       return;
-    Robot!.RealmId = id;
+    Robot!.RealmId = id != null ? int.Parse(id) : null;
     Robot!.RealmName = name;
   }
 

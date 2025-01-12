@@ -1,3 +1,5 @@
+using System.Text.Json;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -14,7 +16,10 @@ public sealed partial class ChangeRealmModal : ComponentBase, IDisposable
   public required NavigationManager NavigationManager { get; set; }
 
   [Inject]
-  public required IRealmService RealmService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
+  
+  [Inject]
+  public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
   public required ITokenService TokenService { get; set; }
@@ -35,44 +40,39 @@ public sealed partial class ChangeRealmModal : ComponentBase, IDisposable
       return;
     if (elementId == SelectId)
     {
-      var response = await RealmService.SearchRealmsAsync(name);
-      if (response.IsSuccess)
-      {
-        var result = response.Data;
-        await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", SelectId, result);
-      }
+      var result = await LgdxApiClient.Navigation.Realms.Search.GetAsync(x => x.QueryParameters = new(){
+        Name = name
+      });
+      string str = JsonSerializer.Serialize(result);
+      await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", SelectId, str);
     }
   }
 
   [JSInvokable("HandleSelectChange")]
-  public void HandleSelectChange(string elementId, int? id, string? name)
+  public void HandleSelectChange(string elementId, string? id, string? name)
   {
     if (elementId == SelectId)
     {
-      RealmId = id;
+      RealmId = id != null ? int.Parse(id) : null;
       RealmName = name;
     }
   }
 
   public async Task HandleRealmChange()
   {
-    var response = await RealmService.GetCurrrentRealmAsync(RealmId);
-    if (response.IsSuccess)
-    {
-      var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
-      var settings = TokenService.GetSessionSettings(user);
-      settings.CurrentRealmId = RealmId;
-      TokenService.UpdateSessionSettings(user, settings);
-      NavigationManager.Refresh(true);
-    }
+    await CachedRealmService.GetCurrrentRealmAsync(RealmId); // Preload the realm
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    settings.CurrentRealmId = RealmId;
+    TokenService.UpdateSessionSettings(user, settings);
+    NavigationManager.Refresh(true);
   }
 
   protected override async Task OnInitializedAsync()
   {
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
-    var response = await RealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
-    var realm = response.Data;
+    var realm = await CachedRealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
     RealmId = realm!.Id;
     RealmName = realm.Name;
     await base.OnInitializedAsync();

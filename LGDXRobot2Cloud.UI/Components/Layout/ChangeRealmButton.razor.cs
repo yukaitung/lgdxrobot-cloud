@@ -7,7 +7,7 @@ namespace LGDXRobot2Cloud.UI.Components.Layout;
 public sealed partial class ChangeRealmButton : ComponentBase
 {
   [Inject]
-  public required IRealmService RealmService { get; set; }
+  public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
   public required ITokenService TokenService { get; set; }
@@ -21,9 +21,8 @@ public sealed partial class ChangeRealmButton : ComponentBase
   {
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
-    var response = await RealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
-    var realm = response.Data;
-    RealmName = realm!.Name;
+    var realm = await CachedRealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
+    RealmName = realm.Name!;
     await base.OnInitializedAsync();
   }
 }

@@ -1,10 +1,7 @@
 using System.Text.Json;
-using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -45,14 +42,14 @@ public sealed partial class WaypointDetail : ComponentBase, IDisposable
   }
 
   [JSInvokable("HandleSelectChange")]
-  public void HandleSelectChange(string elementId, int? id, string? name)
+  public void HandleSelectChange(string elementId, string? id, string? name)
   {
     if (string.IsNullOrWhiteSpace(name))
       return;
     var index = elementId.IndexOf('-');
     if (index == -1 || index + 1 == elementId.Length)
       return;
-    WaypointDetailViewModel.RealmId = id;
+    WaypointDetailViewModel.RealmId = id != null ? int.Parse(id) : null;
     WaypointDetailViewModel.RealmName = name;
   }
 

@@ -1,9 +1,8 @@
 using LGDXRobot2Cloud.Data.Contracts;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.JSInterop;
 
 namespace LGDXRobot2Cloud.UI.Components.Shared;
@@ -11,13 +10,10 @@ namespace LGDXRobot2Cloud.UI.Components.Shared;
 public sealed partial class NavigationMap : ComponentBase
 {
   [Inject]
-  public required IRealmService RealmService { get; set; }
+  public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }
-
-  [Inject]
-  public required IMemoryCache MemoryCache { get; set; }
 
   [Inject]
   public required IRobotDataService RobotDataService { get; set; }
@@ -36,12 +32,8 @@ public sealed partial class NavigationMap : ComponentBase
     // Get Realm
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
-    var response = await RealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
-    var map = response.Data;
-    if (map != null)
-    {
-      Map = map;
-    }
+    Map = await CachedRealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
+
     // Set Online Robots
     var onlineRobots = RobotDataService.GetOnlineRobots();
     foreach (var robotId in onlineRobots)

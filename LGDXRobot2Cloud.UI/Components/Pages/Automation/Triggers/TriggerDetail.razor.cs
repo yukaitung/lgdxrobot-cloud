@@ -60,11 +60,11 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
   }
 
   [JSInvokable("HandleSelectChange")]
-  public void HandleSelectChange(string elementId, int? id, string? name)
+  public void HandleSelectChange(string elementId, string? id, string? name)
   {
     if (elementId == SelectId)
     {
-      TriggerDetailViewModel.ApiKeyId = id;
+      TriggerDetailViewModel.ApiKeyId = id != null ? int.Parse(id) : null;
       TriggerDetailViewModel.ApiKeyName = name;
     }
   }

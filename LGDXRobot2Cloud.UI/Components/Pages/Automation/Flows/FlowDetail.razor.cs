@@ -61,7 +61,7 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
   }
 
   [JSInvokable("HandleSelectChange")]
-  public void HandleSelectChange(string elementId, int? id, string? name)
+  public void HandleSelectChange(string elementId, string? id, string? name)
   {
     if (string.IsNullOrWhiteSpace(name))
       return;
@@ -72,12 +72,12 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     int order = int.Parse(elementId[(index + 1)..]);
     if (element == AdvanceSelectElements[0] && id != null)
     {
-      FlowDetailViewModel.FlowDetails[order].ProgressId = id;
+      FlowDetailViewModel.FlowDetails[order].ProgressId = id != null ? int.Parse(id) : null;
       FlowDetailViewModel.FlowDetails[order].ProgressName = name;
     }
     else if (element == AdvanceSelectElements[1])
     {
-      FlowDetailViewModel.FlowDetails[order].TriggerId = id;
+      FlowDetailViewModel.FlowDetails[order].TriggerId = id != null ? int.Parse(id) : null;
       FlowDetailViewModel.FlowDetails[order].TriggerName = name;
     }
   }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.ViewModels.Shared;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Identity;
@@ -24,5 +25,16 @@ public sealed class UserDetailPasswordViewModel : FormViewModel, IValidatableObj
     {
       yield return new ValidationResult("The new password and confirm password do not match.", [nameof(NewPassword), nameof(ConfirmPassword)]);
     }
+  }
+}
+
+public static class UserDetailPasswordViewModelExtensions
+{
+  public static UpdatePasswordRequestDto ToUpdateDto(this UserDetailPasswordViewModel userDetailPasswordViewModel)
+  {
+    return new UpdatePasswordRequestDto {
+      CurrentPassword = userDetailPasswordViewModel.CurrentPassword,
+      NewPassword = userDetailPasswordViewModel.NewPassword,
+    };
   }
 }

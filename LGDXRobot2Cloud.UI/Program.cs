@@ -57,34 +57,14 @@ var configureAction = (HttpClient client) =>
 		client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? string.Empty);
 	};
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddHttpClient<IAuthService, AuthService>(configureAction);
+builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(configureAction);
+builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
+builder.Services.AddScoped<IRobotDataService, RobotDataService>();
+builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, CircuitHandlerService>());
 
-builder.Services.AddSingleton<ITokenService, TokenService>();
-// Navigation
-builder.Services.AddHttpClient<IAutoTaskService, AutoTaskService>(configureAction);
-builder.Services.AddHttpClient<IFlowService, FlowService>(configureAction);
-builder.Services.AddHttpClient<IProgressService, ProgressService>(configureAction);
-builder.Services.AddHttpClient<ITriggerService, TriggerService>(configureAction);
-builder.Services.AddHttpClient<IWaypointService, WaypointService>(configureAction);
-builder.Services.AddHttpClient<IRealmService, RealmService>(configureAction);
-
-// Automation
-builder.Services.AddHttpClient<ITriggerRetryService, TriggerRetryService>(configureAction);
-
-// Robot
-builder.Services.AddHttpClient<IRobotService, RobotService>(configureAction);
-builder.Services.AddScoped<IRobotDataService, RobotDataService>();
-
-// Setting
-builder.Services.AddHttpClient<IApiKeyService, ApiKeyService>(configureAction);
-builder.Services.AddHttpClient<IRobotCertificateService, RobotCertificateService>(configureAction);
-builder.Services.AddHttpClient<IRoleService, RoleService>(configureAction);
-builder.Services.AddHttpClient<IUsersService, UsersService>(configureAction);
-
-// Identity
-builder.Services.AddHttpClient<IAuthService, AuthService>(configureAction);
-builder.Services.AddHttpClient<IUserService, UserService>(configureAction);
-builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(configureAction);
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(cfg =>
 	{

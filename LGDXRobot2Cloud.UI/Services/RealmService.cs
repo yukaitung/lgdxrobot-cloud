@@ -1,209 +1,31 @@
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.Utilities.Helpers;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
+using LGDXRobot2Cloud.UI.Constants;
+using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Services;
 
-public interface IRealmService
+public interface ICachedRealmService
 {
-  Task<ApiResponse<(IEnumerable<RealmListDto>?, PaginationHelper?)>> GetRealmsAsync(string? name = null, int pageNumber = 1, int pageSize = 10);
-  Task<ApiResponse<RealmDto>> GetRealmAsync(int realmId);
-  Task<ApiResponse<bool>> AddRealmAsync(RealmCreateDto realmCreateDto);
-  Task<ApiResponse<bool>> UpdateRealmAsync(int realmId, RealmUpdateDto realmUpdateDto);
-  Task<ApiResponse<bool>> DeleteRealmAsync(int realmId);
-
-  Task<ApiResponse<string>> SearchRealmsAsync(string name);
-  Task<ApiResponse<RealmDto>> GetDefaultRealmAsync();
-  Task<ApiResponse<RealmDto>> GetCurrrentRealmAsync(int? realmId);
+  Task<RealmDto> GetDefaultRealmAsync();
+  Task<RealmDto> GetCurrrentRealmAsync(int? realmId);
 }
 
-public sealed class RealmService (
-    AuthenticationStateProvider authenticationStateProvider, 
-    HttpClient httpClient,
-    ITokenService tokenService,
-    IMemoryCache memoryCache
-  ) : BaseService(authenticationStateProvider, httpClient, tokenService), IRealmService
+public sealed class CachedRealmService (
+    LgdxApiClient LgdxApiClient,
+    IMemoryCache memoryCache,
+    NavigationManager navigationManager
+  ) : ICachedRealmService
 {
+  private readonly LgdxApiClient _lgdxApiClient = LgdxApiClient ?? throw new ArgumentNullException(nameof(LgdxApiClient));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly MemoryCacheEntryOptions _memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+  private readonly NavigationManager _navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
-  public async Task<ApiResponse<(IEnumerable<RealmListDto>?, PaginationHelper?)>> GetRealmsAsync(string? name, int pageNumber, int pageSize)
-  {
-    try
-    {
-      var url = name != null ? $"/Navigation/Realms?name={name}&pageNumber={pageNumber}&pageSize={pageSize}" : $"/Navigation/Realms?pageNumber={pageNumber}&pageSize={pageSize}";
-      var response = await _httpClient.GetAsync(url);
-      if (response.IsSuccessStatusCode)
-      {
-        var PaginationHelperJson = response.Headers.GetValues("X-Pagination").FirstOrDefault() ?? string.Empty;
-        var PaginationHelper = JsonSerializer.Deserialize<PaginationHelper>(PaginationHelperJson, _jsonSerializerOptions);
-        var realms = await JsonSerializer.DeserializeAsync<IEnumerable<RealmListDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-        return new ApiResponse<(IEnumerable<RealmListDto>?, PaginationHelper?)> {
-          Data = (realms, PaginationHelper),
-          IsSuccess = response.IsSuccessStatusCode
-        };
-      }
-      else
-      {
-        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
-      }
-    }
-    catch (Exception ex)
-    {
-      throw new Exception(ApiHelper.ApiErrorMessage, ex);
-    }
-  }
-
-  public async Task<ApiResponse<RealmDto>> GetRealmAsync(int realmId)
-  {
-    try
-    {
-      var response = await _httpClient.GetAsync($"/Navigation/Realms/{realmId}");
-      if (response.IsSuccessStatusCode)
-      {
-        var realm = await JsonSerializer.DeserializeAsync<RealmDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-        return new ApiResponse<RealmDto> {
-          Data = realm,
-          IsSuccess = response.IsSuccessStatusCode
-        };
-      }
-      else if (response.StatusCode == HttpStatusCode.NotFound)
-      {
-        return new ApiResponse<RealmDto> {
-          Data = null,
-          IsSuccess = false
-        };
-      }
-      else
-      {
-        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
-      }
-    }
-    catch (Exception ex)
-    {
-      throw new Exception(ApiHelper.ApiErrorMessage, ex);
-    }
-  }
-
-  public async Task<ApiResponse<bool>> AddRealmAsync(RealmCreateDto realmCreateDto)
-  {
-    try
-    {
-      var content = new StringContent(JsonSerializer.Serialize(realmCreateDto), Encoding.UTF8, "application/json");
-      var response = await _httpClient.PostAsync("/Navigation/Realms", content);
-      if (response.IsSuccessStatusCode)
-      {
-        return new ApiResponse<bool> {
-          Data = true,
-          IsSuccess = response.IsSuccessStatusCode
-        };
-      }
-      else if (response.StatusCode == HttpStatusCode.BadRequest)
-      {
-        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-        return new ApiResponse<bool> {
-          Errors = validationProblemDetails?.Errors,
-          IsSuccess = response.IsSuccessStatusCode
-        };
-      }
-      else
-      {
-        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
-      }
-    }
-    catch (Exception ex)
-    {
-      throw new Exception(ApiHelper.ApiErrorMessage, ex);
-    }
-  } 
-
-  public async Task<ApiResponse<bool>> UpdateRealmAsync(int realmId, RealmUpdateDto realmUpdateDto)
-  {
-    try
-    {
-      var content = new StringContent(JsonSerializer.Serialize(realmUpdateDto), Encoding.UTF8, "application/json");
-      var response = await _httpClient.PutAsync($"/Navigation/Realms/{realmId}", content);
-      if (response.IsSuccessStatusCode)
-      {
-        return new ApiResponse<bool> {
-          Data = true,
-          IsSuccess = response.IsSuccessStatusCode
-        };
-      }
-      else if (response.StatusCode == HttpStatusCode.BadRequest)
-      {
-        var validationProblemDetails = await JsonSerializer.DeserializeAsync<ValidationProblemDetails>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-        return new ApiResponse<bool> {
-          Errors = validationProblemDetails?.Errors,
-          IsSuccess = response.IsSuccessStatusCode
-        };
-      }
-      else
-      {
-        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
-      }
-    }
-    catch (Exception ex)
-    {
-      throw new Exception(ApiHelper.ApiErrorMessage, ex);
-    }
-  }
-
-  public async Task<ApiResponse<bool>> DeleteRealmAsync(int realmId)
-  {
-    try
-    {
-      var response = await _httpClient.DeleteAsync($"/Navigation/Realms/{realmId}");
-      if (response.IsSuccessStatusCode)
-      {
-        return new ApiResponse<bool> {
-          Data = true,
-          IsSuccess = response.IsSuccessStatusCode
-        };
-      }
-      else
-      {
-        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
-      }
-    }
-    catch (Exception ex)
-    {
-      throw new Exception(ApiHelper.ApiErrorMessage, ex);
-    }
-  }
-
-  public async Task<ApiResponse<string>> SearchRealmsAsync(string name)
-  {
-    try
-    {
-      var url = $"/Navigation/Realms?name={name}";
-      var response = await _httpClient.GetAsync(url);
-      if (response.IsSuccessStatusCode)
-      {
-        return new ApiResponse<string> {
-          Data = await response.Content.ReadAsStringAsync(),
-          IsSuccess = response.IsSuccessStatusCode
-        };
-      }
-      else
-      {
-        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
-      }
-    }
-    catch (Exception ex)
-    {
-      throw new Exception(ApiHelper.ApiErrorMessage, ex);
-    }
-  }
-
-  private RealmDto GetEmptyRealm()
+  private static RealmDto GetEmptyRealm()
   {
     return new RealmDto {
       Id = 0,
@@ -217,69 +39,49 @@ public sealed class RealmService (
     };
   }
 
-  public async Task<ApiResponse<RealmDto>> GetDefaultRealmAsync()
+  public async Task<RealmDto> GetDefaultRealmAsync()
   {
     if (_memoryCache.TryGetValue($"RealmService_GetDefaultRealm", out RealmDto? cachedMap))
     {
-      return new ApiResponse<RealmDto> {
-        Data = cachedMap,
-        IsSuccess = true
-      };
+      return cachedMap ?? GetEmptyRealm();
     }
+
     try
     {
-      var response = await _httpClient.GetAsync("/Navigation/Realms/Default");
-      if (response.IsSuccessStatusCode)
-      {
-        var map = await JsonSerializer.DeserializeAsync<RealmDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-        _memoryCache.Set($"RealmService_GetDefaultRealm", map, _memoryCacheEntryOptions);
-        return new ApiResponse<RealmDto> {
-          Data = map,
-          IsSuccess = true
-        };
-      }
-      else
-      {
-        return new ApiResponse<RealmDto> {
-          Data = GetEmptyRealm(),
-          IsSuccess = true
-        };
-      }
+      var realm = await _lgdxApiClient.Navigation.Realms.Default.GetAsync();
+      _memoryCache.Set($"RealmService_GetDefaultRealm", realm, _memoryCacheEntryOptions);
+      return realm ?? GetEmptyRealm();
     }
-    catch (Exception ex)
+    catch (ApiException ex)
     {
-      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+      if (ex.ResponseStatusCode == (int)System.Net.HttpStatusCode.Unauthorized)
+        _navigationManager.NavigateTo(AppRoutes.Identity.Login);
     }
+    return GetEmptyRealm();
   }
 
-  public async Task<ApiResponse<RealmDto>> GetCurrrentRealmAsync(int? realmId)
+  public async Task<RealmDto> GetCurrrentRealmAsync(int? realmId)
   {
     if (realmId == null)
     {
       return await GetDefaultRealmAsync();
     }
-
     if (_memoryCache.TryGetValue($"RealmService_GetCurrrentRealmAsync_{realmId}", out RealmDto? cachedMap))
     {
-      return new ApiResponse<RealmDto> {
-        Data = cachedMap,
-        IsSuccess = true
-      };
+      return cachedMap ?? GetEmptyRealm();
     }
-    
-    var response = await GetRealmAsync((int)realmId);
-    if (response.IsSuccess)
+
+    try
     {
-      var realm = response.Data;
+      var realm = await _lgdxApiClient.Navigation.Realms[(int)realmId].GetAsync();
       _memoryCache.Set($"RealmService_GetCurrrentRealmAsync_{realmId}", realm, _memoryCacheEntryOptions);
-      return response;
+      return realm ?? GetEmptyRealm();
     }
-    else
+    catch (ApiException ex)
     {
-      return new ApiResponse<RealmDto> {
-        Data = GetEmptyRealm(),
-        IsSuccess = true
-      };
+      if (ex.ResponseStatusCode == (int)System.Net.HttpStatusCode.Unauthorized)
+        _navigationManager.NavigateTo(AppRoutes.Identity.Login);
     }
+    return GetEmptyRealm();
   }
 }
