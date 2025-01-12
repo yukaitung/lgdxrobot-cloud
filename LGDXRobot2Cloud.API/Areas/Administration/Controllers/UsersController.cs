@@ -6,14 +6,12 @@ using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using LGDXRobot2Cloud.Data.Models.Emails;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
 
 namespace LGDXRobot2Cloud.API.Areas.Administration.Controllers;

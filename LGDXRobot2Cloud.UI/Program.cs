@@ -1,5 +1,7 @@
 using System.Reflection;
+using LGDXRobot2Cloud.UI;
 using LGDXRobot2Cloud.UI.Authorisation;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Components;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Consumers;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Kiota.Http.HttpClientLibrary.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +46,13 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Add API
+builder.Services.AddKiotaHandlers();
+builder.Services.AddHttpClient<LgdxApiClientFactory>((sp, client) => {
+  client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? string.Empty);
+})
+	.AddHttpMessageHandler(() => new HeadersInspectionHandler())
+	.AttachKiotaHandlers();
+builder.Services.AddTransient(sp => sp.GetRequiredService<LgdxApiClientFactory>().GetClient());
 var configureAction = (HttpClient client) => 
   { 
 		client.BaseAddress = new Uri(builder.Configuration["Lgdxobot2CloudApiUrl"] ?? string.Empty);

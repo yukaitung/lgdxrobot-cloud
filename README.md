@@ -32,3 +32,7 @@ XXX
 ### Build & Run
 
 XXX
+
+```
+ kiota generate -l CSharp -c LgdxApiClient -n LGDXRobot2Cloud.UI.Client -o ./Client -d https://localhost:5163/swagger/v1/swagger.json --clean-output
+```
