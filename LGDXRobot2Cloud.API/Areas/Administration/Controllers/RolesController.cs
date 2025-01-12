@@ -5,7 +5,6 @@ using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using LGDXRobot2Cloud.Utilities.Constants;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -41,6 +40,14 @@ public sealed class RolesController(
     var (roles, PaginationHelper) = await _lgdxRoleRepository.GetRolesAsync(name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(_mapper.Map<IEnumerable<LgdxRoleListDto>>(roles));
+  }
+
+  [HttpGet("Search")]
+  [ProducesResponseType(typeof(IEnumerable<LgdxRoleSearchDto>), StatusCodes.Status200OK)]
+  public async Task<ActionResult<IEnumerable<LgdxRoleSearchDto>>> SearchRoles(string name)
+  {
+    var roles = await _lgdxRoleRepository.SearchRolesAsync(name);
+    return Ok(_mapper.Map<IEnumerable<LgdxRoleSearchDto>>(roles));
   }
 
   [HttpGet("{id}", Name = "GetRole")]

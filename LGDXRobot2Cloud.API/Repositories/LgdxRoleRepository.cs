@@ -16,6 +16,7 @@ public interface ILgdxRoleRepository
   Task<IEnumerable<IdentityRoleClaim<string>>> GetRoleScopesAsync(string roleId);
   Task<bool> AddRoleScopesAsync(LgdxRole role, IEnumerable<string> scopes);
   Task<bool> RemoveRoleScopesAsync(LgdxRole role, IEnumerable<string> scopes);
+  Task<IEnumerable<LgdxRole>> SearchRolesAsync(string name);
 }
 
 public class LgdxRoleRepository(LgdxContext context) : ILgdxRoleRepository
@@ -82,5 +83,13 @@ public class LgdxRoleRepository(LgdxContext context) : ILgdxRoleRepository
       await roleStore.RemoveClaimAsync(role, claim);
     }
     return await _context.SaveChangesAsync() > 0;
+  }
+
+  public async Task<IEnumerable<LgdxRole>> SearchRolesAsync(string name)
+  {
+    return await _context.Roles.AsNoTracking()
+      .Where(r => r.NormalizedName!.Contains(name))
+      .Take(10)
+      .ToListAsync();
   }
 }

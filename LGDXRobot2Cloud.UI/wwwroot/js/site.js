@@ -50,20 +50,20 @@ function InitAdvancedSelect(elementId) {
     document.getElementById(elementId).style.display = "none"; 
     AdvancedSelectDict[elementId + TOM_SELECT_OBJECT] = new TomSelect(AdvancedSelectDict[elementId] = document.getElementById(elementId), {
       copyClassesToDropdown: false,
-      valueField: "id",
-      labelField: "name",
-      searchField: "name",
+      valueField: "Id",
+      labelField: "Name",
+      searchField: "Name",
       controlInput: "<input>",
       onChange: AdvanceSelectEventHandler(elementId),
       render: {
         item: function (data, escape) {
-          return ("<div>" + escape(data.name) + "</div>");
+          return ("<div>" + escape(data.Name) + "</div>");
         },
         option: function (data, escape) {
           return (
             "<div>" +
-              "<div>" + escape(data.name) + "</div>" +
-              '<div class="text-secondary">ID: ' + escape(data.id) + "</div>" +
+              "<div>" + escape(data.Name) + "</div>" +
+              '<div class="text-secondary">ID: ' + escape(data.Id) + "</div>" +
             "</div>"
           );
         },
@@ -163,7 +163,7 @@ function AdvanceSelectUpdate(elementId, result) {
       // Update Tom Select
       AdvancedSelectDict[elementId + TOM_SELECT_OBJECT].addOption(obj[i]);
       // Update Buffer for Blazor
-      AdvancedSelectOptions[elementId][obj[i]["id"]] = obj[i]["name"];
+      AdvancedSelectOptions[elementId][obj[i]["Id"]] = obj[i]["Name"];
     }
   }
 }

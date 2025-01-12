@@ -20,6 +20,7 @@ public class AdministrationProfile : Profile
     // Roles
     CreateMap<LgdxRole, LgdxRoleDto>();
     CreateMap<LgdxRole, LgdxRoleListDto>();
+    CreateMap<LgdxRole, LgdxRoleSearchDto>();
     CreateMap<LgdxRoleCreateDto, LgdxRole>();
     CreateMap<LgdxRoleUpdateDto, LgdxRole>();
 

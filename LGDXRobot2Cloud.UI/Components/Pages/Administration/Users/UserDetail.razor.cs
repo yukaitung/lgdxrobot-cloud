@@ -1,8 +1,7 @@
-using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using System.Text.Json;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -13,16 +12,10 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.Users;
 public sealed partial class UserDetail : ComponentBase, IDisposable
 {
   [Inject]
-  public NavigationManager NavigationManager { get; set; } = default!;
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IUsersService UsersService { get; set; }
-
-  [Inject]
-  public required IRoleService RoleService { get; set; }
-
-  [Inject]
-  public required IMapper Mapper { get; set; }
+  public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }
@@ -31,7 +24,7 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
   public string? Id { get; set; } = null;
 
   private DotNetObjectReference<UserDetail> ObjectReference = null!;
-  private UserDetailViewModel UserDetailViewModel { get; set; } = null!;
+  private UserDetailViewModel UserDetailViewModel { get; set; } = new UserDetailViewModel();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -50,8 +43,10 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
     string element = elementId[..(index + 1)];
     if (element == AdvanceSelectElements[0])
     {
-      var result = await RoleService.SearchRolesAsync(name);
-      var str = result.Data;
+      var result = await LgdxApiClient.Administration.Roles.Search.GetAsync(x => x.QueryParameters = new(){
+        Name = name
+      });
+      string str = JsonSerializer.Serialize(result);
       await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, str);
     }
   }
@@ -89,49 +84,40 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
 
   public async Task HandleValidSubmit()
   {
-    ApiResponse<bool> response;
     if (Id != null)
+    {
       // Update
-      response = await UsersService.UpdateUserAsync(Id, Mapper.Map<LgdxUserUpdateAdminDto>(UserDetailViewModel));
+      await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].PutAsync(UserDetailViewModel.ToUpdateDto());
+    }
     else
+    {
       // Create
-      response = await UsersService.AddUserAsync(Mapper.Map<LgdxUserCreateAdminDto>(UserDetailViewModel));
-    
-    if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
-    else
-      UserDetailViewModel.Errors = response.Errors;
+      await LgdxApiClient.Administration.Users.PostAsync(UserDetailViewModel.ToCreateDto());
+    }
+    NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
   }
 
   public async Task HandleDelete()
   {
-    if (Id != null)
-    {
-      var response = await UsersService.DeleteUserAsync(Id);
-      if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
-      else
-        UserDetailViewModel.Errors = response.Errors;
-    }
+    await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].DeleteAsync();
+    NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
   {
     parameters.SetParameterProperties(this);
-    if (parameters.TryGetValue<string?>(nameof(Id), out var _id) && _id != null)
+    if (parameters.TryGetValue<string>(nameof(Id), out var _id))
     {
-      var response = await UsersService.GetUserAsync(_id);
-      var user = response.Data;
-      if (user != null) 
+      if (Guid.TryParse(_id, out Guid _guid))
       {
-        UserDetailViewModel = Mapper.Map<UserDetailViewModel>(user);
+        var user = await LgdxApiClient.Administration.Users[_guid].GetAsync();
+        UserDetailViewModel.FromDto(user!);
         _editContext = new EditContext(UserDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
     else
     {
-      UserDetailViewModel = new UserDetailViewModel();
       UserDetailViewModel.Roles.Add(string.Empty);
       _editContext = new EditContext(UserDetailViewModel);
       _editContext.SetFieldCssClassProvider(_customFieldClassProvider);

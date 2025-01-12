@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.ViewModels.Shared;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Administration;
@@ -40,5 +41,39 @@ public class UserDetailViewModel : FormViewModel, IValidatableObject
       }
       i++;
     }
+  }
+}
+
+public static class UserDetailViewModelExtensions
+{
+  public static void FromDto(this UserDetailViewModel userDetailViewModel, LgdxUserDto lgdxUserDto)
+  {
+    userDetailViewModel.Id = (Guid)lgdxUserDto.Id!;
+    userDetailViewModel.Name = lgdxUserDto.Name!;
+    userDetailViewModel.UserName = lgdxUserDto.UserName!;
+    userDetailViewModel.Email = lgdxUserDto.Email!;
+    userDetailViewModel.Roles = lgdxUserDto.Roles!;
+    userDetailViewModel.TwoFactorEnabled = (bool)lgdxUserDto.TwoFactorEnabled!;
+    userDetailViewModel.AccessFailedCount = (int)lgdxUserDto.AccessFailedCount!;
+  }
+
+  public static LgdxUserUpdateAdminDto ToUpdateDto(this UserDetailViewModel userDetailViewModel)
+  {
+    return new LgdxUserUpdateAdminDto {
+      Name = userDetailViewModel.Name,
+      UserName = userDetailViewModel.UserName,
+      Email = userDetailViewModel.Email,
+      Roles = userDetailViewModel.Roles
+    };
+  }
+
+  public static LgdxUserCreateAdminDto ToCreateDto(this UserDetailViewModel userDetailViewModel)
+  {
+    return new LgdxUserCreateAdminDto {
+      Name = userDetailViewModel.Name,
+      UserName = userDetailViewModel.UserName,
+      Email = userDetailViewModel.Email,
+      Roles = userDetailViewModel.Roles
+    };
   }
 }
