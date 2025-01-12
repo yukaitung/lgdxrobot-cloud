@@ -1,8 +1,7 @@
-using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using System.Text.Json;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Automation;
 using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Components;
@@ -15,19 +14,7 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks;
 public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
 {
   [Inject]
-  public required IAutoTaskService AutoTaskService { get; set; }
-
-  [Inject]
-  public required IFlowService FlowService { get; set; }
-
-  [Inject]
-  public required IRobotService RobotService { get; set; }
-
-  [Inject]
-  public required IWaypointService WaypointService { get; set; }
-
-  [Inject]
-  public required IRealmService RealmService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
@@ -35,14 +22,11 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }
 
-  [Inject]
-  public required IMapper Mapper { get; set; }
-
   [Parameter]
   public int? Id { get; set; }
 
   private DotNetObjectReference<AutoTaskDetail> ObjectReference = null!;
-  private AutoTaskDetailViewModel AutoTaskDetailViewModel { get; set; } = null!;
+  private AutoTaskDetailViewModel AutoTaskDetailViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -66,27 +50,36 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     var index = elementId.IndexOf('-');
     if (index == -1 || index + 1 == elementId.Length)
       return;
+
     string element = elementId[..(index + 1)];
     string result = string.Empty;
     if (element == AdvanceSelectElements[0])
     {
-      var response = await FlowService.SearchFlowsAsync(name);
-      result = response.Data!;
+      var response = await LgdxApiClient.Automation.Flows.Search.GetAsync(x => x.QueryParameters = new() {
+        Name = name
+      });
+      result = JsonSerializer.Serialize(response);
     }
     else if (element == AdvanceSelectElements[1])
     {
-      var response = await RobotService.SearchRobotsAsync(name);
-      result = response.Data!;
+      var response = await LgdxApiClient.Navigation.Robots.Search.GetAsync(x => x.QueryParameters = new() {
+        Name = name
+      });
+      result = JsonSerializer.Serialize(response);
     }
     else if (element == AdvanceSelectElements[2])
     {
-      var response = await WaypointService.SearchWaypointsAsync(name);
-      result = response.Data!;
+      var response = await LgdxApiClient.Navigation.Waypoints.Search.GetAsync(x => x.QueryParameters = new() {
+        Name = name
+      });
+      result = JsonSerializer.Serialize(response);
     }
     else if (element == AdvanceSelectElements[3])
     {
-      var response = await RealmService.SearchRealmsAsync(name);
-      result = response.Data!;
+      var response = await LgdxApiClient.Navigation.Realms.Search.GetAsync(x => x.QueryParameters = new() {
+        Name = name
+      });
+      result = JsonSerializer.Serialize(response);
     }
     await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
   }
@@ -160,42 +153,29 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     for (int i = 0; i < AutoTaskDetailViewModel.AutoTaskDetails.Count; i++)
       AutoTaskDetailViewModel.AutoTaskDetails[i].Order = i;
 
-    ApiResponse<bool> response;
     if (Id != null)
+    {
       // Update
-      response = await AutoTaskService.UpdateAutoTaskAsync((int)Id, Mapper.Map<AutoTaskUpdateDto>(AutoTaskDetailViewModel));
+      await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].PutAsync(AutoTaskDetailViewModel.ToUpdateDto());
+    }
     else
+    {
       // Create
-      response = await AutoTaskService.AddAutoTaskAsync(Mapper.Map<AutoTaskCreateDto>(AutoTaskDetailViewModel));
-
-    if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
-    else
-      AutoTaskDetailViewModel.Errors = response.Errors;
+      await LgdxApiClient.Automation.AutoTasks.PostAsync(AutoTaskDetailViewModel.ToCreateDto());
+    }
+    NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
   }
 
   public async Task HandleDelete()
   {
-    if (Id != null)
-    {
-      var response = await AutoTaskService.DeleteAutoTaskAsync((int)Id);
-      if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
-      else
-        AutoTaskDetailViewModel.Errors = response.Errors;
-    }
+    await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].DeleteAsync();
+    NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
   }
 
   public async Task HandleAbort()
   {
-    if (Id != null)
-    {
-      var response = await AutoTaskService.AbortAutoTaskAsync((int)Id);
-      if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
-      else
-        AutoTaskDetailViewModel.Errors = response.Errors;
-    }
+    await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].Abort.PostAsync();
+    NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
@@ -205,15 +185,11 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     {
       if (_id != null)
       {
-        var response = await AutoTaskService.GetAutoTaskAsync((int)_id);
-        var task = response.Data;
-        if (task != null)
-        {
-          // Normal Assigement
-          AutoTaskDetailViewModel = Mapper.Map<AutoTaskDetailViewModel>(task);
-          _editContext = new EditContext(AutoTaskDetailViewModel);
-          _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
-        }
+        var task = await LgdxApiClient.Automation.AutoTasks[(int)_id].GetAsync();
+        // Normal Assigement
+        AutoTaskDetailViewModel.FromDto(task!);
+        _editContext = new EditContext(AutoTaskDetailViewModel);
+        _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
       else
       {

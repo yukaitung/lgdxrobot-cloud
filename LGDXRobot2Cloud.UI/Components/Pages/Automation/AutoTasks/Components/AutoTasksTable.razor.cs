@@ -1,15 +1,18 @@
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
+using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Components;
+using static LGDXRobot2Cloud.UI.Client.Automation.AutoTasks.AutoTasksRequestBuilder;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks.Components;
 
 public sealed partial class AutoTasksTable : AbstractTable
 {
   [Inject]
-  public required IAutoTaskService AutoTaskService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Parameter]
   public string Title { get; set; } = null!;
@@ -34,18 +37,38 @@ public sealed partial class AutoTasksTable : AbstractTable
       PageSize = 100;
     else if (PageSize < 1)
       PageSize = 1;
-    var data = await AutoTaskService.GetAutoTasksAsync(ShowProgressId, ShowRunningTasks, DataSearch, 1, PageSize);
-    AutoTasks = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    AutoTasks = await LgdxApiClient.Automation.AutoTasks.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
+        ShowProgressId = (int?)ShowProgressId,
+        ShowRunningTasks = ShowRunningTasks,
+        Name = DataSearch,
+        PageNumber = 1,
+        PageSize = PageSize
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task HandleSearch()
   {
     if (LastDataSearch == DataSearch)
       return;
-    var data = await AutoTaskService.GetAutoTasksAsync(ShowProgressId, ShowRunningTasks, DataSearch, 1, PageSize);
-    AutoTasks = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    AutoTasks = await LgdxApiClient.Automation.AutoTasks.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
+        ShowProgressId = (int?)ShowProgressId,
+        ShowRunningTasks = ShowRunningTasks,
+        Name = DataSearch,
+        PageNumber = 1,
+        PageSize = PageSize
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
     LastDataSearch = DataSearch;
   }
 
@@ -64,17 +87,37 @@ public sealed partial class AutoTasksTable : AbstractTable
     CurrentPage = pageNum;
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
-    var data = await AutoTaskService.GetAutoTasksAsync(ShowProgressId, ShowRunningTasks, DataSearch, pageNum, PageSize);
-    AutoTasks = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    AutoTasks = await LgdxApiClient.Automation.AutoTasks.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
+        ShowProgressId = (int?)ShowProgressId,
+        ShowRunningTasks = ShowRunningTasks,
+        Name = DataSearch,
+        PageNumber = pageNum,
+        PageSize = PageSize
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
     if (deleteOpt && CurrentPage > 1 && AutoTasks?.Count == 1)
       CurrentPage--;
-    var data = await AutoTaskService.GetAutoTasksAsync(ShowProgressId, ShowRunningTasks, DataSearch, CurrentPage, PageSize);
-    AutoTasks = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    AutoTasks = await LgdxApiClient.Automation.AutoTasks.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
+        ShowProgressId = (int?)ShowProgressId,
+        ShowRunningTasks = ShowRunningTasks,
+        Name = DataSearch,
+        PageNumber = CurrentPage,
+        PageSize = PageSize
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 }

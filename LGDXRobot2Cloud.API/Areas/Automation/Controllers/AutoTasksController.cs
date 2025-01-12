@@ -56,7 +56,7 @@ public sealed class AutoTasksController(
   }
 
   [HttpGet("{id}", Name = "GetTask")]
-  [ProducesResponseType(typeof(IEnumerable<AutoTaskDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(AutoTaskDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<AutoTaskDto>> GetTask(int id)
   {

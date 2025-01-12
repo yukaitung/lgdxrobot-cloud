@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.ViewModels.Shared;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Automation;
@@ -73,5 +74,69 @@ public class AutoTaskDetailViewModel : FormViewModel, IValidatableObject
         yield return validationResult;
       }
     }
+  }
+}
+
+public static class AutoTaskDetailViewModelExtensions
+{
+  public static void FromDto(this AutoTaskDetailViewModel autoTaskDetailViewModel, AutoTaskDto autoTaskDto)
+  {
+    autoTaskDetailViewModel.Id = (int)autoTaskDto.Id!;
+    autoTaskDetailViewModel.Name = autoTaskDto.Name!;
+    autoTaskDetailViewModel.Priority = (int)autoTaskDto.Priority!;
+    autoTaskDetailViewModel.FlowId = autoTaskDto.Flow!.Id;
+    autoTaskDetailViewModel.FlowName = autoTaskDto.Flow!.Name;
+    autoTaskDetailViewModel.RealmId = autoTaskDto.Realm!.Id;
+    autoTaskDetailViewModel.RealmName = autoTaskDto.Realm!.Name;
+    autoTaskDetailViewModel.AssignedRobotId = autoTaskDto.AssignedRobot?.Id;
+    autoTaskDetailViewModel.AssignedRobotName = autoTaskDto.AssignedRobot?.Name;
+    autoTaskDetailViewModel.CurrentProgressId = (int)autoTaskDto.CurrentProgress!.Id!;
+    autoTaskDetailViewModel.CurrentProgressName = autoTaskDto.CurrentProgress!.Name!;
+    autoTaskDetailViewModel.AutoTaskDetails = autoTaskDto.AutoTaskDetails!.Select(t => new TaskDetailBody {
+      Id = t.Id,
+      CustomX = t.CustomX,
+      CustomY = t.CustomY,
+      CustomRotation = t.CustomRotation,
+      WaypointId = t.Waypoint?.Id,
+      WaypointName = t.Waypoint?.Name,
+      Order = (int)t.Order!
+    }).ToList();
+  }
+
+  public static AutoTaskUpdateDto ToUpdateDto(this AutoTaskDetailViewModel autoTaskDetailViewModel)
+  {
+    return new AutoTaskUpdateDto {
+      Name = autoTaskDetailViewModel.Name,
+      Priority = autoTaskDetailViewModel.Priority,
+      FlowId = autoTaskDetailViewModel.FlowId,
+      RealmId = autoTaskDetailViewModel.RealmId,
+      AssignedRobotId = autoTaskDetailViewModel.AssignedRobotId,
+      AutoTaskDetails = autoTaskDetailViewModel.AutoTaskDetails.Select(t => new AutoTaskDetailUpdateDto{
+        Id = t.Id,
+        CustomX = t.CustomX,
+        CustomY = t.CustomY,
+        CustomRotation = t.CustomRotation,
+        WaypointId = t.WaypointId,
+        Order = t.Order
+      }).ToList()
+    };
+  }
+
+  public static AutoTaskCreateDto ToCreateDto(this AutoTaskDetailViewModel autoTaskDetailViewModel)
+  {
+    return new AutoTaskCreateDto {
+      Name = autoTaskDetailViewModel.Name,
+      Priority = autoTaskDetailViewModel.Priority,
+      FlowId = autoTaskDetailViewModel.FlowId,
+      RealmId = autoTaskDetailViewModel.RealmId,
+      AssignedRobotId = autoTaskDetailViewModel.AssignedRobotId,
+      AutoTaskDetails = autoTaskDetailViewModel.AutoTaskDetails.Select(t => new AutoTaskDetailCreateDto{
+        CustomX = t.CustomX,
+        CustomY = t.CustomY,
+        CustomRotation = t.CustomRotation,
+        WaypointId = t.WaypointId,
+        Order = t.Order
+      }).ToList()
+    };
   }
 }
