@@ -9,13 +9,13 @@ namespace LGDXRobot2Cloud.UI.Authorisation;
 
 internal sealed class LgdxAuthenticationStateProvider(
     ILoggerFactory loggerFactory, 
-    LgdxApiClient lgdxApiClient,
+    IRefreshTokenService refreshTokenService,
     ITokenService tokenService, 
     NavigationManager navigationManager
   ) : RevalidatingServerAuthenticationStateProvider(loggerFactory)
 {
   private readonly ITokenService _tokenService = tokenService;
-  private readonly LgdxApiClient _lgdxApiClient = lgdxApiClient;
+  private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
   private readonly NavigationManager _navigationManager = navigationManager;
 
   protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(1);
@@ -40,12 +40,9 @@ internal sealed class LgdxAuthenticationStateProvider(
     var accessTokenExpiresAt = _tokenService.GetAccessTokenExpiresAt(user);
     if (DateTime.UtcNow.AddMinutes(1) >= accessTokenExpiresAt)
     {
-      var refreshToken = await _lgdxApiClient.Identity.Auth.Refresh.PostAsync(new() {
-        RefreshToken = _tokenService.GetRefreshToken(user)
-      });
-      _tokenService.RefreshAccessToken(user, refreshToken!.AccessToken!, refreshToken!.RefreshToken!);
+      var result = await _refreshTokenService.RefreshTokenAsync(user, _tokenService.GetRefreshToken(user));
+      _tokenService.RefreshAccessToken(user, result!.AccessToken!, result!.RefreshToken!);
     }
-    
     return true;
   }
 
