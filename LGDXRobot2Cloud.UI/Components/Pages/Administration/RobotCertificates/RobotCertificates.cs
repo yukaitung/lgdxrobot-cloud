@@ -1,5 +1,5 @@
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
-using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
 using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.RobotCertificates;
@@ -7,17 +7,12 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.RobotCertificates;
 public sealed partial class RobotCertificates : ComponentBase
 {
   [Inject]
-  public required IRobotCertificateService RobotCertificateService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   private RootCertificateDto? RootCertificate { get; set; } = null;
 
   public async Task GetRootCertificate()
   {
-    if (RootCertificate == null)
-    {
-      var response = await RobotCertificateService.GetRootCertificateAsync();
-      if (response.IsSuccess)
-        RootCertificate = response.Data;
-    }
+    RootCertificate ??= await LgdxApiClient.Administration.RobotCertificates.Root.GetAsync();
   }
 }

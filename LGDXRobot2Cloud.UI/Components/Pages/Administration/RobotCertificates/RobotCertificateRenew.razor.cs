@@ -1,8 +1,7 @@
-using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Constants;
-using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -12,16 +11,13 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.RobotCertificates;
 public sealed partial class RobotCertificateRenew
 {
   [Inject]
-  public required IRobotCertificateService RobotCertificateService { get; set; }
-
-  [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
-  public ProtectedSessionStorage ProtectedSessionStorage { get; set; } = default!;
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IMapper Mapper { get; set; }
+  public ProtectedSessionStorage ProtectedSessionStorage { get; set; } = default!;
 
   [Parameter]
   public string? Id { get; set; }
@@ -42,15 +38,11 @@ public sealed partial class RobotCertificateRenew
   {
     if (currentStep == 0)
     {
-      var response = await RobotCertificateService.RenewRobotCertificateAsync(Id!, Mapper.Map<RobotCertificateRenewRequestDto>(RobotCertificateRenewViewModel));
-      if (response.IsSuccess)
+      if (Guid.TryParse(Id, out Guid _guid))
       {
-        RobotCertificate = response.Data;
-        RobotCertificateRenewViewModel.Errors = null;
+        RobotCertificate = await LgdxApiClient.Administration.RobotCertificates[_guid].Renew.PostAsync(RobotCertificateRenewViewModel.ToDto());
         currentStep++;
       }
-      else
-        RobotCertificateRenewViewModel.Errors = response.Errors;
     }
     else if (currentStep == 1)
     {

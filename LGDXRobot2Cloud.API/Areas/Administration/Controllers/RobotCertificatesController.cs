@@ -40,7 +40,7 @@ public sealed class RobotCertificatesController(
   }
 
   [HttpGet("Root")]
-  [ProducesResponseType(typeof(IEnumerable<RootCertificateDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(RootCertificateDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public ActionResult<RootCertificateDto> GetRootCertificate()
   {

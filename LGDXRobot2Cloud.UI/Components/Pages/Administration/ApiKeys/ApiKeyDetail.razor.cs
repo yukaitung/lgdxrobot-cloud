@@ -71,25 +71,22 @@ public sealed partial class ApiKeyDetail
   public override async Task SetParametersAsync(ParameterView parameters)
   {
     parameters.SetParameterProperties(this);
-    if (parameters.TryGetValue<int?>(nameof(Id), out var _id))
+    if (parameters.TryGetValue<int?>(nameof(Id), out var _id) && _id != null)
     {
-      if (_id != null)
-      {
-        var apiKey = await LgdxApiClient.Administration.ApiKeys[(int)_id].GetAsync();
-        ApiKeyDetailViewModel.FromDto(apiKey!);
-        _editContext = new EditContext(ApiKeyDetailViewModel);
-        _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
-        _editContextSecret = new EditContext(UpdateApiKeySecretViewModel);
-        _editContextSecret.SetFieldCssClassProvider(_customFieldClassProvider);
-      }
-      else
-      {
-        ApiKeyDetailViewModel = new ApiKeyDetailViewModel();
-        _editContext = new EditContext(ApiKeyDetailViewModel);
-        _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
-        _editContextSecret = new EditContext(UpdateApiKeySecretViewModel);
-        _editContextSecret.SetFieldCssClassProvider(_customFieldClassProvider);
-      }
+      var apiKey = await LgdxApiClient.Administration.ApiKeys[(int)_id].GetAsync();
+      ApiKeyDetailViewModel.FromDto(apiKey!);
+      _editContext = new EditContext(ApiKeyDetailViewModel);
+      _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+      _editContextSecret = new EditContext(UpdateApiKeySecretViewModel);
+      _editContextSecret.SetFieldCssClassProvider(_customFieldClassProvider);
+    }
+    else
+    {
+      ApiKeyDetailViewModel = new ApiKeyDetailViewModel();
+      _editContext = new EditContext(ApiKeyDetailViewModel);
+      _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+      _editContextSecret = new EditContext(UpdateApiKeySecretViewModel);
+      _editContextSecret.SetFieldCssClassProvider(_customFieldClassProvider);
     }
     await base.SetParametersAsync(ParameterView.Empty);
   }
