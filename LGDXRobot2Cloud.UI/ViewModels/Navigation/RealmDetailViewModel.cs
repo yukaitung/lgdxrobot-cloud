@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.ViewModels.Shared;
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -37,5 +38,46 @@ public sealed class RealmDetailViewModel : FormViewModel, IValidatableObject
     {
       yield return new ValidationResult("Please select an image.", [nameof(SelectedImage)]);
     }
+  }
+}
+
+public static class RealmDetailViewModelExtensions
+{
+  public static void FromDto(this RealmDetailViewModel realmDetailViewModel, RealmDto realmDto)
+  {
+    realmDetailViewModel.Id = (int)realmDto.Id!;
+    realmDetailViewModel.Name = realmDto.Name!;
+    realmDetailViewModel.Description = realmDto.Description;
+    realmDetailViewModel.Image = realmDto.Image!;
+    realmDetailViewModel.Resolution = realmDto.Resolution;
+    realmDetailViewModel.OriginX = realmDto.OriginX;
+    realmDetailViewModel.OriginY = realmDto.OriginY;
+    realmDetailViewModel.OriginRotation = realmDto.OriginRotation;
+  }
+
+  public static RealmUpdateDto ToUpdateDto(this RealmDetailViewModel realmDetailViewModel)
+  {
+    return new RealmUpdateDto {
+      Name = realmDetailViewModel.Name,
+      Description = realmDetailViewModel.Description,
+      Image = realmDetailViewModel.Image,
+      Resolution = realmDetailViewModel.Resolution,
+      OriginX = realmDetailViewModel.OriginX,
+      OriginY = realmDetailViewModel.OriginY,
+      OriginRotation = realmDetailViewModel.OriginRotation
+    };
+  }
+
+  public static RealmCreateDto ToCreateDto(this RealmDetailViewModel realmDetailViewModel)
+  {
+    return new RealmCreateDto {
+      Name = realmDetailViewModel.Name,
+      Description = realmDetailViewModel.Description,
+      Image = realmDetailViewModel.Image,
+      Resolution = realmDetailViewModel.Resolution,
+      OriginX = realmDetailViewModel.OriginX,
+      OriginY = realmDetailViewModel.OriginY,
+      OriginRotation = realmDetailViewModel.OriginRotation
+    };
   }
 }

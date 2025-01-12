@@ -1,6 +1,7 @@
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
-using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.UI.Helpers;
 using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Realms.Components;
@@ -8,7 +9,7 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Realms.Components;
 public sealed partial class RealmsTable : AbstractTable
 {
   [Inject]
-  public required IRealmService RealmService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   private List<RealmListDto>? Realms { get; set; }
   
@@ -19,19 +20,34 @@ public sealed partial class RealmsTable : AbstractTable
       PageSize = 100;
     else if (PageSize < 1)
       PageSize = 1;
-    var data = await RealmService.GetRealmsAsync(DataSearch, 1, PageSize);
-    Realms = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Realms = await LgdxApiClient.Navigation.Realms.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = 1,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task HandleSearch()
   {
     if (LastDataSearch == DataSearch)
       return;
-    var data = await RealmService.GetRealmsAsync(DataSearch, 1, PageSize);
-    Realms = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
-    LastDataSearch = DataSearch;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Realms = await LgdxApiClient.Navigation.Realms.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = 1,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task HandleClearSearch()
@@ -49,17 +65,33 @@ public sealed partial class RealmsTable : AbstractTable
     CurrentPage = pageNum;
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
-    var data = await RealmService.GetRealmsAsync(DataSearch, pageNum, PageSize);
-    Realms = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Realms = await LgdxApiClient.Navigation.Realms.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = pageNum,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
     if (deleteOpt && CurrentPage > 1 && Realms?.Count == 1)
       CurrentPage--;
-    var data = await RealmService.GetRealmsAsync(DataSearch, CurrentPage, PageSize);
-    Realms = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Realms = await LgdxApiClient.Navigation.Realms.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = CurrentPage,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 }
