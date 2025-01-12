@@ -59,7 +59,6 @@ var configureAction = (HttpClient client) =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddHttpClient<IAuthService, AuthService>(configureAction);
-builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(configureAction);
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();

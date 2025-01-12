@@ -1,3 +1,4 @@
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -8,13 +9,13 @@ namespace LGDXRobot2Cloud.UI.Authorisation;
 
 internal sealed class LgdxAuthenticationStateProvider(
     ILoggerFactory loggerFactory, 
-    IRefreshTokenService refreshTokenService,
+    LgdxApiClient lgdxApiClient,
     ITokenService tokenService, 
     NavigationManager navigationManager
   ) : RevalidatingServerAuthenticationStateProvider(loggerFactory)
 {
   private readonly ITokenService _tokenService = tokenService;
-  private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
+  private readonly LgdxApiClient _lgdxApiClient = lgdxApiClient;
   private readonly NavigationManager _navigationManager = navigationManager;
 
   protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(1);
@@ -39,11 +40,10 @@ internal sealed class LgdxAuthenticationStateProvider(
     var accessTokenExpiresAt = _tokenService.GetAccessTokenExpiresAt(user);
     if (DateTime.UtcNow.AddMinutes(1) >= accessTokenExpiresAt)
     {
-      var result = await _refreshTokenService.RefreshTokenAsync(user, _tokenService.GetRefreshToken(user));
-      if (result.IsSuccess)
-      {
-        _tokenService.RefreshAccessToken(user, result.Data!.AccessToken, result.Data.RefreshToken);
-      }
+      var refreshToken = await _lgdxApiClient.Identity.Auth.Refresh.PostAsync(new() {
+        RefreshToken = _tokenService.GetRefreshToken(user)
+      });
+      _tokenService.RefreshAccessToken(user, refreshToken!.AccessToken!, refreshToken!.RefreshToken!);
     }
     
     return true;
