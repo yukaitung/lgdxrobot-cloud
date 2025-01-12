@@ -58,17 +58,17 @@ namespace LGDXRobot2Cloud.UI.Client.Administration.ApiKeys.Item
             };
             await RequestAdapter.SendNoContentAsync(requestInfo, errorMapping, cancellationToken).ConfigureAwait(false);
         }
-        /// <returns>A <see cref="global::LGDXRobot2Cloud.UI.Client.Models.LgdxRoleDto"/></returns>
+        /// <returns>A <see cref="global::LGDXRobot2Cloud.UI.Client.Models.ApiKeyDto"/></returns>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
         /// <exception cref="global::LGDXRobot2Cloud.UI.Client.Models.ProblemDetails">When receiving a 404 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public async Task<global::LGDXRobot2Cloud.UI.Client.Models.LgdxRoleDto?> GetAsync(Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task<global::LGDXRobot2Cloud.UI.Client.Models.ApiKeyDto?> GetAsync(Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #nullable restore
 #else
-        public async Task<global::LGDXRobot2Cloud.UI.Client.Models.LgdxRoleDto> GetAsync(Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task<global::LGDXRobot2Cloud.UI.Client.Models.ApiKeyDto> GetAsync(Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #endif
             var requestInfo = ToGetRequestInformation(requestConfiguration);
@@ -76,7 +76,7 @@ namespace LGDXRobot2Cloud.UI.Client.Administration.ApiKeys.Item
             {
                 { "404", global::LGDXRobot2Cloud.UI.Client.Models.ProblemDetails.CreateFromDiscriminatorValue },
             };
-            return await RequestAdapter.SendAsync<global::LGDXRobot2Cloud.UI.Client.Models.LgdxRoleDto>(requestInfo, global::LGDXRobot2Cloud.UI.Client.Models.LgdxRoleDto.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
+            return await RequestAdapter.SendAsync<global::LGDXRobot2Cloud.UI.Client.Models.ApiKeyDto>(requestInfo, global::LGDXRobot2Cloud.UI.Client.Models.ApiKeyDto.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
         }
         /// <param name="body">The request body</param>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>

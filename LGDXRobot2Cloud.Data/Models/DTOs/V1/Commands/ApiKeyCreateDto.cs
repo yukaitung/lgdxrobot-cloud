@@ -9,7 +9,7 @@ public record ApiKeyCreateDto
   public required string Name { get; set; }
 
   [MaxLength(200)]
-  public required string? Secret { get; set; }
+  public string? Secret { get; set; }
 
   [Required]
   public required bool IsThirdParty { get; set; }

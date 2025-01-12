@@ -106,7 +106,7 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
   public override async Task SetParametersAsync(ParameterView parameters)
   {
     parameters.SetParameterProperties(this);
-    if (parameters.TryGetValue<string>(nameof(Id), out var _id))
+    if (parameters.TryGetValue<string?>(nameof(Id), out var _id))
     {
       if (Guid.TryParse(_id, out Guid _guid))
       {

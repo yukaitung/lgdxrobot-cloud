@@ -57,7 +57,7 @@ public sealed class ApiKeysController(
   }
 
   [HttpGet("{id}", Name = "GetApiKey")]
-  [ProducesResponseType(typeof(LgdxRoleDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ApiKeyDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<ApiKeyDto>> GetApiKey(int id)
   {

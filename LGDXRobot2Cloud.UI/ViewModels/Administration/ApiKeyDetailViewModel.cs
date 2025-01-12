@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.ViewModels.Shared;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Administration;
@@ -26,5 +27,31 @@ public class ApiKeyDetailViewModel : FormViewModel, IValidatableObject
     {
       yield return new ValidationResult("LGDXRobot2 API Keys will be generated automatically.", [nameof(Secret)]);
     }
+  }
+}
+
+public static class ApiKeyDetailViewModelExtensions
+{
+  public static void FromDto(this ApiKeyDetailViewModel apiKeyDetailViewModel, ApiKeyDto apiKeyDto)
+  {
+    apiKeyDetailViewModel.Id = (int)apiKeyDto.Id!;
+    apiKeyDetailViewModel.Name = apiKeyDto.Name!;
+    apiKeyDetailViewModel.IsThirdParty = (bool)apiKeyDto.IsThirdParty!;
+  }
+
+  public static ApiKeyUpdateDto ToUpdateDto(this ApiKeyDetailViewModel apiKeyDetailViewModel)
+  {
+    return new ApiKeyUpdateDto {
+      Name = apiKeyDetailViewModel.Name,
+    };
+  }
+
+  public static ApiKeyCreateDto ToCreateDto(this ApiKeyDetailViewModel apiKeyDetailViewModel)
+  {
+    return new ApiKeyCreateDto {
+      Name = apiKeyDetailViewModel.Name,
+      IsThirdParty = apiKeyDetailViewModel.IsThirdParty,
+      Secret = apiKeyDetailViewModel.IsThirdParty ? apiKeyDetailViewModel.Secret : string.Empty
+    };
   }
 }
