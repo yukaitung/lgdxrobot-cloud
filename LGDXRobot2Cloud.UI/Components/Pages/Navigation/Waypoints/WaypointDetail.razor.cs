@@ -1,5 +1,7 @@
+using System.Text.Json;
 using AutoMapper;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
@@ -13,10 +15,7 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Waypoints;
 public sealed partial class WaypointDetail : ComponentBase, IDisposable
 {
   [Inject]
-  public required IWaypointService WaypointService { get; set; }
-
-  [Inject]
-  public required IRealmService RealmService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }
@@ -24,14 +23,11 @@ public sealed partial class WaypointDetail : ComponentBase, IDisposable
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
-  [Inject]
-  public required IMapper Mapper { get; set; }
-
   [Parameter]
   public int? Id { get; set; }
 
   private DotNetObjectReference<WaypointDetail> ObjectReference = null!;
-  private WaypointDetailViewModel WaypointDetailViewModel { get; set; } = null!;
+  private WaypointDetailViewModel WaypointDetailViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -41,8 +37,11 @@ public sealed partial class WaypointDetail : ComponentBase, IDisposable
   {
     if (string.IsNullOrWhiteSpace(name))
       return;
-    var response = await RealmService.SearchRealmsAsync(name);
-    await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, response.Data);
+    var response = await LgdxApiClient.Navigation.Realms.Search.GetAsync(x => x.QueryParameters = new() {
+      Name = name
+    });
+    string result = JsonSerializer.Serialize(response);
+    await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
   }
 
   [JSInvokable("HandleSelectChange")]
@@ -59,29 +58,23 @@ public sealed partial class WaypointDetail : ComponentBase, IDisposable
 
   public async Task HandleValidSubmit()
   {
-    ApiResponse<bool> response;
     if (Id != null)
+    {
       // Update
-      response = await WaypointService.UpdateWaypointAsync((int)Id, Mapper.Map<WaypointUpdateDto>(WaypointDetailViewModel));
+      await LgdxApiClient.Navigation.Waypoints[(int)Id].PutAsync(WaypointDetailViewModel.ToUpdateDto());
+    }
     else
+    {
       // Create
-      response = await WaypointService.AddWaypointAsync(Mapper.Map<WaypointCreateDto>(WaypointDetailViewModel));
-    if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
-    else 
-      WaypointDetailViewModel.Errors = response.Errors;
+      await LgdxApiClient.Navigation.Waypoints.PostAsync(WaypointDetailViewModel.ToCreateDto());
+    }
+    NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
   }
 
   public async Task HandleDelete()
   {
-    if (Id != null)
-    {
-      var response = await WaypointService.DeleteWaypointAsync((int)Id);
-      if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
-      else
-        WaypointDetailViewModel.Errors = response.Errors;
-    }
+    await LgdxApiClient.Navigation.Waypoints[(int)Id!].DeleteAsync();
+    NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
@@ -89,20 +82,15 @@ public sealed partial class WaypointDetail : ComponentBase, IDisposable
     parameters.SetParameterProperties(this);
     if (parameters.TryGetValue<int?>(nameof(Id), out var _id))
     {
-      if (_id != null && WaypointDetailViewModel == null)
+      if (_id != null)
       {
-        var response = await WaypointService.GetWaypointAsync((int)_id);
-        var waypoint = response.Data;
-        if (waypoint != null) 
-        {
-          WaypointDetailViewModel = Mapper.Map<WaypointDetailViewModel>(waypoint);
-          _editContext = new EditContext(WaypointDetailViewModel);
-          _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
-        }
+        var waypoint = await LgdxApiClient.Navigation.Waypoints[(int)_id].GetAsync();
+        WaypointDetailViewModel.FromDto(waypoint!);
+        _editContext = new EditContext(WaypointDetailViewModel);
+        _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
       else
       {
-        WaypointDetailViewModel = new WaypointDetailViewModel();
         _editContext = new EditContext(WaypointDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }

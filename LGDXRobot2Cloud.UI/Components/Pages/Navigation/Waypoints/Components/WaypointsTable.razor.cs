@@ -1,5 +1,7 @@
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
+using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -9,7 +11,7 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Waypoints.Components;
 public sealed partial class WaypointsTable : AbstractTable
 {
   [Inject]
-  public required IWaypointService WaypointService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   private List<WaypointListDto>? Waypoints { get; set; }
   
@@ -20,18 +22,34 @@ public sealed partial class WaypointsTable : AbstractTable
       PageSize = 100;
     else if (PageSize < 1)
       PageSize = 1;
-    var data = await WaypointService.GetWaypointsAsync(DataSearch, 1, PageSize);
-    Waypoints = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Waypoints = await LgdxApiClient.Navigation.Waypoints.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = 1,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task HandleSearch()
   {
     if (LastDataSearch == DataSearch)
       return;
-    var data = await WaypointService.GetWaypointsAsync(DataSearch, 1, PageSize);
-    Waypoints = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Waypoints = await LgdxApiClient.Navigation.Waypoints.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = 1,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
     LastDataSearch = DataSearch;
   }
 
@@ -50,17 +68,33 @@ public sealed partial class WaypointsTable : AbstractTable
     CurrentPage = pageNum;
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
-    var data = await WaypointService.GetWaypointsAsync(DataSearch, pageNum, PageSize);
-    Waypoints = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Waypoints = await LgdxApiClient.Navigation.Waypoints.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = pageNum,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
     if (deleteOpt && CurrentPage > 1 && Waypoints?.Count == 1)
       CurrentPage--;
-    var data = await WaypointService.GetWaypointsAsync(DataSearch, CurrentPage, PageSize);
-    Waypoints = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    Waypoints = await LgdxApiClient.Navigation.Waypoints.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new() {
+        PageNumber = CurrentPage,
+        PageSize = PageSize,
+        Name = DataSearch
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 }
