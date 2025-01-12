@@ -1,16 +1,18 @@
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
-using LGDXRobot2Cloud.UI.Services;
+using LGDXRobot2Cloud.UI.Helpers;
 using Microsoft.AspNetCore.Components;
+using static LGDXRobot2Cloud.UI.Client.Administration.Roles.RolesRequestBuilder;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.Roles.Components;
 
 public sealed partial class RolesTable : AbstractTable
 {
   [Inject]
-  public required IRoleService RoleService { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
-  private List<LgdxRoleDto>? LgdxRoles { get; set; }
+  private List<LgdxRoleListDto>? LgdxRoles { get; set; }
   
   public override async Task HandlePageSizeChange(int number)
   {
@@ -19,18 +21,34 @@ public sealed partial class RolesTable : AbstractTable
       PageSize = 100;
     else if (PageSize < 1)
       PageSize = 1;
-    var data = await RoleService.GetRolesAsync(DataSearch, 1, PageSize);
-    LgdxRoles = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    LgdxRoles = await LgdxApiClient.Administration.Roles.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new RolesRequestBuilderGetQueryParameters {
+        Name = DataSearch,
+        PageNumber = 1,
+        PageSize = PageSize
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task HandleSearch()
   {
     if (LastDataSearch == DataSearch)
       return;
-    var data = await RoleService.GetRolesAsync(DataSearch, 1, PageSize);
-    LgdxRoles = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    LgdxRoles = await LgdxApiClient.Administration.Roles.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new RolesRequestBuilderGetQueryParameters {
+        Name = DataSearch,
+        PageNumber = 1,
+        PageSize = PageSize
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
     LastDataSearch = DataSearch;
   }
 
@@ -49,17 +67,33 @@ public sealed partial class RolesTable : AbstractTable
     CurrentPage = pageNum;
     if (pageNum > PaginationHelper?.PageCount || pageNum < 1)
       return;
-    var data = await RoleService.GetRolesAsync(DataSearch, pageNum, PageSize);
-    LgdxRoles = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    LgdxRoles = await LgdxApiClient.Administration.Roles.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new RolesRequestBuilderGetQueryParameters {
+        Name = DataSearch,
+        PageNumber = pageNum,
+        PageSize = PageSize
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
     if (deleteOpt && CurrentPage > 1 && LgdxRoles?.Count == 1)
       CurrentPage--;
-    var data = await RoleService.GetRolesAsync(DataSearch, CurrentPage, PageSize);
-    LgdxRoles = data.Data.Item1?.ToList();
-    PaginationHelper = data.Data.Item2;
+
+    var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
+    LgdxRoles = await LgdxApiClient.Administration.Roles.GetAsync(x => {
+      x.Options.Add(headersInspectionHandlerOption);
+      x.QueryParameters = new RolesRequestBuilderGetQueryParameters {
+        Name = DataSearch,
+        PageNumber = CurrentPage,
+        PageSize = PageSize
+      };
+    });
+    PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 }

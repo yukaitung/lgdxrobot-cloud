@@ -21,6 +21,16 @@
           </div>
         </div>
       </div>
+      <div class="ms-auto text-secondary">
+        Search:
+      </div>
+      <div class="text-secondary">
+        <div class="input-group">
+          <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
+          <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
+          <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
+        </div>
+      </div>
     </div>
   </div>
 

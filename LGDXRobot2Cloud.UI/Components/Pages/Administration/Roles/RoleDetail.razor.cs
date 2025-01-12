@@ -1,8 +1,7 @@
 using AutoMapper;
-using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -15,15 +14,12 @@ public sealed partial class RoleDetail : ComponentBase
   public NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
-  public required IRoleService RoleService { get; set; }
-
-  [Inject]
-  public required IMapper Mapper { get; set; }
+  public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Parameter]
   public string? Id { get; set; } = null;
 
-  private RolesDetailViewModel RolesDetailViewModel { get; set; } = null!;
+  private RolesDetailViewModel RolesDetailViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -41,33 +37,23 @@ public sealed partial class RoleDetail : ComponentBase
 
   public async Task HandleValidSubmit()
   {
-    ApiResponse<bool> response;
     if (Id != null)
     {
       // Update
-      response = await RoleService.UpdateRoleAsync(Id, Mapper.Map<LgdxRoleUpdateDto>(RolesDetailViewModel));
+      await LgdxApiClient.Administration.Roles[RolesDetailViewModel.Id].PutAsync(RolesDetailViewModel.ToUpdateDto());
     }
     else
     {
       // Create
-      response = await RoleService.AddRoleAsync(Mapper.Map<LgdxRoleCreateDto>(RolesDetailViewModel));
+      await LgdxApiClient.Administration.Roles.PostAsync(RolesDetailViewModel.ToCreateDto());
     }
-    if (response.IsSuccess)
-      NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
-    else
-      RolesDetailViewModel.Errors = response.Errors;
+    NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
   }
 
   public async Task HandleDelete()
   {
-    if (Id != null)
-    {
-      var response = await RoleService.DeleteRoleAsync(Id);
-      if (response.IsSuccess)
-        NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
-      else
-        RolesDetailViewModel.Errors = response.Errors;
-    }
+    await LgdxApiClient.Administration.Roles[RolesDetailViewModel.Id].DeleteAsync();
+    NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
@@ -75,18 +61,16 @@ public sealed partial class RoleDetail : ComponentBase
     parameters.SetParameterProperties(this);
     if (parameters.TryGetValue<string?>(nameof(Id), out var _id) && _id != null)
     {
-      var response = await RoleService.GetRoleAsync(_id);
-      var user = response.Data;
-      if (user != null) 
+      if (Guid.TryParse(_id, out Guid _guid))
       {
-        RolesDetailViewModel = Mapper.Map<RolesDetailViewModel>(user);
+        var role = await LgdxApiClient.Administration.Roles[_guid].GetAsync();
+        RolesDetailViewModel.FromDto(role!);
         _editContext = new EditContext(RolesDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
     else
     {
-      RolesDetailViewModel = new RolesDetailViewModel();
       RolesDetailViewModel.Scopes.Add(string.Empty);
       _editContext = new EditContext(RolesDetailViewModel);
       _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
