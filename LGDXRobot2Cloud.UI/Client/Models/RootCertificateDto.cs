@@ -12,6 +12,10 @@ namespace LGDXRobot2Cloud.UI.Client.Models
     public partial class RootCertificateDto : IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>The notAfter property</summary>
+        public DateTimeOffset? NotAfter { get; set; }
+        /// <summary>The notBefore property</summary>
+        public DateTimeOffset? NotBefore { get; set; }
         /// <summary>The publicKey property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -38,6 +42,8 @@ namespace LGDXRobot2Cloud.UI.Client.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
+                { "notAfter", n => { NotAfter = n.GetDateTimeOffsetValue(); } },
+                { "notBefore", n => { NotBefore = n.GetDateTimeOffsetValue(); } },
                 { "publicKey", n => { PublicKey = n.GetStringValue(); } },
             };
         }
@@ -48,6 +54,8 @@ namespace LGDXRobot2Cloud.UI.Client.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
+            writer.WriteDateTimeOffsetValue("notAfter", NotAfter);
+            writer.WriteDateTimeOffsetValue("notBefore", NotBefore);
             writer.WriteStringValue("publicKey", PublicKey);
         }
     }

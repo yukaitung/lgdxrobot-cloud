@@ -2,6 +2,7 @@ using AutoMapper;
 using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.Data.Models.Business.Administration;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -47,7 +48,7 @@ public sealed class RobotCertificatesController(
     var rootCertificate = _robotCertificateRepository.GetRootCertificate();
     if (rootCertificate == null)
       return NotFound();
-    return Ok(new RootCertificateDto { PublicKey = rootCertificate });
+    return Ok(rootCertificate.ToDto());
   }
 
   [HttpGet("{id}", Name = "GetCertificate")]

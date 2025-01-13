@@ -30,11 +30,20 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label">Invalid Before</label>
+          <div class="col">
+            <div class="col form-control-plaintext">@RootCertificate?.NotBefore</div>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label">Invalid After</label>
+          <div class="col">
+            <div class="col form-control-plaintext">@RootCertificate?.NotAfter</div>
+          </div>
+        </div>
         <textarea id="RootCertificateTextarea" class="form-control mb-2" rows="6" readonly>
-          @if (RootCertificate != null)
-          {
-            @RootCertificate.PublicKey
-          }
+          @RootCertificate?.PublicKey
         </textarea>
       </div>
       <div class="modal-footer">

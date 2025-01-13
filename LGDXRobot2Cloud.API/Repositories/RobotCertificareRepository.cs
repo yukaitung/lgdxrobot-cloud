@@ -1,6 +1,7 @@
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Data.Models.Business.Administration;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -29,7 +30,7 @@ public interface IRobotCertificateRepository
   void DeleteRobotCertificateAsync(RobotCertificate robotCertificate);
   Task<bool> SaveChangesAsync();
 
-  string GetRootCertificate();
+  RootCertificateBusinessModel GetRootCertificate();
 }
 
 public class RobotCertificateRepository(
@@ -100,11 +101,15 @@ public class RobotCertificateRepository(
     return await _context.SaveChangesAsync() >= 0;
   }
 
-  public string GetRootCertificate()
+  public RootCertificateBusinessModel GetRootCertificate()
   {
     X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
     store.Open(OpenFlags.OpenExistingOnly);
     X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobot2Configuration.RootCertificateSN);
-    return rootCertificate.ExportCertificatePem();
+    return new RootCertificateBusinessModel {
+      NotBefore = rootCertificate.NotBefore,
+      NotAfter = rootCertificate.NotAfter,
+      PublicKey = rootCertificate.ExportCertificatePem()
+    };
   }
 }
