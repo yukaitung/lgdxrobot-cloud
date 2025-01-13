@@ -1,5 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
@@ -8,6 +6,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Kiota.Abstractions;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Identity.Login;
 
@@ -43,19 +44,25 @@ public sealed partial class Login : ComponentBase
 
   public async Task HandleLogin()
   {
-    var loginResponseDto = await LgdxApiClient.Identity.Auth.Login.PostAsync(LoginViewModel.ToLoginRequestDto());
-    var accessToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponseDto!.AccessToken);
-    var refreshToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponseDto!.RefreshToken);
-    var identity = new ClaimsIdentity(accessToken.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
-    var user = new ClaimsPrincipal(identity);
-    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
-      user, 
-      new AuthenticationProperties{
-        IsPersistent = false,
-        ExpiresUtc = refreshToken.ValidTo
-      });
-    TokenService.Login(user, loginResponseDto!.AccessToken!, loginResponseDto!.RefreshToken!, accessToken.ValidTo, refreshToken.ValidTo);
-
-    NavigationManager.NavigateTo(ReturnUrl ?? "/");
+    try
+    {
+      var loginResponse = await LgdxApiClient.Identity.Auth.Login.PostAsync(LoginViewModel.ToLoginRequestDto());
+      var accessToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponse!.AccessToken);
+      var refreshToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponse!.RefreshToken);
+      var identity = new ClaimsIdentity(accessToken.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
+      var user = new ClaimsPrincipal(identity);
+      await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
+        user, 
+        new AuthenticationProperties{
+          IsPersistent = false,
+          ExpiresUtc = refreshToken.ValidTo
+        });
+      TokenService.Login(user, loginResponse!.AccessToken!, loginResponse!.RefreshToken!, accessToken.ValidTo, refreshToken.ValidTo);
+      NavigationManager.NavigateTo(ReturnUrl ?? "/");
+    }
+    catch (ApiException ex)
+    {
+      LoginViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
   }
 }

@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using LGDXRobot2Cloud.UI.Client.Models;
+using LGDXRobot2Cloud.UI.ViewModels.Shared;
 
 namespace LGDXRobot2Cloud.UI.ViewModels.Identity;
 
-public sealed class ResetPasswordViewModel : IValidatableObject
+public sealed class ResetPasswordViewModel : FormViewModel, IValidatableObject
 {
   public string Email = null!;
 
@@ -14,10 +15,6 @@ public sealed class ResetPasswordViewModel : IValidatableObject
 
   [Required]
 	public string ConfirmPassword { get; set; } = null!;
-
-	public IDictionary<string,string[]>? Errors { get; set; }
-
-	public bool IsSuccess { get; set; } = false;
 
   public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
   {

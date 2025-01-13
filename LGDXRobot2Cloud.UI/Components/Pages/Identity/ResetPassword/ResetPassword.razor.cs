@@ -5,6 +5,7 @@ using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.ViewModels.Identity;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Identity.ResetPassword;
 
@@ -33,8 +34,15 @@ public sealed partial class ResetPassword : ComponentBase
 
   public async Task HandleResetPassword()
   {
-    await LgdxApiClient.Identity.Auth.ResetPassword.PostAsync(ResetPasswordViewModel.ToResetPasswordRequestDto());
-    ResetPasswordViewModel.IsSuccess = true;
+    try
+    {
+      await LgdxApiClient.Identity.Auth.ResetPassword.PostAsync(ResetPasswordViewModel.ToResetPasswordRequestDto());
+      ResetPasswordViewModel.IsSuccess = true;
+    }
+    catch (ApiException ex)
+    {
+      ResetPasswordViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
   }
 
   protected override Task OnInitializedAsync()
