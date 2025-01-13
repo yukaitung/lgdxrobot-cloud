@@ -119,16 +119,22 @@ public class RobotCertificateService(
       certificate.NotAfter = newCertificate.RobotCertificateNotAfter;
       await _context.SaveChangesAsync();
 
-      return await _context.Robots.AsNoTracking()
+      var robot = await _context.Robots.AsNoTracking()
         .Where(r => r.Id == certificate.RobotId)
-        .Select(r => new RobotCertificateIssueBusinessModel {
-          RobotId = r.Id,
-          RobotName = r.Name,
-          RootCertificate = newCertificate.RootCertificate,
-          RobotCertificatePrivateKey = newCertificate.RobotCertificatePrivateKey,
-          RobotCertificatePublicKey = newCertificate.RobotCertificatePublicKey
+        .Select(r => new {
+          r.Id,
+          r.Name
         })
-        .FirstOrDefaultAsync();
+        .FirstOrDefaultAsync()
+          ?? throw new LgdxNotFound404Exception();
+      
+      return new RobotCertificateIssueBusinessModel {
+        RobotId = robot.Id,
+        RobotName = robot.Name,
+        RootCertificate = newCertificate.RootCertificate,
+        RobotCertificatePrivateKey = newCertificate.RobotCertificatePrivateKey,
+        RobotCertificatePublicKey = newCertificate.RobotCertificatePublicKey
+      };
     }
 
   public RootCertificateBusinessModel? GetRootCertificate()
