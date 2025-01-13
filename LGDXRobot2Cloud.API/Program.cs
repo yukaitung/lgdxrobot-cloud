@@ -182,6 +182,7 @@ builder.Services.AddAuthorizationBuilder()
  */
 // Administrator
 builder.Services.AddScoped<IApiKeyService, ApiKeyService>();
+builder.Services.AddScoped<IRobotCertificateService, RobotCertificateService>();
 
 // Custom Services
 builder.Services.AddScoped<IAuthService, AuthService>();

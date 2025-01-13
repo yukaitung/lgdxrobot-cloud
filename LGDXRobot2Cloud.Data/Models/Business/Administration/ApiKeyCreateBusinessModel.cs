@@ -2,9 +2,8 @@ using LGDXRobot2Cloud.Data.Entities;
 
 namespace LGDXRobot2Cloud.Data.Models.Business.Administration;
 
-public class ApiKeyCreateBusinessModel
+public record ApiKeyCreateBusinessModel
 {
-
   public required string Name { get; set; }
   
   public string? Secret { get; set; }

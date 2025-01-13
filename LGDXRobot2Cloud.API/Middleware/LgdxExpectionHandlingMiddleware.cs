@@ -1,7 +1,4 @@
 using LGDXRobot2Cloud.API.Exceptions;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-
 namespace LGDXRobot2Cloud.API.Middleware;
 
 public class LgdxExpectionHandlingMiddleware(RequestDelegate next)
@@ -20,6 +17,7 @@ public class LgdxExpectionHandlingMiddleware(RequestDelegate next)
       {
         await HandleExceptionAsync(context, casted);
       }
+      else throw;
     }
   }
 

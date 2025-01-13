@@ -1,7 +1,6 @@
-using AutoMapper;
 using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
-using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.API.Services.Administration;
 using LGDXRobot2Cloud.Data.Models.Business.Administration;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
@@ -19,15 +18,11 @@ namespace LGDXRobot2Cloud.API.Areas.Administration.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class RobotCertificatesController(
-    IMapper mapper,
-    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
-    IRobotCertificateRepository robotCertificateRepository,
-    IRobotRepository robotRepository
+    IRobotCertificateService robotCertificateService,
+    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration
   ) : ControllerBase
 {
-  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-  private readonly IRobotCertificateRepository _robotCertificateRepository = robotCertificateRepository ?? throw new ArgumentNullException(nameof(robotCertificateRepository));
-  private readonly IRobotRepository _robotRepository = robotRepository ?? throw new ArgumentNullException(nameof(robotRepository));
+  private readonly IRobotCertificateService _robotCertificateService = robotCertificateService ?? throw new ArgumentNullException(nameof(robotCertificateService));
   private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
 
   [HttpGet("")]
@@ -35,9 +30,9 @@ public sealed class RobotCertificatesController(
   public async Task<ActionResult<IEnumerable<RobotCertificateListDto>>> GetCertificates(int pageNumber = 1, int pageSize = 10)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
-    var (certificates, PaginationHelper) = await _robotCertificateRepository.GetRobotCertificatesAsync(pageNumber, pageSize);
+    var (certificates, PaginationHelper) = await _robotCertificateService.GetRobotCertificatesAsync(pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
-    return Ok(_mapper.Map<IEnumerable<RobotCertificateListDto>>(certificates));
+    return Ok(certificates.ToDto());
   }
 
   [HttpGet("Root")]
@@ -45,7 +40,7 @@ public sealed class RobotCertificatesController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public ActionResult<RootCertificateDto> GetRootCertificate()
   {
-    var rootCertificate = _robotCertificateRepository.GetRootCertificate();
+    var rootCertificate = _robotCertificateService.GetRootCertificate();
     if (rootCertificate == null)
       return NotFound();
     return Ok(rootCertificate.ToDto());
@@ -56,18 +51,10 @@ public sealed class RobotCertificatesController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<RobotCertificateDto>> GetCertificate(Guid id)
   {
-    var certificate = await _robotCertificateRepository.GetRobotCertificateAsync(id);
+    var certificate = await _robotCertificateService.GetRobotCertificateAsync(id);
     if (certificate == null)
       return NotFound();
-    var robotEntity = await _robotRepository.GetRobotSimpleAsync(certificate.RobotId);
-    if (robotEntity == null)
-      return NotFound();
-    var response = _mapper.Map<RobotCertificateDto>(certificate);
-    response.Robot = new RobotSearchDto {
-      Id = robotEntity.Id,
-      Name = robotEntity.Name
-    };
-    return Ok(response);
+    return Ok(certificate.ToDto());
   }
 
   [HttpPost("{id}/Renew")]
@@ -75,33 +62,12 @@ public sealed class RobotCertificatesController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<RobotCertificateIssueDto>> RenewCertificate(Guid id, RobotCertificateRenewRequestDto robotCertificateRenewRequestDto)
   {
-    var robotCertificateEntity = await _robotCertificateRepository.GetRobotCertificateAsync(id);
-    if (robotCertificateEntity == null)
-      return NotFound();
-
-    CertificateDetail certificates = _robotCertificateRepository.GenerateRobotCertificate(robotCertificateEntity.RobotId);
-    if (robotCertificateRenewRequestDto.RevokeOldCertificate)
-      robotCertificateEntity.ThumbprintBackup = null;
-    else
-      robotCertificateEntity.ThumbprintBackup = robotCertificateEntity.Thumbprint;
-
-    robotCertificateEntity.Thumbprint = certificates.RobotCertificateThumbprint;
-    robotCertificateEntity.NotBefore = certificates.RobotCertificateNotBefore;
-    robotCertificateEntity.NotAfter = certificates.RobotCertificateNotAfter;
-    await _robotCertificateRepository.SaveChangesAsync();
-
-    var robotEntity = await _robotRepository.GetRobotSimpleAsync(robotCertificateEntity.RobotId);
-    if (robotEntity == null)
-      return NotFound();
-
-    return Ok(new RobotCertificateIssueDto {
-      Robot = new RobotSearchDto {
-        Id = robotEntity.Id,
-        Name = robotEntity.Name
-      },
-      RootCertificate = certificates.RootCertificate,
-      RobotCertificatePrivateKey = certificates.RobotCertificatePrivateKey,
-      RobotCertificatePublicKey = certificates.RobotCertificatePublicKey
+    var robotCertificate = await _robotCertificateService.RenewRobotCertificateAsync(new(){
+      CertificateId = id,
+      RevokeOldCertificate = robotCertificateRenewRequestDto.RevokeOldCertificate
     });
+    if (robotCertificate == null)
+      return NotFound();
+    return Ok(robotCertificate.ToDto());
   }
 }

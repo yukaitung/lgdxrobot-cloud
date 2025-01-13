@@ -2,7 +2,7 @@ using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 
 namespace LGDXRobot2Cloud.Data.Models.Business.Administration;
 
-public class ApiKeySearchBusinessModel
+public record ApiKeySearchBusinessModel
 {
   public required int Id { get; set; }
 

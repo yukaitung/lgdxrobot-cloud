@@ -111,8 +111,7 @@ public class ApiKeyService(LgdxContext context) : IApiKeyService
     }
 
     apiKey.Secret = apiKeySecretUpdateBusinessModel.Secret;
-    await _context.SaveChangesAsync();
-    return true;
+    return await _context.SaveChangesAsync() == 1;
   }
 
     public async Task<bool> DeleteApiKeyAsync(int apiKeyId)
@@ -126,12 +125,12 @@ public class ApiKeyService(LgdxContext context) : IApiKeyService
     if (string.IsNullOrWhiteSpace(name))
     {
       return await _context.ApiKeys.AsNoTracking()
-      .Take(10)
-      .Select(a => new ApiKeySearchBusinessModel{
-        Id = a.Id,
-        Name = a.Name
-      })
-      .ToListAsync();
+        .Take(10)
+        .Select(a => new ApiKeySearchBusinessModel{
+          Id = a.Id,
+          Name = a.Name
+        })
+        .ToListAsync();
     }
     else
     {
