@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Administration;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -24,5 +25,17 @@ public record ApiKeyCreateDto
     {
       yield return new ValidationResult("LGDXRobot2 API Keys will be generated automatically.", [nameof(Secret)]);
     }
+  }
+}
+
+public static class ApiKeyCreateDtoExtensions
+{
+  public static ApiKeyCreateBusinessModel ToBusinessModel(this ApiKeyCreateDto apiKey)
+  {
+    return new ApiKeyCreateBusinessModel{
+      Name = apiKey.Name,
+      Secret = apiKey.Secret,
+      IsThirdParty = apiKey.IsThirdParty
+    };
   }
 }

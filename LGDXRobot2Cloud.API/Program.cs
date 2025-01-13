@@ -3,6 +3,7 @@ using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Middleware;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
+using LGDXRobot2Cloud.API.Services.Administration;
 using LGDXRobot2Cloud.API.Services.Automation;
 using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.API.Services.Identity;
@@ -179,6 +180,9 @@ builder.Services.AddAuthorizationBuilder()
 /*
  * LGDX Depency Injection
  */
+// Administrator
+builder.Services.AddScoped<IApiKeyService, ApiKeyService>();
+
 // Custom Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();
