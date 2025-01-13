@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Realms;
 public sealed partial class RealmDetail : ComponentBase
@@ -47,25 +48,40 @@ public sealed partial class RealmDetail : ComponentBase
     }
     catch (Exception ex)
     {
-      throw new Exception("Error on uploading image.", ex);
+      RealmDetailViewModel.Errors = [];
+      RealmDetailViewModel.Errors.Add(nameof(RealmDetailViewModel.SelectedImage), ex.Message);
     }
 
-    if (Id != null)
+    try
     {
-      // Update
-      await LgdxApiClient.Navigation.Realms[(int)Id].PutAsync(RealmDetailViewModel.ToUpdateDto());
+      if (Id != null)
+      {
+        // Update
+        await LgdxApiClient.Navigation.Realms[(int)Id].PutAsync(RealmDetailViewModel.ToUpdateDto());
+      }
+      else
+      {
+        // Create
+        await LgdxApiClient.Navigation.Realms.PostAsync(RealmDetailViewModel.ToCreateDto());
+      }
     }
-    else
+    catch (ApiException ex)
     {
-      // Create
-      await LgdxApiClient.Navigation.Realms.PostAsync(RealmDetailViewModel.ToCreateDto());
+      RealmDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
   }
 
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Navigation.Realms[(int)Id!].DeleteAsync();
+    try
+    {
+      await LgdxApiClient.Navigation.Realms[(int)Id!].DeleteAsync();
+    }
+    catch (ApiException ex)
+    {
+      RealmDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
   }
 

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks;
 
@@ -153,28 +154,49 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     for (int i = 0; i < AutoTaskDetailViewModel.AutoTaskDetails.Count; i++)
       AutoTaskDetailViewModel.AutoTaskDetails[i].Order = i;
 
-    if (Id != null)
+    try
     {
-      // Update
-      await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].PutAsync(AutoTaskDetailViewModel.ToUpdateDto());
+      if (Id != null)
+      {
+        // Update
+        await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].PutAsync(AutoTaskDetailViewModel.ToUpdateDto());
+      }
+      else
+      {
+        // Create
+        await LgdxApiClient.Automation.AutoTasks.PostAsync(AutoTaskDetailViewModel.ToCreateDto());
+      }
     }
-    else
+    catch (ApiException ex)
     {
-      // Create
-      await LgdxApiClient.Automation.AutoTasks.PostAsync(AutoTaskDetailViewModel.ToCreateDto());
+      AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
   }
 
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].DeleteAsync();
+    try
+    {
+      await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].DeleteAsync();
+    }
+    catch (ApiException ex)
+    {
+      AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
   }
 
   public async Task HandleAbort()
   {
-    await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].Abort.PostAsync();
+    try
+    {
+      await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].Abort.PostAsync();
+    }
+    catch (ApiException ex)
+    {
+      AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
   }
 

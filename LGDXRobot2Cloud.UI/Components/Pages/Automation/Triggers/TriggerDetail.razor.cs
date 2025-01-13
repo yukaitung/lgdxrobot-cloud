@@ -6,6 +6,7 @@ using LGDXRobot2Cloud.UI.ViewModels.Automation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Triggers;
 
@@ -71,22 +72,36 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
 
   public async Task HandleValidSubmit()
   {
-    if (Id != null)
+    try
     {
-      // Update
-      await LgdxApiClient.Automation.Triggers[(int)Id].PutAsync(TriggerDetailViewModel.ToUpdateDto());
+      if (Id != null)
+      {
+        // Update
+        await LgdxApiClient.Automation.Triggers[(int)Id].PutAsync(TriggerDetailViewModel.ToUpdateDto());
+      }
+      else
+      {
+        // Create
+        await LgdxApiClient.Automation.Triggers.PostAsync(TriggerDetailViewModel.ToCreateDto());
+      }
     }
-    else
+    catch (ApiException ex)
     {
-      // Create
-      await LgdxApiClient.Automation.Triggers.PostAsync(TriggerDetailViewModel.ToCreateDto());
+      TriggerDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
   }
 
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Automation.Triggers[(int)Id!].DeleteAsync();
+    try
+    {
+      await LgdxApiClient.Automation.Triggers[(int)Id!].DeleteAsync();
+    }
+    catch (ApiException ex)
+    {
+      TriggerDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
   }
 

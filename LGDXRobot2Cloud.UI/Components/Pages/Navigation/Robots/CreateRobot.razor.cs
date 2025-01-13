@@ -5,6 +5,7 @@ using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots;
 
@@ -27,6 +28,7 @@ public sealed partial class CreateRobot
 
   public async Task HandleValidSubmit()
   {
+    Robot.Errors = null;
     if (currentStep == 0)
     {
       _editContext = new EditContext(RobotChassisInfo);
@@ -35,9 +37,15 @@ public sealed partial class CreateRobot
     }
     else if (currentStep == 1)
     {
-      var response = await LgdxApiClient.Navigation.Robots.PostAsync(Robot.ToCreateDto(RobotChassisInfo.ToCreateDto()));
-      Robot.Errors = null;
-      RobotCertificates = response;
+      try
+      {
+        var response = await LgdxApiClient.Navigation.Robots.PostAsync(Robot.ToCreateDto(RobotChassisInfo.ToCreateDto()));
+        RobotCertificates = response;
+      }
+      catch (ApiException ex)
+      {
+        Robot.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      }   
       currentStep++;
     }
     else if (currentStep == 2)

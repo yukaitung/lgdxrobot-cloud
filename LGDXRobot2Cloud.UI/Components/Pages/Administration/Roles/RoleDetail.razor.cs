@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.Roles;
 
@@ -36,22 +37,36 @@ public sealed partial class RoleDetail : ComponentBase
 
   public async Task HandleValidSubmit()
   {
-    if (Id != null)
+    try
     {
-      // Update
-      await LgdxApiClient.Administration.Roles[RolesDetailViewModel.Id].PutAsync(RolesDetailViewModel.ToUpdateDto());
+      if (Id != null)
+      {
+        // Update
+        await LgdxApiClient.Administration.Roles[RolesDetailViewModel.Id].PutAsync(RolesDetailViewModel.ToUpdateDto());
+      }
+      else
+      {
+        // Create
+        await LgdxApiClient.Administration.Roles.PostAsync(RolesDetailViewModel.ToCreateDto());
+      }
     }
-    else
+    catch (ApiException ex)
     {
-      // Create
-      await LgdxApiClient.Administration.Roles.PostAsync(RolesDetailViewModel.ToCreateDto());
+      RolesDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
   }
 
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Administration.Roles[RolesDetailViewModel.Id].DeleteAsync();
+    try
+    {
+      await LgdxApiClient.Administration.Roles[RolesDetailViewModel.Id].DeleteAsync();
+    }
+    catch (ApiException ex)
+    {
+      RolesDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
   }
 

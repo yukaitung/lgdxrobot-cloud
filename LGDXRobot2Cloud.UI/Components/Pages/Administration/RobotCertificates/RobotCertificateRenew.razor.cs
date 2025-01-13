@@ -2,9 +2,11 @@
 using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Constants;
+using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.RobotCertificates;
 
@@ -36,11 +38,19 @@ public sealed partial class RobotCertificateRenew
 
   public async Task HandleSubmit()
   {
+    RobotCertificateRenewViewModel.Errors = null;
     if (currentStep == 0)
     {
       if (Guid.TryParse(Id, out Guid _guid))
       {
-        RobotCertificate = await LgdxApiClient.Administration.RobotCertificates[_guid].Renew.PostAsync(RobotCertificateRenewViewModel.ToDto());
+        try
+        {
+          RobotCertificate = await LgdxApiClient.Administration.RobotCertificates[_guid].Renew.PostAsync(RobotCertificateRenewViewModel.ToDto());
+        }
+        catch (ApiException ex)
+        {
+          RobotCertificateRenewViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+        }
         currentStep++;
       }
     }

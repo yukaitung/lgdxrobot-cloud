@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.ViewModels.Automation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Progresses;
 
@@ -24,22 +25,36 @@ public sealed partial class ProgressDetail : ComponentBase
 
   public async Task HandleValidSubmit()
   {
-    if (Id != null)
+    try
     {
-      // Update
-      await LgdxApiClient.Automation.Progresses[ProgressDetailViewModel.Id].PutAsync(ProgressDetailViewModel.ToUpdateDto());
+      if (Id != null)
+      {
+        // Update
+        await LgdxApiClient.Automation.Progresses[ProgressDetailViewModel.Id].PutAsync(ProgressDetailViewModel.ToUpdateDto());
+      }
+      else
+      {
+        // Create
+        await LgdxApiClient.Automation.Progresses.PostAsync(ProgressDetailViewModel.ToCreateDto());
+      }
     }
-    else
+    catch (ApiException ex)
     {
-      // Create
-      await LgdxApiClient.Automation.Progresses.PostAsync(ProgressDetailViewModel.ToCreateDto());
+      ProgressDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Automation.Progresses.Index);
   }
 
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Automation.Progresses[ProgressDetailViewModel.Id].DeleteAsync();
+    try
+    {
+      await LgdxApiClient.Automation.Progresses[ProgressDetailViewModel.Id].DeleteAsync();
+    }
+    catch (ApiException ex)
+    {
+      ProgressDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Automation.Progresses.Index);
   }
 

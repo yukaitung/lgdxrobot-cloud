@@ -6,6 +6,7 @@ using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.Users;
 
@@ -84,22 +85,36 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
 
   public async Task HandleValidSubmit()
   {
-    if (Id != null)
+    try
     {
-      // Update
-      await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].PutAsync(UserDetailViewModel.ToUpdateDto());
+      if (Id != null)
+      {
+        // Update
+        await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].PutAsync(UserDetailViewModel.ToUpdateDto());
+      }
+      else
+      {
+        // Create
+        await LgdxApiClient.Administration.Users.PostAsync(UserDetailViewModel.ToCreateDto());
+      }
     }
-    else
+    catch (ApiException ex)
     {
-      // Create
-      await LgdxApiClient.Administration.Users.PostAsync(UserDetailViewModel.ToCreateDto());
+      UserDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
   }
 
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].DeleteAsync();
+    try
+    {
+      await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].DeleteAsync();
+    }
+    catch (ApiException ex)
+    {
+      UserDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
   }
 

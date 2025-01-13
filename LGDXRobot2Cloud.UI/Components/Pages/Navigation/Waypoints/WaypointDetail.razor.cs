@@ -6,6 +6,7 @@ using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Waypoints;
 
@@ -55,22 +56,36 @@ public sealed partial class WaypointDetail : ComponentBase, IDisposable
 
   public async Task HandleValidSubmit()
   {
-    if (Id != null)
+    try
     {
-      // Update
-      await LgdxApiClient.Navigation.Waypoints[(int)Id].PutAsync(WaypointDetailViewModel.ToUpdateDto());
+      if (Id != null)
+      {
+        // Update
+        await LgdxApiClient.Navigation.Waypoints[(int)Id].PutAsync(WaypointDetailViewModel.ToUpdateDto());
+      }
+      else
+      {
+        // Create
+        await LgdxApiClient.Navigation.Waypoints.PostAsync(WaypointDetailViewModel.ToCreateDto());
+      }
     }
-    else
+    catch (ApiException ex)
     {
-      // Create
-      await LgdxApiClient.Navigation.Waypoints.PostAsync(WaypointDetailViewModel.ToCreateDto());
+      WaypointDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
   }
 
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Navigation.Waypoints[(int)Id!].DeleteAsync();
+    try
+    {
+      await LgdxApiClient.Navigation.Waypoints[(int)Id!].DeleteAsync();
+    }
+    catch (ApiException ex)
+    {
+      WaypointDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
   }
 

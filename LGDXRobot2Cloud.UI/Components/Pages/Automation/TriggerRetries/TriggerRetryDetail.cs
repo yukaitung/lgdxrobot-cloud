@@ -1,7 +1,9 @@
 using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Constants;
+using LGDXRobot2Cloud.UI.Helpers;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.TriggerRetries;
 
@@ -16,17 +18,33 @@ public sealed partial class TriggerRetryDetail : ComponentBase
   [Parameter]
   public int? Id { get; set; }
 
+  private Dictionary<string, string>? Errors { get; set; } = null;
+
   private TriggerRetryDto TriggerRetry { get; set; } = null!;
 
   public async Task HandleRetry()
   {
-    await LgdxApiClient.Automation.TriggerRetries[(int)Id!].Retry.PostAsync();
+    try
+    {
+      await LgdxApiClient.Automation.TriggerRetries[(int)Id!].Retry.PostAsync();
+    }
+    catch (ApiException ex)
+    {
+      Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
   }
 
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Automation.TriggerRetries[(int)Id!].DeleteAsync();
+    try
+    {
+      await LgdxApiClient.Automation.TriggerRetries[(int)Id!].DeleteAsync();
+    }
+    catch (ApiException ex)
+    {
+      Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
   }
 

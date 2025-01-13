@@ -5,6 +5,7 @@ using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Administration.ApiKeys;
 
@@ -34,37 +35,65 @@ public sealed partial class ApiKeyDetail
 
   public async Task HandleValidSubmit()
   {
-    if (Id != null)
+    try
     {
-      // Update
-      await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].PutAsync(ApiKeyDetailViewModel.ToUpdateDto());
+      if (Id != null)
+      {
+        // Update
+        await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].PutAsync(ApiKeyDetailViewModel.ToUpdateDto());
+      }
+      else
+      {
+        // Create
+        await LgdxApiClient.Administration.ApiKeys.PostAsync(ApiKeyDetailViewModel.ToCreateDto());
+      }
     }
-    else
+    catch (ApiException ex)
     {
-      // Create
-      await LgdxApiClient.Administration.ApiKeys.PostAsync(ApiKeyDetailViewModel.ToCreateDto());
+      ApiKeyDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Administration.ApiKeys.Index);
   }
 
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].DeleteAsync();
+    try
+    {
+      await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].DeleteAsync();
+    }
+    catch (ApiException ex)
+    {
+      ApiKeyDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Administration.ApiKeys.Index);
   }
 
   public async Task HandleGetSecret()
   {
-    var response = await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].Secret.GetAsync();
-    UpdateApiKeySecretViewModel.Secret = response!.Secret;
+    try
+    {
+      var response = await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].Secret.GetAsync();
+      UpdateApiKeySecretViewModel.Secret = response!.Secret;
+    }
+    catch (ApiException ex)
+    {
+      UpdateApiKeySecretViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
   }
 
   public async Task HandleSetSecret()
   {
-    if (Id != null)
+    try
     {
-      await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].Secret.PutAsync(new ApiKeySecretUpdateDto { Secret = UpdateApiKeySecretViewModel.UpdateSecret });
-      NavigationManager.NavigateTo(AppRoutes.Administration.ApiKeys.Index);
+      if (Id != null)
+      {
+        await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].Secret.PutAsync(new ApiKeySecretUpdateDto { Secret = UpdateApiKeySecretViewModel.UpdateSecret });
+        NavigationManager.NavigateTo(AppRoutes.Administration.ApiKeys.Index);
+      }
+    }
+    catch (ApiException ex)
+    {
+      UpdateApiKeySecretViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -82,7 +111,6 @@ public sealed partial class ApiKeyDetail
     }
     else
     {
-      ApiKeyDetailViewModel = new ApiKeyDetailViewModel();
       _editContext = new EditContext(ApiKeyDetailViewModel);
       _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       _editContextSecret = new EditContext(UpdateApiKeySecretViewModel);

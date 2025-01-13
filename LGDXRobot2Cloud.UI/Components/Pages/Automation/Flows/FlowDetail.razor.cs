@@ -6,6 +6,7 @@ using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.ViewModels.Automation;
 using LGDXRobot2Cloud.UI.Client;
 using System.Text.Json;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Flows;
 
@@ -125,22 +126,36 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     for (int i = 0; i < FlowDetailViewModel.FlowDetails.Count; i++)
       FlowDetailViewModel.FlowDetails[i].Order = i;
     
-    if (Id != null)
+    try
     {
-      // Update
-      await LgdxApiClient.Automation.Flows[FlowDetailViewModel.Id].PutAsync(FlowDetailViewModel.ToUpdateDto());
+      if (Id != null)
+      {
+        // Update
+        await LgdxApiClient.Automation.Flows[FlowDetailViewModel.Id].PutAsync(FlowDetailViewModel.ToUpdateDto());
+      }
+      else
+      {
+        // Create
+        await LgdxApiClient.Automation.Flows.PostAsync(FlowDetailViewModel.ToCreateDto());
+      }
     }
-    else
+    catch (ApiException ex)
     {
-      // Create
-      await LgdxApiClient.Automation.Flows.PostAsync(FlowDetailViewModel.ToCreateDto());
+      FlowDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
   }
 
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Automation.Flows[FlowDetailViewModel.Id].DeleteAsync();
+    try
+    {
+      await LgdxApiClient.Automation.Flows[FlowDetailViewModel.Id].DeleteAsync();
+    }
+    catch (ApiException ex)
+    {
+      FlowDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
     NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
   }
 
