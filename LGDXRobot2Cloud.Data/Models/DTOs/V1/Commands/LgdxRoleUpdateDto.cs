@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Administration;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -22,5 +23,18 @@ public record LgdxRoleUpdateDto : IValidatableObject
       }
       i++;
     }
+  }
+}
+
+public static class LgdxRoleUpdateDtoExtensions
+{
+  public static LgdxRoleUpdateBusinessModel ToBusinessModel(this LgdxRoleUpdateDto model)
+  {
+    return new LgdxRoleUpdateBusinessModel
+    {
+      Name = model.Name,
+      Description = model.Description,
+      Scopes = model.Scopes,
+    };
   }
 }
