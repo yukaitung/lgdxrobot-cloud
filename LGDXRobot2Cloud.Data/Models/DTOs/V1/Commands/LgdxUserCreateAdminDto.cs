@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Administration;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -33,5 +34,19 @@ public record LgdxUserCreateAdminDto : IValidatableObject
       }
       i++;
     }
+  }
+}
+
+public static class LgdxUserCreateAdminDtoExtensions
+{
+  public static LgdxUserCreateAdminBusinessModel ToBusinessModel(this LgdxUserCreateAdminDto model)
+  {
+    return new LgdxUserCreateAdminBusinessModel {
+      Name = model.Name,
+      UserName = model.UserName,
+      Email = model.Email,
+      Password = model.Password,
+      Roles = model.Roles,
+    };
   }
 }

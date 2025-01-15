@@ -130,12 +130,12 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
         _editContext = new EditContext(UserDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
-    }
-    else
-    {
-      UserDetailViewModel.Roles.Add(string.Empty);
-      _editContext = new EditContext(UserDetailViewModel);
-      _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+      else
+      {
+        UserDetailViewModel.Roles.Add(string.Empty);
+        _editContext = new EditContext(UserDetailViewModel);
+        _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+      }
     }
     await base.SetParametersAsync(ParameterView.Empty);
   }
