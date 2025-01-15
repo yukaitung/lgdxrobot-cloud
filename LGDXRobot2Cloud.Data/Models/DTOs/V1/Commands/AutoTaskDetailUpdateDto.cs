@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Automation;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -23,5 +24,20 @@ public record AutoTaskDetailUpdateDto : IValidatableObject
     {
       yield return new ValidationResult("Please enter a waypoint or a custom coordinate.", [nameof(AutoTaskUpdateDto.AutoTaskDetails)]);
     }
+  }
+}
+
+public static class AutoTaskDetailUpdateDtoExtensions
+{
+  public static AutoTaskDetailUpdateBusinessModel ToBusinessModel(this AutoTaskDetailUpdateDto model)
+  {
+    return new AutoTaskDetailUpdateBusinessModel {
+      Id = model.Id,
+      CustomX = model.CustomX,
+      CustomY = model.CustomY,
+      CustomRotation = model.CustomRotation,
+      WaypointId = model.WaypointId,
+      Order = model.Order,
+    };
   }
 }

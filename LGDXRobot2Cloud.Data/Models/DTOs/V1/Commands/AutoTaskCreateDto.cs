@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Automation;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -33,5 +34,21 @@ public record AutoTaskCreateDto : IValidatableObject
         yield return validationResult;
       }
     }
+  }
+}
+
+public static class AutoTaskCreateDtoExtensions
+{
+  public static AutoTaskCreateBusinessModel ToBusinessModel(this AutoTaskCreateDto model)
+  {
+    return new AutoTaskCreateBusinessModel {
+      Name = model.Name,
+      AutoTaskDetails = model.AutoTaskDetails.Select(td => td.ToBusinessModel()),
+      Priority = model.Priority,
+      FlowId = model.FlowId,
+      RealmId = model.RealmId,
+      AssignedRobotId = model.AssignedRobotId,
+      IsTemplate = model.IsTemplate,
+    };
   }
 }

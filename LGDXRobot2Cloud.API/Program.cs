@@ -186,6 +186,9 @@ builder.Services.AddScoped<IRobotCertificateService, RobotCertificateService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+// Automation
+builder.Services.AddScoped<IAutoTaskService, AutoTaskService>();
+
 // Custom Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();
