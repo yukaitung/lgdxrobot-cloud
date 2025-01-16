@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Automation;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -21,5 +22,16 @@ public record FlowCreateDto : IValidatableObject
         yield return validationResult;
       }
     }
+  }
+}
+
+public static class FlowCreateDtoExtensions
+{
+  public static FlowCreateBusinessModel ToBusinessModel(this FlowCreateDto flowCreateDto)
+  {
+    return new FlowCreateBusinessModel {
+      Name = flowCreateDto.Name,
+      FlowDetails = flowCreateDto.FlowDetails.Select(fd => fd.ToBusinessModel()).ToList(),
+    };
   }
 }

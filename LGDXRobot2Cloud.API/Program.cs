@@ -188,6 +188,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 // Automation
 builder.Services.AddScoped<IAutoTaskService, AutoTaskService>();
+builder.Services.AddScoped<IFlowService, FlowService>();
 
 // Custom Services
 builder.Services.AddScoped<IAuthService, AuthService>();

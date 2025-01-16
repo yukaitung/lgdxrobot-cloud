@@ -6,9 +6,9 @@ public record FlowDetailDto
   
   public required int Order { get; set; }
 
-  public required ProgressDto Progress { get; set; }
+  public required ProgressSearchDto Progress { get; set; }
 
   public required int AutoTaskNextControllerId { get; set; }
 
-  public TriggerDto? Trigger { get; set; }
+  public TriggerSearchDto? Trigger { get; set; }
 }

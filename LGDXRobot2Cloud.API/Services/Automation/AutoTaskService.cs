@@ -267,9 +267,7 @@ public class AutoTaskService(
       CustomRotation = td.CustomRotation,
       WaypointId = td.WaypointId,
     }).ToList();
-
     await _context.SaveChangesAsync();
-
     return true;
   }
 

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Automation;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -21,5 +22,16 @@ public record FlowUpdateDto
         yield return validationResult;
       }
     }
+  }
+}
+
+public static class FlowUpdateDtoExtensions
+{
+  public static FlowUpdateBusinessModel ToBusinessModel(this FlowUpdateDto flowUpdateDto)
+  {
+    return new FlowUpdateBusinessModel {
+      Name = flowUpdateDto.Name,
+      FlowDetails = flowUpdateDto.FlowDetails.Select(fd => fd.ToBusinessModel()).ToList(),
+    };
   }
 }
