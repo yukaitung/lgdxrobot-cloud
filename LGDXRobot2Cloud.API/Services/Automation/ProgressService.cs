@@ -1,0 +1,140 @@
+using LGDXRobot2Cloud.API.Exceptions;
+using LGDXRobot2Cloud.Data.DbContexts;
+using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Data.Models.Business.Automation;
+using LGDXRobot2Cloud.Utilities.Helpers;
+using Microsoft.EntityFrameworkCore;
+
+namespace LGDXRobot2Cloud.API.Services.Automation;
+
+public interface IProgressService
+{
+  Task<(IEnumerable<ProgressBusinessModel>, PaginationHelper)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved, bool hideSystem);
+  Task<ProgressBusinessModel> GetProgressAsync(int progressId);
+  Task<ProgressBusinessModel> CreateProgressAsync(ProgressCreateBusinessModel progressCreateBusinessModel);
+  Task<bool> UpdateProgressAsync(int progressId, ProgressUpdateBusinessModel progressUpdateBusinessModel);
+  Task<bool> DeleteProgressAsync(int progressId);
+  
+  Task<IEnumerable<ProgressSearchBusinessModel>> SearchProgressesAsync(string? name);
+}
+
+public class ProgressService(LgdxContext context) : IProgressService
+{
+  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+
+  public async Task<(IEnumerable<ProgressBusinessModel>, PaginationHelper)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved, bool hideSystem)
+  {
+    var query = _context.Progresses as IQueryable<Progress>;
+    if (!string.IsNullOrWhiteSpace(name))
+    {
+      name = name.Trim();
+      query = query.Where(t => t.Name.Contains(name));
+    }
+    if (hideReserved)
+    {
+      query = query.Where(t => !t.Reserved);
+    }
+    if (hideSystem)
+    {
+      query = query.Where(t => !t.System);
+    }
+    var itemCount = await query.CountAsync();
+    var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
+    var progresses = await query.AsNoTracking()
+      .OrderBy(p => p.Id)
+      .Skip(pageSize * (pageNumber - 1))
+      .Take(pageSize)
+      .Select(p => new ProgressBusinessModel{
+        Id = p.Id,
+        Name = p.Name,
+        System = p.System,
+        Reserved = p.Reserved,
+      })
+      .ToListAsync();
+    return (progresses, PaginationHelper);
+  }
+
+  public async Task<ProgressBusinessModel> GetProgressAsync(int progressId)
+  {
+    return await _context.Progresses.AsNoTracking()
+      .Where(p => p.Id == progressId)
+      .Select(p => new ProgressBusinessModel {
+        Id = p.Id,
+        Name = p.Name,
+        System = p.System,
+        Reserved = p.Reserved,
+      })
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
+  }
+
+  public async Task<ProgressBusinessModel> CreateProgressAsync(ProgressCreateBusinessModel progressCreateBusinessModel)
+  {
+    var progress = new Progress {
+      Name = progressCreateBusinessModel.Name,
+    };
+    await _context.Progresses.AddAsync(progress);
+    await _context.SaveChangesAsync();
+    return new ProgressBusinessModel {
+      Id = progress.Id,
+      Name = progress.Name,
+      System = progress.System,
+      Reserved = progress.Reserved,
+    };
+  }
+
+  public async Task<bool> UpdateProgressAsync(int progressId, ProgressUpdateBusinessModel progressUpdateBusinessModel)
+  {
+    var progress = await _context.Progresses.Where(p => p.Id == progressId)
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
+
+    if (progress.System)
+    {
+      throw new LgdxValidation400Expection("Progress", $"Cannot update system progress.");
+    }
+    progress.Name = progressUpdateBusinessModel.Name;
+    return await _context.SaveChangesAsync() >= 1;
+  }
+
+  public async Task<bool> DeleteProgressAsync(int progressId)
+  {
+    var progress = await _context.Progresses.AsNoTracking()
+      .Where(p => p.Id == progressId)
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
+
+    if (progress.System)
+    {
+      throw new LgdxValidation400Expection("Progress", $"Cannot delete system progress.");
+    }
+
+    return await _context.Progresses.Where(p => p.Id == progressId)
+      .ExecuteDeleteAsync() >= 1;
+  }
+
+  public async Task<IEnumerable<ProgressSearchBusinessModel>> SearchProgressesAsync(string? name)
+  {
+    if (string.IsNullOrWhiteSpace(name))
+    {
+      return await _context.Progresses.AsNoTracking()
+        .Take(10)
+        .Select(t => new ProgressSearchBusinessModel {
+          Id = t.Id,
+          Name = t.Name,
+        })
+        .ToListAsync();
+    }
+    else
+    {
+      return await _context.Progresses.AsNoTracking()
+        .Where(w => w.Name.Contains(name))
+        .Take(10)
+        .Select(t => new ProgressSearchBusinessModel {
+          Id = t.Id,
+          Name = t.Name,
+        })
+        .ToListAsync();
+    }
+  }
+}

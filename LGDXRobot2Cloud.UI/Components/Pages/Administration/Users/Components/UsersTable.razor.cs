@@ -50,6 +50,7 @@ public sealed partial class UsersTable : AbstractTable
       };
     });
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
+    CurrentPage = 1;
   }
 
   public override async Task HandleClearSearch()

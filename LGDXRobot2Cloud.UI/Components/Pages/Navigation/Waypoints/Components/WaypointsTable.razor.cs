@@ -51,6 +51,7 @@ public sealed partial class WaypointsTable : AbstractTable
     });
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
     LastDataSearch = DataSearch;
+    CurrentPage = 1;
   }
 
   public override async Task HandleClearSearch()

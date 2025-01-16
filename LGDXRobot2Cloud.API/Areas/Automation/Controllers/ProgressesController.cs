@@ -1,8 +1,7 @@
-using AutoMapper;
 using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
-using LGDXRobot2Cloud.API.Repositories;
-using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.API.Services.Automation;
+using LGDXRobot2Cloud.Data.Models.Business.Automation;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,31 +18,29 @@ namespace LGDXRobot2Cloud.API.Areas.Automation.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class ProgressesController(
-    IMapper mapper,
     IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
-    IProgressRepository progressRepository
+    IProgressService progressService
   ) : ControllerBase
 {
-  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-  private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
   private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
+  private readonly IProgressService _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<ProgressDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<ProgressDto>>> GetProgresses(string? name, int pageNumber = 1, int pageSize = 10, bool hideReserved = false, bool hideSystem = false)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
-    var (progresses, PaginationHelper) = await _progressRepository.GetProgressesAsync(name, pageNumber, pageSize, hideReserved, hideSystem);
+    var (progresses, PaginationHelper) = await _progressService.GetProgressesAsync(name, pageNumber, pageSize, hideReserved, hideSystem);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
-    return Ok(_mapper.Map<IEnumerable<ProgressDto>>(progresses));
+    return Ok(progresses.ToDto());
   }
 
   [HttpGet("Search")]
   [ProducesResponseType(typeof(IEnumerable<ProgressSearchDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<ProgressSearchDto>>> SearchProgresses(string name)
   {
-    var progresses = await _progressRepository.SearchProgressesAsync(name);
-    return Ok(_mapper.Map<IEnumerable<ProgressSearchDto>>(progresses));
+    var progresses = await _progressService.SearchProgressesAsync(name);
+    return Ok(progresses.ToDto());
   }
 
   [HttpGet("{id}", Name = "GetProgress")]
@@ -51,21 +48,16 @@ public sealed class ProgressesController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<ProgressDto>> GetProgress(int id)
   {
-    var progress = await _progressRepository.GetProgressAsync(id);
-    if (progress == null)
-      return NotFound();
-    return Ok(_mapper.Map<ProgressDto>(progress));
+    var progress = await _progressService.GetProgressAsync(id);
+    return Ok(progress.ToDto());
   }
 
   [HttpPost("")]
   [ProducesResponseType(typeof(ProgressDto), StatusCodes.Status201Created)]
   public async Task<ActionResult> CreateProgress(ProgressCreateDto progressCreateDto)
   {
-    var progressEntity = _mapper.Map<Progress>(progressCreateDto);
-    await _progressRepository.AddProgressAsync(progressEntity);
-    await _progressRepository.SaveChangesAsync();
-    var progressDto = _mapper.Map<ProgressDto>(progressEntity);
-    return CreatedAtRoute(nameof(GetProgress), new { id = progressDto.Id }, progressDto);
+    var progress = await _progressService.CreateProgressAsync(progressCreateDto.ToBusinessModel());
+    return CreatedAtRoute(nameof(GetProgress), new { id = progress.Id }, progress.ToDto());
   }
 
   [HttpPut("{id}")]
@@ -74,16 +66,7 @@ public sealed class ProgressesController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> UpdateProgress(int id, ProgressUpdateDto progressUpdateDto)
   {
-    var progressEntity = await _progressRepository.GetProgressAsync(id);
-    if (progressEntity == null)
-      return NotFound();
-    if (progressEntity.System)
-    {
-      ModelState.AddModelError(nameof(id), "Cannot update system progress.");
-      return ValidationProblem();
-    }
-    _mapper.Map(progressUpdateDto, progressEntity);
-    await _progressRepository.SaveChangesAsync();
+    await _progressService.UpdateProgressAsync(id, progressUpdateDto.ToBusinessModel());
     return NoContent();
   }
 
@@ -93,16 +76,7 @@ public sealed class ProgressesController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> DeleteProgress(int id)
   {
-    var progress = await _progressRepository.GetProgressAsync(id);
-    if (progress == null)
-      return NotFound();
-    if (progress.System)
-    {
-      ModelState.AddModelError(nameof(id), "Cannot delete system progress.");
-      return ValidationProblem();
-    }
-    _progressRepository.DeleteProgress(progress);
-    await _progressRepository.SaveChangesAsync();
+    await _progressService.DeleteProgressAsync(id);
     return NoContent();
   }
 }

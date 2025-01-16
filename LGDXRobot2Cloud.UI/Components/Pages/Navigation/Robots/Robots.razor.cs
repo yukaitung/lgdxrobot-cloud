@@ -80,6 +80,7 @@ public sealed partial class Robots : ComponentBase
     RobotsList = robots;
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
     LastDataSearch = DataSearch;
+    CurrentPage = 1;
   }
 
   public async Task HandleClearSearch()

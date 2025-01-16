@@ -48,6 +48,7 @@ public sealed partial class RealmsTable : AbstractTable
       };
     });
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
+    CurrentPage = 1;
   }
 
   public override async Task HandleClearSearch()
