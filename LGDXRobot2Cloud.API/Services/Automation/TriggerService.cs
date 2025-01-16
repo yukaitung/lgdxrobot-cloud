@@ -1,8 +1,12 @@
 using System.Text.Json;
+using LGDXRobot2Cloud.API.Exceptions;
+using LGDXRobot2Cloud.API.Services.Administration;
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.Data.Models.Business.Automation;
 using LGDXRobot2Cloud.Utilities.Enums;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,17 +14,171 @@ namespace LGDXRobot2Cloud.API.Services.Automation;
 
 public interface ITriggerService
 {
+  Task<(IEnumerable<TriggerListBusinessModel>, PaginationHelper)> GetTriggersAsync(string? name, int pageNumber, int pageSize);
+  Task<TriggerBusinessModel> GetTriggerAsync(int triggerId);
+  Task<TriggerBusinessModel> CreateTriggerAsync(TriggerCreateBusinessModel triggerCreateBusinessModel);
+  Task<bool> UpdateTriggerAsync(int triggerId, TriggerUpdateBusinessModel triggerUpdateBusinessModel);
+  Task<bool> DeleteTriggerAsync(int triggerId);
+
+  Task<IEnumerable<TriggerSearchBusinessModel>> SearchTriggersAsync(string? name);
+
   Task InitialiseTriggerAsync(AutoTask autoTask, FlowDetail flowDetail, Trigger trigger);
   Task RetryTriggerAsync(AutoTask autoTask, Trigger trigger, string body);
 }
 
 public sealed class TriggerService (
   IBus bus,
-  LgdxContext context
+  LgdxContext context,
+  IApiKeyService apiKeyService
 ) : ITriggerService
 {
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private readonly IApiKeyService _apiKeyService = apiKeyService ?? throw new ArgumentNullException(nameof(apiKeyService));
+
+  public async Task<(IEnumerable<TriggerListBusinessModel>, PaginationHelper)> GetTriggersAsync(string? name, int pageNumber, int pageSize)
+  {
+    var query = _context.Triggers as IQueryable<Trigger>;
+    if(!string.IsNullOrWhiteSpace(name))
+    {
+      name = name.Trim();
+      query = query.Where(t => t.Name.Contains(name));
+    }
+    var itemCount = await query.CountAsync();
+    var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
+    var triggers = await query.AsNoTracking()
+      .OrderBy(t => t.Id)
+      .Skip(pageSize * (pageNumber - 1))
+      .Take(pageSize)
+      .Select(t => new TriggerListBusinessModel {
+        Id = t.Id,
+        Name = t.Name,
+        Url = t.Url,
+        HttpMethodId = t.HttpMethodId,
+      })
+      .ToListAsync();
+    return (triggers, PaginationHelper);
+  }
+
+  public async Task<TriggerBusinessModel> GetTriggerAsync(int triggerId)
+  {
+    return await _context.Triggers.Where(t => t.Id == triggerId)
+      .Include(t => t.ApiKey)
+      .Select(t => new TriggerBusinessModel {
+        Id = t.Id,
+        Name = t.Name,
+        Url = t.Url,
+        HttpMethodId = t.HttpMethodId,
+        Body = t.Body,
+        SkipOnFailure = t.SkipOnFailure,
+        ApiKeyInsertLocationId = t.ApiKeyInsertLocationId,
+        ApiKeyFieldName = t.ApiKeyFieldName,
+        ApiKeyId = t.ApiKey!.Id,
+        ApiKeyName = t.ApiKey!.Name,
+      })
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
+  }
+
+  public async Task<TriggerBusinessModel> CreateTriggerAsync(TriggerCreateBusinessModel triggerCreateBusinessModel)
+  {
+    if (triggerCreateBusinessModel.ApiKeyId != null)
+    {
+      var apiKey = await _apiKeyService.GetApiKeyAsync((int)triggerCreateBusinessModel.ApiKeyId);
+      if (apiKey == null)
+      {
+        throw new LgdxValidation400Expection("Trigger", $"The API Key Id {triggerCreateBusinessModel.ApiKeyId} is invalid.");
+      }
+      else if (!apiKey.IsThirdParty)
+      {
+        throw new LgdxValidation400Expection("Trigger", "Only third party API key is allowed.");
+      }
+    }
+
+    var trigger = new Trigger {
+      Name = triggerCreateBusinessModel.Name,
+      Url = triggerCreateBusinessModel.Url,
+      HttpMethodId = triggerCreateBusinessModel.HttpMethodId,
+      Body = triggerCreateBusinessModel.Body,
+      SkipOnFailure = triggerCreateBusinessModel.SkipOnFailure,
+      ApiKeyInsertLocationId = triggerCreateBusinessModel.ApiKeyInsertLocationId,
+      ApiKeyFieldName = triggerCreateBusinessModel.ApiKeyFieldName,
+      ApiKeyId = triggerCreateBusinessModel.ApiKeyId,
+    };
+    await _context.Triggers.AddAsync(trigger);
+    await _context.SaveChangesAsync();
+    return new TriggerBusinessModel {
+      Id = trigger.Id,
+      Name = trigger.Name,
+      Url = trigger.Url,
+      HttpMethodId = trigger.HttpMethodId,
+      Body = trigger.Body,
+      SkipOnFailure = trigger.SkipOnFailure,
+      ApiKeyInsertLocationId = trigger.ApiKeyInsertLocationId,
+      ApiKeyFieldName = trigger.ApiKeyFieldName,
+      ApiKeyId = trigger.ApiKeyId,
+      ApiKeyName = trigger.ApiKey!.Name,
+    };
+  }
+
+  public async Task<bool> UpdateTriggerAsync(int triggerId, TriggerUpdateBusinessModel triggerUpdateBusinessModel)
+  {
+    if (triggerUpdateBusinessModel.ApiKeyId != null)
+    {
+      var apiKey = await _apiKeyService.GetApiKeyAsync((int)triggerUpdateBusinessModel.ApiKeyId);
+      if (apiKey == null)
+      {
+        throw new LgdxValidation400Expection("Trigger", $"The API Key Id {triggerUpdateBusinessModel.ApiKeyId} is invalid.");
+      }
+      else if (!apiKey.IsThirdParty)
+      {
+        throw new LgdxValidation400Expection("Trigger", "Only third party API key is allowed.");
+      }
+    }
+
+    return await _context.Triggers
+      .Where(t => t.Id == triggerId)
+      .ExecuteUpdateAsync(setters => setters
+        .SetProperty(t => t.Name, triggerUpdateBusinessModel.Name)
+        .SetProperty(t => t.Url, triggerUpdateBusinessModel.Url)
+        .SetProperty(t => t.HttpMethodId, triggerUpdateBusinessModel.HttpMethodId)
+        .SetProperty(t => t.Body, triggerUpdateBusinessModel.Body)
+        .SetProperty(t => t.SkipOnFailure, triggerUpdateBusinessModel.SkipOnFailure)
+        .SetProperty(t => t.ApiKeyInsertLocationId, triggerUpdateBusinessModel.ApiKeyInsertLocationId)
+        .SetProperty(t => t.ApiKeyFieldName, triggerUpdateBusinessModel.ApiKeyFieldName)
+        .SetProperty(t => t.ApiKeyId, triggerUpdateBusinessModel.ApiKeyId)) == 1;
+  }
+
+  public async Task<bool> DeleteTriggerAsync(int triggerId)
+  {
+    return await _context.Triggers.Where(t => t.Id == triggerId)
+      .ExecuteDeleteAsync() == 1;
+  }
+
+  public async Task<IEnumerable<TriggerSearchBusinessModel>> SearchTriggersAsync(string? name)
+  {
+    if (string.IsNullOrWhiteSpace(name))
+    {
+      return await _context.Triggers.AsNoTracking()
+        .Take(10)
+        .Select(t => new TriggerSearchBusinessModel {
+          Id = t.Id,
+          Name = t.Name,
+        })
+        .ToListAsync();
+    }
+    else
+    {
+      return await _context.Triggers.AsNoTracking()
+        .Where(w => w.Name.Contains(name))
+        .Take(10)
+        .Select(t => new TriggerSearchBusinessModel {
+          Id = t.Id,
+          Name = t.Name,
+        })
+        .ToListAsync();
+    }
+  }
 
   private string GetRobotName(Guid robotId)
   {

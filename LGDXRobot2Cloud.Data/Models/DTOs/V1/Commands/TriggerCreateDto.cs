@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Automation;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -42,5 +43,22 @@ public record TriggerCreateDto
         yield return new ValidationResult("Please select an API Key.", [nameof(ApiKeyId)]);
       }
     }
+  }
+}
+
+public static class TriggerCreateDtoExtensions
+{
+  public static TriggerCreateBusinessModel ToBusinessModel(this TriggerCreateDto triggerCreateDto)
+  {
+    return new TriggerCreateBusinessModel {
+      Name = triggerCreateDto.Name,
+      Url = triggerCreateDto.Url,
+      HttpMethodId = triggerCreateDto.HttpMethodId,
+      Body = triggerCreateDto.Body,
+      SkipOnFailure = triggerCreateDto.SkipOnFailure,
+      ApiKeyInsertLocationId = triggerCreateDto.ApiKeyInsertLocationId,
+      ApiKeyFieldName = triggerCreateDto.ApiKeyFieldName,
+      ApiKeyId = triggerCreateDto.ApiKeyId,
+    };
   }
 }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Automation;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -27,7 +28,7 @@ public record TriggerUpdateDto : IValidatableObject
 
   public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
   {
-    if (!(ApiKeyInsertLocationId != null && ApiKeyFieldName != null && ApiKeyId != null))
+    if (!(ApiKeyInsertLocationId == null && string.IsNullOrWhiteSpace(ApiKeyFieldName) && ApiKeyId == null))
     {
       if (ApiKeyInsertLocationId == null)
       {
@@ -42,5 +43,22 @@ public record TriggerUpdateDto : IValidatableObject
         yield return new ValidationResult("Please select an API Key.", [nameof(ApiKeyId)]);
       }
     }
+  }
+}
+
+public static class TriggerUpdateDtoExtensions
+{
+  public static TriggerUpdateBusinessModel ToBusinessModel(this TriggerUpdateDto triggerUpdateDto)
+  {
+    return new TriggerUpdateBusinessModel {
+      Name = triggerUpdateDto.Name,
+      Url = triggerUpdateDto.Url,
+      HttpMethodId = triggerUpdateDto.HttpMethodId,
+      Body = triggerUpdateDto.Body,
+      SkipOnFailure = triggerUpdateDto.SkipOnFailure,
+      ApiKeyInsertLocationId = triggerUpdateDto.ApiKeyInsertLocationId,
+      ApiKeyFieldName = triggerUpdateDto.ApiKeyFieldName,
+      ApiKeyId = triggerUpdateDto.ApiKeyId,
+    };
   }
 }

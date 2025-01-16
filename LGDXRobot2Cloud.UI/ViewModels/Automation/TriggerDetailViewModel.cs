@@ -146,9 +146,9 @@ public static class TriggerDetailViewModelExtensions
       HttpMethodId = triggerDetailViewModel.HttpMethodId,
       Body = TriggerDetailViewModel.GenerateBodyJson(triggerDetailViewModel.BodyDataList),
       SkipOnFailure = triggerDetailViewModel.SkipOnFailure,
-      ApiKeyInsertLocationId = triggerDetailViewModel.ApiKeyInsertLocationId,
-      ApiKeyFieldName = triggerDetailViewModel.ApiKeyFieldName,
-      ApiKeyId = triggerDetailViewModel.ApiKeyId
+      ApiKeyInsertLocationId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyInsertLocationId : null,
+      ApiKeyFieldName = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyFieldName : null,
+      ApiKeyId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyId : null
     };
   }
 
@@ -160,9 +160,9 @@ public static class TriggerDetailViewModelExtensions
       HttpMethodId = triggerDetailViewModel.HttpMethodId,
       Body = TriggerDetailViewModel.GenerateBodyJson(triggerDetailViewModel.BodyDataList),
       SkipOnFailure = triggerDetailViewModel.SkipOnFailure,
-      ApiKeyInsertLocationId = triggerDetailViewModel.ApiKeyInsertLocationId,
-      ApiKeyFieldName = triggerDetailViewModel.ApiKeyFieldName,
-      ApiKeyId = triggerDetailViewModel.ApiKeyId
+      ApiKeyInsertLocationId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyInsertLocationId : null,
+      ApiKeyFieldName = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyFieldName : null,
+      ApiKeyId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyId : null
     };
   }
 }

@@ -1,7 +1,7 @@
-using AutoMapper;
 using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
-using LGDXRobot2Cloud.API.Repositories;
+using LGDXRobot2Cloud.API.Services.Automation;
+using LGDXRobot2Cloud.Data.Models.Business.Automation;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,33 +18,29 @@ namespace LGDXRobot2Cloud.API.Areas.Automation.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class TriggersController(
-    IApiKeyRepository apiKeyRepository,
-    IMapper mapper,
     IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
-    ITriggerRepository triggerRepository
+    ITriggerService triggerService
   ) : ControllerBase
 {
-  private readonly IApiKeyRepository _apiKeyRepository = apiKeyRepository ?? throw new ArgumentNullException(nameof(apiKeyRepository));
-  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-  private readonly ITriggerRepository _triggerRepository = triggerRepository ?? throw new ArgumentNullException(nameof(triggerRepository));
   private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
+  private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<TriggerListDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<TriggerListDto>>> GetTriggers(string? name, int pageNumber = 1, int pageSize = 10)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
-    var (triggers, PaginationHelper) = await _triggerRepository.GetTriggersAsync(name, pageNumber, pageSize);
+    var (triggers, PaginationHelper) = await _triggerService.GetTriggersAsync(name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
-    return Ok(_mapper.Map<IEnumerable<TriggerListDto>>(triggers));
+    return Ok(triggers.ToDto());
   }
 
   [HttpGet("Search")]
   [ProducesResponseType(typeof(IEnumerable<TriggerSearchDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<TriggerSearchDto>>> SearchProgresses(string name)
+  public async Task<ActionResult<IEnumerable<TriggerSearchDto>>> SearchTriggers(string? name)
   {
-    var progresses = await _triggerRepository.SearchTriggersAsync(name);
-    return Ok(_mapper.Map<IEnumerable<TriggerSearchDto>>(progresses));
+    var triggers = await _triggerService.SearchTriggersAsync(name);
+    return Ok(triggers.ToDto());
   }
 
   [HttpGet("{id}", Name = "GetTrigger")]
@@ -52,10 +48,8 @@ public sealed class TriggersController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<TriggerDto>> GetTrigger(int id)
   {
-    var trigger = await _triggerRepository.GetTriggerAsync(id);
-    if (trigger == null)
-      return NotFound();
-    return Ok(_mapper.Map<TriggerDto>(trigger));
+    var trigger = await _triggerService.GetTriggerAsync(id);
+    return Ok(trigger.ToDto());
   }
 
   [HttpPost("")]
@@ -63,25 +57,8 @@ public sealed class TriggersController(
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public async Task<ActionResult> CreateTrigger(TriggerCreateDto triggerCreateDto)
   {
-    var triggerEntity = _mapper.Map<Data.Entities.Trigger>(triggerCreateDto);
-    if (triggerCreateDto.ApiKeyId != null)
-    {
-      var apiKey = await _apiKeyRepository.GetApiKeyAsync((int)triggerCreateDto.ApiKeyId);
-      if (apiKey == null)
-      {
-        ModelState.AddModelError(nameof(triggerCreateDto.ApiKeyId), $"The API Key Id {triggerCreateDto.ApiKeyId} is invalid.");
-        return ValidationProblem();
-      }
-      else if (!apiKey.IsThirdParty)
-      {
-        ModelState.AddModelError(nameof(triggerCreateDto.ApiKeyId), "Only third party API key is allowed.");
-        return ValidationProblem();
-      }
-    }
-    await _triggerRepository.AddTriggerAsync(triggerEntity);
-    await _triggerRepository.SaveChangesAsync();
-    var returnTrigger = _mapper.Map<TriggerDto>(triggerEntity);
-    return CreatedAtAction(nameof(GetTrigger), new { id = returnTrigger.Id }, returnTrigger);
+    var trigger = await _triggerService.CreateTriggerAsync(triggerCreateDto.ToBusinessModel());
+    return CreatedAtAction(nameof(GetTrigger), new { id = trigger.Id }, trigger.ToDto());
   }
 
   [HttpPut("{id}")]
@@ -90,25 +67,10 @@ public sealed class TriggersController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> UpdateTrigger(int id, TriggerUpdateDto triggerUpdateDto)
   {
-    var triggerEntity = await _triggerRepository.GetTriggerAsync(id);
-    if (triggerEntity == null)
-      return NotFound();
-    if (triggerUpdateDto.ApiKeyId != null)
+    if (!await _triggerService.UpdateTriggerAsync(id, triggerUpdateDto.ToBusinessModel()))
     {
-      var apiKey = await _apiKeyRepository.GetApiKeyAsync((int)triggerUpdateDto.ApiKeyId);
-      if (apiKey == null)
-      {
-        ModelState.AddModelError(nameof(triggerUpdateDto.ApiKeyId), $"The API Key Id {triggerUpdateDto.ApiKeyId} is invalid.");
-        return ValidationProblem();
-      }
-      else if (!apiKey.IsThirdParty)
-      {
-        ModelState.AddModelError(nameof(triggerUpdateDto.ApiKeyId), "Only third party API key is allowed.");
-        return ValidationProblem();
-      }
+      return NotFound();
     }
-    _mapper.Map(triggerUpdateDto, triggerEntity);
-    await _triggerRepository.SaveChangesAsync();
     return NoContent();
   }
 
@@ -117,11 +79,10 @@ public sealed class TriggersController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> DeleteTrigger(int id)
   {
-    var trigger = await _triggerRepository.GetTriggerAsync(id);
-    if (trigger == null)
+    if (!await _triggerService.DeleteTriggerAsync(id))  
+    {
       return NotFound();
-    _triggerRepository.DeleteTrigger(trigger);
-    await _triggerRepository.SaveChangesAsync();
+    }
     return NoContent();
   }
 }

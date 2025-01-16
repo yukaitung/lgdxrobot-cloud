@@ -1,9 +1,7 @@
-namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+namespace LGDXRobot2Cloud.Data.Models.Business.Automation;
 
-public record TriggerDto
+public record TriggerCreateBusinessModel
 {
-  public required int Id { get; set; }
-
   public required string Name { get; set; }
 
   public required string Url { get; set; }
@@ -18,5 +16,5 @@ public record TriggerDto
 
   public string? ApiKeyFieldName { get; set; }
 
-  public ApiKeySearchDto? ApiKey { get; set; }
+  public int? ApiKeyId { get; set; }
 }

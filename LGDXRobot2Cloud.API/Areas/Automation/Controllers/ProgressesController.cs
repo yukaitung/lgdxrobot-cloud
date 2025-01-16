@@ -37,7 +37,7 @@ public sealed class ProgressesController(
 
   [HttpGet("Search")]
   [ProducesResponseType(typeof(IEnumerable<ProgressSearchDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<ProgressSearchDto>>> SearchProgresses(string name)
+  public async Task<ActionResult<IEnumerable<ProgressSearchDto>>> SearchProgresses(string? name)
   {
     var progresses = await _progressService.SearchProgressesAsync(name);
     return Ok(progresses.ToDto());

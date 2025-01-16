@@ -37,7 +37,7 @@ public sealed class FlowsController(
 
   [HttpGet("Search")]
   [ProducesResponseType(typeof(IEnumerable<FlowSearchDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<FlowSearchDto>>> SearchFlows(string name)
+  public async Task<ActionResult<IEnumerable<FlowSearchDto>>> SearchFlows(string? name)
   {
     var flows = await _flowService.SearchFlowsAsync(name);
     return Ok(flows.ToDto());
