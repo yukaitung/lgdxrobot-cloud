@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Navigation;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -27,4 +28,21 @@ public record RobotChassisInfoCreateDto
 
   [Required (ErrorMessage = "Please enter a battery min voltage.")]
   public required double BatteryMinVoltage { get; set; }
+}
+
+public static class RobotChassisInfoCreateDtoExtensions
+{
+  public static RobotChassisInfoCreateBusinessModel ToBusinessModel(this RobotChassisInfoCreateDto model)
+  {
+    return new RobotChassisInfoCreateBusinessModel {
+      RobotTypeId = model.RobotTypeId,
+      ChassisLengthX = model.ChassisLengthX,
+      ChassisLengthY = model.ChassisLengthY,
+      ChassisWheelCount = model.ChassisWheelCount,
+      ChassisWheelRadius = model.ChassisWheelRadius,
+      BatteryCount = model.BatteryCount,
+      BatteryMaxVoltage = model.BatteryMaxVoltage,
+      BatteryMinVoltage = model.BatteryMinVoltage,
+    };
+  }
 }

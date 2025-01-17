@@ -15,7 +15,8 @@ public interface IRobotCertificateService
 {
   Task<(IEnumerable<RobotCertificateListBusinessModel>, PaginationHelper)> GetRobotCertificatesAsync(int pageNumber, int pageSize);
   Task<RobotCertificateBusinessModel?> GetRobotCertificateAsync(Guid robotCertificateId);
-  Task<RobotCertificateIssueBusinessModel?> RenewRobotCertificateAsync(RobotCertificateRenewRequestBusinessModel robotCertificateRenewRequestBusinessModel);
+  RobotCertificateIssueBusinessModel IssueRobotCertificate(Guid robotId);
+  Task<RobotCertificateRenewBusinessModel?> RenewRobotCertificateAsync(RobotCertificateRenewRequestBusinessModel robotCertificateRenewRequestBusinessModel);
 
   RootCertificateBusinessModel? GetRootCertificate();
 }
@@ -98,7 +99,20 @@ public class RobotCertificateService(
     };
   }
 
-  public async Task<RobotCertificateIssueBusinessModel?> RenewRobotCertificateAsync(RobotCertificateRenewRequestBusinessModel robotCertificateRenewRequestBusinessModel)
+  public RobotCertificateIssueBusinessModel IssueRobotCertificate(Guid robotId)
+  {
+    var certificate = GenerateRobotCertificate(robotId);
+    return new RobotCertificateIssueBusinessModel {
+      RootCertificate = certificate.RootCertificate,
+      RobotCertificatePrivateKey = certificate.RobotCertificatePrivateKey,
+      RobotCertificatePublicKey = certificate.RobotCertificatePublicKey,
+      RobotCertificateThumbprint = certificate.RobotCertificateThumbprint,
+      RobotCertificateNotBefore = certificate.RobotCertificateNotBefore,
+      RobotCertificateNotAfter = certificate.RobotCertificateNotAfter
+    };
+  }
+
+  public async Task<RobotCertificateRenewBusinessModel?> RenewRobotCertificateAsync(RobotCertificateRenewRequestBusinessModel robotCertificateRenewRequestBusinessModel)
   {
     var certificate = _context.RobotCertificates
       .Where(c => c.Id == robotCertificateRenewRequestBusinessModel.CertificateId)
@@ -128,7 +142,7 @@ public class RobotCertificateService(
         .FirstOrDefaultAsync()
           ?? throw new LgdxNotFound404Exception();
       
-      return new RobotCertificateIssueBusinessModel {
+      return new RobotCertificateRenewBusinessModel {
         RobotId = robot.Id,
         RobotName = robot.Name,
         RootCertificate = newCertificate.RootCertificate,

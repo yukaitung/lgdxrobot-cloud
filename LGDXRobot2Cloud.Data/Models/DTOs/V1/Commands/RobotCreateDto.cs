@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Navigation;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -16,4 +17,18 @@ public record RobotCreateDto
   public bool IsProtectingHardwareSerialNumber { get; set; } = false;
   
   public required RobotChassisInfoCreateDto RobotChassisInfo { get; set; }
+}
+
+public static class RobotCreateDtoExtensions
+{
+  public static RobotCreateBusinessModel ToBusinessModel(this RobotCreateDto model)
+  {
+    return new RobotCreateBusinessModel {
+      Name = model.Name,
+      RealmId = model.RealmId,
+      IsRealtimeExchange = model.IsRealtimeExchange,
+      IsProtectingHardwareSerialNumber = model.IsProtectingHardwareSerialNumber,
+      RobotChassisInfo = model.RobotChassisInfo.ToBusinessModel(),
+    };
+  }
 }
