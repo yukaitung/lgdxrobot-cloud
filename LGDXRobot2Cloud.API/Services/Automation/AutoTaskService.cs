@@ -11,7 +11,7 @@ namespace LGDXRobot2Cloud.API.Services.Automation;
 
 public interface IAutoTaskService
 {
-  Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realm, string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10);
+  Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realmId, string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10);
   Task<AutoTaskBusinessModel> GetAutoTaskAsync(int autoTaskId);
   Task<AutoTaskBusinessModel> CreateAutoTaskAsync(AutoTaskCreateBusinessModel autoTaskCreateBusinessModel);
   Task<bool> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateBusinessModel autoTaskUpdateBusinessModel);
@@ -34,7 +34,7 @@ public class AutoTaskService(
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
 
-  public async Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realm, string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realmId, string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10)
   {
     var query = _context.AutoTasks as IQueryable<AutoTask>;
     if (!string.IsNullOrWhiteSpace(name))
@@ -42,7 +42,11 @@ public class AutoTaskService(
       name = name.Trim();
       query = query.Where(t => t.Name != null && t.Name.Contains(name));
     }
-      if (showProgressId != null)
+    if (realmId != null)
+    {
+      query = query.Where(t => t.RealmId == realmId);
+    }
+    if (showProgressId != null)
       query = query.Where(t => t.CurrentProgressId == showProgressId);
     if (showRunningTasks == true)
       query = query.Where(t => t.CurrentProgressId > (int)ProgressState.Aborted);

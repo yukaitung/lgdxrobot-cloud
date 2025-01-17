@@ -28,10 +28,10 @@ public sealed class AutoTasksController(
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<AutoTaskListDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<AutoTaskListDto>>> GetTasks(int? realm, string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10)
+  public async Task<ActionResult<IEnumerable<AutoTaskListDto>>> GetTasks(int? realmId, string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
-    var (tasks, PaginationHelper) = await _autoTaskService.GetAutoTasksAsync(realm, name, showProgressId, showRunningTasks, pageNumber, pageSize);
+    var (tasks, PaginationHelper) = await _autoTaskService.GetAutoTasksAsync(realmId, name, showProgressId, showRunningTasks, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(tasks.ToDto());
   }

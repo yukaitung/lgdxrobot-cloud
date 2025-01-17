@@ -51,8 +51,6 @@ public sealed class ApiKeysController(
   public async Task<ActionResult<ApiKeyDto>> GetApiKey(int id)
   {
     var apiKey = await _apiKeyService.GetApiKeyAsync(id);
-    if (apiKey == null)
-      return NotFound();
     return Ok(apiKey.ToDto());
   }
 
@@ -94,8 +92,6 @@ public sealed class ApiKeysController(
   public async Task<ActionResult<ApiKeySecretDto>> GetApiKeySecret(int id)
   {
     var apiKey = await _apiKeyService.GetApiKeyAsync(id);
-    if (apiKey == null)
-      return NotFound();
     return Ok(apiKey.ToDto());
   }
 

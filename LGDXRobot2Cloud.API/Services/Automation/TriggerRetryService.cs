@@ -9,7 +9,7 @@ namespace LGDXRobot2Cloud.API.Services.Automation;
 public interface ITriggerRetryService
 {
   Task<(IEnumerable<TriggerRetryListBusinessModel>, PaginationHelper)> GetTriggerRetriesAsync(int pageNumber, int pageSize);
-  Task<TriggerRetryBusinessModel?> GetTriggerRetryAsync(int triggerRetryId);
+  Task<TriggerRetryBusinessModel> GetTriggerRetryAsync(int triggerRetryId);
   Task<bool> DeleteTriggerRetryAsync(int triggerRetryId);
   Task RetryTriggerRetryAsync(int triggerRetryId);
 }
@@ -45,7 +45,7 @@ public class TriggerRetryService (
       return (triggerRetries, PaginationHelper);
   }
 
-  public async Task<TriggerRetryBusinessModel?> GetTriggerRetryAsync(int triggerRetryId)
+  public async Task<TriggerRetryBusinessModel> GetTriggerRetryAsync(int triggerRetryId)
   {
     return await _context.TriggerRetries.AsNoTracking()
       .Where(tr => tr.Id == triggerRetryId)
@@ -62,7 +62,8 @@ public class TriggerRetryService (
         Body = tr.Body,
         CreatedAt = tr.CreatedAt
       })
-      .FirstOrDefaultAsync();
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
   }
 
   public async Task<bool> DeleteTriggerRetryAsync(int triggerRetryId)

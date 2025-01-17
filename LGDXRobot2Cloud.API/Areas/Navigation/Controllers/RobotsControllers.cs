@@ -31,19 +31,19 @@ public sealed class RobotsController(
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<RobotListDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<RobotListDto>>> GetRobots(int? realm, string? name, int pageNumber = 1, int pageSize = 10)
+  public async Task<ActionResult<IEnumerable<RobotListDto>>> GetRobots(int? realmId, string? name, int pageNumber = 1, int pageSize = 10)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
-    var (robots, paginationHelper) = await _robotService.GetRobotsAsync(realm, name, pageNumber, pageSize);
+    var (robots, paginationHelper) = await _robotService.GetRobotsAsync(realmId, name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationHelper));
     return Ok(robots.ToDto());
   }
 
   [HttpGet("Search")]
   [ProducesResponseType(typeof(IEnumerable<RobotSearchDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<RobotSearchDto>>> SearchRobots(int realm, string? name)
+  public async Task<ActionResult<IEnumerable<RobotSearchDto>>> SearchRobots(int realmId, string? name)
   {
-    var robots = await _robotService.SearchRobotsAsync(realm, name);
+    var robots = await _robotService.SearchRobotsAsync(realmId, name);
     return Ok(robots.ToDto());
   }
 

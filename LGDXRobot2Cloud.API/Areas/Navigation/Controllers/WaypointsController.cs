@@ -27,19 +27,19 @@ public sealed class WaypointsController(
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<WaypointListDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<WaypointListDto>>> GetWaypoints(int? realm, string? name, int pageNumber = 1, int pageSize = 10)
+  public async Task<ActionResult<IEnumerable<WaypointListDto>>> GetWaypoints(int? realmId, string? name, int pageNumber = 1, int pageSize = 10)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
-    var (waypoints, PaginationHelper) = await _waypointService.GetWaypointsAsync(realm, name, pageNumber, pageSize);
+    var (waypoints, PaginationHelper) = await _waypointService.GetWaypointsAsync(realmId, name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(waypoints.ToDto());
   }
 
   [HttpGet("Search")]
   [ProducesResponseType(typeof(IEnumerable<WaypointSearchDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<WaypointSearchDto>>> SearchWaypoints(string name)
+  public async Task<ActionResult<IEnumerable<WaypointSearchDto>>> SearchWaypoints(int realmId, string? name)
   {
-    var waypoints = await _waypointService.SearchWaypointsAsync(name);
+    var waypoints = await _waypointService.SearchWaypointsAsync(realmId, name);
     return Ok(waypoints.ToDto());
   }
 

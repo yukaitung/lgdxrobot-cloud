@@ -11,8 +11,8 @@ namespace LGDXRobot2Cloud.API.Services.Administration;
 public interface IApiKeyService
 {
   Task<(IEnumerable<ApiKeyBusinessModel>, PaginationHelper)> GetApiKeysAsync(string? name, bool isThirdParty, int pageNumber, int pageSize);
-  Task<ApiKeyBusinessModel?> GetApiKeyAsync(int apiKeyId);
-  Task<ApiKeySecretBusinessModel?> GetApiKeySecretAsync(int apiKeyId);
+  Task<ApiKeyBusinessModel> GetApiKeyAsync(int apiKeyId);
+  Task<ApiKeySecretBusinessModel> GetApiKeySecretAsync(int apiKeyId);
   Task<ApiKeyBusinessModel> AddApiKeyAsync(ApiKeyCreateBusinessModel apiKeyCreateBusinessModel);
   Task<bool> UpdateApiKeyAsync(int apiKeyId, ApiKeyUpdateBusinessModel apiKeyUpdateBusinessModel);
   Task<bool> UpdateApiKeySecretAsync(int apiKeyId, ApiKeySecretUpdateBusinessModel apiKeySecretUpdateBusinessModel);
@@ -49,7 +49,7 @@ public class ApiKeyService(LgdxContext context) : IApiKeyService
     return (apiKeys, PaginationHelper);
   }
 
-  public async Task<ApiKeyBusinessModel?> GetApiKeyAsync(int apiKeyId)
+  public async Task<ApiKeyBusinessModel> GetApiKeyAsync(int apiKeyId)
   {
     return await _context.ApiKeys.AsNoTracking()
       .Where(a => a.Id == apiKeyId)
@@ -58,17 +58,19 @@ public class ApiKeyService(LgdxContext context) : IApiKeyService
         Name = a.Name,
         IsThirdParty = a.IsThirdParty,
       })
-      .FirstOrDefaultAsync();
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
   }
 
-  public async Task<ApiKeySecretBusinessModel?> GetApiKeySecretAsync(int apiKeyId)
+  public async Task<ApiKeySecretBusinessModel> GetApiKeySecretAsync(int apiKeyId)
   {
     return await _context.ApiKeys.AsNoTracking()
       .Where(a => a.Id == apiKeyId)
       .Select(a => new ApiKeySecretBusinessModel {
         Secret = a.Secret,
       })
-      .FirstOrDefaultAsync();
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
   }
 
   private static string GenerateApiKeys()

@@ -52,8 +52,6 @@ public sealed class RobotCertificatesController(
   public async Task<ActionResult<RobotCertificateDto>> GetCertificate(Guid id)
   {
     var certificate = await _robotCertificateService.GetRobotCertificateAsync(id);
-    if (certificate == null)
-      return NotFound();
     return Ok(certificate.ToDto());
   }
 
@@ -62,12 +60,10 @@ public sealed class RobotCertificatesController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<RobotCertificateIssueDto>> RenewCertificate(Guid id, RobotCertificateRenewRequestDto robotCertificateRenewRequestDto)
   {
-    var robotCertificate = await _robotCertificateService.RenewRobotCertificateAsync(new(){
+    var robotCertificate = await _robotCertificateService.RenewRobotCertificateAsync(new() {
       CertificateId = id,
       RevokeOldCertificate = robotCertificateRenewRequestDto.RevokeOldCertificate
     });
-    if (robotCertificate == null)
-      return NotFound();
     return Ok(robotCertificate.ToDto());
   }
 }

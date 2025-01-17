@@ -14,9 +14,9 @@ namespace LGDXRobot2Cloud.API.Services.Administration;
 public interface IRobotCertificateService
 {
   Task<(IEnumerable<RobotCertificateListBusinessModel>, PaginationHelper)> GetRobotCertificatesAsync(int pageNumber, int pageSize);
-  Task<RobotCertificateBusinessModel?> GetRobotCertificateAsync(Guid robotCertificateId);
+  Task<RobotCertificateBusinessModel> GetRobotCertificateAsync(Guid robotCertificateId);
   RobotCertificateIssueBusinessModel IssueRobotCertificate(Guid robotId);
-  Task<RobotCertificateRenewBusinessModel?> RenewRobotCertificateAsync(RobotCertificateRenewRequestBusinessModel robotCertificateRenewRequestBusinessModel);
+  Task<RobotCertificateRenewBusinessModel> RenewRobotCertificateAsync(RobotCertificateRenewRequestBusinessModel robotCertificateRenewRequestBusinessModel);
 
   RootCertificateBusinessModel? GetRootCertificate();
 }
@@ -59,7 +59,7 @@ public class RobotCertificateService(
     return (robotCertificates, PaginationHelper);
   }
 
-  public async Task<RobotCertificateBusinessModel?> GetRobotCertificateAsync(Guid robotCertificateId)
+  public async Task<RobotCertificateBusinessModel> GetRobotCertificateAsync(Guid robotCertificateId)
   {
     return await _context.RobotCertificates.AsNoTracking()
       .Where(a => a.Id == robotCertificateId)
@@ -73,7 +73,8 @@ public class RobotCertificateService(
         NotBefore = a.NotBefore,
         NotAfter = a.NotAfter
       })
-      .FirstOrDefaultAsync();
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
   }
 
   private CertificateDetail GenerateRobotCertificate(Guid robotId)
@@ -112,7 +113,7 @@ public class RobotCertificateService(
     };
   }
 
-  public async Task<RobotCertificateRenewBusinessModel?> RenewRobotCertificateAsync(RobotCertificateRenewRequestBusinessModel robotCertificateRenewRequestBusinessModel)
+  public async Task<RobotCertificateRenewBusinessModel> RenewRobotCertificateAsync(RobotCertificateRenewRequestBusinessModel robotCertificateRenewRequestBusinessModel)
   {
     var certificate = _context.RobotCertificates
       .Where(c => c.Id == robotCertificateRenewRequestBusinessModel.CertificateId)

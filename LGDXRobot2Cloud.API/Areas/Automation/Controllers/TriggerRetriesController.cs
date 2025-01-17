@@ -40,8 +40,6 @@ public class TriggerRetriesController (
   public async Task<ActionResult<TriggerRetryDto>> GetTriggerRetry(int id)
   {
     var triggerRetry = await _triggerRetryService.GetTriggerRetryAsync(id);
-    if (triggerRetry == null)
-      return NotFound();
     return Ok(triggerRetry.ToDto());
   }
 

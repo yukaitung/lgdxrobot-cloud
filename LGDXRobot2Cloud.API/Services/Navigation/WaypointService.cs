@@ -9,20 +9,20 @@ namespace LGDXRobot2Cloud.API.Services.Navigation;
 
 public interface IWaypointService
 {
-  Task<(IEnumerable<WaypointListBusinessModel>, PaginationHelper)> GetWaypointsAsync(int? realm, string? name, int pageNumber, int pageSize);
+  Task<(IEnumerable<WaypointListBusinessModel>, PaginationHelper)> GetWaypointsAsync(int? realmId, string? name, int pageNumber, int pageSize);
   Task<WaypointBusinessModel> GetWaypointAsync(int waypointId);
   Task<WaypointBusinessModel> CreateWaypointAsync(WaypointCreateBusinessModel waypointCreateBusinessModel);
   Task<bool> UpdateWaypointAsync(int waypointId, WaypointUpdateBusinessModel waypointUpdateBusinessModel);
   Task<bool> DeleteWaypointAsync(int waypointId);
   
-  Task<IEnumerable<WaypointSearchBusinessModel>> SearchWaypointsAsync(string? name);
+  Task<IEnumerable<WaypointSearchBusinessModel>> SearchWaypointsAsync(int realmId, string? name);
 }
 
 public class WaypointService(LgdxContext context) : IWaypointService
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-  public async Task<(IEnumerable<WaypointListBusinessModel>, PaginationHelper)> GetWaypointsAsync(int? realm, string? name, int pageNumber, int pageSize)
+  public async Task<(IEnumerable<WaypointListBusinessModel>, PaginationHelper)> GetWaypointsAsync(int? realmId, string? name, int pageNumber, int pageSize)
   {
     var query = _context.Waypoints as IQueryable<Waypoint>;
     if(!string.IsNullOrWhiteSpace(name))
@@ -30,9 +30,9 @@ public class WaypointService(LgdxContext context) : IWaypointService
       name = name.Trim();
       query = query.Where(t => t.Name.Contains(name));
     }
-    if(realm != null)
+    if(realmId != null)
     {
-      query = query.Where(t => t.RealmId == realm);
+      query = query.Where(t => t.RealmId == realmId);
     }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
@@ -142,11 +142,12 @@ public class WaypointService(LgdxContext context) : IWaypointService
       .ExecuteDeleteAsync() == 1;
   }
 
-  public async Task<IEnumerable<WaypointSearchBusinessModel>> SearchWaypointsAsync(string? name)
+  public async Task<IEnumerable<WaypointSearchBusinessModel>> SearchWaypointsAsync(int realmId, string? name)
   {
     if (string.IsNullOrWhiteSpace(name))
     {
       return await _context.Waypoints.AsNoTracking()
+        .Where(w => w.RealmId == realmId)
         .Take(10)
         .Select(m => new WaypointSearchBusinessModel {
           Id = m.Id,
@@ -157,6 +158,7 @@ public class WaypointService(LgdxContext context) : IWaypointService
     else
     {
       return await _context.Waypoints.AsNoTracking()
+        .Where(w => w.RealmId == realmId)
         .Where(w => w.Name.Contains(name))
         .Take(10)
         .Select(m => new WaypointSearchBusinessModel {

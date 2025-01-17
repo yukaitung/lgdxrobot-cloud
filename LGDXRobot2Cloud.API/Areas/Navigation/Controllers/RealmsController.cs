@@ -33,7 +33,7 @@ public class RealmsController(
 
   [HttpGet("Search")]
   [ProducesResponseType(typeof(IEnumerable<RealmSearchDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<RealmSearchDto>>> SearchRealms(string name)
+  public async Task<ActionResult<IEnumerable<RealmSearchDto>>> SearchRealms(string? name)
   {
     var realms = await _realmService.SearchRealmsAsync(name);
     return Ok(realms.ToDto());
