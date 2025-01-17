@@ -6,6 +6,7 @@ using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Utilities.Enums;
+using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -20,7 +21,7 @@ public interface IAutoTaskSchedulerService
   Task<RobotClientsAutoTask?> AutoTaskNextManualAsync(AutoTask autoTask);
 }
 
-public class AutoTaskSchedulerService(
+public class AutoTaskSchedulerMySQLService(
     LgdxContext context,
     IAutoTaskRepository autoTaskRepository,
     IDistributedCache cache,
@@ -122,11 +123,16 @@ public class AutoTaskSchedulerService(
       nextToken = string.Empty;
     }
 
+    var progress = await _context.Progresses.AsNoTracking()
+      .Where(p => p.Id == task.CurrentProgressId)
+      .Select(p => new { p.Name })
+      .FirstOrDefaultAsync();
+
     return new RobotClientsAutoTask {
       TaskId = task.Id,
       TaskName = task.Name ?? string.Empty,
       TaskProgressId = task.CurrentProgressId,
-      TaskProgressName = task.CurrentProgress.Name ?? string.Empty,
+      TaskProgressName = progress!.Name ?? string.Empty,
       Waypoints = { waypoints },
       NextToken = nextToken,
     };
@@ -135,6 +141,57 @@ public class AutoTaskSchedulerService(
   public async Task ResetIgnoreRobotAsync()
   {
     await _cache.RemoveAsync("AutoTaskSchedulerService_IgnoreRobot");
+  }
+
+  private async Task<AutoTask?> GetRunningAutoTaskAsync(Guid robotId)
+  {
+    return await _context.AutoTasks.AsNoTracking()
+      .Include(t => t.AutoTaskDetails)
+      .Where(t => t.AssignedRobotId == robotId)
+      .Where(t => !LgdxHelper.AutoTaskRunningStateList.Contains(t.CurrentProgressId))
+      .OrderByDescending(t => t.Priority) // In case the robot has multiple running task by mistake 
+      .ThenByDescending(t => t.AssignedRobotId)
+      .ThenBy(t => t.Id)
+      .FirstOrDefaultAsync();
+  }
+
+  private async Task<AutoTask?> AssignAutoTaskAsync(Guid robotId)
+  {
+    using var transaction = await _context.Database.BeginTransactionAsync();
+    try
+    {
+      // Get waiting task and flowId
+      var task = await _context.AutoTasks.FromSql(
+        $@"SELECT * FROM `Automation.AutoTasks` AS T 
+            WHERE T.`CurrentProgressId` = {(int)ProgressState.Waiting} AND (T.`AssignedRobotId` = {robotId} OR T.`AssignedRobotId` IS NULL)
+            ORDER BY T.`Priority` DESC, T.`AssignedRobotId` DESC, T.`Id`
+            LIMIT 1 FOR UPDATE SKIP LOCKED"
+      ).FirstOrDefaultAsync();
+
+      // Use get flow detail
+      var flowDetail = await _context.FlowDetails
+        .Where(f => f.FlowId == task!.FlowId)
+        .Select(f => new { 
+          f.ProgressId, 
+          f.Order 
+        })
+        .OrderBy(f => f.Order)
+        .FirstOrDefaultAsync();
+
+      // Update task
+      task!.AssignedRobotId = robotId;
+      task.CurrentProgressId = flowDetail!.ProgressId;
+      task.CurrentProgressOrder = flowDetail.Order;
+      task.NextToken = LgdxHelper.GenerateMd5Hash($"{robotId} {task.Id} {task.CurrentProgressId} {DateTime.UtcNow}");
+      await _context.SaveChangesAsync();
+      await transaction.CommitAsync();
+      return task;
+    }
+    catch (Exception)
+    {
+      await transaction.RollbackAsync();
+    }
+    return null;
   }
 
   public async Task<RobotClientsAutoTask?> GetAutoTaskAsync(Guid robotId)
@@ -148,16 +205,11 @@ public class AutoTaskSchedulerService(
       return null;
     }
 
-    var currentTask = await _autoTaskRepository.GetRunningAutoTaskAsync(robotId);
+    var currentTask = await GetRunningAutoTaskAsync(robotId);
     var ignoreTrigger = currentTask != null; // Do not fire trigger if there is a task running
-    currentTask ??= await _autoTaskRepository.AssignAutoTaskAsync(robotId);
+    currentTask ??= await AssignAutoTaskAsync(robotId);
     
-    if (currentTask != null)
-    {
-      var progress = await _progressRepository.GetProgressAsync(currentTask.CurrentProgressId);
-      currentTask.CurrentProgress = progress!;
-    }
-    else
+    if (currentTask == null)
     {
       // No task for this robot, pause database access.
       ignoreRobotIds ??= [];
