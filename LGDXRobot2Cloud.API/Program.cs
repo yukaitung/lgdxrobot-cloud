@@ -100,7 +100,6 @@ builder.Services.AddDbContext<LgdxContext>(
 		.EnableSensitiveDataLogging()
 		.EnableDetailedErrors()
 );
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpContextAccessor();
 
 /*
