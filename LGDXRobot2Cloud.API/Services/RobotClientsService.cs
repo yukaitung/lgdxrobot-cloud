@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using static LGDXRobot2Cloud.Protos.RobotClientsService;
 using LGDXRobot2Cloud.Utilities.Enums;
+using LGDXRobot2Cloud.API.Services.Navigation;
 
 namespace LGDXRobot2Cloud.API.Services;
 

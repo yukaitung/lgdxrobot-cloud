@@ -2,6 +2,7 @@ using LGDXRobot2Cloud.API.Extensions;
 using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services.Automation;
 using LGDXRobot2Cloud.API.Services.Common;
+using LGDXRobot2Cloud.API.Services.Navigation;
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;

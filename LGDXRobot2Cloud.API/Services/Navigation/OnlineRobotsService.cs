@@ -4,11 +4,10 @@ using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Utilities.Enums;
 using MassTransit;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace LGDXRobot2Cloud.API.Services;
+namespace LGDXRobot2Cloud.API.Services.Navigation;
 
 public record RobotDataComposite
 {
