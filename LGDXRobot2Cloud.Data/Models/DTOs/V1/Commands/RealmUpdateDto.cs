@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using LGDXRobot2Cloud.Data.Models.Business.Identity;
+using LGDXRobot2Cloud.Data.Models.Business.Navigation;
 
 namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 
@@ -25,4 +27,20 @@ public record RealmUpdateDto
 
   [Required (ErrorMessage = "Please enter an origin rotation.")]
   public required double OriginRotation { get; set; }
+}
+
+public static class RealmUpdateDtoExtensions
+{
+  public static RealmUpdateBusinessModel ToBusinessModel(this RealmUpdateDto model)
+  {
+    return new RealmUpdateBusinessModel {
+      Name = model.Name,
+      Description = model.Description,
+      Image = model.Image,
+      Resolution = model.Resolution,
+      OriginX = model.OriginX,
+      OriginY = model.OriginY,
+      OriginRotation = model.OriginRotation,
+    };
+  }
 }

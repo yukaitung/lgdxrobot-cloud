@@ -7,6 +7,7 @@ using LGDXRobot2Cloud.API.Services.Administration;
 using LGDXRobot2Cloud.API.Services.Automation;
 using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.API.Services.Identity;
+using LGDXRobot2Cloud.API.Services.Navigation;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Constants;
@@ -194,6 +195,9 @@ builder.Services.AddScoped<IProgressService, ProgressService>();
 // Identity
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+// Automation
+builder.Services.AddScoped<IRealmService, RealmService>();
 
 // Custom Services
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();
