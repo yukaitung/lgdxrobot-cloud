@@ -2,7 +2,7 @@ using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 
 namespace LGDXRobot2Cloud.Data.Models.Business.Navigation;
 
-public record WaypointBusinessModel
+public record WaypointListBusinessModel
 {
   public required int Id { get; set; }
 
@@ -25,11 +25,11 @@ public record WaypointBusinessModel
   public required bool IsReserved { get; set; }
 }
 
-public static class WaypointBusinessModelExtensions
+public static class WaypointListBusinessModelExtensions
 {
-  public static WaypointDto ToDto(this WaypointBusinessModel model)
+  public static WaypointListDto ToDto(this WaypointListBusinessModel model)
   {
-    return new WaypointDto {
+    return new WaypointListDto {
       Id = model.Id,
       Name = model.Name,
       Realm = new RealmSearchDto {
@@ -43,5 +43,10 @@ public static class WaypointBusinessModelExtensions
       HasCharger = model.HasCharger,
       IsReserved = model.IsReserved,
     };
+  }
+
+  public static IEnumerable<WaypointListDto> ToDto(this IEnumerable<WaypointListBusinessModel> models)
+  { 
+    return models.Select(model => model.ToDto());
   }
 }

@@ -1,12 +1,10 @@
-namespace LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
+namespace LGDXRobot2Cloud.Data.Models.Business.Navigation;
 
-public record WaypointListDto
+public record WaypointCreateBusinessModel
 {
-  public required int Id { get; set; }
-
   public required string Name { get; set; }
 
-  public required RealmSearchDto Realm { get; set; }
+  public required int RealmId { get; set; }
 
   public required double X { get; set; }
 

@@ -198,6 +198,7 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Automation
 builder.Services.AddScoped<IRealmService, RealmService>();
+builder.Services.AddScoped<IWaypointService, WaypointService>();
 
 // Custom Services
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();

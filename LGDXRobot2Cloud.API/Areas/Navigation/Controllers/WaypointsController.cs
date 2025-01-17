@@ -1,8 +1,7 @@
-using AutoMapper;
 using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
-using LGDXRobot2Cloud.API.Repositories;
-using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.API.Services.Navigation;
+using LGDXRobot2Cloud.Data.Models.Business.Navigation;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,33 +18,29 @@ namespace LGDXRobot2Cloud.API.Areas.Navigation.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class WaypointsController(
-    IMapper mapper,
-    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
-    IRealmRepository realmRepository,
-    IWaypointRepository waypointRepository
+    IWaypointService waypointService,
+    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration
   ) : ControllerBase
 {
-  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-  private readonly IRealmRepository _realmRepository = realmRepository ?? throw new ArgumentNullException(nameof(realmRepository));
-  private readonly IWaypointRepository _waypointRepository = waypointRepository ?? throw new ArgumentNullException(nameof(waypointRepository));
+  private readonly IWaypointService _waypointService = waypointService ?? throw new ArgumentNullException(nameof(waypointService));
   private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<WaypointListDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<WaypointListDto>>> GetWaypoints(string? name, int pageNumber = 1, int pageSize = 10)
+  public async Task<ActionResult<IEnumerable<WaypointListDto>>> GetWaypoints(int? realm, string? name, int pageNumber = 1, int pageSize = 10)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
-    var (waypoints, PaginationHelper) = await _waypointRepository.GetWaypointsAsync(name, pageNumber, pageSize);
+    var (waypoints, PaginationHelper) = await _waypointService.GetWaypointsAsync(realm, name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
-    return Ok(_mapper.Map<IEnumerable<WaypointListDto>>(waypoints));
+    return Ok(waypoints.ToDto());
   }
 
   [HttpGet("Search")]
   [ProducesResponseType(typeof(IEnumerable<WaypointSearchDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<WaypointSearchDto>>> SearchWaypoints(string name)
   {
-    var waypoints = await _waypointRepository.SearchWaypointsAsync(name);
-    return Ok(_mapper.Map<IEnumerable<WaypointSearchDto>>(waypoints));
+    var waypoints = await _waypointService.SearchWaypointsAsync(name);
+    return Ok(waypoints.ToDto());
   }
 
   [HttpGet("{id}", Name = "GetWaypoint")]
@@ -53,10 +48,8 @@ public sealed class WaypointsController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<WaypointDto>> GetWaypoint(int id)
   {
-    var waypoint = await _waypointRepository.GetWaypointAsync(id);
-    if (waypoint == null)
-      return NotFound();
-    return Ok(_mapper.Map<WaypointDto>(waypoint));
+    var waypoint = await _waypointService.GetWaypointAsync(id);
+    return Ok(waypoint.ToDto());
   }
 
   [HttpPost("")]
@@ -64,16 +57,8 @@ public sealed class WaypointsController(
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public async Task<ActionResult> CreateWaypoint(WaypointCreateDto waypointCreateDto)
   {
-    if (!await _realmRepository.IsRealmExistsAsync(waypointCreateDto.RealmId))
-    {
-      ModelState.AddModelError(nameof(waypointCreateDto.RealmId), "Realm does not exist.");
-      return ValidationProblem();
-    }
-    var waypointEntity = _mapper.Map<Waypoint>(waypointCreateDto);
-    await _waypointRepository.AddWaypointAsync(waypointEntity);
-    await _waypointRepository.SaveChangesAsync();
-    var waypointDto = _mapper.Map<WaypointDto>(waypointEntity);
-    return CreatedAtRoute(nameof(GetWaypoint), new { id = waypointDto.Id }, waypointDto);
+    var waypoint = await _waypointService.CreateWaypointAsync(waypointCreateDto.ToBusinessModel());
+    return CreatedAtRoute(nameof(GetWaypoint), new { id = waypoint.Id }, waypoint.ToDto());
   }
 
   [HttpPut("{id}")]
@@ -82,16 +67,10 @@ public sealed class WaypointsController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> UpdateWaypoint(int id, WaypointUpdateDto waypointUpdateDto)
   {
-    var waypointEntity = await _waypointRepository.GetWaypointAsync(id);
-    if (waypointEntity == null)
-      return NotFound();
-    if (!await _realmRepository.IsRealmExistsAsync(waypointUpdateDto.RealmId))
+    if (!await _waypointService.UpdateWaypointAsync(id, waypointUpdateDto.ToBusinessModel())) 
     {
-      ModelState.AddModelError(nameof(waypointUpdateDto.RealmId), "Realm does not exist.");
-      return ValidationProblem();
+      return NotFound();
     }
-    _mapper.Map(waypointUpdateDto, waypointEntity);
-    await _waypointRepository.SaveChangesAsync();
     return NoContent();
   }
 
@@ -100,11 +79,10 @@ public sealed class WaypointsController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> DeleteWaypoint(int id)
   {
-    var waypoint = await _waypointRepository.GetWaypointAsync(id);
-    if (waypoint == null)
+    if (!await _waypointService.DeleteWaypointAsync(id))
+    {
       return NotFound();
-    _waypointRepository.DeleteWaypoint(waypoint);
-    await _waypointRepository.SaveChangesAsync();
+    }
     return NoContent();
   }
 }
