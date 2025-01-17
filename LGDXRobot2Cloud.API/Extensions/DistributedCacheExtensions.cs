@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace LGDXRobot2Cloud.API.Services;
+namespace LGDXRobot2Cloud.API.Extensions;
 
 public static class DistributedCacheExtensions
 {
