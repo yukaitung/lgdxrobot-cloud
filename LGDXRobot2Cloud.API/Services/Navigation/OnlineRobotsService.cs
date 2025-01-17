@@ -9,13 +9,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobot2Cloud.API.Services.Navigation;
 
-public record RobotDataComposite
-{
-  public required RobotClientsRobotCommands Commands { get; set; }
-  public required RobotClientsExchange Data { get; set; }
-  public bool UnresolvableCriticalStatus { get; set; } = false;
-}
-
 public class RobotCommandsEventArgs : EventArgs
 {
   public Guid RobotId { get; set; }
