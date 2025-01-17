@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Text;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Exceptions;
@@ -21,6 +20,7 @@ public interface IAuthService
   Task ForgotPasswordAsync(ForgotPasswordRequestBusinessModel forgotPasswordRequestBusinessModel);
   Task ResetPasswordAsync(ResetPasswordRequestBusinessModel resetPasswordRequestBusinessModel);
   Task<RefreshTokenResponseBusinessModel> RefreshTokenAsync(RefreshTokenRequestBusinessModel refreshTokenRequestBusinessModel);
+  Task<bool> UpdatePasswordAsync(string userId, UpdatePasswordRequestBusinessModel updatePasswordRequestBusinessModel);
 }
 
 public class AuthService(
@@ -210,5 +210,19 @@ public class AuthService(
       RefreshToken = refreshToken,
       ExpiresMins = _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins
     };
+  }
+
+  public async Task<bool> UpdatePasswordAsync(string userId, UpdatePasswordRequestBusinessModel updatePasswordRequestBusinessModel)
+  {
+    var user = await userManager.FindByIdAsync(userId)
+      ?? throw new LgdxNotFound404Exception();
+
+    var result = await _userManager.ChangePasswordAsync(user, updatePasswordRequestBusinessModel.CurrentPassword, updatePasswordRequestBusinessModel.NewPassword);
+    if (!result.Succeeded)
+    {
+      throw new LgdxIdentity400Expection(result.Errors);
+    }
+    await _emailService.SendPasswordUpdateEmailAsync(user.Email!, user.Name!, user.UserName!);
+    return true;
   }
 }

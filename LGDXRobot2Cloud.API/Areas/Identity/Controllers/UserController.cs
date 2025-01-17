@@ -1,13 +1,11 @@
 using System.Security.Claims;
-using AutoMapper;
-using LGDXRobot2Cloud.API.Services.Common;
-using LGDXRobot2Cloud.Data.Entities;
+using LGDXRobot2Cloud.API.Services.Identity;
+using LGDXRobot2Cloud.Data.Models.Business.Administration;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
@@ -17,14 +15,12 @@ namespace LGDXRobot2Cloud.API.Areas.Identity.Controllers;
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public sealed class UserController(
-    IEmailService emailService,
-    IMapper mapper,
-    UserManager<LgdxUser> userManager
+    IAuthService authService,
+    ICurrentUserService currentUserService
   ) : ControllerBase
 {
-  private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-  private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+  private readonly IAuthService _authService = authService ?? throw new ArgumentNullException(nameof(authService));
+  private readonly ICurrentUserService _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(LgdxUserDto), StatusCodes.Status200OK)]
@@ -32,14 +28,8 @@ public sealed class UserController(
   public async Task<ActionResult<LgdxUserDto>> GetUser()
   {
     var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-    var user = await userManager.FindByIdAsync(userId!);
-    if (user == null)
-    {
-      return NotFound();
-    }
-    var lgdxUserDto = _mapper.Map<LgdxUserDto>(user);
-    lgdxUserDto.Roles = await _userManager.GetRolesAsync(user);
-    return Ok(lgdxUserDto);
+    var user = await _currentUserService.GetUserAsync(userId!);
+    return Ok(user.ToDto());
   }
 
   [HttpPut("")]
@@ -49,21 +39,7 @@ public sealed class UserController(
   public async Task<ActionResult> UpdateUser(LgdxUserUpdateDto lgdxUserUpdateDto)
   {
     var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-    var userEntity = await _userManager.FindByIdAsync(userId!.ToString());
-    if (userEntity == null)
-    {
-      return NotFound();
-    }
-    _mapper.Map(lgdxUserUpdateDto, userEntity);
-    var result = await _userManager.UpdateAsync(userEntity);
-    if (!result.Succeeded)
-    {
-      foreach (var error in result.Errors)
-      {
-        ModelState.AddModelError(error.Code, error.Description);
-      }
-      return ValidationProblem();
-    }
+    await _currentUserService.UpdateUserAsync(userId!, lgdxUserUpdateDto.ToBusinessModel());
     return NoContent();
   }
 
@@ -74,21 +50,7 @@ public sealed class UserController(
   public async Task<ActionResult> UpdatePassword(UpdatePasswordRequestDto updatePasswordRequestDto)
   {
     var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-    var user = await userManager.FindByIdAsync(userId!);
-    if (user == null)
-    {
-      return NotFound();
-    }
-    var result = await _userManager.ChangePasswordAsync(user, updatePasswordRequestDto.CurrentPassword, updatePasswordRequestDto.NewPassword);
-    if (!result.Succeeded)
-    {
-      foreach (var error in result.Errors)
-      {
-        ModelState.AddModelError(error.Code, error.Description);
-      }
-      return ValidationProblem();
-    }
-    await _emailService.SendPasswordUpdateEmailAsync(user.Email!, user.Name!, user.UserName!);
+    await _authService.UpdatePasswordAsync(userId!, updatePasswordRequestDto.ToBusinessModel());
     return NoContent();
   }
 }

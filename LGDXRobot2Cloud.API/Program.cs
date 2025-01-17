@@ -191,8 +191,11 @@ builder.Services.AddScoped<IAutoTaskService, AutoTaskService>();
 builder.Services.AddScoped<IFlowService, FlowService>();
 builder.Services.AddScoped<IProgressService, ProgressService>();
 
-// Custom Services
+// Identity
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+// Custom Services
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();
 builder.Services.AddScoped<ITriggerService, TriggerService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
