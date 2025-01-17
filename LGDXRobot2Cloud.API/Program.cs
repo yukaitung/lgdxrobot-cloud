@@ -124,7 +124,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			ClockSkew = TimeSpan.Zero
 		};
 	});
-builder.Services.AddTransient<RobotClientsCertificateValidationService>();
+builder.Services.AddTransient<ValidateRobotClientsCertificate>();
 builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme)
 	.AddCertificate(LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme, cfg =>
 	{
@@ -141,8 +141,8 @@ builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsC
 					ctx.Fail("Robot ID not found.");
 					return;
 				}
-				var validationService = ctx.HttpContext.RequestServices.GetService<RobotClientsCertificateValidationService>();
-				if (!await validationService!.ValidateRobotClientsCertificate(ctx.ClientCertificate, Guid.Parse(guid)))
+				var validatior = ctx.HttpContext.RequestServices.GetService<ValidateRobotClientsCertificate>();
+				if (!await validatior!.Validate(ctx.ClientCertificate, Guid.Parse(guid)))
 				{
 					ctx.Fail("Invalid certificate / Robot not found.");
 					return;
