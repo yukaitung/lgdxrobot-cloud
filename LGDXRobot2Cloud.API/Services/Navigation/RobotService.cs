@@ -16,8 +16,14 @@ public interface IRobotService
   Task<RobotBusinessModel> GetRobotAsync(Guid robotId);
   Task<RobotCreateResponseBusinessModel> CreateRobotAsync(RobotCreateBusinessModel robotCreateBusinessModel);
   Task<bool> UpdateRobotAsync(Guid id, RobotUpdateBusinessModel robotUpdateDtoBusinessModel);
+  Task<RobotChassisInfoBusinessModel?> GetRobotChassisInfoAsync(Guid robotId);
   Task<bool> UpdateRobotChassisInfoAsync(Guid id, RobotChassisInfoUpdateBusinessModel robotChassisInfoUpdateBusinessModel);
   Task<bool> DeleteRobotAsync(Guid id);
+
+  Task<RobotSystemInfoBusinessModel?> GetRobotSystemInfoAsync(Guid robotId);
+  Task<bool> CreateRobotSystemInfoAsync(Guid robotId, RobotSystemInfoCreateBusinessModel robotSystemInfoCreateBusinessModel);
+  Task<bool> UpdateRobotSystemInfoAsync(Guid robotId, RobotSystemInfoUpdateBusinessModel robotSystemInfoUpdateBusinessModel);
+
 
   Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name);
 }
@@ -190,6 +196,23 @@ public class RobotService(
       ) == 1;
   }
 
+  public async Task<RobotChassisInfoBusinessModel?> GetRobotChassisInfoAsync(Guid robotId)
+  {
+    return await _context.RobotChassisInfos.AsNoTracking()
+      .Where(r => r.RobotId == robotId)
+      .Select(r => new RobotChassisInfoBusinessModel {
+        Id = r.Id,
+        RobotTypeId = r.RobotTypeId,
+        ChassisLengthX = r.ChassisLengthX,
+        ChassisLengthY = r.ChassisLengthY,
+        ChassisWheelCount = r.ChassisWheelCount,
+        ChassisWheelRadius = r.ChassisWheelRadius,
+        BatteryCount = r.BatteryCount,
+        BatteryMaxVoltage = r.BatteryMaxVoltage,
+        BatteryMinVoltage = r.BatteryMinVoltage,
+      }).FirstOrDefaultAsync();
+  }
+
   public async Task<bool> UpdateRobotChassisInfoAsync(Guid id, RobotChassisInfoUpdateBusinessModel robotChassisInfoUpdateBusinessModel)
   {
     return await _context.RobotChassisInfos
@@ -210,6 +233,60 @@ public class RobotService(
   {
     return await _context.Robots.Where(r => r.Id == id)
       .ExecuteDeleteAsync() >= 1;
+  }
+
+  public async Task<RobotSystemInfoBusinessModel?> GetRobotSystemInfoAsync(Guid robotId)
+  {
+    return await _context.RobotSystemInfos.AsNoTracking()
+      .Where(r => r.RobotId == robotId)
+      .Select(r => new RobotSystemInfoBusinessModel {
+        Id = r.Id,
+        Cpu = r.Cpu,
+        IsLittleEndian = r.IsLittleEndian,
+        Motherboard = r.Motherboard,
+        MotherboardSerialNumber = r.MotherboardSerialNumber,
+        RamMiB = r.RamMiB,
+        Gpu = r.Gpu,
+        Os = r.Os,
+        Is32Bit = r.Is32Bit,
+        McuSerialNumber = r.McuSerialNumber,
+      })
+      .FirstOrDefaultAsync();
+  }
+
+  public async Task<bool> CreateRobotSystemInfoAsync(Guid robotId, RobotSystemInfoCreateBusinessModel robotSystemInfoCreateBusinessModel)
+  {
+    var robotSystemInfo = new RobotSystemInfo {
+      Cpu = robotSystemInfoCreateBusinessModel.Cpu,
+      IsLittleEndian = robotSystemInfoCreateBusinessModel.IsLittleEndian,
+      Motherboard = robotSystemInfoCreateBusinessModel.Motherboard,
+      MotherboardSerialNumber = robotSystemInfoCreateBusinessModel.MotherboardSerialNumber,
+      RamMiB = robotSystemInfoCreateBusinessModel.RamMiB,
+      Gpu = robotSystemInfoCreateBusinessModel.Gpu,
+      Os = robotSystemInfoCreateBusinessModel.Os,
+      Is32Bit = robotSystemInfoCreateBusinessModel.Is32Bit,
+      McuSerialNumber = robotSystemInfoCreateBusinessModel.McuSerialNumber,
+      RobotId = robotId
+    };
+    _context.RobotSystemInfos.Add(robotSystemInfo);
+    return await _context.SaveChangesAsync() >= 1;
+  }
+
+  public async Task<bool> UpdateRobotSystemInfoAsync(Guid robotId, RobotSystemInfoUpdateBusinessModel robotSystemInfoUpdateBusinessModel)
+  {
+    return await _context.RobotSystemInfos
+      .Where(r => r.RobotId == robotId)
+      .ExecuteUpdateAsync(setters => setters
+        .SetProperty(r => r.Cpu, robotSystemInfoUpdateBusinessModel.Cpu)
+        .SetProperty(r => r.IsLittleEndian, robotSystemInfoUpdateBusinessModel.IsLittleEndian)
+        .SetProperty(r => r.Motherboard, robotSystemInfoUpdateBusinessModel.Motherboard)
+        .SetProperty(r => r.MotherboardSerialNumber, robotSystemInfoUpdateBusinessModel.MotherboardSerialNumber)
+        .SetProperty(r => r.RamMiB, robotSystemInfoUpdateBusinessModel.RamMiB)
+        .SetProperty(r => r.Gpu, robotSystemInfoUpdateBusinessModel.Gpu)
+        .SetProperty(r => r.Os, robotSystemInfoUpdateBusinessModel.Os)
+        .SetProperty(r => r.Is32Bit, robotSystemInfoUpdateBusinessModel.Is32Bit)
+        .SetProperty(r => r.McuSerialNumber, robotSystemInfoUpdateBusinessModel.McuSerialNumber)
+      ) == 1;
   }
 
   public async Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name)

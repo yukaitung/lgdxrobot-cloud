@@ -42,4 +42,34 @@ public static class RobotSystemInfoBusinessModelExtensions
       McuSerialNumber = robotSystemInfo.McuSerialNumber,
     };
   }
+
+  public static RobotSystemInfoCreateBusinessModel ToCreateBusinessModel(this RobotSystemInfoBusinessModel model)
+  {
+    return new RobotSystemInfoCreateBusinessModel {
+      Cpu = model.Cpu,
+      IsLittleEndian = model.IsLittleEndian,
+      Motherboard = model.Motherboard,
+      MotherboardSerialNumber = model.MotherboardSerialNumber,
+      RamMiB = model.RamMiB,
+      Gpu = model.Gpu,
+      Os = model.Os,
+      Is32Bit = model.Is32Bit,
+      McuSerialNumber = model.McuSerialNumber,
+    };
+  }
+
+  public static RobotSystemInfoUpdateBusinessModel ToUpdateBusinessModel(this RobotSystemInfoBusinessModel model)
+  {
+    return new RobotSystemInfoUpdateBusinessModel {
+      Cpu = model.Cpu,
+      IsLittleEndian = model.IsLittleEndian,
+      Motherboard = model.Motherboard,
+      MotherboardSerialNumber = model.MotherboardSerialNumber,
+      RamMiB = model.RamMiB,
+      Gpu = model.Gpu,
+      Os = model.Os,
+      Is32Bit = model.Is32Bit,
+      McuSerialNumber = model.McuSerialNumber,
+    };
+  }
 }
