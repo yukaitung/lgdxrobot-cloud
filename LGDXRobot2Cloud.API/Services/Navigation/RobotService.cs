@@ -184,17 +184,10 @@ public class RobotService(
 
   public async Task<bool> UpdateRobotAsync(Guid id, RobotUpdateBusinessModel robotUpdateDtoBusinessModel)
   {
-    var realm = await _context.Realms.AsNoTracking().Where(r => r.Id == robotUpdateDtoBusinessModel.RealmId).AnyAsync();
-    if (realm == false)
-    {
-      throw new LgdxValidation400Expection(nameof(robotUpdateDtoBusinessModel.RealmId), "Realm does not exist.");
-    }
-
     return await _context.Robots
       .Where(r => r.Id == id)
       .ExecuteUpdateAsync(setters => setters
         .SetProperty(r => r.Name, robotUpdateDtoBusinessModel.Name)
-        .SetProperty(r => r.RealmId, robotUpdateDtoBusinessModel.RealmId)
         .SetProperty(r => r.IsRealtimeExchange, robotUpdateDtoBusinessModel.IsRealtimeExchange)
         .SetProperty(r => r.IsProtectingHardwareSerialNumber, robotUpdateDtoBusinessModel.IsProtectingHardwareSerialNumber)
       ) == 1;

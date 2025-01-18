@@ -15,9 +15,6 @@ public record AutoTaskUpdateDto : IValidatableObject
   [Required (ErrorMessage = "Please select a Flow.")]
   public required int FlowId { get; set; }
 
-  [Required (ErrorMessage = "Please select a Realm.")]
-  public required int RealmId { get; set; }
-
   public Guid? AssignedRobotId { get; set; }
 
   public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -44,7 +41,6 @@ public static class AutoTaskUpdateDtoExtensions
       AutoTaskDetails = model.AutoTaskDetails.Select(td => td.ToBusinessModel()),
       Priority = model.Priority,
       FlowId = model.FlowId,
-      RealmId = model.RealmId,
       AssignedRobotId = model.AssignedRobotId,
     };
   }

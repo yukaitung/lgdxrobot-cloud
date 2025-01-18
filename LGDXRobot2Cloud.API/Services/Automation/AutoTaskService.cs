@@ -127,7 +127,10 @@ public class AutoTaskService(
   private async Task ValidateAutoTask(HashSet<int> waypointIds, int flowId, int realmId, Guid? robotId)
   {
     // Validate the Waypoint IDs
-    var waypointDict = await _context.Waypoints.AsNoTracking().Where(w => waypointIds.Contains(w.Id)).ToDictionaryAsync(w => w.Id, w => w);
+    var waypointDict = await _context.Waypoints.AsNoTracking()
+      .Where(w => waypointIds.Contains(w.Id))
+      .Where(w => w.RealmId == realmId)
+      .ToDictionaryAsync(w => w.Id, w => w);
     foreach(var waypointId in waypointIds)
     {
       if (!waypointDict.ContainsKey(waypointId))
@@ -150,7 +153,11 @@ public class AutoTaskService(
     // Validate the Assigned Robot ID
     if (robotId != null) 
     {
-      var robot = await _context.Robots.Where(r => r.Id == robotId).AnyAsync();
+      var robot = await _context
+        .Robots
+        .Where(r => r.Id == robotId)
+        .Where(r => r.RealmId == realmId)
+        .AnyAsync();
       if (robot == false)
       {
         throw new LgdxValidation400Expection(nameof(Robot), $"Robot ID: {robotId} is invalid.");
@@ -253,13 +260,12 @@ public class AutoTaskService(
       .ToHashSet();
     await ValidateAutoTask(waypointIds, 
       autoTaskUpdateBusinessModel.FlowId, 
-      autoTaskUpdateBusinessModel.RealmId, 
+      task.RealmId, 
       autoTaskUpdateBusinessModel.AssignedRobotId);
     
     task.Name = autoTaskUpdateBusinessModel.Name;
     task.Priority = autoTaskUpdateBusinessModel.Priority;
     task.FlowId = autoTaskUpdateBusinessModel.FlowId;
-    task.RealmId = autoTaskUpdateBusinessModel.RealmId;
     task.AssignedRobotId = autoTaskUpdateBusinessModel.AssignedRobotId;
     task.AutoTaskDetails = autoTaskUpdateBusinessModel.AutoTaskDetails.Select(td => new AutoTaskDetail {
       Id = (int)td.Id!,

@@ -4,8 +4,6 @@ public record WaypointUpdateBusinessModel
 {
   public required string Name { get; set; }
 
-  public required int RealmId { get; set; }
-
   public required double X { get; set; }
 
   public required double Y { get; set; }

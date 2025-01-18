@@ -10,7 +10,5 @@ public record AutoTaskUpdateBusinessModel
 
   public required int FlowId { get; set; }
 
-  public required int RealmId { get; set; }
-
   public Guid? AssignedRobotId { get; set; }
 }

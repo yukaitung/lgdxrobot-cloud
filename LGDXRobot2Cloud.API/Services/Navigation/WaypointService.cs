@@ -116,17 +116,10 @@ public class WaypointService(LgdxContext context) : IWaypointService
 
   public async Task<bool> UpdateWaypointAsync(int waypointId, WaypointUpdateBusinessModel waypointUpdateBusinessModel)
   {
-    var realm = await _context.Realms.Where(r => r.Id == waypointUpdateBusinessModel.RealmId).AnyAsync();
-    if (realm == false)
-    {
-      throw new LgdxValidation400Expection(nameof(waypointUpdateBusinessModel.RealmId), "Realm does not exist.");
-    }
-
     return await _context.Waypoints
       .Where(w => w.Id == waypointId)
       .ExecuteUpdateAsync(setters => setters
         .SetProperty(w => w.Name, waypointUpdateBusinessModel.Name)
-        .SetProperty(w => w.RealmId, waypointUpdateBusinessModel.RealmId)
         .SetProperty(w => w.X, waypointUpdateBusinessModel.X)
         .SetProperty(w => w.Y, waypointUpdateBusinessModel.Y)
         .SetProperty(w => w.Rotation, waypointUpdateBusinessModel.Rotation)
