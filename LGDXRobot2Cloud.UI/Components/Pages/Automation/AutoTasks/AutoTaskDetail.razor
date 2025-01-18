@@ -36,6 +36,12 @@
           </div>
         }
         <div class="mb-3 row">
+          <label class="col-3 col-form-label">Realm</label>
+          <div class="col">
+            <div class="col form-control-plaintext">@AutoTaskDetailViewModel.RealmName</div>
+          </div>
+        </div>
+        <div class="mb-3 row">
           <label class="col-3 col-form-label" for="@nameof(AutoTaskDetailViewModel.Name)">Name</label>
           <div class="col">
             @if (IsEditable())
@@ -79,25 +85,6 @@
             else
             {
               <div class="col form-control-plaintext">@AutoTaskDetailViewModel.FlowName</div>
-            }
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(AutoTaskDetailViewModel.RealmId)">Realm</label>
-          <div class="col">
-            @if (IsEditable())
-            {
-              <InputSelect id="@(AdvanceSelectElements[3] + "0")" class="form-control" @bind-Value="AutoTaskDetailViewModel.RealmId">
-                @if (AutoTaskDetailViewModel.RealmId != null)
-                {
-                  <option value="@AutoTaskDetailViewModel.RealmId">@AutoTaskDetailViewModel.RealmName</option>
-                }
-              </InputSelect>
-              <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.RealmId)" />
-            }
-            else
-            {
-              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.RealmName</div>
             }
           </div>
         </div>

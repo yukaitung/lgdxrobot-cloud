@@ -2,8 +2,10 @@ using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
 using LGDXRobot2Cloud.UI.Helpers;
+using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using static LGDXRobot2Cloud.UI.Client.Automation.AutoTasks.AutoTasksRequestBuilder;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks.Components;
@@ -12,6 +14,15 @@ public sealed partial class AutoTasksTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
+
+  [Inject]
+  public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
   [Parameter]
   public string Title { get; set; } = null!;
@@ -22,6 +33,7 @@ public sealed partial class AutoTasksTable : AbstractTable
   [Parameter]
   public bool ShowRunningTasks { get; set; } = false;
 
+  private int RealmId { get; set; }
   private List<AutoTaskListDto>? AutoTasks { get; set; }
 
   public bool IsEditable()
@@ -41,6 +53,7 @@ public sealed partial class AutoTasksTable : AbstractTable
     AutoTasks = await LgdxApiClient.Automation.AutoTasks.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
+        RealmId = RealmId,
         ShowProgressId = (int?)ShowProgressId,
         ShowRunningTasks = ShowRunningTasks,
         Name = DataSearch,
@@ -60,6 +73,7 @@ public sealed partial class AutoTasksTable : AbstractTable
     AutoTasks = await LgdxApiClient.Automation.AutoTasks.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
+        RealmId = RealmId,
         ShowProgressId = (int?)ShowProgressId,
         ShowRunningTasks = ShowRunningTasks,
         Name = DataSearch,
@@ -92,6 +106,7 @@ public sealed partial class AutoTasksTable : AbstractTable
     AutoTasks = await LgdxApiClient.Automation.AutoTasks.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
+        RealmId = RealmId,
         ShowProgressId = (int?)ShowProgressId,
         ShowRunningTasks = ShowRunningTasks,
         Name = DataSearch,
@@ -111,6 +126,7 @@ public sealed partial class AutoTasksTable : AbstractTable
     AutoTasks = await LgdxApiClient.Automation.AutoTasks.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
+        RealmId = RealmId,
         ShowProgressId = (int?)ShowProgressId,
         ShowRunningTasks = ShowRunningTasks,
         Name = DataSearch,
@@ -119,5 +135,13 @@ public sealed partial class AutoTasksTable : AbstractTable
       };
     });
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    RealmId = settings.CurrentRealmId;
+    await base.OnInitializedAsync();
   }
 }

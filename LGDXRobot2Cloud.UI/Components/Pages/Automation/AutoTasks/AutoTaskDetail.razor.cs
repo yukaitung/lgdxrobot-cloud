@@ -1,10 +1,13 @@
 using System.Text.Json;
+using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
+using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Automation;
 using LGDXRobot2Cloud.Utilities.Enums;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
@@ -23,6 +26,15 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }
 
+  [Inject]
+  public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
   [Parameter]
   public int? Id { get; set; }
 
@@ -32,7 +44,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
   // Form helping variables
-  private readonly string[] AdvanceSelectElements = [$"{nameof(AutoTaskDetailViewModel.FlowId)}-", $"{nameof(AutoTaskDetailViewModel.AssignedRobotId)}-", $"{nameof(TaskDetailBody.WaypointId)}-", $"{nameof(AutoTaskDetailViewModel.RealmId)}-"];
+  private readonly string[] AdvanceSelectElements = [$"{nameof(AutoTaskDetailViewModel.FlowId)}-", $"{nameof(AutoTaskDetailViewModel.AssignedRobotId)}-", $"{nameof(TaskDetailBody.WaypointId)}-"];
   private readonly string[] AdvanceSelectElementsDetail = [$"{nameof(TaskDetailBody.WaypointId)}-"];
   private int InitaisedAdvanceSelect { get; set; } = 0;
 
@@ -64,6 +76,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     else if (element == AdvanceSelectElements[1])
     {
       var response = await LgdxApiClient.Navigation.Robots.Search.GetAsync(x => x.QueryParameters = new() {
+        RealmId = AutoTaskDetailViewModel.RealmId,
         Name = name
       });
       result = JsonSerializer.Serialize(response);
@@ -71,13 +84,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     else if (element == AdvanceSelectElements[2])
     {
       var response = await LgdxApiClient.Navigation.Waypoints.Search.GetAsync(x => x.QueryParameters = new() {
-        Name = name
-      });
-      result = JsonSerializer.Serialize(response);
-    }
-    else if (element == AdvanceSelectElements[3])
-    {
-      var response = await LgdxApiClient.Navigation.Realms.Search.GetAsync(x => x.QueryParameters = new() {
+        RealmId = AutoTaskDetailViewModel.RealmId,
         Name = name
       });
       result = JsonSerializer.Serialize(response);
@@ -109,11 +116,6 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     {
       AutoTaskDetailViewModel.AutoTaskDetails[order].WaypointId = id != null ? int.Parse(id) : null;
       AutoTaskDetailViewModel.AutoTaskDetails[order].WaypointName = name;
-    }
-    else if (element == AdvanceSelectElements[3])
-    {
-      AutoTaskDetailViewModel.RealmId = id != null ? int.Parse(id) : null;
-      AutoTaskDetailViewModel.RealmName = name;
     }
   }
 
@@ -198,6 +200,15 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
       AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    AutoTaskDetailViewModel.RealmId = settings.CurrentRealmId;
+    AutoTaskDetailViewModel.RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    await base.OnInitializedAsync();
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
