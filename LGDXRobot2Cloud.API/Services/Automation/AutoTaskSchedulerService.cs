@@ -1,6 +1,6 @@
 using LGDXRobot2Cloud.API.Extensions;
-using LGDXRobot2Cloud.API.Services.Automation;
 using LGDXRobot2Cloud.API.Services.Common;
+using LGDXRobot2Cloud.API.Services.Navigation;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
@@ -9,7 +9,7 @@ using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace LGDXRobot2Cloud.API.Services.Navigation;
+namespace LGDXRobot2Cloud.API.Services.Automation;
 
 public interface IAutoTaskSchedulerService
 {

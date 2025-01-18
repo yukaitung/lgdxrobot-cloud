@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using LGDXRobot2Cloud.Data.Models.Business.Navigation;
+using LGDXRobot2Cloud.API.Services.Automation;
 
 namespace LGDXRobot2Cloud.API.Services;
 
