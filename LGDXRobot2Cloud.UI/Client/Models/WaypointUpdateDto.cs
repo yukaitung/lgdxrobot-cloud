@@ -26,8 +26,6 @@ namespace LGDXRobot2Cloud.UI.Client.Models
 #else
         public string Name { get; set; }
 #endif
-        /// <summary>The realmId property</summary>
-        public int? RealmId { get; set; }
         /// <summary>The rotation property</summary>
         public double? Rotation { get; set; }
         /// <summary>The x property</summary>
@@ -56,7 +54,6 @@ namespace LGDXRobot2Cloud.UI.Client.Models
                 { "isParking", n => { IsParking = n.GetBoolValue(); } },
                 { "isReserved", n => { IsReserved = n.GetBoolValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
-                { "realmId", n => { RealmId = n.GetIntValue(); } },
                 { "rotation", n => { Rotation = n.GetDoubleValue(); } },
                 { "x", n => { X = n.GetDoubleValue(); } },
                 { "y", n => { Y = n.GetDoubleValue(); } },
@@ -73,7 +70,6 @@ namespace LGDXRobot2Cloud.UI.Client.Models
             writer.WriteBoolValue("isParking", IsParking);
             writer.WriteBoolValue("isReserved", IsReserved);
             writer.WriteStringValue("name", Name);
-            writer.WriteIntValue("realmId", RealmId);
             writer.WriteDoubleValue("rotation", Rotation);
             writer.WriteDoubleValue("x", X);
             writer.WriteDoubleValue("y", Y);

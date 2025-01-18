@@ -53,7 +53,6 @@ public static class WaypointDetailViewModelExtensions
   {
     return new WaypointUpdateDto {
       Name = waypointDetailViewModel.Name,
-      RealmId = waypointDetailViewModel.RealmId,
       X = waypointDetailViewModel.X,
       Y = waypointDetailViewModel.Y,
       Rotation = waypointDetailViewModel.Rotation,

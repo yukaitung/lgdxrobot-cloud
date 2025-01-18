@@ -109,7 +109,6 @@ public static class AutoTaskDetailViewModelExtensions
       Name = autoTaskDetailViewModel.Name,
       Priority = autoTaskDetailViewModel.Priority,
       FlowId = autoTaskDetailViewModel.FlowId,
-      RealmId = autoTaskDetailViewModel.RealmId,
       AssignedRobotId = autoTaskDetailViewModel.AssignedRobotId,
       AutoTaskDetails = autoTaskDetailViewModel.AutoTaskDetails.Select(t => new AutoTaskDetailUpdateDto{
         Id = t.Id,

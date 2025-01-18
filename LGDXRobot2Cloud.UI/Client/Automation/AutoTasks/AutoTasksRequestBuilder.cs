@@ -48,7 +48,7 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.AutoTasks
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public AutoTasksRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/AutoTasks{?name*,pageNumber*,pageSize*,showProgressId*,showRunningTasks*}", pathParameters)
+        public AutoTasksRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/AutoTasks{?name*,pageNumber*,pageSize*,realmId*,showProgressId*,showRunningTasks*}", pathParameters)
         {
         }
         /// <summary>
@@ -56,7 +56,7 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.AutoTasks
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public AutoTasksRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/AutoTasks{?name*,pageNumber*,pageSize*,showProgressId*,showRunningTasks*}", rawUrl)
+        public AutoTasksRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/AutoTasks{?name*,pageNumber*,pageSize*,realmId*,showProgressId*,showRunningTasks*}", rawUrl)
         {
         }
         /// <returns>A List&lt;global::LGDXRobot2Cloud.UI.Client.Models.AutoTaskListDto&gt;</returns>
@@ -159,6 +159,8 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.AutoTasks
             public int? PageNumber { get; set; }
             [QueryParameter("pageSize")]
             public int? PageSize { get; set; }
+            [QueryParameter("realmId")]
+            public int? RealmId { get; set; }
             [QueryParameter("showProgressId")]
             public int? ShowProgressId { get; set; }
             [QueryParameter("showRunningTasks")]

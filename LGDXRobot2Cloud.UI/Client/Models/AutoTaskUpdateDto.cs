@@ -34,8 +34,6 @@ namespace LGDXRobot2Cloud.UI.Client.Models
 #endif
         /// <summary>The priority property</summary>
         public int? Priority { get; set; }
-        /// <summary>The realmId property</summary>
-        public int? RealmId { get; set; }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -59,7 +57,6 @@ namespace LGDXRobot2Cloud.UI.Client.Models
                 { "flowId", n => { FlowId = n.GetIntValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
                 { "priority", n => { Priority = n.GetIntValue(); } },
-                { "realmId", n => { RealmId = n.GetIntValue(); } },
             };
         }
         /// <summary>
@@ -74,7 +71,6 @@ namespace LGDXRobot2Cloud.UI.Client.Models
             writer.WriteIntValue("flowId", FlowId);
             writer.WriteStringValue("name", Name);
             writer.WriteIntValue("priority", Priority);
-            writer.WriteIntValue("realmId", RealmId);
         }
     }
 }

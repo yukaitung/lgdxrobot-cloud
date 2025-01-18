@@ -28,6 +28,14 @@ namespace LGDXRobot2Cloud.UI.Client.Models
 #else
         public string Name { get; set; }
 #endif
+        /// <summary>The realm property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public global::LGDXRobot2Cloud.UI.Client.Models.RealmSearchDto? Realm { get; set; }
+#nullable restore
+#else
+        public global::LGDXRobot2Cloud.UI.Client.Models.RealmSearchDto Realm { get; set; }
+#endif
         /// <summary>The rotation property</summary>
         public double? Rotation { get; set; }
         /// <summary>The x property</summary>
@@ -57,6 +65,7 @@ namespace LGDXRobot2Cloud.UI.Client.Models
                 { "isParking", n => { IsParking = n.GetBoolValue(); } },
                 { "isReserved", n => { IsReserved = n.GetBoolValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
+                { "realm", n => { Realm = n.GetObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.RealmSearchDto>(global::LGDXRobot2Cloud.UI.Client.Models.RealmSearchDto.CreateFromDiscriminatorValue); } },
                 { "rotation", n => { Rotation = n.GetDoubleValue(); } },
                 { "x", n => { X = n.GetDoubleValue(); } },
                 { "y", n => { Y = n.GetDoubleValue(); } },
@@ -74,6 +83,7 @@ namespace LGDXRobot2Cloud.UI.Client.Models
             writer.WriteBoolValue("isParking", IsParking);
             writer.WriteBoolValue("isReserved", IsReserved);
             writer.WriteStringValue("name", Name);
+            writer.WriteObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.RealmSearchDto>("realm", Realm);
             writer.WriteDoubleValue("rotation", Rotation);
             writer.WriteDoubleValue("x", X);
             writer.WriteDoubleValue("y", Y);

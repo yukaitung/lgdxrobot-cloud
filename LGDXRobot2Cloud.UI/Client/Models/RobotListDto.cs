@@ -14,10 +14,6 @@ namespace LGDXRobot2Cloud.UI.Client.Models
     {
         /// <summary>The id property</summary>
         public Guid? Id { get; set; }
-        /// <summary>The isProtectingHardwareSerialNumber property</summary>
-        public bool? IsProtectingHardwareSerialNumber { get; set; }
-        /// <summary>The isRealtimeExchange property</summary>
-        public bool? IsRealtimeExchange { get; set; }
         /// <summary>The name property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -25,6 +21,14 @@ namespace LGDXRobot2Cloud.UI.Client.Models
 #nullable restore
 #else
         public string Name { get; set; }
+#endif
+        /// <summary>The realm property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public global::LGDXRobot2Cloud.UI.Client.Models.RealmSearchDto? Realm { get; set; }
+#nullable restore
+#else
+        public global::LGDXRobot2Cloud.UI.Client.Models.RealmSearchDto Realm { get; set; }
 #endif
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -45,9 +49,8 @@ namespace LGDXRobot2Cloud.UI.Client.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "id", n => { Id = n.GetGuidValue(); } },
-                { "isProtectingHardwareSerialNumber", n => { IsProtectingHardwareSerialNumber = n.GetBoolValue(); } },
-                { "isRealtimeExchange", n => { IsRealtimeExchange = n.GetBoolValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
+                { "realm", n => { Realm = n.GetObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.RealmSearchDto>(global::LGDXRobot2Cloud.UI.Client.Models.RealmSearchDto.CreateFromDiscriminatorValue); } },
             };
         }
         /// <summary>
@@ -58,9 +61,8 @@ namespace LGDXRobot2Cloud.UI.Client.Models
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             writer.WriteGuidValue("id", Id);
-            writer.WriteBoolValue("isProtectingHardwareSerialNumber", IsProtectingHardwareSerialNumber);
-            writer.WriteBoolValue("isRealtimeExchange", IsRealtimeExchange);
             writer.WriteStringValue("name", Name);
+            writer.WriteObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.RealmSearchDto>("realm", Realm);
         }
     }
 }

@@ -49,7 +49,6 @@ public static class RobotDetailViewModelExtensions
   {
     return new RobotUpdateDto {
       Name = robotDetailViewModel.Name,
-      RealmId = robotDetailViewModel.RealmId,
       IsRealtimeExchange = robotDetailViewModel.IsRealtimeExchange,
       IsProtectingHardwareSerialNumber = robotDetailViewModel.IsProtectingHardwareSerialNumber
     };

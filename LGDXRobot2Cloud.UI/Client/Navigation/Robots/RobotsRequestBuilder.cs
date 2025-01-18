@@ -54,7 +54,7 @@ namespace LGDXRobot2Cloud.UI.Client.Navigation.Robots
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public RobotsRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Navigation/Robots{?name*,pageNumber*,pageSize*}", pathParameters)
+        public RobotsRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Navigation/Robots{?name*,pageNumber*,pageSize*,realmId*}", pathParameters)
         {
         }
         /// <summary>
@@ -62,7 +62,7 @@ namespace LGDXRobot2Cloud.UI.Client.Navigation.Robots
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public RobotsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Navigation/Robots{?name*,pageNumber*,pageSize*}", rawUrl)
+        public RobotsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Navigation/Robots{?name*,pageNumber*,pageSize*,realmId*}", rawUrl)
         {
         }
         /// <returns>A List&lt;global::LGDXRobot2Cloud.UI.Client.Models.RobotListDto&gt;</returns>
@@ -165,6 +165,8 @@ namespace LGDXRobot2Cloud.UI.Client.Navigation.Robots
             public int? PageNumber { get; set; }
             [QueryParameter("pageSize")]
             public int? PageSize { get; set; }
+            [QueryParameter("realmId")]
+            public int? RealmId { get; set; }
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.

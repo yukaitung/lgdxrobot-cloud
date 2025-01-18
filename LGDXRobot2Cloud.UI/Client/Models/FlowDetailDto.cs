@@ -21,18 +21,18 @@ namespace LGDXRobot2Cloud.UI.Client.Models
         /// <summary>The progress property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::LGDXRobot2Cloud.UI.Client.Models.ProgressDto? Progress { get; set; }
+        public global::LGDXRobot2Cloud.UI.Client.Models.ProgressSearchDto? Progress { get; set; }
 #nullable restore
 #else
-        public global::LGDXRobot2Cloud.UI.Client.Models.ProgressDto Progress { get; set; }
+        public global::LGDXRobot2Cloud.UI.Client.Models.ProgressSearchDto Progress { get; set; }
 #endif
         /// <summary>The trigger property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::LGDXRobot2Cloud.UI.Client.Models.TriggerDto? Trigger { get; set; }
+        public global::LGDXRobot2Cloud.UI.Client.Models.TriggerSearchDto? Trigger { get; set; }
 #nullable restore
 #else
-        public global::LGDXRobot2Cloud.UI.Client.Models.TriggerDto Trigger { get; set; }
+        public global::LGDXRobot2Cloud.UI.Client.Models.TriggerSearchDto Trigger { get; set; }
 #endif
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -55,8 +55,8 @@ namespace LGDXRobot2Cloud.UI.Client.Models
                 { "autoTaskNextControllerId", n => { AutoTaskNextControllerId = n.GetIntValue(); } },
                 { "id", n => { Id = n.GetIntValue(); } },
                 { "order", n => { Order = n.GetIntValue(); } },
-                { "progress", n => { Progress = n.GetObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.ProgressDto>(global::LGDXRobot2Cloud.UI.Client.Models.ProgressDto.CreateFromDiscriminatorValue); } },
-                { "trigger", n => { Trigger = n.GetObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.TriggerDto>(global::LGDXRobot2Cloud.UI.Client.Models.TriggerDto.CreateFromDiscriminatorValue); } },
+                { "progress", n => { Progress = n.GetObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.ProgressSearchDto>(global::LGDXRobot2Cloud.UI.Client.Models.ProgressSearchDto.CreateFromDiscriminatorValue); } },
+                { "trigger", n => { Trigger = n.GetObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.TriggerSearchDto>(global::LGDXRobot2Cloud.UI.Client.Models.TriggerSearchDto.CreateFromDiscriminatorValue); } },
             };
         }
         /// <summary>
@@ -69,8 +69,8 @@ namespace LGDXRobot2Cloud.UI.Client.Models
             writer.WriteIntValue("autoTaskNextControllerId", AutoTaskNextControllerId);
             writer.WriteIntValue("id", Id);
             writer.WriteIntValue("order", Order);
-            writer.WriteObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.ProgressDto>("progress", Progress);
-            writer.WriteObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.TriggerDto>("trigger", Trigger);
+            writer.WriteObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.ProgressSearchDto>("progress", Progress);
+            writer.WriteObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.TriggerSearchDto>("trigger", Trigger);
         }
     }
 }

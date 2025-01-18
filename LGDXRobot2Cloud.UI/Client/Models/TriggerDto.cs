@@ -15,10 +15,10 @@ namespace LGDXRobot2Cloud.UI.Client.Models
         /// <summary>The apiKey property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::LGDXRobot2Cloud.UI.Client.Models.ApiKeyDto? ApiKey { get; set; }
+        public global::LGDXRobot2Cloud.UI.Client.Models.ApiKeySearchDto? ApiKey { get; set; }
 #nullable restore
 #else
-        public global::LGDXRobot2Cloud.UI.Client.Models.ApiKeyDto ApiKey { get; set; }
+        public global::LGDXRobot2Cloud.UI.Client.Models.ApiKeySearchDto ApiKey { get; set; }
 #endif
         /// <summary>The apiKeyFieldName property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
@@ -78,7 +78,7 @@ namespace LGDXRobot2Cloud.UI.Client.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "apiKey", n => { ApiKey = n.GetObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.ApiKeyDto>(global::LGDXRobot2Cloud.UI.Client.Models.ApiKeyDto.CreateFromDiscriminatorValue); } },
+                { "apiKey", n => { ApiKey = n.GetObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.ApiKeySearchDto>(global::LGDXRobot2Cloud.UI.Client.Models.ApiKeySearchDto.CreateFromDiscriminatorValue); } },
                 { "apiKeyFieldName", n => { ApiKeyFieldName = n.GetStringValue(); } },
                 { "apiKeyInsertLocationId", n => { ApiKeyInsertLocationId = n.GetIntValue(); } },
                 { "body", n => { Body = n.GetStringValue(); } },
@@ -96,7 +96,7 @@ namespace LGDXRobot2Cloud.UI.Client.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
-            writer.WriteObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.ApiKeyDto>("apiKey", ApiKey);
+            writer.WriteObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.ApiKeySearchDto>("apiKey", ApiKey);
             writer.WriteStringValue("apiKeyFieldName", ApiKeyFieldName);
             writer.WriteIntValue("apiKeyInsertLocationId", ApiKeyInsertLocationId);
             writer.WriteStringValue("body", Body);

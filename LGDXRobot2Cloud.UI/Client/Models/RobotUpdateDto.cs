@@ -24,8 +24,6 @@ namespace LGDXRobot2Cloud.UI.Client.Models
 #else
         public string Name { get; set; }
 #endif
-        /// <summary>The realmId property</summary>
-        public int? RealmId { get; set; }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -47,7 +45,6 @@ namespace LGDXRobot2Cloud.UI.Client.Models
                 { "isProtectingHardwareSerialNumber", n => { IsProtectingHardwareSerialNumber = n.GetBoolValue(); } },
                 { "isRealtimeExchange", n => { IsRealtimeExchange = n.GetBoolValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
-                { "realmId", n => { RealmId = n.GetIntValue(); } },
             };
         }
         /// <summary>
@@ -60,7 +57,6 @@ namespace LGDXRobot2Cloud.UI.Client.Models
             writer.WriteBoolValue("isProtectingHardwareSerialNumber", IsProtectingHardwareSerialNumber);
             writer.WriteBoolValue("isRealtimeExchange", IsRealtimeExchange);
             writer.WriteStringValue("name", Name);
-            writer.WriteIntValue("realmId", RealmId);
         }
     }
 }
