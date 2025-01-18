@@ -1,7 +1,6 @@
 using LGDXRobot2Cloud.API.Authorisation;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Middleware;
-using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services;
 using LGDXRobot2Cloud.API.Services.Administration;
 using LGDXRobot2Cloud.API.Services.Automation;
@@ -207,29 +206,6 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerMySQLService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-
-// Identity Repositories
-builder.Services.AddScoped<ILgdxUsersRepository, LgdxUsersRepository>();
-builder.Services.AddScoped<ILgdxRoleRepository, LgdxRoleRepository>();
-
-// Navigation Repositories
-builder.Services.AddScoped<IFlowRepository, FlowRepository>();
-builder.Services.AddScoped<IFlowDetailRepository, FlowDetailRepository>();
-builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
-builder.Services.AddScoped<IAutoTaskRepository, AutoTaskRepository>();
-builder.Services.AddScoped<IAutoTaskDetailRepository, AutoTaskDetailRepository>();
-builder.Services.AddScoped<ITriggerRepository, TriggerRepository>();
-builder.Services.AddScoped<IWaypointRepository, WaypointRepository>();
-builder.Services.AddScoped<IRealmRepository, RealmRepository>();
-
-// Robot Repositories
-builder.Services.AddScoped<IRobotRepository, RobotRepository>();
-builder.Services.AddScoped<IRobotSystemInfoRepository, RobotSystemInfoRepository>();
-builder.Services.AddScoped<IRobotChassisInfoRepository, RobotChassisInfoRepository>();
-
-// Setting Repositories
-builder.Services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
-builder.Services.AddScoped<IRobotCertificateRepository, RobotCertificateRepository>();
 
 var app = builder.Build();
 

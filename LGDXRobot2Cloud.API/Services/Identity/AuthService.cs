@@ -3,12 +3,13 @@ using System.Security.Claims;
 using System.Text;
 using LGDXRobot2Cloud.API.Configurations;
 using LGDXRobot2Cloud.API.Exceptions;
-using LGDXRobot2Cloud.API.Repositories;
 using LGDXRobot2Cloud.API.Services.Common;
+using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.Business.Identity;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -24,14 +25,14 @@ public interface IAuthService
 }
 
 public class AuthService(
+    LgdxContext context,
     IEmailService emailService,
-    ILgdxRoleRepository lgdxRoleRepository,
     IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
     UserManager<LgdxUser> userManager
   ) : IAuthService
 {
+  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-  private readonly ILgdxRoleRepository _lgdxRoleRepository = lgdxRoleRepository ?? throw new ArgumentNullException(nameof(lgdxRoleRepository));
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2SecretConfiguration));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
@@ -66,9 +67,13 @@ public class AuthService(
     }
     // Add Role Claims
     {
-      var roles = await _lgdxRoleRepository.GetRolesAsync(userRoles);
-      List<string> roleIds = roles.Select(r => r.Id).ToList();
-      var roleClaims = await _lgdxRoleRepository.GetRolesClaimsAsync(roleIds);
+      List<string> roleIds = await _context.Roles.AsNoTracking()
+        .Where(r => userRoles.Contains(r.NormalizedName!))
+        .Select(r => r.Id )
+        .ToListAsync();
+      var roleClaims = await _context.RoleClaims.AsNoTracking()
+        .Where(r => roleIds.Contains(r.RoleId))
+        .ToListAsync();
       foreach (var roleClaim in roleClaims)
       {
         Claims.Add(new Claim(roleClaim.ClaimType!, roleClaim.ClaimValue!));
