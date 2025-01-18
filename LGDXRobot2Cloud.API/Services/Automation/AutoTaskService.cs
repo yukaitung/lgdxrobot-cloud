@@ -20,9 +20,6 @@ public interface IAutoTaskService
 
   Task AbortAutoTaskAsync(int autoTaskId);
   Task AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
-
-  Task<AutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token);
-  Task<AutoTask?> AutoTaskAbortManualAsync(int taskId);
 }
 
 public class AutoTaskService(
@@ -299,6 +296,7 @@ public class AutoTaskService(
       .Where(t => t.Id == autoTaskId)
       .FirstOrDefaultAsync()
       ?? throw new LgdxNotFound404Exception();
+
     if (autoTask.CurrentProgressId == (int)ProgressState.Template || 
         autoTask.CurrentProgressId == (int)ProgressState.Completed || 
         autoTask.CurrentProgressId == (int)ProgressState.Aborted)
@@ -314,33 +312,14 @@ public class AutoTaskService(
     }
     else
     {
-      await AutoTaskAbortManualAsync(autoTask.Id);
+      await _autoTaskSchedulerService.AutoTaskAbortApiAsync(autoTask.Id);
     }
   }
 
   public async Task AutoTaskNextApiAsync(Guid robotId, int taskId, string token)
   {
-    var result = await AutoTaskNextAsync(robotId, taskId, token) 
+    var result = await _autoTaskSchedulerService.AutoTaskNextApiAsync(robotId, taskId, token) 
       ?? throw new LgdxValidation400Expection(nameof(token), "The next token is invalid.");
     _onlineRobotsService.SetAutoTaskNext(robotId, result);
-  }
-
-
-  public async Task<AutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token)
-  {
-    var result = await _context.AutoTasks.FromSql($"CALL auto_task_next({robotId}, {taskId}, {token});").ToListAsync();
-    if (result.Count > 0)
-      return result[0];
-    else
-      return null;
-  }
-
-  public async Task<AutoTask?> AutoTaskAbortManualAsync(int taskId)
-  {
-    var result = await _context.AutoTasks.FromSql($"CALL auto_task_abort_manual({taskId});").ToListAsync();
-    if (result.Count > 0)
-      return result[0];
-    else
-      return null;
   }
 }

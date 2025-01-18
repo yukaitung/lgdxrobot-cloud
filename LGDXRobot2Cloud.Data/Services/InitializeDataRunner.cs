@@ -4,7 +4,6 @@ using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Services;
 
@@ -67,16 +66,6 @@ public class InitializeDataRunner(LgdxContext context,
     LgdxUser? user = await _userManager.FindByEmailAsync(firstUser.Email);
     var result = await _userManager.AddToRolesAsync(user!, ["Global Administrator"]);
     await context.SaveChangesAsync(cancellationToken);
-
-    /*
-     * SQL Script
-     */
-    var path = Path.Combine(Directory.GetCurrentDirectory(), "SQL", "MySQL.sql");
-    string sql = await File.ReadAllTextAsync(path, cancellationToken);
-    sql = sql.Replace("delimiter //", string.Empty);
-    sql = sql.Replace("delimiter ;", string.Empty);
-    sql = sql.Replace("//", ";");
-    await _context.Database.ExecuteSqlRawAsync(sql, cancellationToken);
 
     Environment.Exit(0);
   }

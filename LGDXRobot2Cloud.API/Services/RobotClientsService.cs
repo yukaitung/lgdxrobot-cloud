@@ -169,7 +169,7 @@ public class RobotClientsService(
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
         Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
-        Task = await _autoTaskSchedulerService.AutoTaskNextManualAsync(manualAutoTask)
+        Task = await _autoTaskSchedulerService.AutoTaskNextConstructAsync(manualAutoTask)
       };
     }
     else

@@ -17,26 +17,24 @@ public interface IAutoTaskSchedulerService
   Task ResetIgnoreRobotAsync();
   Task<RobotClientsAutoTask?> GetAutoTaskAsync(Guid robotId);
   Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason);
+  Task<bool> AutoTaskAbortApiAsync(int taskId);
   Task<RobotClientsAutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token);
-  Task<RobotClientsAutoTask?> AutoTaskNextManualAsync(AutoTask autoTask);
+  Task<AutoTask?> AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
+  Task<RobotClientsAutoTask?> AutoTaskNextConstructAsync(AutoTask autoTask);
 }
 
 public class AutoTaskSchedulerMySQLService(
     LgdxContext context,
-    IAutoTaskRepository autoTaskRepository,
     IDistributedCache cache,
     IOnlineRobotsService onlineRobotsService,
-    IProgressRepository progressRepository,
     ITriggerService triggerService,
     IEmailService emailService
   ) : IAutoTaskSchedulerService
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly DistributedCacheEntryOptions _cacheEntryOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
-  private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
   private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
-  private readonly IProgressRepository _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
   private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
 
@@ -143,7 +141,7 @@ public class AutoTaskSchedulerMySQLService(
     await _cache.RemoveAsync("AutoTaskSchedulerService_IgnoreRobot");
   }
 
-  private async Task<AutoTask?> GetRunningAutoTaskAsync(Guid robotId)
+  private async Task<AutoTask?> GetRunningAutoTaskSqlAsync(Guid robotId)
   {
     return await _context.AutoTasks.AsNoTracking()
       .Include(t => t.AutoTaskDetails)
@@ -155,20 +153,21 @@ public class AutoTaskSchedulerMySQLService(
       .FirstOrDefaultAsync();
   }
 
-  private async Task<AutoTask?> AssignAutoTaskAsync(Guid robotId)
+  private async Task<AutoTask?> AssignAutoTaskSqlAsync(Guid robotId)
   {
+    AutoTask? task = null;
     using var transaction = await _context.Database.BeginTransactionAsync();
     try
     {
-      // Get waiting task and flowId
-      var task = await _context.AutoTasks.FromSql(
+      // Get waiting task
+      task = await _context.AutoTasks.FromSql(
         $@"SELECT * FROM `Automation.AutoTasks` AS T 
             WHERE T.`CurrentProgressId` = {(int)ProgressState.Waiting} AND (T.`AssignedRobotId` = {robotId} OR T.`AssignedRobotId` IS NULL)
             ORDER BY T.`Priority` DESC, T.`AssignedRobotId` DESC, T.`Id`
             LIMIT 1 FOR UPDATE SKIP LOCKED"
       ).FirstOrDefaultAsync();
 
-      // Use get flow detail
+      // Get flow detail
       var flowDetail = await _context.FlowDetails
         .Where(f => f.FlowId == task!.FlowId)
         .Select(f => new { 
@@ -205,9 +204,9 @@ public class AutoTaskSchedulerMySQLService(
       return null;
     }
 
-    var currentTask = await GetRunningAutoTaskAsync(robotId);
+    var currentTask = await GetRunningAutoTaskSqlAsync(robotId);
     var ignoreTrigger = currentTask != null; // Do not fire trigger if there is a task running
-    currentTask ??= await AssignAutoTaskAsync(robotId);
+    currentTask ??= await AssignAutoTaskSqlAsync(robotId);
     
     if (currentTask == null)
     {
@@ -219,35 +218,113 @@ public class AutoTaskSchedulerMySQLService(
     return await GenerateTaskDetail(currentTask, ignoreTrigger);
   }
 
+  private async Task<AutoTask?> AutoTaskAbortSqlAsync(int taskId, Guid? robotId = null, string? token = null)
+  {
+    AutoTask? task = null;
+    using var transaction = await _context.Database.BeginTransactionAsync();
+    try
+    {
+      // Get task
+      if (robotId == null && token == null)
+      {
+        task = await _context.AutoTasks.FromSql(
+          $@"SELECT * FROM `Automation.AutoTasks` AS T
+            WHERE T.`Id` = {taskId}
+            LIMIT 1 FOR UPDATE NOWAIT"
+        ).FirstOrDefaultAsync();
+      }
+      else
+      {
+        task = await _context.AutoTasks.FromSql(
+          $@"SELECT * FROM `Automation.AutoTasks` AS T
+              WHERE T.`Id` = {taskId} AND T.`AssignedRobotId` = {robotId} AND T.`NextToken` = {token}
+              LIMIT 1 FOR UPDATE NOWAIT"
+        ).FirstOrDefaultAsync();
+      }
+
+      // Update task
+      task!.CurrentProgressId = (int)ProgressState.Aborted;
+      task.CurrentProgressOrder = null;
+      task.NextToken = null;
+      await _context.SaveChangesAsync();
+      await transaction.CommitAsync();
+    }
+    catch (Exception)
+    {
+      await transaction.RollbackAsync();
+    }
+    return task;
+  }
+
   public async Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason)
   {
-    var task = await _autoTaskRepository.AutoTaskAbortAsync(robotId, taskId, token);
-    if (task == null)
-    {
-      return null;
-    }
+    var task = await AutoTaskAbortSqlAsync(taskId, robotId, token);
     await _emailService.SendAutoTaskAbortEmailAsync(robotId, taskId, autoTaskAbortReason);
-    var progress = await _progressRepository.GetProgressAsync(task.CurrentProgressId);
-    task.CurrentProgress = progress!;
     return await GenerateTaskDetail(task);
+  }
+
+  public async Task<bool> AutoTaskAbortApiAsync(int taskId)
+  {
+    var task = await AutoTaskAbortSqlAsync(taskId);
+    if (task == null)
+      return false;
+
+    await _emailService.SendAutoTaskAbortEmailAsync((Guid)task!.AssignedRobotId!, taskId, AutoTaskAbortReason.UserApi);
+    return true;
+  }
+
+  private async Task<AutoTask?> AutoTaskNextSqlAsync(Guid robotId, int taskId, string token)
+  {
+    AutoTask? task = null;
+    using var transaction = await _context.Database.BeginTransactionAsync();
+    try
+    {
+      // Get waiting task
+      task = await _context.AutoTasks.FromSql(
+        $@"SELECT * FROM `Automation.AutoTasks` AS T
+            WHERE T.`Id` = {taskId} AND T.`AssignedRobotId` = {robotId} AND T.`NextToken` = {token}
+            LIMIT 1 FOR UPDATE NOWAIT"
+      ).FirstOrDefaultAsync();
+
+      // Get flow detail
+      var flowDetail = await _context.FlowDetails.AsNoTracking()
+        .Where(f => f.FlowId == task!.FlowId)
+        .Where(f => f.Order > task!.CurrentProgressOrder)
+        .Select(f => new { 
+          f.ProgressId, 
+          f.Order 
+        })
+        .OrderBy(f => f.Order)
+        .FirstOrDefaultAsync();
+
+      // Update task
+      task!.AssignedRobotId = robotId;
+      task.CurrentProgressId = flowDetail!.ProgressId;
+      task.CurrentProgressOrder = flowDetail.Order;
+      task.NextToken = LgdxHelper.GenerateMd5Hash($"{robotId} {task.Id} {task.CurrentProgressId} {DateTime.UtcNow}");
+      await _context.SaveChangesAsync();
+      await transaction.CommitAsync();
+    }
+    catch (Exception)
+    {
+      await transaction.RollbackAsync();
+    }
+    return task;
   }
 
   public async Task<RobotClientsAutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token)
   {
-    var task = await _autoTaskRepository.AutoTaskNextAsync(robotId, taskId, token);
-    if (task == null)
-    {
-      return null;
-    }
-    var progress = await _progressRepository.GetProgressAsync(task.CurrentProgressId);
-    task.CurrentProgress = progress!;
+    var task = await AutoTaskNextSqlAsync(robotId, taskId, token);
     return await GenerateTaskDetail(task, true);
   }
 
-  public async Task<RobotClientsAutoTask?> AutoTaskNextManualAsync(AutoTask autoTask)
+  public async Task<AutoTask?> AutoTaskNextApiAsync(Guid robotId, int taskId, string token)
   {
-    var progress = await _progressRepository.GetProgressAsync(autoTask.CurrentProgressId);
-    autoTask.CurrentProgress = progress!;
+    return await AutoTaskNextSqlAsync(robotId, taskId, token);
+  }
+
+  public async Task<RobotClientsAutoTask?> AutoTaskNextConstructAsync(AutoTask autoTask)
+  {
     return await GenerateTaskDetail(autoTask, true);
   }
 }
