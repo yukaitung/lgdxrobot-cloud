@@ -82,10 +82,7 @@ public class OnlineRobotsService(
 
   public async Task AddRobotAsync(Guid robotId)
   {
-    var realmId = await _robotService.GetRobotRealmIdAsync(robotId);
-    if (realmId == null)
-      return;
-
+    var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey((int)realmId)) ?? [];
     OnlineRobotsIds.Add(robotId);
     // Register the robot
@@ -95,10 +92,7 @@ public class OnlineRobotsService(
 
   public async Task RemoveRobotAsync(Guid robotId)
   {
-    var realmId = await _robotService.GetRobotRealmIdAsync(robotId);
-    if (realmId == null)
-      return;
-
+    var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     // Unregister the robot
     var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey((int)realmId));
     if (OnlineRobotsIds != null && OnlineRobotsIds.Contains(robotId))
@@ -190,10 +184,7 @@ public class OnlineRobotsService(
 
   public async Task<bool> IsRobotOnlineAsync(Guid robotId)
   {
-    var realmId = await _robotService.GetRobotRealmIdAsync(robotId);
-    if (realmId == null)
-      return false;
-
+    var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var onlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey((int)realmId));
     return onlineRobotsIds != null && onlineRobotsIds.Contains(robotId);
   }
