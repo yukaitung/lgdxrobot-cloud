@@ -7,6 +7,7 @@ using LGDXRobot2Cloud.Data.Models.Business.Automation;
 using LGDXRobot2Cloud.Data.Models.Business.Navigation;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobot2Cloud.API.Services.Navigation;
 
@@ -24,15 +25,18 @@ public interface IRobotService
   Task<bool> CreateRobotSystemInfoAsync(Guid robotId, RobotSystemInfoCreateBusinessModel robotSystemInfoCreateBusinessModel);
   Task<bool> UpdateRobotSystemInfoAsync(Guid robotId, RobotSystemInfoUpdateBusinessModel robotSystemInfoUpdateBusinessModel);
 
-
   Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name);
+
+  Task<int?> GetRobotRealmIdAsync(Guid robotId);
 }
 
 public class RobotService(
+    IMemoryCache memoryCache,
     IRobotCertificateService robotCertificateService,
     LgdxContext context
   ) : IRobotService
 {
+  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IRobotCertificateService _robotCertificateService = robotCertificateService ?? throw new ArgumentNullException(nameof(robotCertificateService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
@@ -314,5 +318,22 @@ public class RobotService(
         })
         .ToListAsync();
     }
+  }
+
+  public async Task<int?> GetRobotRealmIdAsync(Guid robotId)
+  {
+    if (_memoryCache.TryGetValue<int>($"RobotService_GetRobotRealmIdAsync_{robotId}", out var RealmId))
+    {
+      return RealmId;
+    }
+
+    var robot = await _context.Robots.AsNoTracking()
+      .Select(m => new { m.Id, m.RealmId })
+      .FirstOrDefaultAsync();
+    if (robot == null)
+      return null;
+
+    _memoryCache.Set($"RobotService_GetRobotRealmIdAsync_{robotId}", robot!.RealmId, TimeSpan.FromDays(1));
+    return robot.RealmId;
   }
 }

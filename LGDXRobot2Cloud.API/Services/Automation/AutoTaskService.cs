@@ -320,6 +320,6 @@ public class AutoTaskService(
   {
     var result = await _autoTaskSchedulerService.AutoTaskNextApiAsync(robotId, taskId, token) 
       ?? throw new LgdxValidation400Expection(nameof(token), "The next token is invalid.");
-    _onlineRobotsService.SetAutoTaskNext(robotId, result);
+    _onlineRobotsService.SetAutoTaskNextApi(robotId, result);
   }
 }

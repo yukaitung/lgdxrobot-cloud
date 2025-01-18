@@ -46,9 +46,9 @@ public class RobotClientsService(
   }
 
   // TODO: Validate in authorisation
-  private bool ValidateOnlineRobots(Guid robotId)
+  private async Task<bool> ValidateOnlineRobotsAsync(Guid robotId)
   {
-    return _onlineRobotsService.IsRobotOnline(robotId);
+    return await _onlineRobotsService.IsRobotOnlineAsync(robotId);
   }
 
   private static RobotClientsRespond ValidateOnlineRobotsFailed()
@@ -136,7 +136,7 @@ public class RobotClientsService(
       credentials);
     var token = new JwtSecurityTokenHandler().WriteToken(secToken);
 
-    _onlineRobotsService.AddRobot((Guid)robotId);
+    await _onlineRobotsService.AddRobotAsync((Guid)robotId);
 
     return new RobotClientsGreetRespond {
       Status = RobotClientsResultStatus.Success,
@@ -158,11 +158,11 @@ public class RobotClientsService(
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
-    if (!ValidateOnlineRobots((Guid)robotId))
+    if (!await ValidateOnlineRobotsAsync((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
     await _onlineRobotsService.UpdateRobotDataAsync((Guid)robotId, request);
-    var manualAutoTask = _onlineRobotsService.GetAutoTaskNext((Guid)robotId);
+    var manualAutoTask = _onlineRobotsService.GetAutoTaskNextApi((Guid)robotId);
     if (manualAutoTask != null)
     {
       // Triggered by API
@@ -199,7 +199,7 @@ public class RobotClientsService(
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
-    if (!ValidateOnlineRobots((Guid)robotId))
+    if (!await ValidateOnlineRobotsAsync((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
     var task = await _autoTaskSchedulerService.AutoTaskNextAsync((Guid)robotId, request.TaskId, request.NextToken);
@@ -215,7 +215,7 @@ public class RobotClientsService(
     var robotId = ValidateRobotClaim(context);
     if (robotId == null)
       return ValidateRobotClaimFailed();
-    if (!ValidateOnlineRobots((Guid)robotId))
+    if (!await ValidateOnlineRobotsAsync((Guid)robotId))
       return ValidateOnlineRobotsFailed();
 
     await _onlineRobotsService.SetAbortTaskAsync((Guid)robotId, false);
