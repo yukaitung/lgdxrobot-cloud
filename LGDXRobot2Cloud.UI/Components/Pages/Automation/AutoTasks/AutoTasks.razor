@@ -1,6 +1,7 @@
 @attribute [Route(AppRoutes.Automation.AutoTasks.Index)]
 @attribute [Authorize (Policy = Permissions.Automation.AutoTasks.Read)]
 @using LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks.Components
+@using LGDXRobot2Cloud.UI.Services
 @using LGDXRobot2Cloud.Utilities.Enums
 @rendermode InteractiveServer
 
@@ -10,6 +11,10 @@
       <h2 class="page-title">
         Tasks
       </h2>
+      <div class="text-secondary mt-1">
+        <i class="ti ti-map-pin-filled"></i>
+        @RealmName
+      </div>
     </div>
     <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write">
       <div class="col-auto ms-auto">
@@ -65,11 +70,29 @@
 </PageBody>
 
 @code {
+  [Inject]
+  public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+  
+  private string RealmName { get; set; } = string.Empty;
   private int CurrentTab { get; set; } = 0;
   private readonly List<string> Tabs = ["Ongoing Tasks", "Completed Tasks", "Aborted Tasks", "Task Templates"];
 
   public void HandleTabChange(int index)
   {
     CurrentTab = index;
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    await base.OnInitializedAsync();
   }
 }

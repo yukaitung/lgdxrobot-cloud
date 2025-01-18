@@ -18,12 +18,16 @@ public sealed partial class Robots : ComponentBase
   public required IRobotDataService RobotDataService { get; set; }
 
   [Inject]
+  public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
   public required ITokenService TokenService { get; set; }
 
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
   private int RealmId { get; set; }
+  private string RealmName { get; set; } = string.Empty;
   private List<RobotListDto>? RobotsList { get; set; }
   private Dictionary<Guid, RobotDataContract?> RobotsData { get; set; } = [];
   private Dictionary<Guid, RobotCommandsContract?> RobotsCommands { get; set; } = [];
@@ -155,7 +159,7 @@ public sealed partial class Robots : ComponentBase
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     RealmId = settings.CurrentRealmId;
-
+    RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await Refresh();
     await base.OnInitializedAsync();
   }

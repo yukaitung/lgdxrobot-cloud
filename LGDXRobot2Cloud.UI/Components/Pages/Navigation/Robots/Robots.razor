@@ -1,5 +1,6 @@
 @attribute [Route(AppRoutes.Navigation.Robots.Index)]
 @attribute [Authorize (Policy = Permissions.Navigation.Robots.Read)]
+@using LGDXRobot2Cloud.UI.Services
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components
 @rendermode InteractiveServer
@@ -10,6 +11,10 @@
       <h2 class="page-title">
         Robots
       </h2>
+      <div class="text-secondary mt-1">
+        <i class="ti ti-map-pin-filled"></i>
+        @RealmName
+      </div>
     </div>
     <div class="col-auto ms-auto">
       <div class="d-flex">
