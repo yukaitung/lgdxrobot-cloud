@@ -57,11 +57,6 @@ builder.Services.AddMassTransit(cfg =>
 	});
 });
 builder.Services.AddMemoryCache();
-builder.Services.AddStackExchangeRedisCache(cfg =>
-{
-	cfg.Configuration = builder.Configuration["Redis:Configuration"];
-	cfg.InstanceName = builder.Configuration["Redis:InstanceName"];
-});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(cfg =>{

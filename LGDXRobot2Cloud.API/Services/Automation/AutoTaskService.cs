@@ -189,7 +189,7 @@ public class AutoTaskService(
     };
     await _context.AutoTasks.AddAsync(autoTask);
     await _context.SaveChangesAsync();
-    await _autoTaskSchedulerService.ResetIgnoreRobotAsync();
+    _autoTaskSchedulerService.ResetIgnoreRobot(autoTask.RealmId);
 
     return new AutoTaskBusinessModel {
       Id = autoTask.Id,

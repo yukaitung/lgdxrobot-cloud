@@ -8,12 +8,13 @@ using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobot2Cloud.API.Services.Automation;
 
 public interface IAutoTaskSchedulerService
 {
-  Task ResetIgnoreRobotAsync();
+  void ResetIgnoreRobot(int realmId);
   Task<RobotClientsAutoTask?> GetAutoTaskAsync(Guid robotId);
   Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason);
   Task<bool> AutoTaskAbortApiAsync(int taskId);
@@ -23,19 +24,21 @@ public interface IAutoTaskSchedulerService
 }
 
 public class AutoTaskSchedulerMySQLService(
-    LgdxContext context,
-    IDistributedCache cache,
+    IEmailService emailService,
+    IMemoryCache memoryCache,
     IOnlineRobotsService onlineRobotsService,
+    IRobotService robotService,
     ITriggerService triggerService,
-    IEmailService emailService
+    LgdxContext context
   ) : IAutoTaskSchedulerService
 {
-  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
-  private readonly DistributedCacheEntryOptions _cacheEntryOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
-  private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
-  private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
+  private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
+  private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
+  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private static string GetIgnoreRobotsKey(int realmId) => $"AutoTaskSchedulerService_IgnoreRobot_{realmId}";
 
   private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
   {
@@ -135,9 +138,9 @@ public class AutoTaskSchedulerMySQLService(
     };
   }
 
-  public async Task ResetIgnoreRobotAsync()
+  public void ResetIgnoreRobot(int realmId)
   {
-    await _cache.RemoveAsync("AutoTaskSchedulerService_IgnoreRobot");
+    _memoryCache.Remove(GetIgnoreRobotsKey(realmId));
   }
 
   private async Task<AutoTask?> GetRunningAutoTaskSqlAsync(Guid robotId)
@@ -196,8 +199,9 @@ public class AutoTaskSchedulerMySQLService(
   {
     if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
       return null;
-    
-    var ignoreRobotIds = await _cache.GetAsync<HashSet<Guid>>("AutoTaskSchedulerService_IgnoreRobot");
+
+    var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+    var ignoreRobotIds = _memoryCache.Get<HashSet<Guid>>(GetIgnoreRobotsKey(realmId));
     if (ignoreRobotIds != null && (ignoreRobotIds?.Contains(robotId) ?? false))
     {
       return null;
@@ -212,7 +216,7 @@ public class AutoTaskSchedulerMySQLService(
       // No task for this robot, pause database access.
       ignoreRobotIds ??= [];
       ignoreRobotIds.Add(robotId);
-      await _cache.SetAsync("AutoTaskSchedulerService_IgnoreRobot", ignoreRobotIds, _cacheEntryOptions);
+      _memoryCache.Set(GetIgnoreRobotsKey(realmId), ignoreRobotIds, TimeSpan.FromMinutes(5));
     }
     return await GenerateTaskDetail(currentTask, ignoreTrigger);
   }
