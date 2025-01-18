@@ -10,14 +10,9 @@
     </div>
   </div>
   <div class="mb-3 row">
-    <label class="col-3 col-form-label required" for="@nameof(Robot.RealmId)">Realm</label>
+    <label class="col-3 col-form-label">Realm</label>
     <div class="col">
-      <InputSelect id="@($"{nameof(Robot.RealmId)}-0")" class="form-control" @bind-Value="Robot.RealmId">
-        @if (Robot.RealmName != null)
-        {
-          <option value="@Robot.RealmId">@Robot.RealmName</option>
-        }
-      </InputSelect>
+      <div class="col form-control-plaintext">@Robot.RealmName</div>
     </div>
   </div>
   <div class="mb-3 row align-items-center">

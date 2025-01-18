@@ -1,64 +1,41 @@
-using System.Text.Json;
 using LGDXRobot2Cloud.UI.Client;
+using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components;
 
-public sealed partial class RobotInfoForm : ComponentBase, IDisposable
+public sealed partial class RobotInfoForm : ComponentBase
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
-  
+
   [Inject]
-  public required IJSRuntime JSRuntime { get; set; }
+  public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
   [Parameter]
   public RobotDetailViewModel? Robot { get; set; }
 
-  private DotNetObjectReference<RobotInfoForm> ObjectReference = null!;
-
-  // Form
-  [JSInvokable("HandlSelectSearch")]
-  public async Task HandlSelectSearch(string elementId, string name)
+  public override Task SetParametersAsync(ParameterView parameters)
   {
-    if (string.IsNullOrWhiteSpace(name))
-      return;
-    var result = await LgdxApiClient.Navigation.Realms.Search.GetAsync(x => x.QueryParameters = new() {
-      Name = name
-    });
-    string response = JsonSerializer.Serialize(result);
-    await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
-  }
-
-  [JSInvokable("HandleSelectChange")]
-  public void HandleSelectChange(string elementId, string? id, string? name)
-  {
-    if (string.IsNullOrWhiteSpace(name))
-      return;
-    var index = elementId.IndexOf('-');
-    if (index == -1 || index + 1 == elementId.Length)
-      return;
-    Robot!.RealmId = id != null ? int.Parse(id) : null;
-    Robot!.RealmName = name;
-  }
-
-  protected override async Task OnAfterRenderAsync(bool firstRender)
-  {
-    await base.OnAfterRenderAsync(firstRender);
-    if (firstRender)
+    parameters.SetParameterProperties(this);
+    if (parameters.TryGetValue<RobotDetailViewModel?>(nameof(Robot), out var _robot))
     {
-      ObjectReference = DotNetObjectReference.Create(this);
-      await JSRuntime.InvokeVoidAsync("InitDotNet", ObjectReference);
-      string[] advanceSelectElements = [$"{nameof(RobotDetailViewModel.RealmId)}-"];
-      await JSRuntime.InvokeVoidAsync("InitAdvancedSelectList", advanceSelectElements, 0, 1);
+      if (_robot != null && _robot.RealmId == null)
+      {
+        var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+        var settings = TokenService.GetSessionSettings(user);
+        _robot.RealmId = settings.CurrentRealmId;
+        _robot.RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+      }
     }
-  }
-
-  public void Dispose()
-  {
-    GC.SuppressFinalize(this);
-    ObjectReference?.Dispose();
+    return base.SetParametersAsync(parameters);
   }
 }
