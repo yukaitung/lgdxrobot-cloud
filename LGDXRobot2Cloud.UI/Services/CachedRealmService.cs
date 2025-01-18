@@ -11,6 +11,8 @@ public interface ICachedRealmService
 {
   Task<RealmDto> GetDefaultRealmAsync();
   Task<RealmDto> GetCurrrentRealmAsync(int realmId);
+
+  string GetRealmName(int realmId);
 }
 
 public sealed class CachedRealmService (
@@ -72,7 +74,7 @@ public sealed class CachedRealmService (
 
     try
     {
-      var realm = await _lgdxApiClient.Navigation.Realms[(int)realmId].GetAsync();
+      var realm = await _lgdxApiClient.Navigation.Realms[realmId].GetAsync();
       _memoryCache.Set($"RealmService_GetCurrrentRealmAsync_{realmId}", realm, _memoryCacheEntryOptions);
       return realm ?? GetEmptyRealm();
     }
@@ -82,5 +84,17 @@ public sealed class CachedRealmService (
         _navigationManager.NavigateTo(AppRoutes.Identity.Login);
     }
     return GetEmptyRealm();
+  }
+
+  public string GetRealmName(int realmId)
+  {
+    if (_memoryCache.TryGetValue($"RealmService_GetCurrrentRealmAsync_{realmId}", out RealmDto? realm))
+    {
+      return realm?.Name ?? string.Empty;
+    }
+    else
+    {
+      return string.Empty;
+    }
   }
 }

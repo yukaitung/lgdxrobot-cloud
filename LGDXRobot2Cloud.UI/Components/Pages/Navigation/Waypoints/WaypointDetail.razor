@@ -34,14 +34,9 @@
           </div>
         }
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(WaypointDetailViewModel.RealmId)">Realm</label>
+          <label class="col-3 col-form-label">Realm</label>
           <div class="col">
-            <InputSelect id="@($"{nameof(WaypointDetailViewModel.RealmId)}-0")" class="form-control" @bind-Value="WaypointDetailViewModel.RealmId">
-              @if (WaypointDetailViewModel.RealmName != null)
-              {
-                <option value="@WaypointDetailViewModel.RealmId">@WaypointDetailViewModel.RealmName</option>
-              }
-            </InputSelect>
+            <div class="col form-control-plaintext">@WaypointDetailViewModel.RealmName</div>
           </div>
         </div>
         <div class="mb-3 row">

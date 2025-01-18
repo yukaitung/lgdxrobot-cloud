@@ -1,58 +1,38 @@
-using System.Text.Json;
 using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
+using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.JSInterop;
 using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Waypoints;
 
-public sealed partial class WaypointDetail : ComponentBase, IDisposable
+public sealed partial class WaypointDetail : ComponentBase
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IJSRuntime JSRuntime { get; set; }
+  public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
-  public required NavigationManager NavigationManager { get; set; } = default!;
+  public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
   [Parameter]
   public int? Id { get; set; }
 
-  private DotNetObjectReference<WaypointDetail> ObjectReference = null!;
   private WaypointDetailViewModel WaypointDetailViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
-
-  // Form
-  [JSInvokable("HandlSelectSearch")]
-  public async Task HandlSelectSearch(string elementId, string name)
-  {
-    if (string.IsNullOrWhiteSpace(name))
-      return;
-    var response = await LgdxApiClient.Navigation.Realms.Search.GetAsync(x => x.QueryParameters = new() {
-      Name = name
-    });
-    string result = JsonSerializer.Serialize(response);
-    await JSRuntime.InvokeVoidAsync("AdvanceSelectUpdate", elementId, result);
-  }
-
-  [JSInvokable("HandleSelectChange")]
-  public void HandleSelectChange(string elementId, string? id, string? name)
-  {
-    if (string.IsNullOrWhiteSpace(name))
-      return;
-    var index = elementId.IndexOf('-');
-    if (index == -1 || index + 1 == elementId.Length)
-      return;
-    WaypointDetailViewModel.RealmId = id != null ? int.Parse(id) : null;
-    WaypointDetailViewModel.RealmName = name;
-  }
 
   public async Task HandleValidSubmit()
   {
@@ -89,6 +69,15 @@ public sealed partial class WaypointDetail : ComponentBase, IDisposable
     NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
   }
 
+  protected override async Task OnInitializedAsync()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    WaypointDetailViewModel.RealmId = settings.CurrentRealmId;
+    WaypointDetailViewModel.RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    await base.OnInitializedAsync();
+  }
+
   public override async Task SetParametersAsync(ParameterView parameters)
   {
     parameters.SetParameterProperties(this);
@@ -108,23 +97,5 @@ public sealed partial class WaypointDetail : ComponentBase, IDisposable
       }
     }
     await base.SetParametersAsync(ParameterView.Empty);
-  }
-
-  protected override async Task OnAfterRenderAsync(bool firstRender)
-  {
-    await base.OnAfterRenderAsync(firstRender);
-    if (firstRender)
-    {
-      ObjectReference = DotNetObjectReference.Create(this);
-      await JSRuntime.InvokeVoidAsync("InitDotNet", ObjectReference);
-      string[] advanceSelectElements = [$"{nameof(WaypointDetailViewModel.RealmId)}-"];
-      await JSRuntime.InvokeVoidAsync("InitAdvancedSelectList", advanceSelectElements, 0, 1);
-    }
-  }
-
-  public void Dispose()
-  {
-    GC.SuppressFinalize(this);
-    ObjectReference?.Dispose();
   }
 }

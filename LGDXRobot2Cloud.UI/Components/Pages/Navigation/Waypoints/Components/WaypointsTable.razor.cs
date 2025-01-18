@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.UI.Components.Shared.Table;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Waypoints.Components;
@@ -13,6 +14,13 @@ public sealed partial class WaypointsTable : AbstractTable
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
 
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
+  private int RealmId { get; set; }
   private List<WaypointListDto>? Waypoints { get; set; }
   
   public override async Task HandlePageSizeChange(int number)
@@ -27,6 +35,7 @@ public sealed partial class WaypointsTable : AbstractTable
     Waypoints = await LgdxApiClient.Navigation.Waypoints.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new() {
+        RealmId = RealmId,
         PageNumber = 1,
         PageSize = PageSize,
         Name = DataSearch
@@ -44,6 +53,7 @@ public sealed partial class WaypointsTable : AbstractTable
     Waypoints = await LgdxApiClient.Navigation.Waypoints.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new() {
+        RealmId = RealmId,
         PageNumber = 1,
         PageSize = PageSize,
         Name = DataSearch
@@ -74,6 +84,7 @@ public sealed partial class WaypointsTable : AbstractTable
     Waypoints = await LgdxApiClient.Navigation.Waypoints.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new() {
+        RealmId = RealmId,
         PageNumber = pageNum,
         PageSize = PageSize,
         Name = DataSearch
@@ -91,11 +102,20 @@ public sealed partial class WaypointsTable : AbstractTable
     Waypoints = await LgdxApiClient.Navigation.Waypoints.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new() {
+        RealmId = RealmId,
         PageNumber = CurrentPage,
         PageSize = PageSize,
         Name = DataSearch
       };
     });
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    RealmId = settings.CurrentRealmId;
+    await base.OnInitializedAsync();
   }
 }
