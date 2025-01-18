@@ -20,7 +20,7 @@ public interface ITokenService
 
 public record SessionSettings
 {
-  public int? CurrentRealmId { get; set; }
+  public int CurrentRealmId { get; set; } = 0;
 }
 
 public class TokenService : ITokenService

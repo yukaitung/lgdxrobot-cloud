@@ -1,18 +1,18 @@
 using LGDXRobot2Cloud.Data.Contracts;
+using LGDXRobot2Cloud.UI.Services;
 using MassTransit;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobot2Cloud.UI.Consumers;
 
 public class RobotCommandsConsumer(
-  IMemoryCache memoryCache
+    IRobotDataService robotDataService
   ) : IConsumer<RobotCommandsContract>
 {
-  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+  private readonly IRobotDataService _robotDataService = robotDataService ?? throw new ArgumentNullException(nameof(robotDataService));
 
   public Task Consume(ConsumeContext<RobotCommandsContract> context)
   {
-    _memoryCache.Set($"RobotCommands_{context.Message.RobotId}", context.Message, DateTimeOffset.Now.AddMinutes(1));
+    _robotDataService.UpdateRobotCommands(context.Message);
     return Task.CompletedTask;
   }
 }

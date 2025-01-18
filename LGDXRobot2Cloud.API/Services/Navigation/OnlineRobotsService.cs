@@ -83,10 +83,10 @@ public class OnlineRobotsService(
   public async Task AddRobotAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey((int)realmId)) ?? [];
+    var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId)) ?? [];
     OnlineRobotsIds.Add(robotId);
     // Register the robot
-    _memoryCache.Set(GetOnlineRobotsKey((int)realmId), OnlineRobotsIds);
+    _memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
     _memoryCache.Set(GetRobotCommandsKey(robotId), new RobotClientsRobotCommands());
   }
 
@@ -94,11 +94,11 @@ public class OnlineRobotsService(
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     // Unregister the robot
-    var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey((int)realmId));
+    var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId));
     if (OnlineRobotsIds != null && OnlineRobotsIds.Contains(robotId))
     {
       OnlineRobotsIds.Remove(robotId);
-      _memoryCache.Set(GetOnlineRobotsKey((int)realmId), OnlineRobotsIds);
+      _memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
     }    
     _memoryCache.Remove(GetRobotCommandsKey(robotId));
   }
@@ -112,9 +112,11 @@ public class OnlineRobotsService(
     }
     _memoryCache.Set($"OnlineRobotsService_RobotData_Pause_{robotId}", true, TimeSpan.FromSeconds(1));
     
+    var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var robotStatus = ConvertRobotStatus(data.RobotStatus);
     await _bus.Publish(new RobotDataContract {
       RobotId = robotId,
+      RealmId = realmId,
       RobotStatus = robotStatus,
       CriticalStatus = new RobotCriticalStatus {
         HardwareEmergencyStop = data.CriticalStatus.HardwareEmergencyStop,

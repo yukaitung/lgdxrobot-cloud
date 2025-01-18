@@ -10,7 +10,7 @@ namespace LGDXRobot2Cloud.UI.Services;
 public interface ICachedRealmService
 {
   Task<RealmDto> GetDefaultRealmAsync();
-  Task<RealmDto> GetCurrrentRealmAsync(int? realmId);
+  Task<RealmDto> GetCurrrentRealmAsync(int realmId);
 }
 
 public sealed class CachedRealmService (
@@ -59,9 +59,9 @@ public sealed class CachedRealmService (
     return GetEmptyRealm();
   }
 
-  public async Task<RealmDto> GetCurrrentRealmAsync(int? realmId)
+  public async Task<RealmDto> GetCurrrentRealmAsync(int realmId)
   {
-    if (realmId == null)
+    if (realmId == 0)
     {
       return await GetDefaultRealmAsync();
     }

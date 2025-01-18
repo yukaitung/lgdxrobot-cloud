@@ -5,6 +5,7 @@ using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots;
 
@@ -16,6 +17,13 @@ public sealed partial class Robots : ComponentBase
   [Inject]
   public required IRobotDataService RobotDataService { get; set; }
 
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
+  private int RealmId { get; set; }
   private List<RobotListDto>? RobotsList { get; set; }
   private Dictionary<Guid, RobotDataContract?> RobotsData { get; set; } = [];
   private Dictionary<Guid, RobotCommandsContract?> RobotsCommands { get; set; } = [];
@@ -37,7 +45,7 @@ public sealed partial class Robots : ComponentBase
     foreach(var robot in robots)
     {
       Guid robotId = (Guid)robot.Id!;
-      var robotData = RobotDataService.GetRobotData(robotId);
+      var robotData = RobotDataService.GetRobotData(robotId, RealmId);
       if (robotData != null)
       {
         RobotsData[robotId] = robotData;
@@ -45,9 +53,11 @@ public sealed partial class Robots : ComponentBase
       else
       {
         RobotsData[robotId] = new RobotDataContract{
-          RobotId = robotId
+          RobotId = robotId,
+          RealmId = RealmId
         };
       }
+
       var robotCommands = RobotDataService.GetRobotCommands(robotId);
       if (robotCommands != null)
       {
@@ -71,6 +81,7 @@ public sealed partial class Robots : ComponentBase
     var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new() {
+        RealmId = RealmId,
         Name = DataSearch,
         PageNumber = 1,
         PageSize = PageSize
@@ -103,6 +114,7 @@ public sealed partial class Robots : ComponentBase
     var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new() {
+        RealmId = RealmId,
         Name = DataSearch,
         PageNumber = pageNum,
         PageSize = PageSize
@@ -122,6 +134,7 @@ public sealed partial class Robots : ComponentBase
     var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new() {
+        RealmId = RealmId,
         Name = DataSearch,
         PageNumber = CurrentPage,
         PageSize = PageSize
@@ -130,7 +143,6 @@ public sealed partial class Robots : ComponentBase
     SetRobotsData(robots);
     RobotsList = robots;
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
-    //StateHasChanged();
   }
 
   public void HandleRobotSelect(RobotListDto robot)
@@ -140,6 +152,10 @@ public sealed partial class Robots : ComponentBase
 
   protected override async Task OnInitializedAsync()
   {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    RealmId = settings.CurrentRealmId;
+
     await Refresh();
     await base.OnInitializedAsync();
   }

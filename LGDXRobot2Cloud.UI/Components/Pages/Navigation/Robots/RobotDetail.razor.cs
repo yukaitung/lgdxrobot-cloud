@@ -5,6 +5,7 @@ using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots;
 public sealed partial class RobotDetail
@@ -17,6 +18,12 @@ public sealed partial class RobotDetail
 
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
+
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
   [Parameter]
   public string Id { get; set; } = string.Empty;
@@ -45,6 +52,10 @@ public sealed partial class RobotDetail
 
   protected override async Task OnInitializedAsync()
   {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    var realmId = settings.CurrentRealmId;
+
     if (Guid.TryParse(Id, out Guid _id))
     {
       var robot = await LgdxApiClient.Navigation.Robots[_id].GetAsync();
@@ -53,7 +64,7 @@ public sealed partial class RobotDetail
       RobotSystemInfoDto = robot!.RobotSystemInfo;
       RobotChassisInfoViewModel.FromDto(robot!.RobotChassisInfo!);
       AutoTasks = robot.AssignedTasks;
-      RobotData = RobotDataService.GetRobotData(RobotDetailViewModel!.Id);
+      RobotData = RobotDataService.GetRobotData(RobotDetailViewModel!.Id, realmId);
       RobotCommands = RobotDataService.GetRobotCommands(RobotDetailViewModel!.Id);
     }
     await base.OnInitializedAsync();

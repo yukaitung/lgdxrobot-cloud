@@ -33,12 +33,13 @@ public sealed partial class NavigationMap : ComponentBase
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     Map = await CachedRealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
+    var realmId = Map.Id ?? 0;
 
     // Set Online Robots
-    var onlineRobots = RobotDataService.GetOnlineRobots();
+    var onlineRobots = RobotDataService.GetOnlineRobots(realmId!);
     foreach (var robotId in onlineRobots)
     {
-      var robotData = RobotDataService.GetRobotData(robotId);
+      var robotData = RobotDataService.GetRobotData(robotId, realmId!);
       if (robotData != null)
       {
         RobotsData.Add(robotId, robotData);

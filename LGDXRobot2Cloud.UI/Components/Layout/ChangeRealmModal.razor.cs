@@ -27,7 +27,7 @@ public sealed partial class ChangeRealmModal : ComponentBase, IDisposable
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
-  public int? RealmId { get; set; }
+  public int RealmId { get; set; } = 0;
   public string? RealmName { get; set; }
 
   private DotNetObjectReference<ChangeRealmModal> ObjectReference = null!;
@@ -53,7 +53,7 @@ public sealed partial class ChangeRealmModal : ComponentBase, IDisposable
   {
     if (elementId == SelectId)
     {
-      RealmId = id != null ? int.Parse(id) : null;
+      RealmId = id != null ? int.Parse(id) : 0;
       RealmName = name;
     }
   }
@@ -73,8 +73,10 @@ public sealed partial class ChangeRealmModal : ComponentBase, IDisposable
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     var realm = await CachedRealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
-    RealmId = realm!.Id;
+    RealmId = realm!.Id ?? 0;
     RealmName = realm.Name;
+    settings.CurrentRealmId = RealmId;
+    TokenService.UpdateSessionSettings(user, settings);
     await base.OnInitializedAsync();
   }
 
