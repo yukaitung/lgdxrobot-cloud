@@ -23,18 +23,27 @@
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="robotInformationPane">
   <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasEndLabel">End offcanvas</h2>
+    <h2 class="offcanvas-title" id="offcanvasEndLabel">Robot Detail</h2>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
     <div>
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab assumenda ea est, eum exercitationem fugiat illum itaque laboriosam magni necessitatibus, nemo nisi numquam quae reiciendis repellat sit soluta unde. Aut!
+      @if (SelectedRobot != null)
+      {
+        <h2>@SelectedRobot.RobotId.ToString()</h2>
+        <div class="text-secondary">@SelectedRobot.RobotId.ToString()</div>
+      }
     </div>
   </div>
 </div>
 
-<script> 
-  @(Realm != null ? $"var MAP_ORIGIN_X = {Realm.OriginX};" : "var MAP_ORIGIN_X = 0;")
-  @(Realm != null ? $"var MAP_ORIGIN_Y = {Realm.OriginY};" : "var MAP_ORIGIN_Y = 0;")
-  @(Realm != null ? $"var MAP_RESOLUTION = {Realm.Resolution};" : "var MAP_RESOLUTION = 0;")
+<script>
+  @if (Realm != null)
+  { 
+    @($"var MAP_RESOLUTION = {Realm.Resolution};var MAP_ORIGIN_X = {Realm.OriginX};var MAP_ORIGIN_Y = {Realm.OriginY};")
+  }
+  else
+  {
+    @($"var MAP_RESOLUTION = 0;var MAP_ORIGIN_X = 0;var MAP_ORIGIN_Y = 0;")
+  }
 </script>

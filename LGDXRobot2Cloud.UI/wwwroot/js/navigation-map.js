@@ -14,6 +14,7 @@ function InitNavigationMap(dotNetObject)
 {
   MapDotNetObject = dotNetObject;
   RobotObjects = {};
+
   // Init Two.js
   const div = document.getElementById("navigation-map-div");
   const divRect = div.getBoundingClientRect();
@@ -72,7 +73,7 @@ function InitNavigationMap(dotNetObject)
     Object.entries(RobotObjects).forEach(([robotId, robotObject]) => {
       const rect = robotObject.getBoundingClientRect();
       if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-        MapDotNetObject.invokeMethodAsync('HandlRobotSelect', robotId);
+        MapDotNetObject.invokeMethodAsync('HandleRobotSelect', robotId);
         document.getElementById("robotInformationPaneButton").click();
       }
     });

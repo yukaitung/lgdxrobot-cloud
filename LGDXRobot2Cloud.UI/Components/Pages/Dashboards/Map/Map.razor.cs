@@ -1,6 +1,7 @@
 using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Services;
+using MassTransit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
@@ -26,12 +27,15 @@ public sealed partial class Map : ComponentBase, IDisposable
 
   private DotNetObjectReference<Map> ObjectReference = null!;
   private RealmDto Realm { get; set; } = null!;
+  private RobotDataContract? SelectedRobot { get; set; }
   private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = [];
 
-  [JSInvokable("HandlRobotSelect")]
-  public void HandlRobotSelect(string robotId)
+  [JSInvokable("HandleRobotSelect")]
+  public void HandleRobotSelect(string robotId)
   {
-    Console.WriteLine(robotId);
+    var SelectedRobotId = Guid.Parse(robotId);
+    SelectedRobot = RobotsData.TryGetValue(SelectedRobotId, out RobotDataContract? value) ? value : null;
+    StateHasChanged();
   }
 
   protected override async Task OnInitializedAsync() 
