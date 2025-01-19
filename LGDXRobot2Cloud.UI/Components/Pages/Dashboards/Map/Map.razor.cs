@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 
-namespace LGDXRobot2Cloud.UI.Components.Shared;
+namespace LGDXRobot2Cloud.UI.Components.Pages.Dashboards.Map;
 
-public sealed partial class NavigationMap : ComponentBase
+public sealed partial class Map : ComponentBase, IDisposable
 {
   [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
@@ -24,16 +24,23 @@ public sealed partial class NavigationMap : ComponentBase
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
-  private RealmDto Map { get; set; } = null!;
+  private DotNetObjectReference<Map> ObjectReference = null!;
+  private RealmDto Realm { get; set; } = null!;
   private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = [];
+
+  [JSInvokable("HandlRobotSelect")]
+  public void HandlRobotSelect(string robotId)
+  {
+    Console.WriteLine(robotId);
+  }
 
   protected override async Task OnInitializedAsync() 
   {
     // Get Realm
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
-    Map = await CachedRealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
-    var realmId = Map.Id ?? 0;
+    Realm = await CachedRealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
+    var realmId = Realm.Id ?? 0;
 
     // Set Online Robots
     var onlineRobots = RobotDataService.GetOnlineRobots(realmId!);
@@ -51,12 +58,19 @@ public sealed partial class NavigationMap : ComponentBase
   {
     if (firstRender)
     {
-      await JSRuntime.InvokeVoidAsync("InitNavigationMap");
+      ObjectReference = DotNetObjectReference.Create(this);
+      await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
       foreach (var (robotId, robotData) in RobotsData)
       {
         await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
       }
     }
     await base.OnAfterRenderAsync(firstRender);
+  }
+
+  public void Dispose()
+  {
+    GC.SuppressFinalize(this);
+    ObjectReference?.Dispose();
   }
 }

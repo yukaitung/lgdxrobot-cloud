@@ -1,0 +1,40 @@
+@attribute [Route(AppRoutes.Dashboards.Map)]
+@attribute [Authorize]
+@rendermode InteractiveServer
+@layout EmptyLayout
+
+<PageTitle>Map | LGDXRobot2 Cloud</PageTitle>
+
+<div id="navigation-map-div" class="flex-fill">
+  <a id="robotInformationPaneButton" class="btn d-none" data-bs-toggle="offcanvas" href="#robotInformationPane" role="button">
+    Toggle end offcanvas
+  </a>
+  @if (Realm != null)
+  {
+    <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Realm.Image" />
+  }
+  <div class="btn-group-vertical" style="position: absolute;right: 1em;top: 5em; background-color: var(--tblr-card-bg);">
+    <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
+    <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
+    <button class="btn" onclick="NavigationMapZoomReset()"<i class="ti ti-rotate"></i></button>
+  </div>
+  <canvas id="navigation-map-canvas" style="float: left;" />
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="robotInformationPane">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasEndLabel">End offcanvas</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div>
+      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab assumenda ea est, eum exercitationem fugiat illum itaque laboriosam magni necessitatibus, nemo nisi numquam quae reiciendis repellat sit soluta unde. Aut!
+    </div>
+  </div>
+</div>
+
+<script> 
+  @(Realm != null ? $"var MAP_ORIGIN_X = {Realm.OriginX};" : "var MAP_ORIGIN_X = 0;")
+  @(Realm != null ? $"var MAP_ORIGIN_Y = {Realm.OriginY};" : "var MAP_ORIGIN_Y = 0;")
+  @(Realm != null ? $"var MAP_RESOLUTION = {Realm.Resolution};" : "var MAP_RESOLUTION = 0;")
+</script>

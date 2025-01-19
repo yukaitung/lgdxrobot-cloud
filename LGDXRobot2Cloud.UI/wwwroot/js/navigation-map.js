@@ -5,23 +5,25 @@ var StartScale;
 var TwoObject;
 var WindowHeight = window.innerHeight;
 var ZuiObject;
+var MapDotNetObject = {};
 
 /*
  * Dotnet Functions
  */
-function InitNavigationMap() 
+function InitNavigationMap(dotNetObject) 
 {
+  MapDotNetObject = dotNetObject;
   RobotObjects = {};
-
   // Init Two.js
   const div = document.getElementById("navigation-map-div");
+  const divRect = div.getBoundingClientRect();
   CanvasObject = document.getElementById("navigation-map-canvas");
   TwoObject = new Two({
     autostart: true,
     domElement: CanvasObject,
     type: Two.Types.canvas,
-    height: div.clientHeight,
-    width: div.clientWidth
+    height: divRect.height,
+    width: divRect.width
   });
 
   // Add map image
@@ -70,7 +72,8 @@ function InitNavigationMap()
     Object.entries(RobotObjects).forEach(([robotId, robotObject]) => {
       const rect = robotObject.getBoundingClientRect();
       if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-        console.log("I am a robot id: " + robotId);
+        MapDotNetObject.invokeMethodAsync('HandlRobotSelect', robotId);
+        document.getElementById("robotInformationPaneButton").click();
       }
     });
   }
@@ -83,10 +86,11 @@ function InitNavigationMap()
     const newWindowHeight = window.innerHeight;
     const dy = newWindowHeight - WindowHeight;
     const div = document.getElementById("navigation-map-div");
-    TwoObject.renderer.setSize(div.clientWidth, div.clientHeight + (dy < 0 ? dy : 0));
+    const divRect = div.getBoundingClientRect();
+    TwoObject.renderer.setSize(divRect.width, divRect.height + (dy < 0 ? dy : 0));
 
     // Set Zui limits
-    _internalSetScale(div.clientWidth, div.clientHeight, MapImage.width, MapImage.height);
+    _internalSetScale(divRect.width, divRect.height, MapImage.width, MapImage.height);
     WindowHeight = newWindowHeight;
   }
 }

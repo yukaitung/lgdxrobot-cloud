@@ -1,5 +1,4 @@
 using System.Text.Json;
-using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;

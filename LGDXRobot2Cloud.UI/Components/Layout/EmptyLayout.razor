@@ -1,0 +1,34 @@
+@inherits LayoutComponentBase
+
+<div class="page">
+	<header class="navbar navbar-expand-lg navbar-light sticky-top d-lg-flex d-none d-print-none">
+		<div class="container-xl header-flex">
+			<h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+				<a href="">
+					<img src="/img/logo.png" height="32" alt="LGDXRobot2" class="navbar-brand-image">
+				</a>
+			</h1>
+			<div class="navbar-nav flex-row order-md-last">
+				<div class="nav-item d-none d-md-flex">
+					<div class="btn-list">
+						<ChangeRealmButton />
+						<UserMenu />
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+	<NavMenu />
+	<div class="page-wrapper">
+		@Body
+	</div>
+</div>
+
+<LogoutModal />
+<ChangeRealmModal />
+
+<div id="blazor-error-ui">
+	An unhandled error has occurred.
+	<a href="" class="reload">Reload</a>
+	<a class="dismiss">dismiss</a>
+</div>

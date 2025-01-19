@@ -13,6 +13,12 @@ public static class AppRoutes
     public const string User = "/User";
   }
 
+  public static class Dashboards
+  {
+    public const string Map = "/Dashboards/Map";
+    public const string AutoTasks = "/Dashboards/AutoTasks";
+  }
+
   public static class Navigation
   {
     public static class Realms
