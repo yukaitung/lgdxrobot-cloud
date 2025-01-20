@@ -20,16 +20,11 @@
 					Home
 				</NavItem>
 
-				<NavDropdown title="Dashboards" href="Dashboards">
-					<div class="dropdown-menu-column">
-						<NavLink class="dropdown-item" href="@AppRoutes.Dashboards.Map">
-							Map
-						</NavLink>
-						<NavLink class="dropdown-item" href="@AppRoutes.Dashboards.AutoTasks">
-							Tasks
-						</NavLink>
-					</div>
-				</NavDropdown>
+				<AuthorizeView Policy="@Permissions.Navigation.Robots.Read" Context="Map">
+					<NavItem href="@AppRoutes.Map">
+						Map
+					</NavItem>
+				</AuthorizeView>
 
 				<AuthorizeView Policy="@Permissions.Navigation.Area" Context="Navigation">
 					<NavDropdown title="Navigation" href="Navigation">

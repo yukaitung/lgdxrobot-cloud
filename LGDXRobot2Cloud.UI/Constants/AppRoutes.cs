@@ -3,6 +3,8 @@ namespace LGDXRobot2Cloud.UI.Constants;
 public static class AppRoutes
 {
   public const string Home = "/";
+  public const string Map = "Map";
+
 
   public static class Identity
   {
@@ -15,7 +17,6 @@ public static class AppRoutes
 
   public static class Dashboards
   {
-    public const string Map = "/Dashboards/Map";
     public const string AutoTasks = "/Dashboards/AutoTasks";
   }
 
