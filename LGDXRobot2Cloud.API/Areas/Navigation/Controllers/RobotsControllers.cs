@@ -41,9 +41,9 @@ public sealed class RobotsController(
 
   [HttpGet("Search")]
   [ProducesResponseType(typeof(IEnumerable<RobotSearchDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<RobotSearchDto>>> SearchRobots(int realmId, string? name)
+  public async Task<ActionResult<IEnumerable<RobotSearchDto>>> SearchRobots(int realmId, string? name, Guid? robotId)
   {
-    var robots = await _robotService.SearchRobotsAsync(realmId, name);
+    var robots = await _robotService.SearchRobotsAsync(realmId, name, robotId);
     return Ok(robots.ToDto());
   }
 

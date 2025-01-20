@@ -1,7 +1,7 @@
 using LGDXRobot2Cloud.Data.Contracts;
+using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Services;
-using MassTransit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
@@ -10,6 +10,9 @@ namespace LGDXRobot2Cloud.UI.Components.Pages.Dashboards.Map;
 
 public sealed partial class Map : ComponentBase, IDisposable
 {
+  [Inject]
+  public required LgdxApiClient LgdxApiClient { get; set; }
+  
   [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
 
@@ -28,14 +31,28 @@ public sealed partial class Map : ComponentBase, IDisposable
   private DotNetObjectReference<Map> ObjectReference = null!;
   private RealmDto Realm { get; set; } = null!;
   private RobotDataContract? SelectedRobot { get; set; }
+  private string SelectedRobotName { get; set; } = string.Empty;
+  private Guid LastSelectedRobotId { get; set; } = Guid.Empty;
   private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = [];
 
   [JSInvokable("HandleRobotSelect")]
-  public void HandleRobotSelect(string robotId)
+  public async Task HandleRobotSelect(string robotId)
   {
     var SelectedRobotId = Guid.Parse(robotId);
+    if (LastSelectedRobotId != SelectedRobotId)
+    {
+      var response = await LgdxApiClient.Navigation.Robots.Search.GetAsync(x => x.QueryParameters = new() {
+        RealmId = Realm.Id,
+        RobotId = SelectedRobotId
+      });
+      if (response?.Count > 0)
+      {
+        SelectedRobotName = response[0].Name!;
+      }
+    }
     SelectedRobot = RobotsData.TryGetValue(SelectedRobotId, out RobotDataContract? value) ? value : null;
     StateHasChanged();
+    LastSelectedRobotId = SelectedRobotId;
   }
 
   protected override async Task OnInitializedAsync() 

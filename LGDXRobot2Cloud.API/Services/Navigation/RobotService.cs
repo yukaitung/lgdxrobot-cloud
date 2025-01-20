@@ -25,7 +25,7 @@ public interface IRobotService
   Task<bool> CreateRobotSystemInfoAsync(Guid robotId, RobotSystemInfoCreateBusinessModel robotSystemInfoCreateBusinessModel);
   Task<bool> UpdateRobotSystemInfoAsync(Guid robotId, RobotSystemInfoUpdateBusinessModel robotSystemInfoUpdateBusinessModel);
 
-  Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name);
+  Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name, Guid? robotId);
 
   Task<int?> GetRobotRealmIdAsync(Guid robotId);
 }
@@ -286,31 +286,18 @@ public class RobotService(
       ) == 1;
   }
 
-  public async Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name)
+  public async Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name, Guid? robotId)
   {
-    if (string.IsNullOrWhiteSpace(name))
-    {
-      return await _context.Robots.AsNoTracking()
-        .Where(w => w.RealmId == realmId)
-        .Take(10)
-        .Select(m => new RobotSearchBusinessModel {
-          Id = m.Id,
-          Name = m.Name,
-        })
-        .ToListAsync();
-    }
-    else
-    {
-      return await _context.Robots.AsNoTracking()
-        .Where(w => w.Name.Contains(name))
-        .Where(w => w.RealmId == realmId)
-        .Take(10)
-        .Select(m => new RobotSearchBusinessModel {
-          Id = m.Id,
-          Name = m.Name,
-        })
-        .ToListAsync();
-    }
+    return await _context.Robots.AsNoTracking()
+      .Where(r => r.RealmId == realmId)
+      .Where(r => string.IsNullOrWhiteSpace(name) || r.Name.Contains(name))
+      .Where(r => robotId == null || r.Id == robotId)
+      .Take(10)
+      .Select(m => new RobotSearchBusinessModel {
+        Id = m.Id,
+        Name = m.Name,
+      })
+      .ToListAsync();
   }
 
   public async Task<int?> GetRobotRealmIdAsync(Guid robotId)

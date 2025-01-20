@@ -1,6 +1,7 @@
 @attribute [Route(AppRoutes.Dashboards.Map)]
 @attribute [Authorize]
 @rendermode InteractiveServer
+@using LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots.Components
 @layout EmptyLayout
 
 <PageTitle>Map | LGDXRobot2 Cloud</PageTitle>
@@ -24,16 +25,74 @@
 <div class="offcanvas offcanvas-end" tabindex="-1" id="robotInformationPane">
   <div class="offcanvas-header">
     <h2 class="offcanvas-title" id="offcanvasEndLabel">Robot Detail</h2>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
   </div>
   <div class="offcanvas-body">
-    <div>
-      @if (SelectedRobot != null)
-      {
-        <h2>@SelectedRobot.RobotId.ToString()</h2>
-        <div class="text-secondary">@SelectedRobot.RobotId.ToString()</div>
-      }
-    </div>
+    @if (SelectedRobot != null)
+    {
+      <div class="d-flex">
+        <h2 style="display: table;">@SelectedRobotName</h2>
+        <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@SelectedRobot.RobotStatus" /></h2>
+      </div>
+      <div class="mb-2">ID: @SelectedRobot.RobotId</div>
+      <div class="table-responsive mb-3">
+        <table class="table card-table table-vcenter datatable">
+          <tbody>
+            <tr>
+              <th colspan="2">
+                Robot Data
+              </th>
+            </tr>
+            <tr>
+              <td>Position</td>
+              <td>X: @Math.Round(SelectedRobot.Position.X, 4)<br />Y: @Math.Round(SelectedRobot.Position.Y, 4)<br />Rotation: @Math.Round(SelectedRobot.Position.Rotation, 4)</td>
+            </tr>
+            <tr>
+              <td>Batteries</td>
+              <td>
+                @if (SelectedRobot.Batteries.Count() > 0)
+                {
+                  @for (int i = 0; i < SelectedRobot.Batteries.Count(); i++)
+                  {
+                    @(' ')
+                    <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
+                      @(SelectedRobot.Batteries.ElementAt(i) + " V")
+                    </span>
+                  }
+                }
+                else
+                {
+                  <span class="badge badge-outline">Unavailable</span>
+                }
+              </td>
+            </tr>
+            <tr>
+              <td>Emergency Stops</td>
+              <td>Software: @SelectedRobot.CriticalStatus.SoftwareEmergencyStop<br />Hardware: @SelectedRobot.CriticalStatus.HardwareEmergencyStop</td>
+            </tr>
+            <tr>
+              <td>ETA</td>
+              <td>@SelectedRobot.NavProgress.Eta</td>
+            </tr>
+            <tr>
+              <td>Recoveries</td>
+              <td>@SelectedRobot.NavProgress.Recoveries</td>
+            </tr>
+            <tr>
+              <td>Distance Remaining</td>
+              <td>@SelectedRobot.NavProgress.DistanceRemaining</td>
+            </tr>
+            <tr>
+              <td>Waypoints Remaining</td>
+              <td>@SelectedRobot.NavProgress.WaypointsRemaining</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <a href="@(AppRoutes.Navigation.Robots.Index + $"/{SelectedRobot.RobotId}")" type="button" class="btn btn-primary">
+        Manage
+      </a>
+    }
   </div>
 </div>
 

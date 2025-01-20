@@ -49,6 +49,7 @@
                 <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@RobotsData[id]!.RobotStatus" /></h2>
               </div>
               <div class="mt-auto">
+                <div>ID: @id</div>
                 <div>Batteries:
                 @if (RobotsData[id]!.Batteries.Count() > 0)
                 {
