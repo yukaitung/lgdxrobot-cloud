@@ -8,10 +8,13 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots;
-public sealed partial class RobotDetail
+public sealed partial class RobotDetail : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
+
+  [Inject]
+  public required IRealTimeService RealTimeService { get; set; }
 
   [Inject]
   public required IRobotDataService RobotDataService { get; set; }
@@ -50,6 +53,38 @@ public sealed partial class RobotDetail
     NavigationManager.NavigateTo(AppRoutes.Navigation.Robots.Index);
   }
 
+  private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
+  {
+    var robotId = updatEventArgs.RobotId;
+    if (Id != robotId.ToString())
+      return;
+    
+    var robotData = RobotDataService.GetRobotData(robotId, updatEventArgs.RealmId);
+    if (robotData != null)
+    {
+      RobotData = robotData;
+      await InvokeAsync(() => {
+        StateHasChanged();
+      });
+    }
+  }
+
+  private async void OnRobotCommandsUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
+  {
+    var robotId = updatEventArgs.RobotId;
+    if (Id != robotId.ToString())
+      return;
+
+    var robotCommands = RobotDataService.GetRobotCommands(updatEventArgs.RobotId);
+    if (robotCommands != null)
+    {
+      RobotCommands = robotCommands;
+      await InvokeAsync(() => {
+        StateHasChanged();
+      });
+    }
+  }
+
   protected override async Task OnInitializedAsync()
   {
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
@@ -67,6 +102,16 @@ public sealed partial class RobotDetail
       RobotData = RobotDataService.GetRobotData(RobotDetailViewModel!.Id, realmId);
       RobotCommands = RobotDataService.GetRobotCommands(RobotDetailViewModel!.Id);
     }
+
+    RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
+    RealTimeService.RobotCommandsUpdated += OnRobotCommandsUpdated;
     await base.OnInitializedAsync();
+  }
+
+  public void Dispose()
+  {
+    RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
+    RealTimeService.RobotCommandsUpdated -= OnRobotCommandsUpdated;
+    GC.SuppressFinalize(this);
   }
 }

@@ -176,13 +176,14 @@ public sealed partial class Robots : ComponentBase, IDisposable
 
   private async void OnRobotCommandsUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
   {
-    if (updatEventArgs.RealmId != RealmId && !RobotsCommands.ContainsKey(updatEventArgs.RobotId))
+    var robotId = updatEventArgs.RobotId;
+    if (updatEventArgs.RealmId != RealmId && !RobotsCommands.ContainsKey(robotId))
       return;
 
-    var robotCommands = RobotDataService.GetRobotCommands(updatEventArgs.RobotId);
+    var robotCommands = RobotDataService.GetRobotCommands(robotId);
     if (robotCommands != null)
     {
-      RobotsCommands[updatEventArgs.RobotId] = robotCommands;
+      RobotsCommands[robotId] = robotCommands;
       await InvokeAsync(() => {
         StateHasChanged();
       });
@@ -191,14 +192,13 @@ public sealed partial class Robots : ComponentBase, IDisposable
 
   protected override async Task OnInitializedAsync()
   {
-    RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
-    RealTimeService.RobotCommandsUpdated += OnRobotCommandsUpdated;
-
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     RealmId = settings.CurrentRealmId;
     RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await Refresh();
+    RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
+    RealTimeService.RobotCommandsUpdated += OnRobotCommandsUpdated;
     await base.OnInitializedAsync();
   }
 
