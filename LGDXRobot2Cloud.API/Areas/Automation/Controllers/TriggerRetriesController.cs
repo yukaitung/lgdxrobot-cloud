@@ -47,7 +47,6 @@ public class TriggerRetriesController (
   [ProducesResponseType(typeof(TriggerRetryDto), StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
-  [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
   public async Task<ActionResult<TriggerRetryDto>> RetryTriggerRetry(int id)
   {
     await _triggerRetryService.RetryTriggerRetryAsync(id);

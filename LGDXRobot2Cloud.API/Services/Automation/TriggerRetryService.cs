@@ -87,10 +87,5 @@ public class TriggerRetryService (
       .FirstOrDefaultAsync() ?? throw new LgdxValidation400Expection(nameof(triggerRetry.TriggerId), "Trigger ID is invalid.");
 
     await _triggerService.RetryTriggerAsync(autoTask, trigger, triggerRetry.Body);
-
-    if (!await DeleteTriggerRetryAsync(triggerRetryId))
-    {
-      throw new LgdxBusiness500Exception("Failed to delete trigger retry.");
-    }
   }
 }
