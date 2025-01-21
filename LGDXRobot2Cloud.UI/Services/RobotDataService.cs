@@ -15,10 +15,12 @@ public interface IRobotDataService
 }
 
 public sealed class RobotDataService(
-    IMemoryCache memoryCache
+    IMemoryCache memoryCache,
+    IRealTimeService realTimeService
   ) : IRobotDataService
 {
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+  private readonly IRealTimeService _realTimeService = realTimeService ?? throw new ArgumentNullException(nameof(realTimeService));
   private static string GetRobotDataKey(Guid robotId) => $"RobotDataService_RobotData_{robotId}";
   private static string GetRobotCommandsKey(Guid robotId) => $"RobotDataService_RobotCommands_{robotId}";
   private static string GetOnlineRobotsKey(int realmId) => $"RobotDataService_OnlineRobots_{realmId}";
@@ -56,6 +58,7 @@ public sealed class RobotDataService(
       memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
     }
     _memoryCache.Set(GetRobotDataKey(robotId), robotData, DateTimeOffset.Now.AddMinutes(1));
+    _realTimeService.RobotDataHasUpdated(new RobotUpdatEventArgs { RobotId = robotId, RealmId = realmId });
   }
 
   public RobotCommandsContract? GetRobotCommands(Guid robotId)
@@ -70,5 +73,6 @@ public sealed class RobotDataService(
   public void UpdateRobotCommands(RobotCommandsContract robotCommands)
   {
     _memoryCache.Set(GetRobotCommandsKey(robotCommands.RobotId), robotCommands, DateTimeOffset.Now.AddMinutes(1));
+    _realTimeService.RobotCommandsHasUpdated(new RobotUpdatEventArgs { RobotId = robotCommands.RobotId, RealmId = 0 });
   }
 }

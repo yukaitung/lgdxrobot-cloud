@@ -60,6 +60,7 @@ var configureAction = (HttpClient client) =>
 builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(configureAction);
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
+builder.Services.AddSingleton<IRealTimeService, RealTimeService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, CircuitHandlerService>());
 

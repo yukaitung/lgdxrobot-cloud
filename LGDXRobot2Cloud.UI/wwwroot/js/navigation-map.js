@@ -105,6 +105,16 @@ function AddRobot(robotId, x, y, rotation)
   RobotObjects[robotId] = robot;
 }
 
+function MoveRobot(robotId, x, y, rotation)
+{
+  if (!robotId in RobotObjects)
+    return;
+
+  RobotObjects[robotId].position.x = _internalToMapX(x);
+  RobotObjects[robotId].position.y = _internalToMapY(y);  
+  //RobotObjects[robotId].rotation = rotation;
+}
+
 /*
  * Page Functions
  */

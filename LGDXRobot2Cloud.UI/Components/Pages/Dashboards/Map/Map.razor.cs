@@ -12,6 +12,9 @@ public sealed partial class Map : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
+
+  [Inject]
+  public required IRealTimeService RealTimeService { get; set; }
   
   [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
@@ -55,8 +58,42 @@ public sealed partial class Map : ComponentBase, IDisposable
     LastSelectedRobotId = SelectedRobotId;
   }
 
+  private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
+  {
+    var robotId = updatEventArgs.RobotId;
+    var realmId = Realm.Id ?? 0;
+    if (realmId != updatEventArgs.RealmId)
+    {
+      return;
+    }
+
+    var robotData = RobotDataService.GetRobotData(robotId, realmId);
+    if (robotData != null)
+    {
+      if (!RobotsData.ContainsKey(robotId))
+      {
+        await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
+      }
+      else
+      {
+        await JSRuntime.InvokeVoidAsync("MoveRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
+      }
+      RobotsData[robotId] = robotData;
+      // Update offcanvas
+      if (SelectedRobot != null && SelectedRobot.RobotId == robotId)
+      {
+        SelectedRobot = robotData;
+      }      
+      await InvokeAsync(() => {
+        StateHasChanged();
+      });
+    }
+  }
+
   protected override async Task OnInitializedAsync() 
   {
+    RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
+
     // Get Realm
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
@@ -73,6 +110,7 @@ public sealed partial class Map : ComponentBase, IDisposable
         RobotsData.Add(robotId, robotData);
       }
     }
+    await base.OnInitializedAsync();
   }
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -91,6 +129,7 @@ public sealed partial class Map : ComponentBase, IDisposable
 
   public void Dispose()
   {
+    RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
     GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
   }
