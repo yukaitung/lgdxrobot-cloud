@@ -6,7 +6,7 @@ namespace LGDXRobot2Cloud.Utilities.Helpers;
 
 public static class LgdxHelper
 {
-  public readonly static List<int> AutoTaskRunningStateList = [(int)ProgressState.Template, (int)ProgressState.Waiting, (int)ProgressState.Completed, (int)ProgressState.Aborted];
+  public readonly static List<int> AutoTaskStaticStates = [(int)ProgressState.Template, (int)ProgressState.Waiting, (int)ProgressState.Completed, (int)ProgressState.Aborted];
 
   public static string GenerateSha256Hash(string input)
   {

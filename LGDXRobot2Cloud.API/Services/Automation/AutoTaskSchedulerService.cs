@@ -147,7 +147,7 @@ public class AutoTaskSchedulerMySQLService(
     return await _context.AutoTasks.AsNoTracking()
       .Include(t => t.AutoTaskDetails)
       .Where(t => t.AssignedRobotId == robotId)
-      .Where(t => !LgdxHelper.AutoTaskRunningStateList.Contains(t.CurrentProgressId))
+      .Where(t => !LgdxHelper.AutoTaskStaticStates.Contains(t.CurrentProgressId))
       .OrderByDescending(t => t.Priority) // In case the robot has multiple running task by mistake 
       .ThenByDescending(t => t.AssignedRobotId)
       .ThenBy(t => t.Id)

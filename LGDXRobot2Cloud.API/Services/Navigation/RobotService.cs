@@ -5,6 +5,7 @@ using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.Business.Administration;
 using LGDXRobot2Cloud.Data.Models.Business.Automation;
 using LGDXRobot2Cloud.Data.Models.Business.Navigation;
+using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -73,14 +74,6 @@ public class RobotService(
   {
     return await _context.Robots.AsNoTracking()
       .Where(r => r.Id == robotId)
-      .Include(r => r.Realm)
-      .Include(r => r.RobotCertificate)
-      .Include(r => r.RobotSystemInfo)
-      .Include(r => r.RobotChassisInfo)
-      .Include(r => r.AssignedTasks)
-        .ThenInclude(t => t.Flow)
-      .Include(r => r.AssignedTasks)
-        .ThenInclude(t => t.CurrentProgress)
       .Select(r => new RobotBusinessModel {
         Id = r.Id,
         Name = r.Name,
@@ -120,7 +113,9 @@ public class RobotService(
           BatteryMaxVoltage = r.RobotChassisInfo.BatteryMaxVoltage,
           BatteryMinVoltage = r.RobotChassisInfo.BatteryMinVoltage,
         },
-        AssignedTasks = r.AssignedTasks.Select(t => new AutoTaskListBusinessModel {
+        AssignedTasks = r.AssignedTasks
+          .Where(t => !LgdxHelper.AutoTaskStaticStates.Contains(t.CurrentProgressId))
+          .Select(t => new AutoTaskListBusinessModel {
           Id = t.Id,
           Name = t.Name,
           Priority = t.Priority,
@@ -132,7 +127,8 @@ public class RobotService(
           AssignedRobotName = r.Name,
           CurrentProgressId = t.CurrentProgressId,
           CurrentProgressName = t.CurrentProgress.Name,
-        }).ToList(),
+        })
+        .ToList(),
       })
       .FirstOrDefaultAsync()
         ?? throw new LgdxNotFound404Exception();
