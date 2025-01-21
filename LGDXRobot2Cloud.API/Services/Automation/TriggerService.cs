@@ -22,7 +22,7 @@ public interface ITriggerService
 
   Task<IEnumerable<TriggerSearchBusinessModel>> SearchTriggersAsync(string? name);
 
-  Task InitialiseTriggerAsync(AutoTask autoTask, FlowDetail flowDetail, Trigger trigger);
+  Task InitialiseTriggerAsync(AutoTask autoTask, FlowDetail flowDetail);
   Task RetryTriggerAsync(AutoTask autoTask, Trigger trigger, string body);
 }
 
@@ -206,8 +206,16 @@ public sealed class TriggerService (
     };
   }
 
-  public async Task InitialiseTriggerAsync(AutoTask autoTask, FlowDetail flowDetail, Trigger trigger)
+  public async Task InitialiseTriggerAsync(AutoTask autoTask, FlowDetail flowDetail)
   {
+    var trigger = await _context.Triggers.AsNoTracking()
+      .Where(t => t.Id == flowDetail.TriggerId)
+      .FirstOrDefaultAsync();
+    if (trigger == null)
+    {
+      return;
+    }
+    
     var bodyDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(trigger.Body ?? "{}");
     if (bodyDictionary != null)
     {

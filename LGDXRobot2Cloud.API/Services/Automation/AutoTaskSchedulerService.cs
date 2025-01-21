@@ -70,13 +70,18 @@ public class AutoTaskSchedulerMySQLService(
       return null;
     }
 
+    var progress = await _context.Progresses.AsNoTracking()
+      .Where(p => p.Id == task.CurrentProgressId)
+      .Select(p => new { p.Name })
+      .FirstOrDefaultAsync();
+
     if (task.CurrentProgressId == (int)ProgressState.Completed || task.CurrentProgressId == (int)ProgressState.Aborted)
     {
       return new RobotClientsAutoTask {
         TaskId = task.Id,
         TaskName = task.Name ?? string.Empty,
         TaskProgressId = task.CurrentProgressId,
-        TaskProgressName = task.CurrentProgress.Name ?? string.Empty,
+        TaskProgressName = progress!.Name ?? string.Empty,
         Waypoints = {},
         NextToken = string.Empty,
       };
@@ -84,11 +89,10 @@ public class AutoTaskSchedulerMySQLService(
       
     var flowDetail = await _context.FlowDetails.AsNoTracking()
       .Where(fd => fd.FlowId == task.FlowId && fd.Order == (int)task.CurrentProgressOrder!)
-      .Include(f => f.Trigger)
       .FirstOrDefaultAsync();
-    if (!ignoreTrigger && flowDetail!.Trigger != null)
+    if (!ignoreTrigger && flowDetail!.TriggerId != null)
     {
-      await _triggerService.InitialiseTriggerAsync(task, flowDetail, flowDetail.Trigger);
+      await _triggerService.InitialiseTriggerAsync(task, flowDetail);
     }
 
     List<RobotClientsDof> waypoints = [];
@@ -122,11 +126,6 @@ public class AutoTaskSchedulerMySQLService(
       // API has the control
       nextToken = string.Empty;
     }
-
-    var progress = await _context.Progresses.AsNoTracking()
-      .Where(p => p.Id == task.CurrentProgressId)
-      .Select(p => new { p.Name })
-      .FirstOrDefaultAsync();
 
     return new RobotClientsAutoTask {
       TaskId = task.Id,
@@ -228,8 +227,9 @@ public class AutoTaskSchedulerMySQLService(
     try
     {
       // Get task
-      if (robotId == null && token == null)
+      if (robotId == null && string.IsNullOrWhiteSpace(token))
       {
+        // From API
         task = await _context.AutoTasks.FromSql(
           $@"SELECT * FROM `Automation.AutoTasks` AS T
             WHERE T.`Id` = {taskId}
@@ -301,10 +301,19 @@ public class AutoTaskSchedulerMySQLService(
         .FirstOrDefaultAsync();
 
       // Update task
-      task!.AssignedRobotId = robotId;
-      task.CurrentProgressId = flowDetail!.ProgressId;
-      task.CurrentProgressOrder = flowDetail.Order;
-      task.NextToken = LgdxHelper.GenerateMd5Hash($"{robotId} {task.Id} {task.CurrentProgressId} {DateTime.UtcNow}");
+      if (flowDetail != null)
+      {
+        task!.CurrentProgressId = flowDetail!.ProgressId;
+        task.CurrentProgressOrder = flowDetail.Order;
+        task.NextToken = LgdxHelper.GenerateMd5Hash($"{robotId} {task.Id} {task.CurrentProgressId} {DateTime.UtcNow}");
+      }
+      else
+      {
+        task!.CurrentProgressId = (int)ProgressState.Completed;
+        task.CurrentProgressOrder = null;
+        task.NextToken = null;
+      }
+      
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
     }
