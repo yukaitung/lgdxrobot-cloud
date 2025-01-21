@@ -72,7 +72,7 @@
             </tr>
             <tr>
               <td>ETA</td>
-              <td>@SelectedRobot.NavProgress.Eta</td>
+              <td>@Math.Round(SelectedRobot.NavProgress.Eta, 4)</td>
             </tr>
             <tr>
               <td>Recoveries</td>
@@ -80,7 +80,7 @@
             </tr>
             <tr>
               <td>Distance Remaining</td>
-              <td>@SelectedRobot.NavProgress.DistanceRemaining</td>
+              <td>@Math.Round(SelectedRobot.NavProgress.DistanceRemaining, 4)</td>
             </tr>
             <tr>
               <td>Waypoints Remaining</td>

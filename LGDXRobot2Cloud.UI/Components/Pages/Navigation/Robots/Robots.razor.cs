@@ -9,10 +9,13 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots;
 
-public sealed partial class Robots : ComponentBase
+public sealed partial class Robots : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
+
+  [Inject]
+  public required IRealTimeService RealTimeService { get; set; }
 
   [Inject]
   public required IRobotDataService RobotDataService { get; set; }
@@ -70,7 +73,8 @@ public sealed partial class Robots : ComponentBase
       else
       {
         RobotsCommands[robotId] = new RobotCommandsContract{
-          RobotId = robotId
+          RobotId = robotId,
+          RealmId = RealmId
         };
       };
     }
@@ -154,13 +158,54 @@ public sealed partial class Robots : ComponentBase
     SelectedRobotCommands = RobotsCommands[(Guid)robot.Id!];
   }
 
+  private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
+  {
+    var robotId = updatEventArgs.RobotId;
+    if (updatEventArgs.RealmId != RealmId && !RobotsData.ContainsKey(robotId))
+      return;
+    
+    var robotData = RobotDataService.GetRobotData(robotId, RealmId);
+    if (robotData != null)
+    {
+      RobotsData[robotId] = robotData;
+      await InvokeAsync(() => {
+        StateHasChanged();
+      });
+    }
+  }
+
+  private async void OnRobotCommandsUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
+  {
+    if (updatEventArgs.RealmId != RealmId && !RobotsCommands.ContainsKey(updatEventArgs.RobotId))
+      return;
+
+    var robotCommands = RobotDataService.GetRobotCommands(updatEventArgs.RobotId);
+    if (robotCommands != null)
+    {
+      RobotsCommands[updatEventArgs.RobotId] = robotCommands;
+      await InvokeAsync(() => {
+        StateHasChanged();
+      });
+    }
+  }
+
   protected override async Task OnInitializedAsync()
   {
+    RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
+    RealTimeService.RobotCommandsUpdated += OnRobotCommandsUpdated;
+
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     RealmId = settings.CurrentRealmId;
     RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await Refresh();
     await base.OnInitializedAsync();
+  }
+
+  public void Dispose()
+  {
+    RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
+    RealTimeService.RobotCommandsUpdated -= OnRobotCommandsUpdated;
+    GC.SuppressFinalize(this);
   }
 }

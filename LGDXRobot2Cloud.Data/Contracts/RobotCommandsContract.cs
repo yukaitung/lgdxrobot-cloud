@@ -11,5 +11,6 @@ public record RobotCommands
 public record RobotCommandsContract
 {
   public required Guid RobotId { get; set; }
+  public required int RealmId { get; set; }
   public RobotCommands Commands { get; set; } = new();
 }

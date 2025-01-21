@@ -23,7 +23,7 @@ public sealed partial class PauseTaskAssigementModel
       Enable = newValue
     });
     await JSRuntime.InvokeVoidAsync("CloseModal", "pauseTaskAssigement");
-    RobotCommands!.Commands.PauseTaskAssigement = newValue;
-    RobotCommands = null;
+    //RobotCommands!.Commands.PauseTaskAssigement = newValue;
+    //RobotCommands = null;
   }
 }

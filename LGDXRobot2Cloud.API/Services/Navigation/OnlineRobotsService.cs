@@ -144,6 +144,7 @@ public class OnlineRobotsService(
       {
         await _bus.Publish(new RobotCommandsContract {
           RobotId = robotId,
+          RealmId = realmId,
           Commands = new RobotCommands {
             AbortTask = robotCommands.AbortTask,
             PauseTaskAssigement = robotCommands.PauseTaskAssigement,
@@ -168,8 +169,10 @@ public class OnlineRobotsService(
   private async Task SetRobotCommandsAsync(Guid robotId, RobotClientsRobotCommands commands)
   {
     _memoryCache.Set(GetRobotCommandsKey(robotId), commands);
+    var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     await _bus.Publish(new RobotCommandsContract {
       RobotId = robotId,
+      RealmId = realmId,
       Commands = new RobotCommands {
         AbortTask = commands.AbortTask,
         PauseTaskAssigement = commands.PauseTaskAssigement,

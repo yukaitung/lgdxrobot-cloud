@@ -73,6 +73,6 @@ public sealed class RobotDataService(
   public void UpdateRobotCommands(RobotCommandsContract robotCommands)
   {
     _memoryCache.Set(GetRobotCommandsKey(robotCommands.RobotId), robotCommands, DateTimeOffset.Now.AddMinutes(1));
-    _realTimeService.RobotCommandsHasUpdated(new RobotUpdatEventArgs { RobotId = robotCommands.RobotId, RealmId = 0 });
+    _realTimeService.RobotCommandsHasUpdated(new RobotUpdatEventArgs { RobotId = robotCommands.RobotId, RealmId = robotCommands.RealmId });
   }
 }

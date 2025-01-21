@@ -23,7 +23,7 @@ public sealed partial class SoftwareEmergencyStopModel
       Enable = newValue
     });
     await JSRuntime.InvokeVoidAsync("CloseModal", "softwareEmergencyStop");
-    RobotCommands!.Commands.SoftwareEmergencyStop = newValue;
-    RobotCommands = null;
+    //RobotCommands!.Commands.SoftwareEmergencyStop = newValue;
+    //RobotCommands = null;
   }
 }
