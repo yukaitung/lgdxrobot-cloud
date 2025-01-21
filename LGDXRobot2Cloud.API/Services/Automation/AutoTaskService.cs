@@ -6,6 +6,7 @@ using LGDXRobot2Cloud.Data.Models.Business.Automation;
 using LGDXRobot2Cloud.Data.Models.Business.Navigation;
 using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.API.Services.Automation;
@@ -25,12 +26,14 @@ public interface IAutoTaskService
 public class AutoTaskService(
     LgdxContext context,
     IAutoTaskSchedulerService autoTaskSchedulerService,
+    IBus bus,
     IOnlineRobotsService onlineRobotsService
   ) : IAutoTaskService
 {
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
+  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
 
   public async Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realmId, string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10)
   {
@@ -198,7 +201,7 @@ public class AutoTaskService(
     await _context.SaveChangesAsync();
     _autoTaskSchedulerService.ResetIgnoreRobot(autoTask.RealmId);
 
-    return new AutoTaskBusinessModel {
+    var autoTaskBusinessModel = new AutoTaskBusinessModel {
       Id = autoTask.Id,
       Name = autoTask.Name,
       Priority = autoTask.Priority,
@@ -228,8 +231,15 @@ public class AutoTaskService(
           HasCharger = td.Waypoint.HasCharger,
           IsReserved = td.Waypoint.IsReserved,
         },
-      }).ToList(),
+      }).ToList()
     };
+
+    if (autoTask.CurrentProgressId == (int)ProgressState.Waiting)
+    {
+      await _bus.Publish(autoTaskBusinessModel.ToContract());
+    }
+
+    return autoTaskBusinessModel;
   }
 
   public async Task<bool> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateBusinessModel autoTaskUpdateBusinessModel)

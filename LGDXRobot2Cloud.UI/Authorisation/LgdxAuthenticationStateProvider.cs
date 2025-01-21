@@ -41,7 +41,6 @@ internal sealed class LgdxAuthenticationStateProvider(
     var accessTokenExpiresAt = _tokenService.GetAccessTokenExpiresAt(user);
     if (DateTime.UtcNow.AddMinutes(1) >= accessTokenExpiresAt)
     {
-      Console.WriteLine($"{DateTime.UtcNow.AddMinutes(1)} >= {accessTokenExpiresAt}");
       var result = await _refreshTokenService.RefreshTokenAsync(user, _tokenService.GetRefreshToken(user));
       _tokenService.RefreshAccessToken(user, result!.AccessToken!, result!.RefreshToken!);
     }

@@ -1,11 +1,12 @@
-using LGDXRobot2Cloud.API.Extensions;
 using LGDXRobot2Cloud.API.Services.Common;
 using LGDXRobot2Cloud.API.Services.Navigation;
+using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Protos;
 using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.Utilities.Helpers;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -24,6 +25,7 @@ public interface IAutoTaskSchedulerService
 }
 
 public class AutoTaskSchedulerMySQLService(
+    IBus bus,
     IEmailService emailService,
     IMemoryCache memoryCache,
     IOnlineRobotsService onlineRobotsService,
@@ -32,6 +34,7 @@ public class AutoTaskSchedulerMySQLService(
     LgdxContext context
   ) : IAutoTaskSchedulerService
 {
+  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
@@ -63,7 +66,7 @@ public class AutoTaskSchedulerMySQLService(
     }
   }
 
-  private async Task<RobotClientsAutoTask?> GenerateTaskDetail(AutoTask? task, bool ignoreTrigger = false)
+  private async Task<RobotClientsAutoTask?> GenerateTaskDetail(AutoTask? task, bool continueAutoTask = false)
   {
     if (task == null)
     {
@@ -74,9 +77,9 @@ public class AutoTaskSchedulerMySQLService(
       .Where(p => p.Id == task.CurrentProgressId)
       .Select(p => new { p.Name })
       .FirstOrDefaultAsync();
-
     if (task.CurrentProgressId == (int)ProgressState.Completed || task.CurrentProgressId == (int)ProgressState.Aborted)
     {
+      // Return immediately if the task is completed / aborted
       return new RobotClientsAutoTask {
         TaskId = task.Id,
         TaskName = task.Name ?? string.Empty,
@@ -90,9 +93,39 @@ public class AutoTaskSchedulerMySQLService(
     var flowDetail = await _context.FlowDetails.AsNoTracking()
       .Where(fd => fd.FlowId == task.FlowId && fd.Order == (int)task.CurrentProgressOrder!)
       .FirstOrDefaultAsync();
-    if (!ignoreTrigger && flowDetail!.TriggerId != null)
+    if (!continueAutoTask && flowDetail!.TriggerId != null)
     {
+      // Fire the trigger
       await _triggerService.InitialiseTriggerAsync(task, flowDetail);
+    }
+
+    if (!continueAutoTask)
+    {
+      // Notify the updated task
+      var flowName = await _context.Flows.AsNoTracking()
+        .Where(f => f.Id == task.FlowId)
+        .Select(f => f.Name)
+        .FirstOrDefaultAsync();
+      string? robotName = null;
+      if (task.AssignedRobotId != null)
+      {
+        robotName = await _context.Robots.AsNoTracking()
+          .Where(r => r.Id == task.AssignedRobotId)
+          .Select(r => r.Name)
+          .FirstOrDefaultAsync();
+      }
+      await _bus.Publish(new AutoTaskUpdateContract{
+        Id = task.Id,
+        Name = task.Name,
+        Priority = task.Priority,
+        FlowId = task.FlowId,
+        FlowName = flowName!,
+        RealmId = task.RealmId,
+        AssignedRobotId = task.AssignedRobotId,
+        AssignedRobotName = robotName,
+        CurrentProgressId = task.CurrentProgressId,
+        CurrentProgressName = progress!.Name,
+      });
     }
 
     List<RobotClientsDof> waypoints = [];
@@ -207,7 +240,7 @@ public class AutoTaskSchedulerMySQLService(
     }
 
     var currentTask = await GetRunningAutoTaskSqlAsync(robotId);
-    var ignoreTrigger = currentTask != null; // Do not fire trigger if there is a task running
+    var continueAutoTask = currentTask != null;
     currentTask ??= await AssignAutoTaskSqlAsync(robotId);
     
     if (currentTask == null)
@@ -217,7 +250,7 @@ public class AutoTaskSchedulerMySQLService(
       ignoreRobotIds.Add(robotId);
       _memoryCache.Set(GetIgnoreRobotsKey(realmId), ignoreRobotIds, TimeSpan.FromMinutes(5));
     }
-    return await GenerateTaskDetail(currentTask, ignoreTrigger);
+    return await GenerateTaskDetail(currentTask, continueAutoTask);
   }
 
   private async Task<AutoTask?> AutoTaskAbortSqlAsync(int taskId, Guid? robotId = null, string? token = null)

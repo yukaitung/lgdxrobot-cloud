@@ -1,3 +1,4 @@
+using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.Data.Models.DTOs.V1.Responses;
 
 namespace LGDXRobot2Cloud.Data.Models.Business.Automation;
@@ -54,6 +55,22 @@ public static class AutoTaskBusinessModelExtensions
         Name = model.CurrentProgressName,
       },
       AutoTaskDetails = model.AutoTaskDetails.Select(td => td.ToDto()),
+    };
+  }
+
+  public static AutoTaskUpdateContract ToContract(this AutoTaskBusinessModel model)
+  {
+    return new AutoTaskUpdateContract {
+      Id = model.Id,
+      Name = model.Name,
+      Priority = model.Priority,
+      FlowId = model.FlowId,
+      FlowName = model.FlowName,
+      RealmId = model.RealmId,
+      AssignedRobotId = model.AssignedRobotId,
+      AssignedRobotName = model.AssignedRobotName,
+      CurrentProgressId = model.CurrentProgressId,
+      CurrentProgressName = model.CurrentProgressName,
     };
   }
 }
