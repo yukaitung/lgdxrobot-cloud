@@ -114,7 +114,11 @@ public class RobotService(
           BatteryMinVoltage = r.RobotChassisInfo.BatteryMinVoltage,
         },
         AssignedTasks = r.AssignedTasks
-          .Where(t => !LgdxHelper.AutoTaskStaticStates.Contains(t.CurrentProgressId))
+          .Where(t =>  t.CurrentProgressId != (int)ProgressState.Aborted 
+                    && t.CurrentProgressId != (int)ProgressState.Completed 
+                    && t.CurrentProgressId != (int)ProgressState.Template)
+          .OrderByDescending(t => t.CurrentProgressId)
+          .ThenBy(t => t.Id)
           .Select(t => new AutoTaskListBusinessModel {
           Id = t.Id,
           Name = t.Name,

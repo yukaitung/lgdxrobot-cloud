@@ -12,6 +12,8 @@
           <th class="w-1">ID</th>
           <th>Name</th>
           <th>Priority</th>
+          <th>Realm</th>
+          <th>Assigned Robot</th>
           <th>Current Progress</th>
           <th>Flow</th>
         </tr>
@@ -23,8 +25,10 @@
           {
             <tr>
               <td>@autoTask.Id</td>
-              <td>@autoTask.Name</td>
+              <td>@(string.IsNullOrWhiteSpace(autoTask.Name) ? "-" : autoTask.Name)</td>
               <td>@autoTask.Priority</td>
+              <td>@autoTask.Realm!.Name</td>
+              <td>@(string.IsNullOrWhiteSpace(autoTask.AssignedRobot?.Name) ? "-" : autoTask.AssignedRobot.Name)</td>
               <td>@autoTask.CurrentProgress!.Name</td>
               <td>@autoTask.Flow!.Name</td>
             </tr>
