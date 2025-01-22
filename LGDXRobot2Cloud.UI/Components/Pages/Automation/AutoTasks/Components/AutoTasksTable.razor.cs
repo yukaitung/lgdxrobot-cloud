@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
@@ -27,14 +28,16 @@ public sealed partial class AutoTasksTable : AbstractTable
   [Parameter]
   public string Title { get; set; } = null!;
 
-  [Parameter]
   public AutoTaskCatrgory? AutoTaskCatrgory { get; set; } = null;
 
   private int RealmId { get; set; }
-  private List<AutoTaskListDto>? AutoTasks { get; set; }
+  private List<AutoTaskListDto>? AutoTasks { get; set; } = [];
 
   public override async Task HandlePageSizeChange(int number)
   {
+    if (AutoTaskCatrgory == null)
+      return;
+      
     PageSize = number;
     if (PageSize > 100)
       PageSize = 100;
@@ -57,6 +60,9 @@ public sealed partial class AutoTasksTable : AbstractTable
 
   public override async Task HandleSearch()
   {
+    if (AutoTaskCatrgory == null)
+      return;
+
     if (LastDataSearch == DataSearch)
       return;
 
@@ -86,6 +92,9 @@ public sealed partial class AutoTasksTable : AbstractTable
 
   public override async Task HandlePageChange(int pageNum)
   {
+    if (AutoTaskCatrgory == null)
+      return;
+
     if (pageNum == CurrentPage)
       return;
     CurrentPage = pageNum;
@@ -108,6 +117,9 @@ public sealed partial class AutoTasksTable : AbstractTable
 
   public override async Task Refresh(bool deleteOpt = false)
   {
+    if (AutoTaskCatrgory == null)
+      return;
+
     if (deleteOpt && CurrentPage > 1 && AutoTasks?.Count == 1)
       CurrentPage--;
 
@@ -124,6 +136,21 @@ public sealed partial class AutoTasksTable : AbstractTable
     });
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
+
+  public async Task HandleTaskCategoryChange(object? args)
+  {
+    if (args != null)
+    {
+      if (int.TryParse(args.ToString()!, out int category))
+      {
+        AutoTaskCatrgory = (AutoTaskCatrgory)category;
+        await Refresh();
+      }
+      else
+        AutoTaskCatrgory = null;
+    }
+  }
+
 
   protected override async Task OnInitializedAsync()
   {
