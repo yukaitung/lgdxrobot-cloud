@@ -77,28 +77,6 @@ public class AutoTaskSchedulerMySQLService(
       .Where(p => p.Id == task.CurrentProgressId)
       .Select(p => new { p.Name })
       .FirstOrDefaultAsync();
-    if (task.CurrentProgressId == (int)ProgressState.Completed || task.CurrentProgressId == (int)ProgressState.Aborted)
-    {
-      // Return immediately if the task is completed / aborted
-      return new RobotClientsAutoTask {
-        TaskId = task.Id,
-        TaskName = task.Name ?? string.Empty,
-        TaskProgressId = task.CurrentProgressId,
-        TaskProgressName = progress!.Name ?? string.Empty,
-        Waypoints = {},
-        NextToken = string.Empty,
-      };
-    }
-      
-    var flowDetail = await _context.FlowDetails.AsNoTracking()
-      .Where(fd => fd.FlowId == task.FlowId && fd.Order == (int)task.CurrentProgressOrder!)
-      .FirstOrDefaultAsync();
-    if (!continueAutoTask && flowDetail!.TriggerId != null)
-    {
-      // Fire the trigger
-      await _triggerService.InitialiseTriggerAsync(task, flowDetail);
-    }
-
     if (!continueAutoTask)
     {
       // Notify the updated task
@@ -126,6 +104,28 @@ public class AutoTaskSchedulerMySQLService(
         CurrentProgressId = task.CurrentProgressId,
         CurrentProgressName = progress!.Name,
       });
+    }
+    
+    if (task.CurrentProgressId == (int)ProgressState.Completed || task.CurrentProgressId == (int)ProgressState.Aborted)
+    {
+      // Return immediately if the task is completed / aborted
+      return new RobotClientsAutoTask {
+        TaskId = task.Id,
+        TaskName = task.Name ?? string.Empty,
+        TaskProgressId = task.CurrentProgressId,
+        TaskProgressName = progress!.Name ?? string.Empty,
+        Waypoints = {},
+        NextToken = string.Empty,
+      };
+    }
+      
+    var flowDetail = await _context.FlowDetails.AsNoTracking()
+      .Where(fd => fd.FlowId == task.FlowId && fd.Order == (int)task.CurrentProgressOrder!)
+      .FirstOrDefaultAsync();
+    if (!continueAutoTask && flowDetail!.TriggerId != null)
+    {
+      // Fire the trigger
+      await _triggerService.InitialiseTriggerAsync(task, flowDetail);
     }
 
     List<RobotClientsDof> waypoints = [];
@@ -360,7 +360,7 @@ public class AutoTaskSchedulerMySQLService(
   public async Task<RobotClientsAutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token)
   {
     var task = await AutoTaskNextSqlAsync(robotId, taskId, token);
-    return await GenerateTaskDetail(task, true);
+    return await GenerateTaskDetail(task);
   }
 
   public async Task<AutoTask?> AutoTaskNextApiAsync(Guid robotId, int taskId, string token)
@@ -370,6 +370,6 @@ public class AutoTaskSchedulerMySQLService(
 
   public async Task<RobotClientsAutoTask?> AutoTaskNextConstructAsync(AutoTask autoTask)
   {
-    return await GenerateTaskDetail(autoTask, true);
+    return await GenerateTaskDetail(autoTask);
   }
 }

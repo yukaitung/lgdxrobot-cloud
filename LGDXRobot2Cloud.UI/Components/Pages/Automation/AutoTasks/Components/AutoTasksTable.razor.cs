@@ -28,19 +28,11 @@ public sealed partial class AutoTasksTable : AbstractTable
   public string Title { get; set; } = null!;
 
   [Parameter]
-  public ProgressState? ShowProgressId { get; set; } = null;
-
-  [Parameter]
-  public bool ShowRunningTasks { get; set; } = false;
+  public AutoTaskCatrgory? AutoTaskCatrgory { get; set; } = null;
 
   private int RealmId { get; set; }
   private List<AutoTaskListDto>? AutoTasks { get; set; }
 
-  public bool IsEditable()
-  {
-    return ShowProgressId == ProgressState.Template;
-  }
-  
   public override async Task HandlePageSizeChange(int number)
   {
     PageSize = number;
@@ -54,8 +46,7 @@ public sealed partial class AutoTasksTable : AbstractTable
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
         RealmId = RealmId,
-        ShowProgressId = (int?)ShowProgressId,
-        ShowRunningTasks = ShowRunningTasks,
+        AutoTaskCatrgory = (int?)AutoTaskCatrgory,
         Name = DataSearch,
         PageNumber = 1,
         PageSize = PageSize
@@ -74,8 +65,7 @@ public sealed partial class AutoTasksTable : AbstractTable
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
         RealmId = RealmId,
-        ShowProgressId = (int?)ShowProgressId,
-        ShowRunningTasks = ShowRunningTasks,
+        AutoTaskCatrgory = (int?)AutoTaskCatrgory,
         Name = DataSearch,
         PageNumber = 1,
         PageSize = PageSize
@@ -107,8 +97,7 @@ public sealed partial class AutoTasksTable : AbstractTable
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
         RealmId = RealmId,
-        ShowProgressId = (int?)ShowProgressId,
-        ShowRunningTasks = ShowRunningTasks,
+        AutoTaskCatrgory = (int?)AutoTaskCatrgory,
         Name = DataSearch,
         PageNumber = pageNum,
         PageSize = PageSize
@@ -127,8 +116,7 @@ public sealed partial class AutoTasksTable : AbstractTable
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
         RealmId = RealmId,
-        ShowProgressId = (int?)ShowProgressId,
-        ShowRunningTasks = ShowRunningTasks,
+        AutoTaskCatrgory = (int?)AutoTaskCatrgory,
         Name = DataSearch,
         PageNumber = CurrentPage,
         PageSize = PageSize

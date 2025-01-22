@@ -37,7 +37,6 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.TriggerRetries.Item.Retry
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
         /// <exception cref="global::LGDXRobot2Cloud.UI.Client.Models.ValidationProblemDetails">When receiving a 400 status code</exception>
         /// <exception cref="global::LGDXRobot2Cloud.UI.Client.Models.ProblemDetails">When receiving a 404 status code</exception>
-        /// <exception cref="global::LGDXRobot2Cloud.UI.Client.Models.ProblemDetails">When receiving a 500 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public async Task PostAsync(Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
@@ -52,7 +51,6 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.TriggerRetries.Item.Retry
             {
                 { "400", global::LGDXRobot2Cloud.UI.Client.Models.ValidationProblemDetails.CreateFromDiscriminatorValue },
                 { "404", global::LGDXRobot2Cloud.UI.Client.Models.ProblemDetails.CreateFromDiscriminatorValue },
-                { "500", global::LGDXRobot2Cloud.UI.Client.Models.ProblemDetails.CreateFromDiscriminatorValue },
             };
             await RequestAdapter.SendNoContentAsync(requestInfo, errorMapping, cancellationToken).ConfigureAwait(false);
         }

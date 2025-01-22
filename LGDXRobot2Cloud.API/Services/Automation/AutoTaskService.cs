@@ -13,7 +13,7 @@ namespace LGDXRobot2Cloud.API.Services.Automation;
 
 public interface IAutoTaskService
 {
-  Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realmId, string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10);
+  Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realmId, string? name, AutoTaskCatrgory? autoTaskCatrgory, int pageNumber = 1, int pageSize = 10);
   Task<AutoTaskBusinessModel> GetAutoTaskAsync(int autoTaskId);
   Task<AutoTaskBusinessModel> CreateAutoTaskAsync(AutoTaskCreateBusinessModel autoTaskCreateBusinessModel);
   Task<bool> UpdateAutoTaskAsync(int autoTaskId, AutoTaskUpdateBusinessModel autoTaskUpdateBusinessModel);
@@ -35,7 +35,7 @@ public class AutoTaskService(
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
 
-  public async Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realmId, string? name, int? showProgressId, bool? showRunningTasks, int pageNumber = 1, int pageSize = 10)
+  public async Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realmId, string? name, AutoTaskCatrgory? autoTaskCatrgory, int pageNumber = 1, int pageSize = 10)
   {
     var query = _context.AutoTasks as IQueryable<AutoTask>;
     if (!string.IsNullOrWhiteSpace(name))
@@ -47,10 +47,24 @@ public class AutoTaskService(
     {
       query = query.Where(t => t.RealmId == realmId);
     }
-    if (showProgressId != null)
-      query = query.Where(t => t.CurrentProgressId == showProgressId);
-    if (showRunningTasks == true)
-      query = query.Where(t => t.CurrentProgressId > (int)ProgressState.Aborted);
+    switch (autoTaskCatrgory)
+    {
+      case AutoTaskCatrgory.Template:
+        query = query.Where(t => t.CurrentProgressId == (int)ProgressState.Template);
+        break;
+      case AutoTaskCatrgory.Waiting:
+        query = query.Where(t => t.CurrentProgressId == (int)ProgressState.Waiting);
+        break;
+      case AutoTaskCatrgory.Completed:
+        query = query.Where(t => t.CurrentProgressId == (int)ProgressState.Completed);
+        break;
+      case AutoTaskCatrgory.Aborted:
+        query = query.Where(t => t.CurrentProgressId == (int)ProgressState.Aborted);
+        break;
+      case AutoTaskCatrgory.Running:
+        query = query.Where(t => t.CurrentProgressId > (int)ProgressState.Aborted);
+        break;
+    }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
     var autoTasks = await query.AsNoTracking()
@@ -58,10 +72,6 @@ public class AutoTaskService(
       .ThenBy(t => t.Id)
       .Skip(pageSize * (pageNumber - 1))
       .Take(pageSize)
-      .Include(t => t.AssignedRobot)
-      .Include(t => t.CurrentProgress)
-      .Include(t => t.Flow)
-      .Include(t => t.Realm)
       .Select(t => new AutoTaskListBusinessModel {
         Id = t.Id,
         Name = t.Name,
@@ -122,6 +132,8 @@ public class AutoTaskService(
             IsReserved = td.Waypoint.IsReserved,
           },
         })
+        .OrderBy(td => td.Order)
+        .ToList()
       })
       .FirstOrDefaultAsync()
         ?? throw new LgdxNotFound404Exception();
@@ -195,44 +207,52 @@ public class AutoTaskService(
         CustomY = td.CustomY,
         CustomRotation = td.CustomRotation,
         WaypointId = td.WaypointId,
-      }).ToList(),
+      })
+      .OrderBy(td => td.Order)
+      .ToList(),
     };
     await _context.AutoTasks.AddAsync(autoTask);
     await _context.SaveChangesAsync();
     _autoTaskSchedulerService.ResetIgnoreRobot(autoTask.RealmId);
 
-    var autoTaskBusinessModel = new AutoTaskBusinessModel {
-      Id = autoTask.Id,
-      Name = autoTask.Name,
-      Priority = autoTask.Priority,
-      FlowId = autoTask.FlowId,
-      FlowName = autoTask.Flow.Name,
-      RealmId = autoTask.RealmId,
-      RealmName = autoTask.Realm.Name,
-      AssignedRobotId = autoTask.AssignedRobotId,
-      AssignedRobotName = autoTask.AssignedRobot?.Name,
-      CurrentProgressId = autoTask.CurrentProgressId,
-      CurrentProgressName = autoTask.CurrentProgress.Name,
-      AutoTaskDetails = autoTask.AutoTaskDetails.Select(td => new AutoTaskDetailBusinessModel {
-        Id = td.Id,
-        Order = td.Order,
-        CustomX = td.CustomX,
-        CustomY = td.CustomY,
-        CustomRotation = td.CustomRotation,
-        Waypoint = td.Waypoint == null ? null : new WaypointBusinessModel {
-          Id = td.Waypoint.Id,
-          Name = td.Waypoint.Name,
-          RealmId = autoTask.RealmId,
-          RealmName = autoTask.Realm.Name,
-          X = td.Waypoint.X,
-          Y = td.Waypoint.Y,
-          Rotation = td.Waypoint.Rotation,
-          IsParking = td.Waypoint.IsParking,
-          HasCharger = td.Waypoint.HasCharger,
-          IsReserved = td.Waypoint.IsReserved,
-        },
-      }).ToList()
-    };
+    var autoTaskBusinessModel = await _context.AutoTasks.AsNoTracking()
+      .Where(t => t.Id == autoTask.Id)
+      .Select(t => new AutoTaskBusinessModel {
+        Id = t.Id,
+        Name = t.Name,
+        Priority = t.Priority,
+        FlowId = t.Flow.Id,
+        FlowName = t.Flow.Name,
+        RealmId = t.Realm.Id, 
+        RealmName = t.Realm.Name,
+        AssignedRobotId = t.AssignedRobotId,
+        AssignedRobotName = t.AssignedRobot!.Name,
+        CurrentProgressId = t.CurrentProgressId,
+        CurrentProgressName = t.CurrentProgress.Name,
+        AutoTaskDetails = t.AutoTaskDetails.Select(td => new AutoTaskDetailBusinessModel {
+          Id = td.Id,
+          Order = td.Order,
+          CustomX = td.CustomX,
+          CustomY = td.CustomY,
+          CustomRotation = td.CustomRotation,
+          Waypoint = td.Waypoint == null ? null : new WaypointBusinessModel {
+            Id = td.Waypoint.Id,
+            Name = td.Waypoint.Name,
+            RealmId = t.Realm.Id,
+            RealmName = t.Realm.Name,
+            X = td.Waypoint.X,
+            Y = td.Waypoint.Y,
+            Rotation = td.Waypoint.Rotation,
+            IsParking = td.Waypoint.IsParking,
+            HasCharger = td.Waypoint.HasCharger,
+            IsReserved = td.Waypoint.IsReserved,
+          },
+        })
+        .OrderBy(td => td.Order)
+        .ToList()
+      })
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
 
     if (autoTask.CurrentProgressId == (int)ProgressState.Waiting)
     {

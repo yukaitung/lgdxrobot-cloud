@@ -48,7 +48,7 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.AutoTasks
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public AutoTasksRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/AutoTasks{?name*,pageNumber*,pageSize*,realmId*,showProgressId*,showRunningTasks*}", pathParameters)
+        public AutoTasksRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/AutoTasks{?autoTaskCatrgory*,name*,pageNumber*,pageSize*,realmId*}", pathParameters)
         {
         }
         /// <summary>
@@ -56,7 +56,7 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.AutoTasks
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public AutoTasksRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/AutoTasks{?name*,pageNumber*,pageSize*,realmId*,showProgressId*,showRunningTasks*}", rawUrl)
+        public AutoTasksRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/AutoTasks{?autoTaskCatrgory*,name*,pageNumber*,pageSize*,realmId*}", rawUrl)
         {
         }
         /// <returns>A List&lt;global::LGDXRobot2Cloud.UI.Client.Models.AutoTaskListDto&gt;</returns>
@@ -146,6 +146,8 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.AutoTasks
         public partial class AutoTasksRequestBuilderGetQueryParameters 
         #pragma warning restore CS1591
         {
+            [QueryParameter("autoTaskCatrgory")]
+            public int? AutoTaskCatrgory { get; set; }
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
             [QueryParameter("name")]
@@ -161,10 +163,6 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.AutoTasks
             public int? PageSize { get; set; }
             [QueryParameter("realmId")]
             public int? RealmId { get; set; }
-            [QueryParameter("showProgressId")]
-            public int? ShowProgressId { get; set; }
-            [QueryParameter("showRunningTasks")]
-            public bool? ShowRunningTasks { get; set; }
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.

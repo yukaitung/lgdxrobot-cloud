@@ -1,37 +1,7 @@
-@inherits AbstractTable
-
 <div class="card">
   <!-- Header -->
   <div class="card-header">
     <h3 class="card-title">@Title</h3>
-  </div>
-  <!-- Filter -->
-  <div class="card-body border-bottom py-3">
-    <div class="d-flex">
-      <div class="text-secondary">
-        <div class="row g-2">
-          <div class="col">
-            Show
-          </div>
-          <div class="col-auto">
-            <TablePageSizeSelect OnChange="HandlePageSizeChange" />
-          </div>
-          <div class="col-auto">
-            entries
-          </div>
-        </div>
-      </div>
-      <div class="ms-auto text-secondary">
-        Search:
-      </div>
-      <div class="text-secondary">
-        <div class="input-group">
-          <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
-          <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
-          <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Data -->
@@ -84,10 +54,4 @@
       <TableEmpty />
     }
   </div>
-  <!-- Footer -->
-  @if (PaginationHelper != null && AutoTasks != null && AutoTasks.Count() > 0)
-  {
-    <TablePagination PaginationHelper="PaginationHelper" ItemCount="AutoTasks.Count()"
-      OnPageChange="HandlePageChange" />
-  }
 </div>

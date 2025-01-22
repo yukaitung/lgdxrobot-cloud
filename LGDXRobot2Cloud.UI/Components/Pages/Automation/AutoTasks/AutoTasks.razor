@@ -48,24 +48,16 @@
   {
     <div class="row row-cards">
       <div class="col-12">
-        <AutoTasksTable Title="Running Tasks" ShowRunningTasks="true" />
+        <RealtimeAutoTasksTable Title="Running Tasks" RunningAutoTasks="true" />
       </div>
       <div class="col-12">
-        <AutoTasksTable Title="Waiting Queue" ShowProgressId="@ProgressState.Waiting" />
+        <RealtimeAutoTasksTable Title="Waiting Queue" RunningAutoTasks="false" />
       </div>
     </div>
   }
   else if (CurrentTab == 1)
   {
-    <AutoTasksTable Title="Completed Tasks" ShowProgressId="@ProgressState.Completed" />
-  }
-  else if (CurrentTab == 2)
-  {
-    <AutoTasksTable Title="Aborted Tasks" ShowProgressId="@ProgressState.Aborted" />
-  }
-  else if (CurrentTab == 3)
-  {
-    <AutoTasksTable Title="Task Templates" ShowProgressId="@ProgressState.Template" />
+    <AutoTasksTable Title="Tasks" />
   }
 </PageBody>
 
@@ -81,7 +73,7 @@
   
   private string RealmName { get; set; } = string.Empty;
   private int CurrentTab { get; set; } = 0;
-  private readonly List<string> Tabs = ["Ongoing Tasks", "Completed Tasks", "Aborted Tasks", "Task Templates"];
+  private readonly List<string> Tabs = ["Realtime Dashboard", "All Tasks"];
 
   public void HandleTabChange(int index)
   {
