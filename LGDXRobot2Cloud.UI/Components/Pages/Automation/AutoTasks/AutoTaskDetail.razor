@@ -225,8 +225,8 @@
                     {
                       <td>
                         <button type="button"
-                          class="btn btn-ghost-danger btn-icon btn @(AutoTaskDetailViewModel.AutoTaskDetails.Count <= 1 ? "disabled" : "")"
-                          @onclick="e => TaskRemoveStep(index)">
+                          class="btn btn-ghost-danger btn-icon btn"
+                          @onclick="e => TaskRemoveStep(index)" disabled="@(AutoTaskDetailViewModel.AutoTaskDetails.Count <= 0)">
                           <i class="ti ti-trash" style="font-size: 16px;"></i>
                         </button>
                       </td>

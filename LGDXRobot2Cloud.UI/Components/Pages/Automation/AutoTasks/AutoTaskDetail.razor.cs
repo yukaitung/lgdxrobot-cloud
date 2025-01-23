@@ -141,7 +141,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
 
   public async Task TaskRemoveStep(int i)
   {
-    if (AutoTaskDetailViewModel.AutoTaskDetails.Count <= 1)
+    if (AutoTaskDetailViewModel.AutoTaskDetails.Count <= 0)
       return;
     if (i < AutoTaskDetailViewModel.AutoTaskDetails.Count - 1)
       await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i, i + 1, true);
