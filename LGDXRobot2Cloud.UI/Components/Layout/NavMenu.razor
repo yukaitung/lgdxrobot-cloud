@@ -21,8 +21,14 @@
 				</NavItem>
 
 				<AuthorizeView Policy="@Permissions.Navigation.Robots.Read" Context="Map">
-					<NavItem href="@AppRoutes.Map">
+					<NavItem href="@AppRoutes.Dashboards.Map">
 						Map
+					</NavItem>
+				</AuthorizeView>
+
+				<AuthorizeView Policy="@Permissions.Automation.AutoTasks.Read" Context="AutoTasks">
+					<NavItem href="@AppRoutes.Dashboards.AutoTasks">
+						Tasks Dashboard
 					</NavItem>
 				</AuthorizeView>
 

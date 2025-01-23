@@ -1,6 +1,6 @@
-@attribute [Route(AppRoutes.Automation.AutoTasks.Index)]
+@attribute [Route(AppRoutes.Dashboards.AutoTasks)]
 @attribute [Authorize (Policy = Permissions.Automation.AutoTasks.Read)]
-@using LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks.Components
+@using LGDXRobot2Cloud.UI.Components.Pages.Dashboards.AutoTasks.Components
 @using LGDXRobot2Cloud.UI.Services
 @using LGDXRobot2Cloud.Utilities.Enums
 @rendermode InteractiveServer
@@ -9,25 +9,25 @@
   <div class="row align-items-center">
     <div class="col">
       <h2 class="page-title">
-        Tasks
+        Tasks Dashboard
       </h2>
       <div class="text-secondary mt-1">
         <i class="ti ti-map-pin-filled"></i>
         @RealmName
       </div>
     </div>
-    <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write">
-      <div class="col-auto ms-auto">
-        <a href="@AppRoutes.Automation.AutoTasks.Create" type="button" class="btn btn-primary">
-          Create Task
-        </a>
-      </div>
-    </AuthorizeView>
   </div>
 </PageHeader>
 
 <PageBody>
-  <AutoTasksTable Title="Tasks" />
+  <div class="row row-cards">
+    <div class="col-12">
+      <RealtimeAutoTasksTable Title="Running Tasks" RunningAutoTasks="true" />
+    </div>
+    <div class="col-12">
+      <RealtimeAutoTasksTable Title="Waiting Queue" RunningAutoTasks="false" />
+    </div>
+  </div>
 </PageBody>
 
 @code {
