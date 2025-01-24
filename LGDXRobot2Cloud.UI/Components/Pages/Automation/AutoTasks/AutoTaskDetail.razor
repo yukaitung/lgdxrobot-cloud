@@ -29,20 +29,20 @@
         @if (Id != null)
         {
           <div class="mb-3 row">
-            <label class="col-3 col-form-label">ID</label>
+            <label class="col-2 col-form-label">ID</label>
             <div class="col">
               <div class="col form-control-plaintext">@AutoTaskDetailViewModel.Id</div>
             </div>
           </div>
         }
         <div class="mb-3 row">
-          <label class="col-3 col-form-label">Realm</label>
+          <label class="col-2 col-form-label">Realm</label>
           <div class="col">
             <div class="col form-control-plaintext">@AutoTaskDetailViewModel.RealmName</div>
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label" for="@nameof(AutoTaskDetailViewModel.Name)">Name</label>
+          <label class="col-2 col-form-label" for="@nameof(AutoTaskDetailViewModel.Name)">Name</label>
           <div class="col">
             @if (IsEditable())
             {
@@ -56,7 +56,7 @@
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(AutoTaskDetailViewModel.Priority)">Priority</label>
+          <label class="col-2 col-form-label required" for="@nameof(AutoTaskDetailViewModel.Priority)">Priority</label>
           <div class="col">
             @if (IsEditable())
             {
@@ -70,7 +70,7 @@
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(AutoTaskDetailViewModel.FlowId)">Flow</label>
+          <label class="col-2 col-form-label required" for="@nameof(AutoTaskDetailViewModel.FlowId)">Flow</label>
           <div class="col">
             @if (IsEditable())
             {
@@ -89,7 +89,7 @@
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label" for="@nameof(AutoTaskDetailViewModel.AssignedRobotId)">Assign Robot</label>
+          <label class="col-2 col-form-label" for="@nameof(AutoTaskDetailViewModel.AssignedRobotId)">Assign Robot</label>
           <div class="col">
             @if (IsEditable())
             {
@@ -110,7 +110,7 @@
         @if (Id != null && !IsEditable())
         {
           <div class="mb-3 row">
-            <label class="col-3 col-form-label">Current Progress</label>
+            <label class="col-2 col-form-label">Current Progress</label>
             <div class="col">
               <div class="col form-control-plaintext">@AutoTaskDetailViewModel.CurrentProgressName</div>
             </div>
@@ -119,7 +119,7 @@
         @if (Id == null)
         {
           <div class="mb-3 row">
-            <label class="col-3 col-form-label pt-0"></label>
+            <label class="col-2 col-form-label pt-0"></label>
             <div class="col">
               <label class="form-check">
                 <input class="form-check-input" type="checkbox" @bind="AutoTaskDetailViewModel.IsTemplate">
@@ -129,7 +129,7 @@
           </div>
         }
         <div class="mb-3 row">
-          <label class="col-3 col-form-label">Waypoints</label>
+          <label class="col-2 col-form-label">Waypoints</label>
           <div class="col">
             <table class="table table-vcenter text-nowrap datatable">
               <thead>
