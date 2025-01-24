@@ -56,14 +56,14 @@
               <td>@lgdxRole.Name</td>
               <td>@lgdxRole.Description</td>
               <td class="text-end">
-                <a href="@(AppRoutes.Administration.Roles.Index + $"/{lgdxRoleId}")" class="page-link link-primary">Edit</a>
+                <a href="@(AppRoutes.Administration.Roles.Index + $"/{lgdxRoleId}")" class="page-link link-primary">View</a>
               </td>
             </tr>
           }
         }
         else
         {
-          <TableLoading Columns="5" />
+          <TableLoading Columns="4" />
         }
       </tbody>
     </table>

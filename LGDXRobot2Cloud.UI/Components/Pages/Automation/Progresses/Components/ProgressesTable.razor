@@ -60,7 +60,7 @@
               <td class="text-end">
               @if (!(bool)progress.System)
               {
-                <a href="@(AppRoutes.Automation.Progresses.Index + $"/{progressId}")" class="page-link link-primary">Edit</a>
+                <a href="@(AppRoutes.Automation.Progresses.Index + $"/{progressId}")" class="page-link link-primary">View</a>
               }
               </td>
             </tr>
@@ -68,7 +68,7 @@
         }
         else
         {
-          <TableLoading Columns="7" />
+          <TableLoading Columns="6" />
         }
       </tbody>
     </table>
