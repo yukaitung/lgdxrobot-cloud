@@ -5,7 +5,8 @@
 </div>
 
 @code {
-  private NavigationManager NavigationManager { get; set; } = default!;
+  [Inject]
+  public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Parameter]
   public string HREF { get; set; } = "/";
