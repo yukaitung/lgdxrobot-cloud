@@ -36,6 +36,9 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
   [Parameter]
   public string Id { get; set; } = string.Empty;
 
+  [SupplyParameterFromQuery]
+  private string? ReturnUrl { get; set; }
+
   private RobotDetailViewModel RobotDetailViewModel { get; set; } = new();
   private RobotCertificateDto? RobotCertificate { get; set; } = null!;
   private RobotSystemInfoDto? RobotSystemInfoDto { get; set; } = null!;

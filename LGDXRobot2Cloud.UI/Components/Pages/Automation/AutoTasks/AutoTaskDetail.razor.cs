@@ -37,6 +37,9 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
   [Parameter]
   public int? Id { get; set; }
 
+  [SupplyParameterFromQuery]
+  private string? ReturnUrl { get; set; }
+
   private DotNetObjectReference<AutoTaskDetail> ObjectReference = null!;
   private AutoTaskDetailViewModel AutoTaskDetailViewModel { get; set; } = new();
   private EditContext _editContext = null!;

@@ -33,10 +33,10 @@
               <td>@task.CurrentProgress!.Name</td>
               <td>@task.Flow!.Name</td>
               <td>
-                <a href="@(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}?clone=true")" class="page-link link-primary">Clone</a>
+                <a href="@(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}?clone=true&ReturnUrl=" + AppRoutes.Dashboards.AutoTasks)" class="page-link link-primary">Clone</a>
               </td>
               <td class="text-end">
-                <a href="@(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}")" class="page-link link-primary">View</a>
+                <a href="@(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}?ReturnUrl=" + AppRoutes.Dashboards.AutoTasks)" class="page-link link-primary">View</a>
               </td>
             </tr>
           }

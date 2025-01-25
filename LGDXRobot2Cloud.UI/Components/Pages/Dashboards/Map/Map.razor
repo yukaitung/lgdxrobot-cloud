@@ -89,7 +89,7 @@
           </tbody>
         </table>
       </div>
-      <a href="@(AppRoutes.Navigation.Robots.Index + $"/{SelectedRobot.RobotId}")" type="button" class="btn btn-primary">
+      <a href="@(AppRoutes.Navigation.Robots.Index + $"/{SelectedRobot.RobotId}?ReturnUrl=" + AppRoutes.Dashboards.Map)" type="button" class="btn btn-primary">
         Manage
       </a>
     }

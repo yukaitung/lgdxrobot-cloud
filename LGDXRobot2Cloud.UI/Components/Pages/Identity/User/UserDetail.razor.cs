@@ -11,6 +11,9 @@ public sealed partial class UserDetail : ComponentBase
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
 
+  [SupplyParameterFromQuery]
+  private string? ReturnUrl { get; set; }
+
   private UserDetailViewModel UserDetailViewModel { get; set; } = new();
   private UserDetailPasswordViewModel UserDetailPasswordViewModel { get; set; } = new();
   private EditContext _editContext = null!;
