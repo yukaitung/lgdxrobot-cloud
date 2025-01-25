@@ -85,24 +85,30 @@ public sealed partial class RealmDetail : ComponentBase
     NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
   }
 
-  public override async Task SetParametersAsync(ParameterView parameters)
+  protected override void OnInitialized()
   {
-    parameters.SetParameterProperties(this);
-    if (parameters.TryGetValue<int?>(nameof(Id), out var _id))
+    _editContext = new EditContext(RealmDetailViewModel);
+    _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+    base.OnInitializedAsync();
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender && Id != null)
     {
-      if (_id != null)
+      try 
       {
-        var response = await LgdxApiClient.Navigation.Realms[(int)_id].GetAsync();
+        var response = await LgdxApiClient.Navigation.Realms[(int)Id].GetAsync();
         RealmDetailViewModel.FromDto(response!);
         _editContext = new EditContext(RealmDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
-      else
+      catch (ApiException ex)
       {
-        _editContext = new EditContext(RealmDetailViewModel);
-        _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+        RealmDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+        StateHasChanged();
       }
     }
-    await base.SetParametersAsync(ParameterView.Empty);
+    await base.OnAfterRenderAsync(firstRender);
   }
 }

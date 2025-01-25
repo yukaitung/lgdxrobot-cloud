@@ -29,6 +29,10 @@ public static class ApiHelper
 				}
 			}
 		}
+		else if (apiException is ProblemDetails problemDetails)
+		{
+			errorDictionary.Add("", $"The service returned an unexpected error: {problemDetails.Title}");
+		}
 		return errorDictionary;
 	}
 }

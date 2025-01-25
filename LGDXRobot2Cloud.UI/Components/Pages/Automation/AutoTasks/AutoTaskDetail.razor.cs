@@ -152,6 +152,18 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     InitaisedAdvanceSelect--;
   }
 
+  private void Redirect()
+  {
+    if (ReturnUrl != null)
+    {
+      NavigationManager.NavigateTo(ReturnUrl);
+    }
+    else
+    {
+      NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
+    }
+  }
+
   public async Task HandleValidSubmit()
   {
     // Setup Order
@@ -175,7 +187,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     {
       AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
+    Redirect();
   }
 
   public async Task HandleDelete()
@@ -188,7 +200,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     {
       AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
+    Redirect();
   }
 
   public async Task HandleAbort()
@@ -201,7 +213,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     {
       AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index);
+    Redirect();
   }
 
   protected override async Task OnInitializedAsync()

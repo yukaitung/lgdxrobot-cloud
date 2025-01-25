@@ -24,5 +24,6 @@ public abstract class AbstractTable : ComponentBase
       await Refresh();
       StateHasChanged();
     }
+    await base.OnAfterRenderAsync(firstRender);
   }
 }
