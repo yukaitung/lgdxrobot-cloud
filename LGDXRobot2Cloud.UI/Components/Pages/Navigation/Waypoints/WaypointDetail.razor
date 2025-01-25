@@ -6,7 +6,7 @@
 <PageHeader Title="@(Id != null ? "Edit Waypoint" : "Create Waypoint")">
   <div class="row align-items-center">
     <div class="col">
-      <ReturnLink Fallback="@AppRoutes.Navigation.Waypoints.Index" />
+      <ReturnLink HREF="@AppRoutes.Navigation.Waypoints.Index" />
       <h2 class="page-title">
         @(Id != null ? "Edit Waypoint" : "Create Waypoint")
       </h2>

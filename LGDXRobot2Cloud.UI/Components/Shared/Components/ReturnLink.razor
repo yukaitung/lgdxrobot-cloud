@@ -1,19 +1,27 @@
 <div class="mb-1">
   <ol class="breadcrumb" aria-label="breadcrumbs">
-    <li class="breadcrumb-item"><button class="btn-link p-0 border-0" onclick="
-      const prevUrl = window.location.pathname;
-      window.history.back();
-      setTimeout(() => {
-        if (prevUrl === window.location.pathname)
-        {
-          window.location = @($"\"{Fallback}\"");
-        }      
-      }, 100);
-    ">◀ Return</button></li>
+    <li class="breadcrumb-item"><button class="btn-link p-0 border-0" @onclick="HandleOnClick">◀ Return</button></li>
   </ol>
 </div>
 
 @code {
+  private NavigationManager NavigationManager { get; set; } = default!;
+
   [Parameter]
-  public string Fallback { get; set; } = "/";
+  public string HREF { get; set; } = "/";
+
+  [Parameter]
+  public string? ReturnUrl { get; set; } = null;
+
+  private void HandleOnClick()
+  {
+    if (ReturnUrl != null) 
+    {
+      NavigationManager.NavigateTo(ReturnUrl);
+    }
+    else
+    {
+      NavigationManager.NavigateTo(HREF);
+    }
+  }
 }

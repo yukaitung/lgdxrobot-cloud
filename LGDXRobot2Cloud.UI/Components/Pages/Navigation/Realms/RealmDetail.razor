@@ -6,7 +6,7 @@
 <PageHeader Title="@(Id != null ? "Edit Realm" : "Create Realm")">
   <div class="row align-items-center">
     <div class="col">
-      <ReturnLink Fallback="@AppRoutes.Administration.ApiKeys.Index" />
+      <ReturnLink HREF="@AppRoutes.Administration.ApiKeys.Index" />
       <h2 class="page-title">
         @(Id != null ? "Edit Realm" : "Create Realm")
       </h2>

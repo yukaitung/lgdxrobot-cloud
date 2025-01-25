@@ -8,7 +8,7 @@
 <PageHeader Title="@(Id != null ? (IsEditable() ? "Update Task" : "View Task") : "Create Task")">
   <div class="row align-items-center">
     <div class="col">
-      <ReturnLink Fallback="@AppRoutes.Automation.AutoTasks.Index" />
+      <ReturnLink HREF="@AppRoutes.Automation.AutoTasks.Index" />
       <h2 class="page-title">
         @(Id != null ? (IsEditable() ? "Update Task" : "View Task") : "Create Task")
       </h2>

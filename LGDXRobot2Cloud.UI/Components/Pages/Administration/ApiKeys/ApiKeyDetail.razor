@@ -6,7 +6,7 @@
 <PageHeader Title="@(Id != null ? "Edit API Key" : "Create API Key")">
   <div class="row align-items-center">
     <div class="col">
-      <ReturnLink Fallback="@AppRoutes.Administration.ApiKeys.Index" />
+      <ReturnLink HREF="@AppRoutes.Administration.ApiKeys.Index" />
       <h2 class="page-title">
         @(Id != null ? "Edit API Key" : "Create API Key")
       </h2>

@@ -6,7 +6,7 @@
 <PageHeader Title="@(Id != null ? "Edit User" : "Create User")">
   <div class="row align-items-center">
     <div class="col">
-      <ReturnLink Fallback="@AppRoutes.Administration.Users.Index" />
+      <ReturnLink HREF="@AppRoutes.Administration.Users.Index" />
       <h2 class="page-title">
         @(Id != null ? "Edit User" : "Create User")
       </h2>
