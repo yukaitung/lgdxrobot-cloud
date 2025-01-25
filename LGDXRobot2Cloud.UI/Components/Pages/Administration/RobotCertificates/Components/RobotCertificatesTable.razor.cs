@@ -2,7 +2,6 @@ using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Components.Shared.Table;
 using LGDXRobot2Cloud.UI.Helpers;
-using LGDXRobot2Cloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using static LGDXRobot2Cloud.UI.Client.Administration.RobotCertificates.RobotCertificatesRequestBuilder;
 

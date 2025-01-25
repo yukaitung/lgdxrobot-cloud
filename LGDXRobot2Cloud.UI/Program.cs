@@ -66,7 +66,6 @@ builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 builder.Services.AddSingleton<IRealTimeService, RealTimeService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
-builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, CircuitHandlerService>());
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(cfg =>

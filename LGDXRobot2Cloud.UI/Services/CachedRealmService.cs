@@ -56,7 +56,7 @@ public sealed class CachedRealmService (
     catch (ApiException ex)
     {
       if (ex.ResponseStatusCode == (int)System.Net.HttpStatusCode.Unauthorized)
-        _navigationManager.NavigateTo(AppRoutes.Identity.Login);
+        _navigationManager.NavigateTo(AppRoutes.Identity.Login + "?ReturnUrl=" + _navigationManager.Uri.Replace(_navigationManager.BaseUri, ""));
     }
     return GetEmptyRealm();
   }
