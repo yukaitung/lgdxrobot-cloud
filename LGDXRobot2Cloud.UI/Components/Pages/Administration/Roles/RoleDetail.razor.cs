@@ -25,7 +25,7 @@ public sealed partial class RoleDetail : ComponentBase
 
   public void ListAddScope()
   {
-    RolesDetailViewModel.Scopes.Add(string.Empty);
+    RolesDetailViewModel.Scopes.Add(new ScopeOption());
   }
 
   public void ListRemoveScope(int i)
@@ -33,6 +33,14 @@ public sealed partial class RoleDetail : ComponentBase
     if (RolesDetailViewModel.Scopes.Count <= 0)
       return;
     RolesDetailViewModel.Scopes.RemoveAt(i);
+  }
+
+  public void HandleAreaChanged(int row, int value)
+  {
+    if (row < 0 || row >= RolesDetailViewModel.Scopes.Count)
+      return;
+    RolesDetailViewModel.Scopes[row].Area = value;
+    RolesDetailViewModel.Scopes[row].Controller = null;
   }
 
   public async Task HandleValidSubmit()
@@ -85,7 +93,7 @@ public sealed partial class RoleDetail : ComponentBase
     }
     else
     {
-      RolesDetailViewModel.Scopes.Add(string.Empty);
+      RolesDetailViewModel.Scopes.Add(new ScopeOption());
       _editContext = new EditContext(RolesDetailViewModel);
       _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
     }

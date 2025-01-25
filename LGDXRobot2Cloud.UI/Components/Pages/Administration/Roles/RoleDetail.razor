@@ -1,3 +1,4 @@
+@using LGDXRobot2Cloud.UI.ViewModels.Administration
 @attribute [Route(AppRoutes.Administration.Roles.Detail)]
 @attribute [Route(AppRoutes.Administration.Roles.Create)]
 @attribute [Authorize (Policy = Permissions.Administration.Roles.Read)]
@@ -50,9 +51,7 @@
           <label class="col-3 col-form-label" for="Scopes">Scopes</label>
           <div class="col">
             <InformationModal>
-              1. The format of the scope is LGDXRobot2Cloud.API/Area/Controller/Permission.<br />
-              2. The permission including FullAccess, Read, Write and Delete.<br />
-              3. The permission applies to sub classes if not specified.
+              The permission field is mandatory.
             </InformationModal>
             <table class="table table-vcenter text-nowrap datatable">
               <thead>
@@ -71,13 +70,31 @@
                     <td>
                         @(index + 1)
                     </td>
-                    <td>
-                      <InputText id="@($"{nameof(RolesDetailViewModel.Name)}-{index}")" type="text" class="form-control" @bind-Value="RolesDetailViewModel.Scopes[index]" />
+                    <td class="d-flex gap-3">
+                      <InputSelect class="form-select" TValue="int" Value="scope.Area" ValueChanged="@((value) => HandleAreaChanged(index, value))" ValueExpression="@(() => scope.Area)">
+                        @for (int i = 0; i < ScopeOptionsSelect.Areas.Count(); i++)
+                        {
+                          <option value="@i">@ScopeOptionsSelect.Areas[i]</option>
+                        }
+                      </InputSelect>
+                      <InputSelect class="form-select" @bind-Value="scope.Controller">
+                        <option value="">Select... / All Controller</option>
+                        @for (int i = 0; i < ScopeOptionsSelect.Controllers[scope.Area].Count(); i++)
+                        {
+                          <option value="@i">@ScopeOptionsSelect.Controllers[scope.Area][i]</option>
+                        }
+                      </InputSelect>
+                      <InputSelect id="@($"{nameof(ScopeOption.Permission)}-{index}")" class="form-select" @bind-Value="scope.Permission">
+                        <option value="">Select Permission...</option>
+                        @for (int i = 0; i < ScopeOptionsSelect.Permissions.Count(); i++)
+                        {
+                          <option value="@i">@ScopeOptionsSelect.Permissions[i]</option>
+                        }
+                      </InputSelect>
                     </td>
                     <td>
                       <button type="button"
-                        class="btn btn-ghost-danger btn-icon @(RolesDetailViewModel.Scopes.Count <= 0 ? "disabled" : "")"
-                        @onclick="e => ListRemoveScope(index)">
+                        class="btn btn-ghost-danger btn-icon" @onclick="e => ListRemoveScope(index)">
                         <i class="ti ti-trash" style="font-size: 16px;"></i>
                       </button>
                     </td>
