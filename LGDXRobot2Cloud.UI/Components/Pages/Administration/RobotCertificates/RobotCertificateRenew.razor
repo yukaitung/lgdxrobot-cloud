@@ -6,11 +6,7 @@
 <PageHeader Title="Renew Certificate">
   <div class="row align-items-center">
     <div class="col">
-      <div class="mb-1">
-        <ol class="breadcrumb" aria-label="breadcrumbs">
-          <li class="breadcrumb-item"><a href="#" @onclick="ReturnLastPage">◀ Return</a></li>
-        </ol>
-      </div>
+      <ReturnLink HREF="@AppRoutes.Administration.RobotCertificates.Index" ReturnUrl="@ReturnUrl" />
       <h2 class="page-title">
         Renew Certificate
       </h2>

@@ -26,7 +26,7 @@ internal sealed class LgdxAuthenticationStateProvider(
     var user = authenticationState.User;
     if (!_tokenService.IsLoggedIn(user))
     {
-      _navigationManager.NavigateTo(AppRoutes.Identity.Login + "?ReturnUrl=" + _navigationManager.Uri.Replace(_navigationManager.BaseUri, ""));
+      _navigationManager.NavigateTo(AppRoutes.Identity.Login + "?ReturnUrl=" + _navigationManager.ToBaseRelativePath(_navigationManager.Uri));
       return false;
     }
 
@@ -34,7 +34,7 @@ internal sealed class LgdxAuthenticationStateProvider(
     if (DateTime.UtcNow > refreshTokenExpiresAt)
     {
       _tokenService.Logout(user);
-      _navigationManager.NavigateTo(AppRoutes.Identity.Login + "?ReturnUrl=" + _navigationManager.Uri.Replace(_navigationManager.BaseUri, ""));
+      _navigationManager.NavigateTo(AppRoutes.Identity.Login + "?ReturnUrl=" + _navigationManager.ToBaseRelativePath(_navigationManager.Uri));
       return false;
     }
 

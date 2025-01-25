@@ -68,7 +68,7 @@
           </div>
           <div class="card-footer d-flex">
             <AuthorizeView Policy=@Permissions.Administration.RobotCertificates.Write Context="Write">
-              <a href="@(AppRoutes.Administration.RobotCertificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
+              <a href="@(AppRoutes.Administration.RobotCertificates.Index + $"/{@RobotCertificate.Id}/renew?ReturnUrl=" + NavigationManager.ToBaseRelativePath(NavigationManager.Uri))" class="btn btn-primary">
                 Renew Certificate
               </a>
             </AuthorizeView>

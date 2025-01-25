@@ -1,6 +1,5 @@
 @using LGDXRobot2Cloud.UI.Client.Models
 @using LGDXRobot2Cloud.UI.ViewModels.Navigation
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 <div class="card">
   <div class="card-header">
@@ -32,7 +31,7 @@
   {
     <div class="card-footer d-flex">
       <AuthorizeView Policy="@Permissions.Administration.RobotCertificates.Write" Context="CertificateRenew">
-        <a href="@(AppRoutes.Administration.RobotCertificates.Index + $"/{@RobotCertificate.Id}/renew")" class="btn btn-primary" @onclick="SetRedirectUrl">
+        <a href="@(AppRoutes.Administration.RobotCertificates.Index + $"/{@RobotCertificate.Id}/renew?ReturnUrl=" + NavigationManager.ToBaseRelativePath(NavigationManager.Uri))" class="btn btn-primary">
           Renew Certificate
         </a>
       </AuthorizeView>
@@ -45,22 +44,6 @@
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
-  [Inject]
-  public ProtectedSessionStorage ProtectedSessionStorage { get; set; } = default!;
-
   [Parameter]
   public RobotCertificateDto? RobotCertificate { get; set; }
-
-  string RedirectUrl { get; set; } = string.Empty;
-
-  public async Task SetRedirectUrl()
-  {
-    await ProtectedSessionStorage.SetAsync("redirectUrl", RedirectUrl);
-  }
-
-  protected override Task OnInitializedAsync()
-  {
-    RedirectUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-    return base.OnInitializedAsync();
-  }
 }
