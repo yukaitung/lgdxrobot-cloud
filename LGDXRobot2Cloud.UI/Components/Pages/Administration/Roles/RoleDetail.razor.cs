@@ -57,12 +57,12 @@ public sealed partial class RoleDetail : ComponentBase
         // Create
         await LgdxApiClient.Administration.Roles.PostAsync(RolesDetailViewModel.ToCreateDto());
       }
+      NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
     }
     catch (ApiException ex)
     {
       RolesDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
   }
 
   public async Task HandleDelete()
@@ -70,12 +70,12 @@ public sealed partial class RoleDetail : ComponentBase
     try
     {
       await LgdxApiClient.Administration.Roles[RolesDetailViewModel.Id].DeleteAsync();
+      NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
     }
     catch (ApiException ex)
     {
       RolesDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)

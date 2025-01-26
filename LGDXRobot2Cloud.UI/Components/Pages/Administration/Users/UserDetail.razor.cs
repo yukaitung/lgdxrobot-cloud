@@ -97,12 +97,12 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
         // Create
         await LgdxApiClient.Administration.Users.PostAsync(UserDetailViewModel.ToCreateDto());
       }
+      NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
     }
     catch (ApiException ex)
     {
       UserDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
   }
 
   public async Task HandleDelete()
@@ -110,12 +110,12 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
     try
     {
       await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].DeleteAsync();
+      NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
     }
     catch (ApiException ex)
     {
       UserDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)

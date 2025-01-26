@@ -129,6 +129,8 @@
 <AuthorizeView Policy=@Permissions.Administration.Roles.Delete Context="DeleteModal">
   @if (Id != null)
   {
-    <DeleteEntryModal EntryName="Scope" OnDelete="HandleDelete" />
+    <DeleteEntryModal EntryName="Role" OnDelete="HandleDelete">
+      Do you want to delete this Role? This action cannot be undone.
+    </DeleteEntryModal>
   }
 </AuthorizeView>
