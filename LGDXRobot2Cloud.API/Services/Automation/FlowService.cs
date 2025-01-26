@@ -180,7 +180,7 @@ public class FlowService(LgdxContext context) : IFlowService
   public async Task<bool> DeleteFlowAsync(int flowId)
   {
     return await _context.Flows.Where(f => f.Id == flowId)
-      .ExecuteDeleteAsync() > 1;
+      .ExecuteDeleteAsync() >= 1;
   }
 
   public async Task<IEnumerable<FlowSearchBusinessModel>> SearchFlowsAsync(string? name)

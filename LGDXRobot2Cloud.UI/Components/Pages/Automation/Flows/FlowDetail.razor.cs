@@ -7,6 +7,7 @@ using LGDXRobot2Cloud.UI.ViewModels.Automation;
 using LGDXRobot2Cloud.UI.Client;
 using System.Text.Json;
 using Microsoft.Kiota.Abstractions;
+using LGDXRobot2Cloud.UI.ViewModels.Shared;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Automation.Flows;
 
@@ -26,6 +27,7 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
 
   private DotNetObjectReference<FlowDetail> ObjectReference = null!;
   private FlowDetailViewModel FlowDetailViewModel { get; set; } = new();
+  private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -138,12 +140,26 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
         // Create
         await LgdxApiClient.Automation.Flows.PostAsync(FlowDetailViewModel.ToCreateDto());
       }
+      NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
     }
     catch (ApiException ex)
     {
       FlowDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
+  }
+
+  public async Task HandleTestDelete()
+  {
+    DeleteEntryModalViewModel.Errors = null;
+    try
+    {
+      await LgdxApiClient.Automation.Flows[FlowDetailViewModel.Id].TestDelete.PostAsync();
+      DeleteEntryModalViewModel.IsReady = true;
+    }
+    catch (ApiException ex)
+    {
+      DeleteEntryModalViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
   }
 
   public async Task HandleDelete()
@@ -151,12 +167,12 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
     try
     {
       await LgdxApiClient.Automation.Flows[FlowDetailViewModel.Id].DeleteAsync();
+      NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
     }
     catch (ApiException ex)
     {
       FlowDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
-    }
-    NavigationManager.NavigateTo(AppRoutes.Automation.Flows.Index);
+    } 
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)

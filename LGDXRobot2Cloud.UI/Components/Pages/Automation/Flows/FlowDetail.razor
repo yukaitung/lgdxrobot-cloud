@@ -126,7 +126,7 @@
         <AuthorizeView Policy="@Permissions.Automation.Flows.Delete" Context="DeleteButton">
           @if (Id != null)
           {
-            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" @onclick="HandleTestDelete">
               Delete
             </a>
           }
@@ -142,6 +142,12 @@
 <AuthorizeView Policy="@Permissions.Automation.Flows.Delete" Context="DeleteModal">
   @if (Id != null)
   {
-    <DeleteEntryModal EntryName="Flow" OnDelete="HandleDelete" />
+    <DeleteEntryModal EntryName="Flow" Errors="DeleteEntryModalViewModel.Errors"
+      IsReady="DeleteEntryModalViewModel.IsReady" OnDelete="HandleDelete">
+      Do you want to delete this Flow? This action cannot be undone. You must first remove the following entities that reference this Flow:
+      <ul>
+        <li>Tasks (Running/Waiting/Template)</li>
+      </ul>
+    </DeleteEntryModal>
   }
 </AuthorizeView>
