@@ -182,12 +182,12 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
         // Create
         await LgdxApiClient.Automation.AutoTasks.PostAsync(AutoTaskDetailViewModel.ToCreateDto());
       }
+      Redirect();
     }
     catch (ApiException ex)
     {
       AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    Redirect();
   }
 
   public async Task HandleDelete()
@@ -195,12 +195,13 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     try
     {
       await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].DeleteAsync();
+      Redirect();
     }
     catch (ApiException ex)
     {
       AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    Redirect();
+    
   }
 
   public async Task HandleAbort()
@@ -208,12 +209,12 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     try
     {
       await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].Abort.PostAsync();
+      Redirect();
     }
     catch (ApiException ex)
     {
       AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    Redirect();
   }
 
   protected override async Task OnInitializedAsync()

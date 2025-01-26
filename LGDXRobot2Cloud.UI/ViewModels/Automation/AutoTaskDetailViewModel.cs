@@ -128,6 +128,7 @@ public static class AutoTaskDetailViewModelExtensions
       Priority = autoTaskDetailViewModel.Priority,
       FlowId = autoTaskDetailViewModel.FlowId,
       RealmId = autoTaskDetailViewModel.RealmId,
+      IsTemplate = autoTaskDetailViewModel.IsTemplate,
       AssignedRobotId = autoTaskDetailViewModel.AssignedRobotId,
       AutoTaskDetails = autoTaskDetailViewModel.AutoTaskDetails.Select(t => new AutoTaskDetailCreateDto{
         CustomX = t.CustomX,
