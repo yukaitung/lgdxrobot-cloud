@@ -13,6 +13,7 @@ public interface IFlowService
   Task<FlowBusinessModel> GetFlowAsync(int flowId);
   Task<FlowBusinessModel> CreateFlowAsync(FlowCreateBusinessModel flowCreateBusinessModel);
   Task<bool> UpdateFlowAsync(int flowId, FlowUpdateBusinessModel flowUpdateBusinessModel);
+  Task<bool> TestDeleteFlowAsync(int flowId);
   Task<bool> DeleteFlowAsync(int flowId);
 
   Task<IEnumerable<FlowSearchBusinessModel>> SearchFlowsAsync(string? name);
@@ -159,6 +160,16 @@ public class FlowService(LgdxContext context) : IFlowService
         TriggerId = fd.TriggerId,
       }).ToList();
     await _context.SaveChangesAsync();
+    return true;
+  }
+
+  public async Task<bool> TestDeleteFlowAsync(int flowId)
+  {
+    var depeendencies = await _context.AutoTasks.Where(a => a.FlowId == flowId).CountAsync();
+    if (depeendencies > 0)
+    {
+      throw new LgdxValidation400Expection(nameof(flowId), $"This flow has been used by {depeendencies} tasks.");
+    }
     return true;
   }
 

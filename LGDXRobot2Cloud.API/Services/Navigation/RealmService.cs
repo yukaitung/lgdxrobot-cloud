@@ -2,6 +2,7 @@ using LGDXRobot2Cloud.API.Exceptions;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.Business.Navigation;
+using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,7 @@ public interface IRealmService
   Task<RealmBusinessModel> GetDefaultRealmAsync();
   Task<RealmBusinessModel> CreateRealmAsync(RealmCreateBusinessModel createModel);
   Task<bool> UpdateRealmAsync(int id, RealmUpdateBusinessModel updateModel);
+  Task<bool> TestDeleteRealmAsync(int id);
   Task<bool> DeleteRealmAsync(int id);
 
   Task<IEnumerable<RealmSearchBusinessModel>> SearchRealmsAsync(string? name);
@@ -123,6 +125,29 @@ public class RealmService(LgdxContext context) : IRealmService
         .SetProperty(m => m.OriginY, updateModel.OriginY)
         .SetProperty(m => m.OriginRotation, updateModel.OriginRotation)
       ) == 1;
+  }
+
+  public async Task<bool> TestDeleteRealmAsync(int id)
+  {
+    var depeendencies = await _context.Robots.Where(m => m.RealmId == id).CountAsync();
+    if (depeendencies > 0)
+    {
+      throw new LgdxValidation400Expection(nameof(id), $"This realm has been used by {depeendencies} robots.");
+    }
+    depeendencies = await _context.Waypoints.Where(m => m.RealmId == id).CountAsync();
+    if (depeendencies > 0)
+    {
+      throw new LgdxValidation400Expection(nameof(id), $"This realm has been used by {depeendencies} waypoints.");
+    }
+    depeendencies = await _context.AutoTasks
+      .Where(m => m.RealmId == id)
+      .Where(m => m.CurrentProgressId != (int)ProgressState.Completed && m.CurrentProgressId != (int)ProgressState.Aborted)
+      .CountAsync();
+    if (depeendencies > 0)
+    {
+      throw new LgdxValidation400Expection(nameof(id), $"This realm has been used by {depeendencies} running/waiting/template tasks.");
+    }
+    return true;
   }
 
   public async Task<bool> DeleteRealmAsync(int id)

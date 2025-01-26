@@ -2,6 +2,7 @@ using LGDXRobot2Cloud.API.Exceptions;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.Business.Navigation;
+using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,7 @@ public interface IWaypointService
   Task<WaypointBusinessModel> GetWaypointAsync(int waypointId);
   Task<WaypointBusinessModel> CreateWaypointAsync(WaypointCreateBusinessModel waypointCreateBusinessModel);
   Task<bool> UpdateWaypointAsync(int waypointId, WaypointUpdateBusinessModel waypointUpdateBusinessModel);
+  Task<bool> TestDeleteWaypointAsync(int waypointId);
   Task<bool> DeleteWaypointAsync(int waypointId);
   
   Task<IEnumerable<WaypointSearchBusinessModel>> SearchWaypointsAsync(int realmId, string? name);
@@ -127,6 +129,20 @@ public class WaypointService(LgdxContext context) : IWaypointService
         .SetProperty(w => w.HasCharger, waypointUpdateBusinessModel.HasCharger)
         .SetProperty(w => w.IsReserved, waypointUpdateBusinessModel.IsReserved)
       ) == 1;
+  }
+
+  public async Task<bool> TestDeleteWaypointAsync(int waypointId)
+  {
+    var depeendencies = await _context.AutoTasksDetail
+      .Include(t => t.AutoTask)
+      .Where(t => t.WaypointId == waypointId)
+      .Where(t => t.AutoTask.CurrentProgressId != (int)ProgressState.Completed && t.AutoTask.CurrentProgressId != (int)ProgressState.Aborted)
+      .CountAsync();
+    if (depeendencies > 0)
+    {
+      throw new LgdxValidation400Expection(nameof(waypointId), $"This waypoint has been used by {depeendencies} running/waiting/template tasks.");
+    }
+    return true;
   }
 
   public async Task<bool> DeleteWaypointAsync(int waypointId)

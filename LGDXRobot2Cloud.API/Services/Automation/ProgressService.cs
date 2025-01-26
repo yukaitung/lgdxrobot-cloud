@@ -13,6 +13,7 @@ public interface IProgressService
   Task<ProgressBusinessModel> GetProgressAsync(int progressId);
   Task<ProgressBusinessModel> CreateProgressAsync(ProgressCreateBusinessModel progressCreateBusinessModel);
   Task<bool> UpdateProgressAsync(int progressId, ProgressUpdateBusinessModel progressUpdateBusinessModel);
+  Task<bool> TestDeleteProgressAsync(int progressId);
   Task<bool> DeleteProgressAsync(int progressId);
   
   Task<IEnumerable<ProgressSearchBusinessModel>> SearchProgressesAsync(string? name);
@@ -91,11 +92,38 @@ public class ProgressService(LgdxContext context) : IProgressService
 
     if (progress.System)
     {
-      throw new LgdxValidation400Expection("Progress", $"Cannot update system progress.");
+      throw new LgdxValidation400Expection(nameof(progressId), $"Cannot update system progress.");
     }
     progress.Name = progressUpdateBusinessModel.Name;
     return await _context.SaveChangesAsync() >= 1;
   }
+
+  public async Task<bool> TestDeleteProgressAsync(int progressId)
+  {
+    var progress = await _context.Progresses.AsNoTracking()
+      .Where(p => p.Id == progressId)
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
+
+    if (progress.System)
+    {
+      throw new LgdxValidation400Expection(nameof(progressId), $"Cannot delete system progress.");
+    }
+
+    var depeendencies = await _context.FlowDetails.Where(t => t.ProgressId == progressId).CountAsync();
+    if (depeendencies > 0)
+    {
+      throw new LgdxValidation400Expection(nameof(progressId), $"This progress has been used by {depeendencies} flows.");
+    }
+    depeendencies = await _context.AutoTasks.Where(t => t.CurrentProgressId == progressId).CountAsync(); // Don't care if it is running
+    if (depeendencies > 0)
+    {
+      throw new LgdxValidation400Expection(nameof(progressId), $"This progress has been used by {depeendencies} tasks.");
+    }
+
+    return true;
+  }
+
 
   public async Task<bool> DeleteProgressAsync(int progressId)
   {
@@ -106,7 +134,7 @@ public class ProgressService(LgdxContext context) : IProgressService
 
     if (progress.System)
     {
-      throw new LgdxValidation400Expection("Progress", $"Cannot delete system progress.");
+      throw new LgdxValidation400Expection(nameof(progressId), $"Cannot delete system progress.");
     }
 
     return await _context.Progresses.Where(p => p.Id == progressId)

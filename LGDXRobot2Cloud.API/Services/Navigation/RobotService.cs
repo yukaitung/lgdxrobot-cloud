@@ -20,6 +20,7 @@ public interface IRobotService
   Task<bool> UpdateRobotAsync(Guid id, RobotUpdateBusinessModel robotUpdateDtoBusinessModel);
   Task<RobotChassisInfoBusinessModel?> GetRobotChassisInfoAsync(Guid robotId);
   Task<bool> UpdateRobotChassisInfoAsync(Guid id, RobotChassisInfoUpdateBusinessModel robotChassisInfoUpdateBusinessModel);
+  Task<bool> TestDeleteRobotAsync(Guid id);
   Task<bool> DeleteRobotAsync(Guid id);
 
   Task<RobotSystemInfoBusinessModel?> GetRobotSystemInfoAsync(Guid robotId);
@@ -224,6 +225,19 @@ public class RobotService(
         .SetProperty(r => r.BatteryMaxVoltage, robotChassisInfoUpdateBusinessModel.BatteryMaxVoltage)
         .SetProperty(r => r.BatteryMinVoltage, robotChassisInfoUpdateBusinessModel.BatteryMinVoltage)
       ) == 1;
+  }
+
+  public async Task<bool> TestDeleteRobotAsync(Guid id)
+  {
+    var depeendencies = await _context.AutoTasks
+      .Where(t => t.AssignedRobotId == id)
+      .Where(t => t.CurrentProgressId != (int)ProgressState.Completed && t.CurrentProgressId != (int)ProgressState.Aborted)
+      .CountAsync();
+    if (depeendencies > 0)
+    {
+      throw new LgdxValidation400Expection(nameof(id), $"This robot has been used by {depeendencies} running/waiting/template tasks.");
+    }
+    return true;
   }
 
   public async Task<bool> DeleteRobotAsync(Guid id)

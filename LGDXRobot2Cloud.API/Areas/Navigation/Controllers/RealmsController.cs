@@ -77,11 +77,22 @@ public class RealmsController(
     return NoContent();
   }
 
+  [HttpPost("{id}/TestDelete")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult> TestDeleteRealm(int id)
+  {
+    await _realmService.TestDeleteRealmAsync(id);
+    return Ok();
+  }
+
   [HttpDelete("{id}")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> DeleteRealm(int id)
   {
+    await _realmService.TestDeleteRealmAsync(id);
     if (!await _realmService.DeleteRealmAsync(id))
     {
       return NotFound();

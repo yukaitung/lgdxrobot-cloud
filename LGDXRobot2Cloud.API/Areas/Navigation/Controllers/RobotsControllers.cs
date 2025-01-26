@@ -1,5 +1,4 @@
 using LGDXRobot2Cloud.API.Configurations;
-using LGDXRobot2Cloud.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
@@ -116,11 +115,22 @@ public sealed class RobotsController(
     return NoContent();
   }
 
+  [HttpPost("{id}/TestDelete")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult> TestDeleteRobot(Guid id)
+  {
+    await _robotService.TestDeleteRobotAsync(id);
+    return Ok();
+  }
+
   [HttpDelete("{id}")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> DeleteRobot(Guid id)
   {
+    await _robotService.TestDeleteRobotAsync(id);
     if (!await _robotService.DeleteRobotAsync(id))
     {
       return NotFound();

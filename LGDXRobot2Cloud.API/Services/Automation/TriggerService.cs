@@ -18,6 +18,7 @@ public interface ITriggerService
   Task<TriggerBusinessModel> GetTriggerAsync(int triggerId);
   Task<TriggerBusinessModel> CreateTriggerAsync(TriggerCreateBusinessModel triggerCreateBusinessModel);
   Task<bool> UpdateTriggerAsync(int triggerId, TriggerUpdateBusinessModel triggerUpdateBusinessModel);
+  Task<bool> TestDeleteTriggerAsync(int triggerId);
   Task<bool> DeleteTriggerAsync(int triggerId);
 
   Task<IEnumerable<TriggerSearchBusinessModel>> SearchTriggersAsync(string? name);
@@ -87,11 +88,11 @@ public sealed class TriggerService (
       var apiKey = await _apiKeyService.GetApiKeyAsync((int)triggerCreateBusinessModel.ApiKeyId);
       if (apiKey == null)
       {
-        throw new LgdxValidation400Expection("Trigger", $"The API Key Id {triggerCreateBusinessModel.ApiKeyId} is invalid.");
+        throw new LgdxValidation400Expection(nameof(TriggerBusinessModel.Id), $"The API Key Id {triggerCreateBusinessModel.ApiKeyId} is invalid.");
       }
       else if (!apiKey.IsThirdParty)
       {
-        throw new LgdxValidation400Expection("Trigger", "Only third party API key is allowed.");
+        throw new LgdxValidation400Expection(nameof(TriggerBusinessModel.Id), "Only third party API key is allowed.");
       }
     }
 
@@ -128,11 +129,11 @@ public sealed class TriggerService (
       var apiKey = await _apiKeyService.GetApiKeyAsync((int)triggerUpdateBusinessModel.ApiKeyId);
       if (apiKey == null)
       {
-        throw new LgdxValidation400Expection("Trigger", $"The API Key Id {triggerUpdateBusinessModel.ApiKeyId} is invalid.");
+        throw new LgdxValidation400Expection(nameof(triggerId), $"The API Key Id {triggerUpdateBusinessModel.ApiKeyId} is invalid.");
       }
       else if (!apiKey.IsThirdParty)
       {
-        throw new LgdxValidation400Expection("Trigger", "Only third party API key is allowed.");
+        throw new LgdxValidation400Expection(nameof(triggerId), "Only third party API key is allowed.");
       }
     }
 
@@ -147,6 +148,16 @@ public sealed class TriggerService (
         .SetProperty(t => t.ApiKeyInsertLocationId, triggerUpdateBusinessModel.ApiKeyInsertLocationId)
         .SetProperty(t => t.ApiKeyFieldName, triggerUpdateBusinessModel.ApiKeyFieldName)
         .SetProperty(t => t.ApiKeyId, triggerUpdateBusinessModel.ApiKeyId)) == 1;
+  }
+
+  public async Task<bool> TestDeleteTriggerAsync(int triggerId)
+  {
+    var depeendencies = await _context.FlowDetails.Where(t => t.TriggerId == triggerId).CountAsync();
+    if (depeendencies > 0)
+    {
+      throw new LgdxValidation400Expection(nameof(triggerId), $"This trigger has been used by {depeendencies} details in flows.");
+    }
+    return true;
   }
 
   public async Task<bool> DeleteTriggerAsync(int triggerId)

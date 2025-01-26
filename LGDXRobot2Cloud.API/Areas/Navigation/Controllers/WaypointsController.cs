@@ -74,11 +74,22 @@ public sealed class WaypointsController(
     return NoContent();
   }
 
+  [HttpPost("{id}/TestDelete")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult> TestDeleteWaypoint(int id)
+  {
+    await _waypointService.TestDeleteWaypointAsync(id);
+    return Ok();
+  }
+
   [HttpDelete("{id}")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> DeleteWaypoint(int id)
   {
+    await _waypointService.TestDeleteWaypointAsync(id);
     if (!await _waypointService.DeleteWaypointAsync(id))
     {
       return NotFound();

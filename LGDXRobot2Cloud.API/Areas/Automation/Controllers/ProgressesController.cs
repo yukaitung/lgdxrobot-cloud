@@ -70,12 +70,22 @@ public sealed class ProgressesController(
     return NoContent();
   }
 
+  [HttpPost("{id}/TestDelete")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult> TestDeleteProgress(int id)
+  {
+    await _progressService.TestDeleteProgressAsync(id);
+    return Ok();
+  }
+
   [HttpDelete("{id}")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> DeleteProgress(int id)
   {
+    await _progressService.TestDeleteProgressAsync(id);
     await _progressService.DeleteProgressAsync(id);
     return NoContent();
   }

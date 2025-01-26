@@ -74,11 +74,22 @@ public sealed class TriggersController(
     return NoContent();
   }
 
+  [HttpPost("{id}/TestDelete")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult> TestDeleteTrigger(int id)
+  {
+    await _triggerService.TestDeleteTriggerAsync(id);
+    return Ok();
+  }
+
   [HttpDelete("{id}")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> DeleteTrigger(int id)
   {
+    await _triggerService.TestDeleteTriggerAsync(id);
     if (!await _triggerService.DeleteTriggerAsync(id))  
     {
       return NotFound();
