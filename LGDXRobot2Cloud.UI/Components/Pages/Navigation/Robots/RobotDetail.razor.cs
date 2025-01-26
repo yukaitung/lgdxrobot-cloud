@@ -2,12 +2,15 @@ using LGDXRobot2Cloud.Data.Contracts;
 using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Constants;
+using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
+using LGDXRobot2Cloud.UI.ViewModels.Shared;
 using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobot2Cloud.UI.Components.Pages.Navigation.Robots;
 public sealed partial class RobotDetail : ComponentBase, IDisposable
@@ -39,6 +42,8 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
   [SupplyParameterFromQuery]
   private string? ReturnUrl { get; set; }
 
+  private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
+  private IDictionary<string,string>? DeleteEntryErrors = null;
   private RobotDetailViewModel RobotDetailViewModel { get; set; } = new();
   private RobotCertificateDto? RobotCertificate { get; set; } = null!;
   private RobotSystemInfoDto? RobotSystemInfoDto { get; set; } = null!;
@@ -56,10 +61,32 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
     CurrentTab = index;
   }
 
+  public async Task HandleTestDelete()
+  {
+    DeleteEntryModalViewModel.Errors = null;
+    try
+    {
+      await LgdxApiClient.Navigation.Robots[RobotDetailViewModel!.Id].TestDelete.PostAsync();
+      DeleteEntryModalViewModel.IsReady = true;
+    }
+    catch (ApiException ex)
+    {
+      DeleteEntryModalViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
+  }
+
   public async Task HandleDelete()
   {
-    await LgdxApiClient.Navigation.Robots[RobotDetailViewModel!.Id].DeleteAsync();
-    NavigationManager.NavigateTo(AppRoutes.Navigation.Robots.Index);
+    DeleteEntryErrors = null;
+    try
+    {
+      await LgdxApiClient.Navigation.Robots[RobotDetailViewModel!.Id].DeleteAsync();
+      NavigationManager.NavigateTo(AppRoutes.Navigation.Robots.Index);
+    }
+    catch (ApiException ex)
+    {
+      DeleteEntryErrors = ApiHelper.GenerateErrorDictionary(ex);
+    }
   }
 
   private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)

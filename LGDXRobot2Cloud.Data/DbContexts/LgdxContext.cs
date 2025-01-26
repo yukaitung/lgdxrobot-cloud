@@ -49,6 +49,12 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
       .HasForeignKey(e => e.AutoTaskId)
       .OnDelete(DeleteBehavior.Cascade)
       .IsRequired();
+    modelBuilder.Entity<AutoTask>()
+      .HasOne(e => e.AssignedRobot)
+      .WithMany(e => e.AssignedTasks)
+      .HasForeignKey(e => e.AssignedRobotId)
+      .IsRequired(false)
+      .OnDelete(DeleteBehavior.SetNull);
     modelBuilder.Entity<AutoTaskDetail>()
       .HasOne(e => e.AutoTask)
       .WithMany()
@@ -84,12 +90,6 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
       .OnDelete(DeleteBehavior.SetNull);
    
     // Navigation.Robots
-    modelBuilder.Entity<Robot>()
-      .HasMany(e => e.AssignedTasks)
-      .WithOne(e => e.AssignedRobot)
-      .HasForeignKey(e => e.AssignedRobotId)
-      .IsRequired(false)
-      .OnDelete(DeleteBehavior.SetNull);
     modelBuilder.Entity<Robot>()
       .HasOne(e => e.RobotSystemInfo)
       .WithOne(e => e.Robot)

@@ -92,14 +92,23 @@
           </div>
           <div class="card-body">
             <AuthorizeView Policy="@Permissions.Navigation.Robots.Delete" Context="DeleteButton">
+              <ApiErrorAlert Errors="DeleteEntryErrors" />
               <button type="button" class="btn btn-danger d-none d-sm-inline-block ms-auto" data-bs-toggle="modal"
-                data-bs-target="#deleteModal">
+                data-bs-target="#deleteModal" @onclick="HandleTestDelete">
                 Delete Robot
               </button>
             </AuthorizeView>
           </div>
           <AuthorizeView Policy="@Permissions.Navigation.Robots.Delete" Context="DeleteModel">
-            <DeleteEntryModal EntryName="Robot" OnDelete="HandleDelete" />
+            <DeleteEntryModal EntryName="Robot" Errors="DeleteEntryModalViewModel.Errors"
+              IsReady="DeleteEntryModalViewModel.IsReady" OnDelete="HandleDelete">
+              Do you want to delete this Realm? This action cannot be undone. You must first remove the following entities that reference this Realm:
+              <ul>
+                <li>Robots</li>
+                <li>Waypoints</li>
+                <li>Tasks (Running/Waiting/Template)</li>
+              </ul>
+            </DeleteEntryModal>
           </AuthorizeView>
         </div>
       }
