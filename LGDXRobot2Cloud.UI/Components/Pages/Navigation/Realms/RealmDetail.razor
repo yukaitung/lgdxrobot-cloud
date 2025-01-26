@@ -1,6 +1,6 @@
 @attribute [Route(AppRoutes.Navigation.Realms.Create)]
 @attribute [Route(AppRoutes.Navigation.Realms.Detail)]
-@attribute [Authorize (Policy = Permissions.Navigation.Realms.Read)]
+@attribute [Authorize(Policy = Permissions.Navigation.Realms.Read)]
 
 <PageHeader Title="@(Id != null ? "Edit Realm" : "Create Realm")">
   <div class="row align-items-center">
@@ -35,14 +35,16 @@
         <div class="mb-3 row">
           <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.Name)">Name</label>
           <div class="col">
-            <InputText id="@nameof(RealmDetailViewModel.Name)" type="text" class="form-control"  @bind-Value="RealmDetailViewModel.Name" />
+            <InputText id="@nameof(RealmDetailViewModel.Name)" type="text" class="form-control"
+              @bind-Value="RealmDetailViewModel.Name" />
             <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.Name)" />
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.Description)">Description</label>
           <div class="col">
-            <InputTextArea id="@nameof(RealmDetailViewModel.Description)" class="form-control" rows="3" @bind-Value="RealmDetailViewModel.Description" />
+            <InputTextArea id="@nameof(RealmDetailViewModel.Description)" class="form-control" rows="3"
+              @bind-Value="RealmDetailViewModel.Description" />
           </div>
         </div>
         <div class="mb-3 row">
@@ -52,36 +54,44 @@
             {
               <img class="mx-auto d-block mb-2" src="data:image/png;base64, @RealmDetailViewModel.Image" />
             }
-            <InputFile id="@nameof(RealmDetailViewModel.SelectedImage)" class="form-control" OnChange="LoadImage" accept=".png"/>
+            <InputFile id="@nameof(RealmDetailViewModel.SelectedImage)" class="form-control" OnChange="LoadImage"
+              accept=".png" />
             <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.SelectedImage)" />
-            <span class="form-check-description">The maximum file size is 8 MB, and only .png images are accepted.</span>
+            <span class="form-check-description">The maximum file size is 8 MB, and only .png images are
+              accepted.</span>
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.Resolution)">Resolution (m)</label>
+          <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.Resolution)">Resolution
+            (m)</label>
           <div class="col">
-            <InputNumber id="@nameof(RealmDetailViewModel.Resolution)" type="number" step="any" class="form-control"  @bind-Value="RealmDetailViewModel.Resolution" />
+            <InputNumber id="@nameof(RealmDetailViewModel.Resolution)" type="number" step="any" class="form-control"
+              @bind-Value="RealmDetailViewModel.Resolution" />
             <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.Resolution)" />
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.OriginX)">Origin X (m)</label>
           <div class="col">
-            <InputNumber id="@nameof(RealmDetailViewModel.OriginX)" type="number" step="any" class="form-control"  @bind-Value="RealmDetailViewModel.OriginX" />
+            <InputNumber id="@nameof(RealmDetailViewModel.OriginX)" type="number" step="any" class="form-control"
+              @bind-Value="RealmDetailViewModel.OriginX" />
             <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.OriginX)" />
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.OriginY)">Origin Y (m)</label>
           <div class="col">
-            <InputNumber id="@nameof(RealmDetailViewModel.OriginY)" type="number" step="any" class="form-control" @bind-Value="RealmDetailViewModel.OriginY" />
+            <InputNumber id="@nameof(RealmDetailViewModel.OriginY)" type="number" step="any" class="form-control"
+              @bind-Value="RealmDetailViewModel.OriginY" />
             <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.OriginY)" />
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.OriginRotation)">Origin Rotation (rad)</label>
+          <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.OriginRotation)">Origin
+            Rotation (rad)</label>
           <div class="col">
-            <InputNumber id="@nameof(RealmDetailViewModel.OriginRotation)" type="number" step="any" class="form-control" @bind-Value="RealmDetailViewModel.OriginRotation" />
+            <InputNumber id="@nameof(RealmDetailViewModel.OriginRotation)" type="number" step="any" class="form-control"
+              @bind-Value="RealmDetailViewModel.OriginRotation" />
             <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.OriginRotation)" />
           </div>
         </div>
@@ -90,7 +100,7 @@
         <AuthorizeView Policy="@Permissions.Navigation.Realms.Delete" Context="DeleteModal">
           @if (Id != null && Id != CurrentRealmId)
           {
-            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" @onclick="HandleTestDelete">
               Delete
             </a>
           }
@@ -112,6 +122,14 @@
 <AuthorizeView Policy="@Permissions.Navigation.Realms.Delete" Context="DeleteModal">
   @if (Id != null)
   {
-    <DeleteEntryModal EntryName="Realm" OnDelete="HandleDelete" />
+    <DeleteEntryModal EntryName="Realm" Errors="DeleteEntryModalViewModel.Errors"
+      IsReady="DeleteEntryModalViewModel.IsReady" OnDelete="HandleDelete">
+      Do you want to delete this Realm? This action cannot be undone. You must first remove the following entities that reference this Realm:
+      <ul>
+        <li>Robots</li>
+        <li>Waypoints</li>
+        <li>Tasks (Running/Waiting/Template)</li>
+      </ul>
+    </DeleteEntryModal>
   }
-</AuthorizeView>
+  </AuthorizeView>

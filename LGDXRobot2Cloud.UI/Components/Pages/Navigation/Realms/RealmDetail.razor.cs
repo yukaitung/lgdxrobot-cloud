@@ -3,6 +3,7 @@ using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
+using LGDXRobot2Cloud.UI.ViewModels.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
@@ -31,6 +32,7 @@ public sealed partial class RealmDetail : ComponentBase
 
   private int CurrentRealmId { get; set; } = 0;
   private RealmDetailViewModel RealmDetailViewModel { get; set; } = new();
+  private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -85,6 +87,20 @@ public sealed partial class RealmDetail : ComponentBase
     NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
   }
 
+  public async Task HandleTestDelete()
+  {
+    DeleteEntryModalViewModel.Errors?.Clear();
+    try
+    {
+      await LgdxApiClient.Navigation.Realms[(int)Id!].TestDelete.PostAsync();
+      DeleteEntryModalViewModel.IsReady = true;
+    }
+    catch (ApiException ex)
+    {
+      DeleteEntryModalViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
+  }
+
   public async Task HandleDelete()
   {
     try
@@ -93,7 +109,7 @@ public sealed partial class RealmDetail : ComponentBase
     }
     catch (ApiException ex)
     {
-      RealmDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      DeleteEntryModalViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
   }
