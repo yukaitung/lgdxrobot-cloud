@@ -85,30 +85,21 @@ public sealed partial class RealmDetail : ComponentBase
     NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
   }
 
-  protected override void OnInitialized()
+  public override async Task SetParametersAsync(ParameterView parameters)
   {
-    _editContext = new EditContext(RealmDetailViewModel);
-    _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
-    base.OnInitializedAsync();
-  }
-
-  protected override async Task OnAfterRenderAsync(bool firstRender)
-  {
-    if (firstRender && Id != null)
+    parameters.SetParameterProperties(this);
+    if (parameters.TryGetValue<int?>(nameof(Id), out var _id) && _id != null)
     {
-      try 
-      {
-        var response = await LgdxApiClient.Navigation.Realms[(int)Id].GetAsync();
-        RealmDetailViewModel.FromDto(response!);
-        _editContext = new EditContext(RealmDetailViewModel);
-        _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
-      }
-      catch (ApiException ex)
-      {
-        RealmDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
-        StateHasChanged();
-      }
+      var response = await LgdxApiClient.Navigation.Realms[(int)_id].GetAsync();
+      RealmDetailViewModel.FromDto(response!);
+      _editContext = new EditContext(RealmDetailViewModel);
+      _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
     }
-    await base.OnAfterRenderAsync(firstRender);
+    else
+    {
+      _editContext = new EditContext(RealmDetailViewModel);
+      _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+    }
+    await base.SetParametersAsync(ParameterView.Empty);
   }
 }
