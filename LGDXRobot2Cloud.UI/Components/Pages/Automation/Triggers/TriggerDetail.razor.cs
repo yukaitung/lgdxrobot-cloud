@@ -3,7 +3,6 @@ using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.ViewModels.Automation;
-using MassTransit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;

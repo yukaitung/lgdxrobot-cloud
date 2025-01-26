@@ -86,13 +86,19 @@
           </div>
         </div>
       </div>
-      <div class="card-footer d-flex">
+      <div class="card-footer d-flex align-items-center">
         <AuthorizeView Policy="@Permissions.Navigation.Realms.Delete" Context="DeleteModal">
-          @if (Id != null)
+          @if (Id != null && Id != CurrentRealmId)
           {
             <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
               Delete
             </a>
+          }
+          else if (Id != null)
+          {
+            <p class="m-0 text-secondary">
+              Change the realm to delete
+            </p>
           }
         </AuthorizeView>
         <AuthorizeView Policy="@Permissions.Navigation.Realms.Write" Context="Write">

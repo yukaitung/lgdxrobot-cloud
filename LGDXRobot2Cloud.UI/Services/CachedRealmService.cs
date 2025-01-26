@@ -11,6 +11,7 @@ public interface ICachedRealmService
 {
   Task<RealmDto> GetDefaultRealmAsync();
   Task<RealmDto> GetCurrrentRealmAsync(int realmId);
+  void ClearCache(int realmId);
 
   string GetRealmName(int realmId);
 }
@@ -95,6 +96,16 @@ public sealed class CachedRealmService (
     else
     {
       return string.Empty;
+    }
+  }
+
+  public void ClearCache(int realmId)
+  {
+    _memoryCache.Remove($"RealmService_GetCurrrentRealmAsync_{realmId}");
+    var defaultRealm = _memoryCache.Get<RealmDto?>($"RealmService_GetDefaultRealm");
+    if (defaultRealm != null && defaultRealm.Id == realmId)
+    {
+      _memoryCache.Remove($"RealmService_GetDefaultRealm");
     }
   }
 }

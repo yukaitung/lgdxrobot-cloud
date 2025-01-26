@@ -1,8 +1,10 @@
 using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
+using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Kiota.Abstractions;
 
@@ -15,9 +17,19 @@ public sealed partial class RealmDetail : ComponentBase
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
 
+  [Inject]
+  public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
   [Parameter]
   public int? Id { get; set; }
 
+  private int CurrentRealmId { get; set; } = 0;
   private RealmDetailViewModel RealmDetailViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
@@ -58,6 +70,7 @@ public sealed partial class RealmDetail : ComponentBase
       {
         // Update
         await LgdxApiClient.Navigation.Realms[(int)Id].PutAsync(RealmDetailViewModel.ToUpdateDto());
+        CachedRealmService.ClearCache((int)Id);
       }
       else
       {
@@ -83,6 +96,14 @@ public sealed partial class RealmDetail : ComponentBase
       RealmDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
+  }
+
+  protected override void OnInitialized()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    CurrentRealmId = settings.CurrentRealmId;
+    base.OnInitializedAsync();
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
