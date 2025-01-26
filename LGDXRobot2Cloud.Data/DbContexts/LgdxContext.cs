@@ -50,6 +50,11 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
       .OnDelete(DeleteBehavior.Cascade)
       .IsRequired();
     modelBuilder.Entity<AutoTask>()
+      .HasOne(e => e.Realm)
+      .WithMany()
+      .OnDelete(DeleteBehavior.Cascade)
+      .IsRequired();
+    modelBuilder.Entity<AutoTask>()
       .HasOne(e => e.AssignedRobot)
       .WithMany(e => e.AssignedTasks)
       .HasForeignKey(e => e.AssignedRobotId)
