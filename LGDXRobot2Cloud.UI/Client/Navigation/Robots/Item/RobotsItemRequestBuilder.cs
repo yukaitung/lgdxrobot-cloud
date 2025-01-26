@@ -4,6 +4,7 @@ using LGDXRobot2Cloud.UI.Client.Models;
 using LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item.Chassis;
 using LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item.EmergencyStop;
 using LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement;
+using LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item.TestDelete;
 using Microsoft.Kiota.Abstractions.Extensions;
 using Microsoft.Kiota.Abstractions.Serialization;
 using Microsoft.Kiota.Abstractions;
@@ -35,6 +36,11 @@ namespace LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item
         {
             get => new global::LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement.PauseTaskAssigementRequestBuilder(PathParameters, RequestAdapter);
         }
+        /// <summary>The TestDelete property</summary>
+        public global::LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item.TestDelete.TestDeleteRequestBuilder TestDelete
+        {
+            get => new global::LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item.TestDelete.TestDeleteRequestBuilder(PathParameters, RequestAdapter);
+        }
         /// <summary>
         /// Instantiates a new <see cref="global::LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item.RobotsItemRequestBuilder"/> and sets the default values.
         /// </summary>
@@ -53,6 +59,7 @@ namespace LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item
         }
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
+        /// <exception cref="global::LGDXRobot2Cloud.UI.Client.Models.ValidationProblemDetails">When receiving a 400 status code</exception>
         /// <exception cref="global::LGDXRobot2Cloud.UI.Client.Models.ProblemDetails">When receiving a 404 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -66,6 +73,7 @@ namespace LGDXRobot2Cloud.UI.Client.Navigation.Robots.Item
             var requestInfo = ToDeleteRequestInformation(requestConfiguration);
             var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
             {
+                { "400", global::LGDXRobot2Cloud.UI.Client.Models.ValidationProblemDetails.CreateFromDiscriminatorValue },
                 { "404", global::LGDXRobot2Cloud.UI.Client.Models.ProblemDetails.CreateFromDiscriminatorValue },
             };
             await RequestAdapter.SendNoContentAsync(requestInfo, errorMapping, cancellationToken).ConfigureAwait(false);
