@@ -41,7 +41,7 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
     {
       relationship.DeleteBehavior = DeleteBehavior.Restrict;
     }
-    
+
     // Automation.AutoTasks
     modelBuilder.Entity<AutoTask>()
       .HasMany(e => e.AutoTaskDetails)
@@ -56,6 +56,26 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
       .HasForeignKey(e => e.FlowId)
       .OnDelete(DeleteBehavior.Cascade)
       .IsRequired();
+    // Automation.TriggerRetries
+    modelBuilder.Entity<TriggerRetry>()
+      .HasOne(e => e.Trigger)
+      .WithMany()
+      .HasForeignKey(e => e.TriggerId)
+      .IsRequired(true)
+      .OnDelete(DeleteBehavior.Cascade);
+    modelBuilder.Entity<TriggerRetry>()
+      .HasOne(e => e.AutoTask)
+      .WithMany()
+      .HasForeignKey(e => e.AutoTaskId)
+      .IsRequired(true)
+      .OnDelete(DeleteBehavior.Cascade);
+    // Automation.Triggers
+    modelBuilder.Entity<Trigger>()
+      .HasOne(e => e.ApiKey)
+      .WithMany()
+      .HasForeignKey(e => e.ApiKeyId)
+      .IsRequired(false)
+      .OnDelete(DeleteBehavior.SetNull);
    
     // Navigation.Robots
     modelBuilder.Entity<Robot>()
