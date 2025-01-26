@@ -132,6 +132,7 @@ public static class TriggerDetailViewModelExtensions
     triggerDetailViewModel.HttpMethodId = (int)triggerDto.HttpMethodId!;
     triggerDetailViewModel.BodyDataList = TriggerDetailViewModel.GenerateBodyDataList(triggerDto.Body?.ToString() ?? string.Empty);
     triggerDetailViewModel.SkipOnFailure = (bool)triggerDto.SkipOnFailure!;
+    triggerDetailViewModel.ApiKeyRequired = triggerDto.ApiKey != null;
     triggerDetailViewModel.ApiKeyInsertLocationId = (int)triggerDto.ApiKeyInsertLocationId!;
     triggerDetailViewModel.ApiKeyFieldName = triggerDto.ApiKeyFieldName;
     triggerDetailViewModel.ApiKeyId = triggerDto.ApiKey?.Id;
