@@ -3,6 +3,7 @@ using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.Services;
 using LGDXRobot2Cloud.UI.ViewModels.Navigation;
+using LGDXRobot2Cloud.UI.ViewModels.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
@@ -31,6 +32,7 @@ public sealed partial class WaypointDetail : ComponentBase
   public int? Id { get; set; }
 
   private WaypointDetailViewModel WaypointDetailViewModel { get; set; } = new();
+  private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -48,12 +50,26 @@ public sealed partial class WaypointDetail : ComponentBase
         // Create
         await LgdxApiClient.Navigation.Waypoints.PostAsync(WaypointDetailViewModel.ToCreateDto());
       }
+      NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
     }
     catch (ApiException ex)
     {
       WaypointDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
+  }
+
+  public async Task HandleTestDelete()
+  {
+    DeleteEntryModalViewModel.Errors = null;
+    try
+    {
+      await LgdxApiClient.Navigation.Waypoints[(int)Id!].TestDelete.PostAsync();
+      DeleteEntryModalViewModel.IsReady = true;
+    }
+    catch (ApiException ex)
+    {
+      DeleteEntryModalViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
   }
 
   public async Task HandleDelete()
@@ -61,12 +77,12 @@ public sealed partial class WaypointDetail : ComponentBase
     try
     {
       await LgdxApiClient.Navigation.Waypoints[(int)Id!].DeleteAsync();
+      NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
     }
     catch (ApiException ex)
     {
       WaypointDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
   }
 
   protected override async Task OnInitializedAsync()

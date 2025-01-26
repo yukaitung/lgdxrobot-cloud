@@ -31,7 +31,11 @@ public static class ApiHelper
 		}
 		else if (apiException is ProblemDetails problemDetails)
 		{
-			errorDictionary.Add("", $"The service returned an unexpected error: {problemDetails.Title}");
+			errorDictionary.Add(string.Empty, $"The service returned an unexpected error: {problemDetails.Title}");
+		}
+		else
+		{
+			errorDictionary.Add(string.Empty, $"The service returned an unexpected status code: {apiException.ResponseStatusCode}");
 		}
 		return errorDictionary;
 	}

@@ -49,6 +49,12 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
       .HasForeignKey(e => e.AutoTaskId)
       .OnDelete(DeleteBehavior.Cascade)
       .IsRequired();
+    modelBuilder.Entity<AutoTaskDetail>()
+      .HasOne(e => e.AutoTask)
+      .WithMany()
+      .HasForeignKey(e => e.WaypointId)
+      .OnDelete(DeleteBehavior.SetNull)
+      .IsRequired(false);
     // Automation.FlowDetails
     modelBuilder.Entity<Flow>()
       .HasMany(e => e.FlowDetails)

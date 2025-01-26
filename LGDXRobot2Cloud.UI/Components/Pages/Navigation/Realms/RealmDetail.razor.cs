@@ -79,17 +79,17 @@ public sealed partial class RealmDetail : ComponentBase
         // Create
         await LgdxApiClient.Navigation.Realms.PostAsync(RealmDetailViewModel.ToCreateDto());
       }
+      NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
     }
     catch (ApiException ex)
     {
       RealmDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
   }
 
   public async Task HandleTestDelete()
   {
-    DeleteEntryModalViewModel.Errors?.Clear();
+    DeleteEntryModalViewModel.Errors = null;
     try
     {
       await LgdxApiClient.Navigation.Realms[(int)Id!].TestDelete.PostAsync();
@@ -106,12 +106,12 @@ public sealed partial class RealmDetail : ComponentBase
     try
     {
       await LgdxApiClient.Navigation.Realms[(int)Id!].DeleteAsync();
+      NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
     }
     catch (ApiException ex)
     {
-      DeleteEntryModalViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      RealmDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
   }
 
   protected override void OnInitialized()
