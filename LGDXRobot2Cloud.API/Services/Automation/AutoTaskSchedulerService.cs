@@ -292,9 +292,15 @@ public class AutoTaskSchedulerMySQLService(
     return task;
   }
 
+  private async Task DeleteTriggerRetries(int taskId)
+  {
+    await _context.TriggerRetries.Where(tr => tr.AutoTaskId == taskId).ExecuteDeleteAsync();
+  }
+
   public async Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason)
   {
     var task = await AutoTaskAbortSqlAsync(taskId, robotId, token);
+    await DeleteTriggerRetries(taskId);
     await _emailService.SendAutoTaskAbortEmailAsync(robotId, taskId, autoTaskAbortReason);
     return await GenerateTaskDetail(task);
   }
@@ -304,7 +310,8 @@ public class AutoTaskSchedulerMySQLService(
     var task = await AutoTaskAbortSqlAsync(taskId);
     if (task == null)
       return false;
-
+      
+    await DeleteTriggerRetries(taskId);
     await _emailService.SendAutoTaskAbortEmailAsync((Guid)task!.AssignedRobotId!, taskId, AutoTaskAbortReason.UserApi);
     return true;
   }
