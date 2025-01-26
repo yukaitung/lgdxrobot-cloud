@@ -11,9 +11,9 @@ public record AutoTaskBusinessModel
 
   public required int Priority { get; set; }
 
-  public required int FlowId { get; set; }
+  public int? FlowId { get; set; }
 
-  public required string FlowName { get; set; }
+  public string? FlowName { get; set; }
 
   public required int RealmId { get; set; }
 
@@ -39,8 +39,8 @@ public static class AutoTaskBusinessModelExtensions
       Name = model.Name,
       Priority = model.Priority,
       Flow = new FlowSearchDto {
-        Id = model.FlowId,
-        Name = model.FlowName,
+        Id = model.FlowId ?? 0,
+        Name = model.FlowName ?? "Deleted Flow",
       },
       Realm = new RealmSearchDto {
         Id = model.RealmId,
@@ -64,8 +64,8 @@ public static class AutoTaskBusinessModelExtensions
       Id = model.Id,
       Name = model.Name,
       Priority = model.Priority,
-      FlowId = model.FlowId,
-      FlowName = model.FlowName,
+      FlowId = model.FlowId ?? 0,
+      FlowName = model.FlowName ?? "Deleted Flow",
       RealmId = model.RealmId,
       AssignedRobotId = model.AssignedRobotId,
       AssignedRobotName = model.AssignedRobotName,

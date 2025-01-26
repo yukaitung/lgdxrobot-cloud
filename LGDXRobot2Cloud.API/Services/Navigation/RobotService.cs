@@ -125,7 +125,7 @@ public class RobotService(
           Name = t.Name,
           Priority = t.Priority,
           FlowId = t.FlowId,
-          FlowName = t.Flow.Name,
+          FlowName = t.Flow!.Name,
           RealmId = r.RealmId,
           RealmName = r.Realm.Name,
           AssignedRobotId = r.Id,

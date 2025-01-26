@@ -10,9 +10,9 @@ public record AutoTaskListBusinessModel
 
   public required int Priority { get; set; }
 
-  public required int FlowId { get; set; }
+  public int? FlowId { get; set; }
 
-  public required string FlowName { get; set; }
+  public string? FlowName { get; set; }
 
   public required int RealmId { get; set; }
 
@@ -36,8 +36,8 @@ public static class AutoTaskListBusinessModelExtensions
       Name = model.Name,
       Priority = model.Priority,
       Flow = new FlowSearchDto {
-        Id = model.FlowId,
-        Name = model.FlowName,
+        Id = model.FlowId ?? 0,
+        Name = model.FlowName ?? "Deleted Flow",
       },
       Realm = new RealmSearchDto {
         Id = model.RealmId,

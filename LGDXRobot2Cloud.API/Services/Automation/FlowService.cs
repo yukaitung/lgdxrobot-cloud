@@ -2,6 +2,7 @@ using LGDXRobot2Cloud.API.Exceptions;
 using LGDXRobot2Cloud.Data.DbContexts;
 using LGDXRobot2Cloud.Data.Entities;
 using LGDXRobot2Cloud.Data.Models.Business.Automation;
+using LGDXRobot2Cloud.Utilities.Enums;
 using LGDXRobot2Cloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
@@ -165,10 +166,13 @@ public class FlowService(LgdxContext context) : IFlowService
 
   public async Task<bool> TestDeleteFlowAsync(int flowId)
   {
-    var depeendencies = await _context.AutoTasks.Where(a => a.FlowId == flowId).CountAsync();
+    var depeendencies = await _context.AutoTasks
+      .Where(a => a.FlowId == flowId)
+      .Where(a => a.CurrentProgressId != (int)ProgressState.Completed && a.CurrentProgressId != (int)ProgressState.Aborted)
+      .CountAsync();
     if (depeendencies > 0)
     {
-      throw new LgdxValidation400Expection(nameof(flowId), $"This flow has been used by {depeendencies} tasks.");
+      throw new LgdxValidation400Expection(nameof(flowId), $"This flow has been used by {depeendencies} running/waiting/template tasks.");
     }
     return true;
   }

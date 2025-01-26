@@ -20,9 +20,9 @@ public class AutoTask
   public int Priority { get; set; }
 
   [ForeignKey("FlowId")]
-  public Flow Flow { get; set; } = null!;
+  public Flow? Flow { get; set; } = null!;
 
-  public int FlowId { get; set; }
+  public int? FlowId { get; set; }
 
   [ForeignKey("RealmId")]
   public Realm Realm { get; set; } = null!;

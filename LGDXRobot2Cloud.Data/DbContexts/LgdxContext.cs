@@ -55,6 +55,12 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
       .HasForeignKey(e => e.AssignedRobotId)
       .IsRequired(false)
       .OnDelete(DeleteBehavior.SetNull);
+    modelBuilder.Entity<AutoTask>()
+      .HasOne(e => e.Flow)
+      .WithMany()
+      .HasForeignKey(e => e.FlowId)
+      .IsRequired(false)
+      .OnDelete(DeleteBehavior.SetNull);
     modelBuilder.Entity<AutoTaskDetail>()
       .HasOne(e => e.AutoTask)
       .WithMany()
