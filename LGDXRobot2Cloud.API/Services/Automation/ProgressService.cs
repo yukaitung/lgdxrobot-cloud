@@ -16,7 +16,7 @@ public interface IProgressService
   Task<bool> TestDeleteProgressAsync(int progressId);
   Task<bool> DeleteProgressAsync(int progressId);
   
-  Task<IEnumerable<ProgressSearchBusinessModel>> SearchProgressesAsync(string? name);
+  Task<IEnumerable<ProgressSearchBusinessModel>> SearchProgressesAsync(string? name, bool reserved = false);
 }
 
 public class ProgressService(LgdxContext context) : IProgressService
@@ -141,28 +141,16 @@ public class ProgressService(LgdxContext context) : IProgressService
       .ExecuteDeleteAsync() >= 1;
   }
 
-  public async Task<IEnumerable<ProgressSearchBusinessModel>> SearchProgressesAsync(string? name)
+  public async Task<IEnumerable<ProgressSearchBusinessModel>> SearchProgressesAsync(string? name, bool reserved)
   {
-    if (string.IsNullOrWhiteSpace(name))
-    {
-      return await _context.Progresses.AsNoTracking()
-        .Take(10)
-        .Select(t => new ProgressSearchBusinessModel {
-          Id = t.Id,
-          Name = t.Name,
-        })
-        .ToListAsync();
-    }
-    else
-    {
-      return await _context.Progresses.AsNoTracking()
-        .Where(w => w.Name.Contains(name))
-        .Take(10)
-        .Select(t => new ProgressSearchBusinessModel {
-          Id = t.Id,
-          Name = t.Name,
-        })
-        .ToListAsync();
-    }
+    return await _context.Progresses.AsNoTracking()
+      .Where(t => string.IsNullOrWhiteSpace(name) || t.Name.Contains(name))
+      .Where(t => t.Reserved == reserved)
+      .Take(10)
+      .Select(t => new ProgressSearchBusinessModel {
+        Id = t.Id,
+        Name = t.Name,
+      })
+      .ToListAsync();
   }
 }
