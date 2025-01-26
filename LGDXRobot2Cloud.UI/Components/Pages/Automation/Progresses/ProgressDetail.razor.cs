@@ -2,6 +2,7 @@ using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.ViewModels.Automation;
+using LGDXRobot2Cloud.UI.ViewModels.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Kiota.Abstractions;
@@ -20,6 +21,7 @@ public sealed partial class ProgressDetail : ComponentBase
   public int? Id { get; set; }
 
   private ProgressDetailViewModel ProgressDetailViewModel { get; set; } = new();
+  private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -37,12 +39,26 @@ public sealed partial class ProgressDetail : ComponentBase
         // Create
         await LgdxApiClient.Automation.Progresses.PostAsync(ProgressDetailViewModel.ToCreateDto());
       }
+      NavigationManager.NavigateTo(AppRoutes.Automation.Progresses.Index);
     }
     catch (ApiException ex)
     {
       ProgressDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Automation.Progresses.Index);
+  }
+
+  public async Task HandleTestDelete()
+  {
+    DeleteEntryModalViewModel.Errors = null;
+    try
+    {
+      await LgdxApiClient.Automation.Progresses[ProgressDetailViewModel.Id].TestDelete.PostAsync();
+      DeleteEntryModalViewModel.IsReady = true;
+    }
+    catch (ApiException ex)
+    {
+      DeleteEntryModalViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
   }
 
   public async Task HandleDelete()
@@ -50,12 +66,12 @@ public sealed partial class ProgressDetail : ComponentBase
     try
     {
       await LgdxApiClient.Automation.Progresses[ProgressDetailViewModel.Id].DeleteAsync();
+      NavigationManager.NavigateTo(AppRoutes.Automation.Progresses.Index);
     }
     catch (ApiException ex)
     {
       ProgressDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Automation.Progresses.Index);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)

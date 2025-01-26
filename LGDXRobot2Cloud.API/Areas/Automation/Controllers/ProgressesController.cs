@@ -27,10 +27,10 @@ public sealed class ProgressesController(
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<ProgressDto>), StatusCodes.Status200OK)]
-  public async Task<ActionResult<IEnumerable<ProgressDto>>> GetProgresses(string? name, int pageNumber = 1, int pageSize = 10, bool hideReserved = false, bool hideSystem = false)
+  public async Task<ActionResult<IEnumerable<ProgressDto>>> GetProgresses(string? name, int pageNumber = 1, int pageSize = 10, bool system = false)
   {
     pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
-    var (progresses, PaginationHelper) = await _progressService.GetProgressesAsync(name, pageNumber, pageSize, hideReserved, hideSystem);
+    var (progresses, PaginationHelper) = await _progressService.GetProgressesAsync(name, pageNumber, pageSize, system);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(progresses.ToDto());
   }
@@ -39,7 +39,7 @@ public sealed class ProgressesController(
   [ProducesResponseType(typeof(IEnumerable<ProgressSearchDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<ProgressSearchDto>>> SearchProgresses(string? name, bool reserved = false)
   {
-    var progresses = await _progressService.SearchProgressesAsync(name);
+    var progresses = await _progressService.SearchProgressesAsync(name, reserved);
     return Ok(progresses.ToDto());
   }
 

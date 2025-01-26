@@ -9,7 +9,7 @@ namespace LGDXRobot2Cloud.API.Services.Automation;
 
 public interface IProgressService
 {
-  Task<(IEnumerable<ProgressBusinessModel>, PaginationHelper)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved, bool hideSystem);
+  Task<(IEnumerable<ProgressBusinessModel>, PaginationHelper)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool system = false);
   Task<ProgressBusinessModel> GetProgressAsync(int progressId);
   Task<ProgressBusinessModel> CreateProgressAsync(ProgressCreateBusinessModel progressCreateBusinessModel);
   Task<bool> UpdateProgressAsync(int progressId, ProgressUpdateBusinessModel progressUpdateBusinessModel);
@@ -23,7 +23,7 @@ public class ProgressService(LgdxContext context) : IProgressService
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-  public async Task<(IEnumerable<ProgressBusinessModel>, PaginationHelper)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool hideReserved, bool hideSystem)
+  public async Task<(IEnumerable<ProgressBusinessModel>, PaginationHelper)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool system)
   {
     var query = _context.Progresses as IQueryable<Progress>;
     if (!string.IsNullOrWhiteSpace(name))
@@ -31,14 +31,7 @@ public class ProgressService(LgdxContext context) : IProgressService
       name = name.Trim();
       query = query.Where(t => t.Name.Contains(name));
     }
-    if (hideReserved)
-    {
-      query = query.Where(t => !t.Reserved);
-    }
-    if (hideSystem)
-    {
-      query = query.Where(t => !t.System);
-    }
+    query = query.Where(t => t.System == system);
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
     var progresses = await query.AsNoTracking()
@@ -113,13 +106,9 @@ public class ProgressService(LgdxContext context) : IProgressService
     var depeendencies = await _context.FlowDetails.Where(t => t.ProgressId == progressId).CountAsync();
     if (depeendencies > 0)
     {
-      throw new LgdxValidation400Expection(nameof(progressId), $"This progress has been used by {depeendencies} flows.");
+      throw new LgdxValidation400Expection(nameof(progressId), $"This progress has been used by {depeendencies} details in flows.");
     }
-    depeendencies = await _context.AutoTasks.Where(t => t.CurrentProgressId == progressId).CountAsync(); // Don't care if it is running
-    if (depeendencies > 0)
-    {
-      throw new LgdxValidation400Expection(nameof(progressId), $"This progress has been used by {depeendencies} tasks.");
-    }
+    // Don't check AutoTasks because it dependes on the Flow/FlowDetails
 
     return true;
   }
