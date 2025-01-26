@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
 [Table("Automation.FlowDetails")]
+[Index(nameof(Order))]
 public class FlowDetail
 {
   [Key]

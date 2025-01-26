@@ -37,46 +37,66 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
-    // One AutoTask has many AutoTaskDetails
+    foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+    {
+      relationship.DeleteBehavior = DeleteBehavior.Restrict;
+    }
+    
+    // Automation.AutoTasks
     modelBuilder.Entity<AutoTask>()
       .HasMany(e => e.AutoTaskDetails)
       .WithOne(e => e.AutoTask)
       .HasForeignKey(e => e.AutoTaskId)
+      .OnDelete(DeleteBehavior.Cascade)
       .IsRequired();
-    // One Robot has many AutoTasks
+    // Automation.FlowDetails
+    modelBuilder.Entity<Flow>()
+      .HasMany(e => e.FlowDetails)
+      .WithOne(e => e.Flow)
+      .HasForeignKey(e => e.FlowId)
+      .OnDelete(DeleteBehavior.Cascade)
+      .IsRequired();
+   
+    // Navigation.Robots
     modelBuilder.Entity<Robot>()
       .HasMany(e => e.AssignedTasks)
       .WithOne(e => e.AssignedRobot)
       .HasForeignKey(e => e.AssignedRobotId)
       .IsRequired(false)
       .OnDelete(DeleteBehavior.SetNull);
-    // One Robot has one RobotSystemInfo
     modelBuilder.Entity<Robot>()
       .HasOne(e => e.RobotSystemInfo)
       .WithOne(e => e.Robot)
       .HasForeignKey<RobotSystemInfo>(e => e.RobotId)
       .IsRequired(false)
       .OnDelete(DeleteBehavior.Cascade);
-    // One Robot has one RobotChassisInfo
     modelBuilder.Entity<Robot>()
       .HasOne(e => e.RobotChassisInfo)
       .WithOne(e => e.Robot)
       .HasForeignKey<RobotChassisInfo>(e => e.RobotId)
       .IsRequired(false)
       .OnDelete(DeleteBehavior.Cascade);
-    // One Robot has one RobotCertificate
     modelBuilder.Entity<Robot>()
       .HasOne(e => e.RobotCertificate)
       .WithOne(e => e.Robot)
       .HasForeignKey<RobotCertificate>(e => e.RobotId)
       .IsRequired()
       .OnDelete(DeleteBehavior.Cascade);
-    // One Flow has many FlowDetails
-    modelBuilder.Entity<Flow>()
-      .HasMany(e => e.FlowDetails)
-      .WithOne(e => e.Flow)
-      .HasForeignKey(e => e.FlowId)
-      .IsRequired();
+
+    modelBuilder.Entity<Realm>().HasData(
+      new Realm
+      {
+        Id = 1,
+        Name = "First Realm",
+        Description = "Please update this realm",
+        Image = [],
+        Resolution = 0,
+        OriginX = 0,
+        OriginY = 0,
+        OriginRotation = 0,
+      }
+    );
+    
     modelBuilder.Entity<Progress>().HasData(
       new Progress
       {

@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Entities;
 
 [Table("Automation.AutoTasks")]
+[Index(nameof(RealmId), nameof(AssignedRobotId))]
 public class AutoTask
 {
   [Key]
