@@ -9,7 +9,7 @@ public record ApiKeySecretBusinessModel
 
 public static class ApiKeySecretBusinessModelExtensions
 {
-  public static ApiKeySecretDto ToBusinessModel(this ApiKeySecretBusinessModel apiKeySecretDto)
+  public static ApiKeySecretDto ToDto(this ApiKeySecretBusinessModel apiKeySecretDto)
   {
     return new ApiKeySecretDto
     {

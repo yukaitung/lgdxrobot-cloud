@@ -91,7 +91,7 @@ public sealed class ApiKeysController(
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<ApiKeySecretDto>> GetApiKeySecret(int id)
   {
-    var apiKey = await _apiKeyService.GetApiKeyAsync(id);
+    var apiKey = await _apiKeyService.GetApiKeySecretAsync(id);
     return Ok(apiKey.ToDto());
   }
 
