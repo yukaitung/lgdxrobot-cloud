@@ -6,23 +6,63 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<base href="/" />
 	<link rel="stylesheet" href="libs/tabler/dist/css/tabler.min.css">
-	<link rel="stylesheet" href="libs/tabler/dist/css/tabler-vendors.min.css">
-	<link rel="stylesheet" href="libs/tabler-icons/dist/tabler-icons.min.css" />
-	<link rel="stylesheet" href="css/lgdx.css">
-	<link href="LGDXRobot2Cloud.UI.styles.css" rel="stylesheet">
+	@if (!IsStatic)
+	{
+		<link rel="stylesheet" href="libs/tabler-icons/dist/tabler-icons.min.css" />
+		<link rel="stylesheet" href="libs/tabler/dist/css/tabler-vendors.min.css">
+		<link rel="stylesheet" href="css/lgdx.css">
+		<link href="LGDXRobot2Cloud.UI.styles.css" rel="stylesheet">
+	}
 	<link rel="icon" type="image/png" href="favicon.png" />
-	<HeadOutlet />
+	@if (IsStatic)
+	{
+		<HeadOutlet />
+	}
+	else
+	{
+		<HeadOutlet @rendermode="@RenderMode.InteractiveServer"/>
+	}
 </head>
 
 <body>
-	<Routes />
-	<script src="libs/tabler/dist/js/tabler.min.js"></script>
-	<script src="libs/tabler/dist/libs/tom-select/dist/js/tom-select.base.min.js" defer=""></script>
-	<script src="_framework/blazor.web.js"></script>
-	<script src="js/site.js"></script>
-	<script src="libs/two.js/build/two.min.js"></script>
-	<script src="libs/two.js/extras/js/zui.js"></script>
-	<script src="js/navigation-map.js"></script>
+	@if (IsStatic)
+	{
+		<Routes />
+	}
+	else
+	{
+		<Routes @rendermode="@RenderMode.InteractiveServer"/>
+		<script src="libs/tabler/dist/js/tabler.min.js"></script>
+		<script src="libs/tabler/dist/libs/tom-select/dist/js/tom-select.base.min.js" defer=""></script>
+		<script src="_framework/blazor.web.js"></script>
+		<script src="js/site.js"></script>
+		<script src="libs/two.js/build/two.min.js"></script>
+		<script src="libs/two.js/extras/js/zui.js"></script>
+		<script src="js/navigation-map.js"></script>
+	}
 </body>
 
 </html>
+
+@code {
+	[Inject]
+	private NavigationManager NavigationManager { get; set; } = default!;
+
+	private bool IsStatic { get; set; } = false;
+
+	private static readonly List<string> ExcludePaths = [AppRoutes.Identity.Login, AppRoutes.Identity.ForgotPassword, AppRoutes.Identity.ResetPassword];
+
+	protected override void OnInitialized()
+	{
+		var leftPath = new Uri(NavigationManager.Uri).GetLeftPart(UriPartial.Path);
+		var path = leftPath.Replace(NavigationManager.BaseUri, string.Empty);
+		if (!path.StartsWith('/'))
+		{
+			path = '/' + path;
+		}
+		if (ExcludePaths.Contains(path))
+		{
+			IsStatic = true;
+		}
+	}
+}

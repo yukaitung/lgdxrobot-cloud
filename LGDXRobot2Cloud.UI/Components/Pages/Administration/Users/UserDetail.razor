@@ -1,7 +1,6 @@
 @attribute [Route(AppRoutes.Administration.Users.Detail)]
 @attribute [Route(AppRoutes.Administration.Users.Create)]
 @attribute [Authorize (Policy = Permissions.Administration.Users.Read)]
-@rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit User" : "Create User")">
   <div class="row align-items-center">

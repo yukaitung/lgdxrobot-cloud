@@ -2,7 +2,6 @@
 @attribute [Route(AppRoutes.Automation.Flows.Detail)]
 @attribute [Authorize (Policy = Permissions.Automation.Flows.Read)]
 @using LGDXRobot2Cloud.Utilities.Enums
-@rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Flow" : "Create Flow")">
   <div class="row align-items-center">

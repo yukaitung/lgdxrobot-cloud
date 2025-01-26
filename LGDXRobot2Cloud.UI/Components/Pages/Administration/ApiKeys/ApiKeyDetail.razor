@@ -1,7 +1,6 @@
 @attribute [Route(AppRoutes.Administration.ApiKeys.Detail)]
 @attribute [Route(AppRoutes.Administration.ApiKeys.Create)]
 @attribute [Authorize (Policy = Permissions.Administration.ApiKeys.Read)]
-@rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit API Key" : "Create API Key")">
   <div class="row align-items-center">

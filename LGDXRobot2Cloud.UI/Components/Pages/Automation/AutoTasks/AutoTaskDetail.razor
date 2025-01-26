@@ -3,7 +3,6 @@
 @attribute [Authorize (Policy = Permissions.Automation.AutoTasks.Read)]
 @using LGDXRobot2Cloud.Utilities.Enums
 @using LGDXRobot2Cloud.UI.Components.Pages.Automation.AutoTasks.Components
-@rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? (IsEditable() ? "Update Task" : "View Task") : "Create Task")">
   <div class="row align-items-center">

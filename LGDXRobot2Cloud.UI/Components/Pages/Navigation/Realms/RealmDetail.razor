@@ -1,7 +1,6 @@
 @attribute [Route(AppRoutes.Navigation.Realms.Create)]
 @attribute [Route(AppRoutes.Navigation.Realms.Detail)]
 @attribute [Authorize (Policy = Permissions.Navigation.Realms.Read)]
-@rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Realm" : "Create Realm")">
   <div class="row align-items-center">

@@ -2,7 +2,6 @@
 @attribute [Route(AppRoutes.Automation.Triggers.Detail)]
 @attribute [Authorize (Policy = Permissions.Automation.Triggers.Read)]
 @using LGDXRobot2Cloud.Utilities.Enums
-@rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Trigger" : "Create Trigger")">
   <div class="row align-items-center">

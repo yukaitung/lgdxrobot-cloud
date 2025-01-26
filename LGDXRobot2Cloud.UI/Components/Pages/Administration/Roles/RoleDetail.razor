@@ -2,7 +2,6 @@
 @attribute [Route(AppRoutes.Administration.Roles.Detail)]
 @attribute [Route(AppRoutes.Administration.Roles.Create)]
 @attribute [Authorize (Policy = Permissions.Administration.Roles.Read)]
-@rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Role" : "Create Role")">
   <div class="row align-items-center">

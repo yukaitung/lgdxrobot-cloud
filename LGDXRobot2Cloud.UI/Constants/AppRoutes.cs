@@ -15,8 +15,8 @@ public static class AppRoutes
 
   public static class Dashboards
   {
-    public const string Map = "Map";
-    public const string AutoTasks = "AutoTasks";
+    public const string Map = "/Map";
+    public const string AutoTasks = "/AutoTasks";
   }
 
   public static class Navigation

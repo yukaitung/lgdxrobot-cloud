@@ -1,7 +1,6 @@
 @attribute [Route(AppRoutes.Automation.Progresses.Create)]
 @attribute [Route(AppRoutes.Automation.Progresses.Detail)]
 @attribute [Authorize (Policy = Permissions.Automation.Progresses.Write)]
-@rendermode InteractiveServer
 
 <PageHeader Title="@(Id != null ? "Edit Progress" : "Create Progress")">
   <div class="row align-items-center">
