@@ -15,6 +15,13 @@
         @RealmName
       </div>
     </div>
+    <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write">
+      <div class="col-auto ms-auto">
+        <a href="@($"{AppRoutes.Automation.AutoTasks.Create}?ReturnUrl={AppRoutes.Dashboards.AutoTasks}")" type="button" class="btn btn-primary">
+          Create Task
+        </a>
+      </div>
+    </AuthorizeView>
   </div>
 </PageHeader>
 
