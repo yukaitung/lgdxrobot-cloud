@@ -3,6 +3,7 @@ using LGDXRobot2Cloud.UI.Client;
 using LGDXRobot2Cloud.UI.Constants;
 using LGDXRobot2Cloud.UI.Helpers;
 using LGDXRobot2Cloud.UI.ViewModels.Automation;
+using LGDXRobot2Cloud.UI.ViewModels.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
@@ -26,6 +27,7 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
 
   private DotNetObjectReference<TriggerDetail> ObjectReference = null!;
   private TriggerDetailViewModel TriggerDetailViewModel { get; set; } = new();
+  private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -82,12 +84,26 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
         // Create
         await LgdxApiClient.Automation.Triggers.PostAsync(TriggerDetailViewModel.ToCreateDto());
       }
+      NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
     }
     catch (ApiException ex)
     {
       TriggerDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
+  }
+
+  public async Task HandleTestDelete()
+  {
+    DeleteEntryModalViewModel.Errors = null;
+    try
+    {
+      await LgdxApiClient.Automation.Triggers[(int)Id!].TestDelete.PostAsync();
+      DeleteEntryModalViewModel.IsReady = true;
+    }
+    catch (ApiException ex)
+    {
+      DeleteEntryModalViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
   }
 
   public async Task HandleDelete()
@@ -95,12 +111,12 @@ public sealed partial class TriggerDetail : ComponentBase, IDisposable
     try
     {
       await LgdxApiClient.Automation.Triggers[(int)Id!].DeleteAsync();
+      NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
     }
     catch (ApiException ex)
     {
       TriggerDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
   }
 
   public void BodyAddStep()

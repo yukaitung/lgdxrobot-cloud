@@ -179,7 +179,7 @@
         <AuthorizeView Policy="@Permissions.Automation.Triggers.Delete" Context="DeleteButton">
           @if (Id != null)
           {
-            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" @onclick="HandleTestDelete">
               Delete
             </a>
           }
@@ -195,6 +195,12 @@
 <AuthorizeView Policy="@Permissions.Automation.Triggers.Delete" Context="DeleteModal">
   @if (Id != null)
   {
-    <DeleteEntryModal EntryName="Progress" OnDelete="HandleDelete" />
+    <DeleteEntryModal EntryName="Trigger" Errors="DeleteEntryModalViewModel.Errors"
+      IsReady="DeleteEntryModalViewModel.IsReady" OnDelete="HandleDelete">
+      Do you want to delete this Trigger? This action cannot be undone. You must first remove the following entities that reference this Trigger:
+      <ul>
+        <li>Details in Flows</li>
+      </ul>
+    </DeleteEntryModal>
   }
 </AuthorizeView>

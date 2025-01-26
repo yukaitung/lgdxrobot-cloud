@@ -27,12 +27,12 @@ public sealed partial class TriggerRetryDetail : ComponentBase
     try
     {
       await LgdxApiClient.Automation.TriggerRetries[(int)Id!].Retry.PostAsync();
+      NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
     }
     catch (ApiException ex)
     {
       Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
   }
 
   public async Task HandleDelete()
@@ -40,12 +40,12 @@ public sealed partial class TriggerRetryDetail : ComponentBase
     try
     {
       await LgdxApiClient.Automation.TriggerRetries[(int)Id!].DeleteAsync();
+      NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
     }
     catch (ApiException ex)
     {
       Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
-    NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
