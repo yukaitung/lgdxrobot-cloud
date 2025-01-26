@@ -98,9 +98,26 @@ function InitNavigationMap(dotNetObject)
 
 function AddRobot(robotId, x, y, rotation)
 {
-  var robot = TwoObject.makeCircle(_internalToMapX(x), _internalToMapY(y), 3);
-  robot.fill = '#FF8000';
-  robot.noStroke();
+  let teardrop = TwoObject.makeCurve(
+    0, -6,   // Top center
+    6, -1.5,  // Right curve control
+    0, 6,  // Bottom tip
+    0, 6,  // Bottom tip
+    -6, -1.5,   // Left curve control
+  );
+  teardrop.fill = _internalGuidToHslColor(robotId);
+  teardrop.stroke = 'none';
+
+  // Add a circular highlight at the top
+  let highlight = TwoObject.makeCircle(0, -2.5, 2);
+  highlight.fill = 'white';
+  highlight.opacity = 0.5;
+  highlight.noStroke();
+
+  let robot = TwoObject.makeGroup(teardrop, highlight);
+  robot.translation.set(_internalToMapX(x), _internalToMapY(y));
+  robot.rotation = _internalToMapRotation(rotation);
+
   TwoObject.add(robot);
   RobotObjects[robotId] = robot;
 }
@@ -110,9 +127,8 @@ function MoveRobot(robotId, x, y, rotation)
   if (!robotId in RobotObjects)
     return;
 
-  RobotObjects[robotId].position.x = _internalToMapX(x);
-  RobotObjects[robotId].position.y = _internalToMapY(y);  
-  //RobotObjects[robotId].rotation = rotation;
+  RobotObjects[robotId].translation.set(_internalToMapX(x), _internalToMapY(y));
+  RobotObjects[robotId].rotation = _internalToMapRotation(rotation);
 }
 
 /*
@@ -147,6 +163,11 @@ function _internalToMapX(x)
 function _internalToMapY(y)
 {
   return TwoObject.height * 0.5 + MapImage.height / 2 + (MAP_ORIGIN_Y - y) / MAP_RESOLUTION;
+}
+
+function _internalToMapRotation(rotation)
+{
+  return rotation - (Math.PI / 2) + MAP_ORIGIN_ROTATION;
 }
 
 function _internalZoom(scale)
@@ -316,4 +337,85 @@ function _internalAddZui()
     }
     distance = d;
   }
+}
+
+function _internalGuidToHslColor(guid) 
+{
+  // Remove dashes and take the first 6 characters from the GUID
+  const colorPart = guid.replace(/-/g, '').substring(0, 6);
+  
+  // If the GUID is shorter than 6 characters, fill with zeros
+  const colorHex = colorPart.padEnd(6, '0');
+  
+  // Convert the hex color to RGB
+  const r = parseInt(colorHex.substring(0, 2), 16);
+  const g = parseInt(colorHex.substring(2, 4), 16);
+  const b = parseInt(colorHex.substring(4, 6), 16);
+
+  // Convert RGB to HSL
+  const hsl = _internalRgbToHsl(r, g, b);
+
+  // Set saturation to 100% and value to 80%
+  hsl[1] = 1;  // 100% saturation
+  hsl[2] = 0.8; // 80% value
+
+  // Convert back to RGB and return the color
+  const rgb = _internalHslToRgb(hsl[0], hsl[1], hsl[2]);
+  
+  // Return the color in hex format
+  return _internalRgbToHex(rgb[0], rgb[1], rgb[2]);
+}
+
+function _internalRgbToHsl(r, g, b) {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+  let max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+      h = s = 0; // achromatic
+  } else {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+  }
+
+  return [h, s, l];
+}
+
+function _internalHslToRgb(h, s, l) {
+  let r, g, b;
+
+  if (s === 0) {
+      r = g = b = l; // achromatic
+  } else {
+      const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1 / 6) return p + (q - p) * 6 * t;
+          if (t < 1 / 2) return q;
+          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+          return p;
+      };
+
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+
+      r = hue2rgb(p, q, h + 1 / 3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1 / 3);
+  }
+
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+function _internalRgbToHex(r, g, b) {
+  return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).toUpperCase()}`;
 }

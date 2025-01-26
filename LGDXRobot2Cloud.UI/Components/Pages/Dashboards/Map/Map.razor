@@ -98,10 +98,10 @@
 <script>
   @if (Realm != null)
   { 
-    @($"var MAP_RESOLUTION = {Realm.Resolution};var MAP_ORIGIN_X = {Realm.OriginX};var MAP_ORIGIN_Y = {Realm.OriginY};")
+    @($"var MAP_RESOLUTION = {Realm.Resolution};var MAP_ORIGIN_X = {Realm.OriginX};var MAP_ORIGIN_Y = {Realm.OriginY};var MAP_ORIGIN_ROTATION = {Realm.OriginRotation};")
   }
   else
   {
-    @($"var MAP_RESOLUTION = 0;var MAP_ORIGIN_X = 0;var MAP_ORIGIN_Y = 0;")
+    @($"var MAP_RESOLUTION = 0;var MAP_ORIGIN_X = 0;var MAP_ORIGIN_Y = 0;var MAP_ORIGIN_ROTATION = 0")
   }
 </script>

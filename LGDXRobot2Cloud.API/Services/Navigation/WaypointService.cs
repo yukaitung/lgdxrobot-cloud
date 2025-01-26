@@ -83,12 +83,11 @@ public class WaypointService(LgdxContext context) : IWaypointService
 
   public async Task<WaypointBusinessModel> CreateWaypointAsync(WaypointCreateBusinessModel waypointCreateBusinessModel)
   {
-    var realm = await _context.Realms.Where(r => r.Id == waypointCreateBusinessModel.RealmId).AnyAsync();
-    if (realm == false)
-    {
-      throw new LgdxValidation400Expection(nameof(waypointCreateBusinessModel.RealmId), "Realm does not exist.");
-    }
-
+    var realm = await _context.Realms.AsNoTracking()
+      .Where(r => r.Id == waypointCreateBusinessModel.RealmId)
+      .FirstOrDefaultAsync() 
+        ?? throw new LgdxValidation400Expection(nameof(waypointCreateBusinessModel.RealmId), "Realm does not exist.");
+    
     var waypoint = new Waypoint {
       Name = waypointCreateBusinessModel.Name,
       RealmId = waypointCreateBusinessModel.RealmId,
@@ -106,7 +105,7 @@ public class WaypointService(LgdxContext context) : IWaypointService
       Id = waypoint.Id,
       Name = waypoint.Name,
       RealmId = waypoint.RealmId,
-      RealmName = waypoint.Realm.Name,
+      RealmName = realm.Name,
       X = waypoint.X,
       Y = waypoint.Y,
       Rotation = waypoint.Rotation,

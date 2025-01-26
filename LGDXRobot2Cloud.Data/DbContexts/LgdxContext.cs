@@ -67,7 +67,7 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
       .IsRequired(false)
       .OnDelete(DeleteBehavior.SetNull);
     modelBuilder.Entity<AutoTaskDetail>()
-      .HasOne(e => e.AutoTask)
+      .HasOne(e => e.Waypoint)
       .WithMany()
       .HasForeignKey(e => e.WaypointId)
       .OnDelete(DeleteBehavior.SetNull)

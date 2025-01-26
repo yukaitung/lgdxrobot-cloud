@@ -294,7 +294,11 @@ public class AutoTaskSchedulerMySQLService(
 
   private async Task DeleteTriggerRetries(int taskId)
   {
-    await _context.TriggerRetries.Where(tr => tr.AutoTaskId == taskId).ExecuteDeleteAsync();
+    var count = await _context.TriggerRetries.Where(tr => tr.AutoTaskId == taskId).CountAsync();
+    if (count > 0)
+    {
+      await _context.TriggerRetries.Where(tr => tr.AutoTaskId == taskId).ExecuteDeleteAsync();
+    }
   }
 
   public async Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason)
