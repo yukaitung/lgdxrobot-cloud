@@ -27,21 +27,21 @@
         @if (Id != null)
         {
           <div class="mb-3 row">
-            <label class="col-3 col-form-label">ID</label>
+            <label class="col-2 col-form-label">ID</label>
             <div class="col">
               <div class="col form-control-plaintext">@FlowDetailViewModel.Id</div>
             </div>
           </div>
         }
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(FlowDetailViewModel.Name)">Name</label>
+          <label class="col-2 col-form-label required" for="@nameof(FlowDetailViewModel.Name)">Name</label>
           <div class="col">
             <InputText id="@nameof(FlowDetailViewModel.Name)"type="text" class="form-control"  @bind-Value="FlowDetailViewModel.Name" />
             <ValidationMessage class="invalid-feedback" For="@(() => FlowDetailViewModel.Name)" />
           </div>
         </div>
         <div class="mb-3 row">
-          <label class="col-3 col-form-label required">Flow Detail</label>
+          <label class="col-2 col-form-label required">Flow Detail</label>
           <div class="col">
             <div class="invalid-feedback" style="display: block;">@_editContext.GetValidationMessages(() => FlowDetailViewModel.FlowDetails).FirstOrDefault()</div>
             <InformationModal>
