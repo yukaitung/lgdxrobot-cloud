@@ -52,4 +52,11 @@
       <TableEmpty />
     }
   </div>
+
+  @if (AutoTasks != null && AutoTasks.Count() > 0)
+  {
+    <div class="card-footer d-flex align-items-center">
+      <p class="m-0 text-secondary">Showing @AutoTasks.Count() of @TotalAutoTasks tasks</p><!--!-->
+    </div>
+  }
 </div>

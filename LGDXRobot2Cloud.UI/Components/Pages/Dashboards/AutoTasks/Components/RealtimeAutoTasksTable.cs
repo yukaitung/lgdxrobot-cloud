@@ -34,6 +34,7 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
   [Parameter]
   public bool RunningAutoTasks { get; set; } = false;
 
+  private int TotalAutoTasks { get; set; }
   private int MaxPageSize { get; set; } = 50;
   private int RealmId { get; set; }
   private string RealmName { get; set; } = string.Empty;
@@ -75,6 +76,8 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
         PageSize = MaxPageSize
       };
     });
+    var PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
+    TotalAutoTasks = PaginationHelper?.ItemCount ?? 0;
     AutoTasks ??= [];
   }
 
@@ -91,15 +94,22 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
       // Handle Running Auto Tasks
       if (!LgdxHelper.AutoTaskStaticStates.Contains(autoTaskUpdateContract.CurrentProgressId))
       {
-        if (AutoTasks.Select(x => x.Id).Any())
+        // Handle Running Auto Tasks
+        if (AutoTasks.Where(x => x.Id == autoTaskUpdateContract.Id).Any())
         {
           AutoTasks.RemoveAll(x => x.Id == autoTaskUpdateContract.Id);
+        }
+        else
+        {
+          TotalAutoTasks++;
         }
         AutoTasks.Add(ToAutoTaskListDto(autoTaskUpdateContract));
       }
       else if (autoTaskUpdateContract.CurrentProgressId == (int)ProgressState.Completed || autoTaskUpdateContract.CurrentProgressId == (int)ProgressState.Aborted)
       {
+        // Handle Completed/Aborted Auto Tasks
         AutoTasks.RemoveAll(x => x.Id == autoTaskUpdateContract.Id);
+        TotalAutoTasks--;
       }
       AutoTasks = AutoTasks!.OrderByDescending(x => x.Priority).ThenBy(x => x.Id).ToList();
       if (AutoTasks.Count >= MaxPageSize)
@@ -113,10 +123,17 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
       // Handle Waiting Queue Auto Tasks
       if (autoTaskUpdateContract.CurrentProgressId == (int)ProgressState.Waiting)
       {
+        // Handle Waiting Auto Tasks
         AutoTasks.Add(ToAutoTaskListDto(autoTaskUpdateContract));
+        TotalAutoTasks++;
       }
       else
       {
+        // Handle Running/Completed/Aborted Auto Tasks
+        if (AutoTasks.Where(x => x.Id == autoTaskUpdateContract.Id).Any())
+        {
+          TotalAutoTasks--;
+        }
         AutoTasks.RemoveAll(x => x.Id == autoTaskUpdateContract.Id);
       }
       AutoTasks = AutoTasks.OrderByDescending(x => x.Priority).ThenBy(x => x.Id).ToList();
