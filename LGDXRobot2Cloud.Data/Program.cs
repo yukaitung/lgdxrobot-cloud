@@ -5,14 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
-var connectionString = builder.Configuration["MySQLConnectionString"];
-var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
-builder.Services.AddDbContext<LgdxContext>(
-	dbContextOptions => dbContextOptions
-		.UseMySql(connectionString, serverVersion)
-		.LogTo(Console.WriteLine, LogLevel.Information)
-		.EnableSensitiveDataLogging()
-		.EnableDetailedErrors()
+builder.Services.AddDbContextPool<LgdxContext>(cfg => 
+  cfg.UseNpgsql(builder.Configuration["PGSQLConnectionString"])
+	.LogTo(Console.WriteLine, LogLevel.Information)
+	.EnableSensitiveDataLogging()
+	.EnableDetailedErrors()
 );
 
 bool initializeData = bool.Parse(builder.Configuration["initializeData"] ?? "false");

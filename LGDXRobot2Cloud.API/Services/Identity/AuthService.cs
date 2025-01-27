@@ -68,7 +68,7 @@ public class AuthService(
     // Add Role Claims
     {
       List<string> roleIds = await _context.Roles.AsNoTracking()
-        .Where(r => userRoles.Contains(r.NormalizedName!))
+        .Where(r => userRoles.Select(ur => ur.ToUpper()).Contains(r.NormalizedName!))
         .Select(r => r.Id )
         .ToListAsync();
       var roleClaims = await _context.RoleClaims.AsNoTracking()

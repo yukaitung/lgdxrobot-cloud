@@ -85,14 +85,11 @@ builder.Services.AddSwaggerGen(cfg =>{
 	});
 });
 builder.Services.AddGrpc(cfg => cfg.EnableDetailedErrors = true);
-var connectionString = builder.Configuration["MySQLConnectionString"];
-var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
-builder.Services.AddDbContext<LgdxContext>(
-	dbContextOptions => dbContextOptions
-		.UseMySql(connectionString, serverVersion)
-		.LogTo(Console.WriteLine, LogLevel.Information)
-		.EnableSensitiveDataLogging()
-		.EnableDetailedErrors()
+builder.Services.AddDbContextPool<LgdxContext>(cfg => 
+  cfg.UseNpgsql(builder.Configuration["PGSQLConnectionString"])
+	.LogTo(Console.WriteLine, LogLevel.Information)
+	.EnableSensitiveDataLogging()
+	.EnableDetailedErrors()
 );
 builder.Services.AddHttpContextAccessor();
 

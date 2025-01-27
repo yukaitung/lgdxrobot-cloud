@@ -27,7 +27,7 @@ Dependency
 
 ### Prerequisite
 
-XXX
+SQL: docker run --name postgres -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_USER=admin -e POSTGRES_DB=LGDX -v postgres-data:/var/lib/postgresql/data -p 5432:5432 -d postgres
 
 ### Build & Run
 

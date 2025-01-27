@@ -17,7 +17,6 @@ public class Realm
   [MaxLength(200)]
   public string? Description { get; set; }
 
-  [Column(TypeName = "MEDIUMBLOB")]
   [Required]
   public byte[] Image { get; set; } = null!;
 
