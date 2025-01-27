@@ -65,7 +65,7 @@ public class FlowService(LgdxContext context) : IFlowService
           AutoTaskNextControllerId = fd.AutoTaskNextControllerId,
           TriggerId = fd.Trigger!.Id,
           TriggerName = fd.Trigger!.Name,
-        }).ToList(),
+        }).OrderBy(fd => fd.Order).ToList(),
       })
       .FirstOrDefaultAsync()
         ?? throw new LgdxNotFound404Exception();
@@ -155,6 +155,7 @@ public class FlowService(LgdxContext context) : IFlowService
 
     flow.Name = flowUpdateBusinessModel.Name;
     flow.FlowDetails = flowUpdateBusinessModel.FlowDetails.Select(fd => new FlowDetail {
+        Id = (int)fd.Id!,
         Order = fd.Order,
         ProgressId = fd.ProgressId,
         AutoTaskNextControllerId = fd.AutoTaskNextControllerId,
