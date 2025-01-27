@@ -118,7 +118,7 @@ public sealed class TriggerService (
       ApiKeyInsertLocationId = trigger.ApiKeyInsertLocationId,
       ApiKeyFieldName = trigger.ApiKeyFieldName,
       ApiKeyId = trigger.ApiKeyId,
-      ApiKeyName = trigger.ApiKey!.Name,
+      ApiKeyName = trigger.ApiKey?.Name,
     };
   }
 
@@ -168,27 +168,15 @@ public sealed class TriggerService (
 
   public async Task<IEnumerable<TriggerSearchBusinessModel>> SearchTriggersAsync(string? name)
   {
-    if (string.IsNullOrWhiteSpace(name))
-    {
-      return await _context.Triggers.AsNoTracking()
-        .Take(10)
-        .Select(t => new TriggerSearchBusinessModel {
-          Id = t.Id,
-          Name = t.Name,
-        })
-        .ToListAsync();
-    }
-    else
-    {
-      return await _context.Triggers.AsNoTracking()
-        .Where(w => w.Name.Contains(name))
-        .Take(10)
-        .Select(t => new TriggerSearchBusinessModel {
-          Id = t.Id,
-          Name = t.Name,
-        })
-        .ToListAsync();
-    }
+    var n = name ?? string.Empty;
+    return await _context.Triggers.AsNoTracking()
+      .Where(w => w.Name.ToLower().Contains(n.ToLower()))
+      .Take(10)
+      .Select(t => new TriggerSearchBusinessModel {
+        Id = t.Id,
+        Name = t.Name,
+      })
+      .ToListAsync();
   }
 
   private string GetRobotName(Guid robotId)

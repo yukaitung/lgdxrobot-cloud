@@ -158,26 +158,14 @@ public class RealmService(LgdxContext context) : IRealmService
 
   public async Task<IEnumerable<RealmSearchBusinessModel>> SearchRealmsAsync(string? name)
   {
-    if (string.IsNullOrWhiteSpace(name))
-    {
-      return await _context.Realms.AsNoTracking()
-        .Take(10)
-        .Select(m => new RealmSearchBusinessModel {
-          Id = m.Id,
-          Name = m.Name,
-        })
-        .ToListAsync();
-    }
-    else
-    {
-      return await _context.Realms.AsNoTracking()
-        .Where(w => w.Name.Contains(name))
-        .Take(10)
-        .Select(m => new RealmSearchBusinessModel {
-          Id = m.Id,
-          Name = m.Name,
-        })
-        .ToListAsync();
-    }
+    var n = name ?? string.Empty;
+    return await _context.Realms.AsNoTracking()
+      .Where(w => w.Name.ToLower().Contains(n.ToLower()))
+      .Take(10)
+      .Select(m => new RealmSearchBusinessModel {
+        Id = m.Id,
+        Name = m.Name,
+      })
+      .ToListAsync();
   }
 }

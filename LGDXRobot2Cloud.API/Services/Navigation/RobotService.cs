@@ -157,8 +157,8 @@ public class RobotService(
       IsProtectingHardwareSerialNumber = robotCreateBusinessModel.IsProtectingHardwareSerialNumber,
       RobotCertificate = new RobotCertificate {
         Thumbprint = robotCertificate.RobotCertificateThumbprint,
-        NotBefore = robotCertificate.RobotCertificateNotBefore,
-        NotAfter = robotCertificate.RobotCertificateNotAfter
+        NotBefore = DateTime.SpecifyKind(robotCertificate.RobotCertificateNotBefore, DateTimeKind.Utc),
+        NotAfter = DateTime.SpecifyKind(robotCertificate.RobotCertificateNotAfter, DateTimeKind.Utc)
       },
       RobotChassisInfo = new RobotChassisInfo {
         RobotTypeId = robotCreateBusinessModel.RobotChassisInfo.RobotTypeId,
@@ -302,9 +302,10 @@ public class RobotService(
 
   public async Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name, Guid? robotId)
   {
+    var n = name ?? string.Empty;
     return await _context.Robots.AsNoTracking()
       .Where(r => r.RealmId == realmId)
-      .Where(r => string.IsNullOrWhiteSpace(name) || r.Name.Contains(name))
+      .Where(t => t.Name.ToLower().Contains(n.ToLower()))
       .Where(r => robotId == null || r.Id == robotId)
       .Take(10)
       .Select(m => new RobotSearchBusinessModel {

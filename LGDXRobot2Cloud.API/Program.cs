@@ -195,7 +195,7 @@ builder.Services.AddScoped<IRobotService, RobotService>();
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();
 builder.Services.AddScoped<ITriggerService, TriggerService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerMySQLService>();
+builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 

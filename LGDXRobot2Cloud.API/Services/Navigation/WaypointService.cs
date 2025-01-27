@@ -152,28 +152,15 @@ public class WaypointService(LgdxContext context) : IWaypointService
 
   public async Task<IEnumerable<WaypointSearchBusinessModel>> SearchWaypointsAsync(int realmId, string? name)
   {
-    if (string.IsNullOrWhiteSpace(name))
-    {
-      return await _context.Waypoints.AsNoTracking()
-        .Where(w => w.RealmId == realmId)
-        .Take(10)
-        .Select(m => new WaypointSearchBusinessModel {
-          Id = m.Id,
-          Name = m.Name,
-        })
-        .ToListAsync();
-    }
-    else
-    {
-      return await _context.Waypoints.AsNoTracking()
-        .Where(w => w.RealmId == realmId)
-        .Where(w => w.Name.Contains(name))
-        .Take(10)
-        .Select(m => new WaypointSearchBusinessModel {
-          Id = m.Id,
-          Name = m.Name,
-        })
-        .ToListAsync();
-    }
+    var n = name ?? string.Empty;
+    return await _context.Waypoints.AsNoTracking()
+      .Where(w => w.RealmId == realmId)
+      .Where(t => t.Name.ToLower().Contains(n.ToLower()))
+      .Take(10)
+      .Select(m => new WaypointSearchBusinessModel {
+        Id = m.Id,
+        Name = m.Name,
+      })
+      .ToListAsync();
   }
 }

@@ -175,26 +175,14 @@ public class RoleService(
 
   public async Task<IEnumerable<LgdxRoleSearchBusinessModel>> SearchRoleAsync(string? name)
   {
-    if (string.IsNullOrWhiteSpace(name))
-    {
-      return await _context.Roles.AsNoTracking()
-        .Take(10)
-        .Select(t => new LgdxRoleSearchBusinessModel {
-          Id = Guid.Parse(t.Id!),
-          Name = t.Name!,
-        })
-        .ToListAsync();
-    }
-    else
-    {
-      return await _context.Roles.AsNoTracking()
-        .Where(w => w.Name!.Contains(name))
-        .Take(10)
-        .Select(t => new LgdxRoleSearchBusinessModel {
-          Id = Guid.Parse(t.Id!),
-          Name = t.Name!,
-        })
-        .ToListAsync();
-    }
+    var n = name ?? string.Empty;
+    return await _context.Roles.AsNoTracking()
+      .Where(w => w.Name!.ToLower().Contains(n.ToLower()))
+      .Take(10)
+      .Select(t => new LgdxRoleSearchBusinessModel {
+        Id = Guid.Parse(t.Id!),
+        Name = t.Name!,
+      })
+      .ToListAsync();
   }
 }

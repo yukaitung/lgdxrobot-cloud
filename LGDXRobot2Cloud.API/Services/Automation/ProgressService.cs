@@ -132,8 +132,9 @@ public class ProgressService(LgdxContext context) : IProgressService
 
   public async Task<IEnumerable<ProgressSearchBusinessModel>> SearchProgressesAsync(string? name, bool reserved)
   {
+    var n = name ?? string.Empty;
     return await _context.Progresses.AsNoTracking()
-      .Where(t => string.IsNullOrWhiteSpace(name) || t.Name.Contains(name))
+      .Where(t => t.Name.ToLower().Contains(n.ToLower()))
       .Where(t => t.Reserved == reserved)
       .Take(10)
       .Select(t => new ProgressSearchBusinessModel {

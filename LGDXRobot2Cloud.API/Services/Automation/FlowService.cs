@@ -186,26 +186,14 @@ public class FlowService(LgdxContext context) : IFlowService
 
   public async Task<IEnumerable<FlowSearchBusinessModel>> SearchFlowsAsync(string? name)
   {
-    if (string.IsNullOrWhiteSpace(name))
-    {
-      return await _context.Flows.AsNoTracking()
-        .Take(10)
-        .Select(t => new FlowSearchBusinessModel {
-          Id = t.Id,
-          Name = t.Name,
-        })
-        .ToListAsync();
-    }
-    else
-    {
-      return await _context.Flows.AsNoTracking()
-        .Where(w => w.Name.Contains(name))
-        .Take(10)
-        .Select(t => new FlowSearchBusinessModel {
-          Id = t.Id,
-          Name = t.Name,
-        })
-        .ToListAsync();
-    }
+    var n = name ?? string.Empty;
+    return await _context.Flows.AsNoTracking()
+      .Where(w => w.Name.ToLower().Contains(n.ToLower()))
+      .Take(10)
+      .Select(t => new FlowSearchBusinessModel {
+        Id = t.Id,
+        Name = t.Name,
+      })
+      .ToListAsync();
   }
 }

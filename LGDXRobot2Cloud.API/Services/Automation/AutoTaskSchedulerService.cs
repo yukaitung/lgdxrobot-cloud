@@ -24,7 +24,7 @@ public interface IAutoTaskSchedulerService
   Task<RobotClientsAutoTask?> AutoTaskNextConstructAsync(AutoTask autoTask);
 }
 
-public class AutoTaskSchedulerMySQLService(
+public class AutoTaskSchedulerService(
     IBus bus,
     IEmailService emailService,
     IMemoryCache memoryCache,
@@ -195,9 +195,9 @@ public class AutoTaskSchedulerMySQLService(
     {
       // Get waiting task
       task = await _context.AutoTasks.FromSql(
-        $@"SELECT * FROM `Automation.AutoTasks` AS T 
-            WHERE T.`CurrentProgressId` = {(int)ProgressState.Waiting} AND (T.`AssignedRobotId` = {robotId} OR T.`AssignedRobotId` IS NULL)
-            ORDER BY T.`Priority` DESC, T.`AssignedRobotId` DESC, T.`Id`
+        $@"SELECT * FROM ""Automation.AutoTasks"" AS T 
+            WHERE T.""CurrentProgressId"" = {(int)ProgressState.Waiting} AND (T.""AssignedRobotId"" = {robotId} OR T.""AssignedRobotId"" IS NULL)
+            ORDER BY T.""Priority"" DESC, T.""AssignedRobotId"" DESC, T.""Id""
             LIMIT 1 FOR UPDATE SKIP LOCKED"
       ).FirstOrDefaultAsync();
 
@@ -264,16 +264,16 @@ public class AutoTaskSchedulerMySQLService(
       {
         // From API
         task = await _context.AutoTasks.FromSql(
-          $@"SELECT * FROM `Automation.AutoTasks` AS T
-            WHERE T.`Id` = {taskId}
+          $@"SELECT * FROM ""Automation.AutoTasks"" AS T
+            WHERE T.""Id"" = {taskId}
             LIMIT 1 FOR UPDATE NOWAIT"
         ).FirstOrDefaultAsync();
       }
       else
       {
         task = await _context.AutoTasks.FromSql(
-          $@"SELECT * FROM `Automation.AutoTasks` AS T
-              WHERE T.`Id` = {taskId} AND T.`AssignedRobotId` = {robotId} AND T.`NextToken` = {token}
+          $@"SELECT * FROM ""Automation.AutoTasks"" AS T
+              WHERE T.""Id"" = {taskId} AND T.""AssignedRobotId"" = {robotId} AND T.""NextToken"" = {token}
               LIMIT 1 FOR UPDATE NOWAIT"
         ).FirstOrDefaultAsync();
       }
@@ -328,8 +328,8 @@ public class AutoTaskSchedulerMySQLService(
     {
       // Get waiting task
       task = await _context.AutoTasks.FromSql(
-        $@"SELECT * FROM `Automation.AutoTasks` AS T
-            WHERE T.`Id` = {taskId} AND T.`AssignedRobotId` = {robotId} AND T.`NextToken` = {token}
+        $@"SELECT * FROM ""Automation.AutoTasks"" AS T
+            WHERE T.""Id"" = {taskId} AND T.""AssignedRobotId"" = {robotId} AND T.""NextToken"" = {token}
             LIMIT 1 FOR UPDATE NOWAIT"
       ).FirstOrDefaultAsync();
 

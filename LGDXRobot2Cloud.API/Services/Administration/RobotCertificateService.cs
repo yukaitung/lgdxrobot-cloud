@@ -130,8 +130,8 @@ public class RobotCertificateService(
         certificate.ThumbprintBackup = certificate.Thumbprint;
       }
       certificate.Thumbprint = newCertificate.RobotCertificateThumbprint;
-      certificate.NotBefore = newCertificate.RobotCertificateNotBefore;
-      certificate.NotAfter = newCertificate.RobotCertificateNotAfter;
+      certificate.NotBefore = DateTime.SpecifyKind(newCertificate.RobotCertificateNotBefore, DateTimeKind.Utc);
+      certificate.NotAfter = DateTime.SpecifyKind(newCertificate.RobotCertificateNotAfter, DateTimeKind.Utc);
       await _context.SaveChangesAsync();
 
       var robot = await _context.Robots.AsNoTracking()
