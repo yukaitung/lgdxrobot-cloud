@@ -158,8 +158,8 @@ public class RobotCertificateService(
     store.Open(OpenFlags.OpenExistingOnly);
     X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobot2Configuration.RootCertificateSN);
     return new RootCertificateBusinessModel {
-      NotBefore = rootCertificate.NotBefore,
-      NotAfter = rootCertificate.NotAfter,
+      NotBefore = rootCertificate.NotBefore.ToUniversalTime(),
+      NotAfter = rootCertificate.NotAfter.ToUniversalTime(),
       PublicKey = rootCertificate.ExportCertificatePem()
     };
   }

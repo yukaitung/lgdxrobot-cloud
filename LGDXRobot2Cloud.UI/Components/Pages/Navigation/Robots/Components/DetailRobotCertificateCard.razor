@@ -14,11 +14,11 @@
         </tr>
         <tr>
           <td>Valid Start</td>
-          <td>@(RobotCertificate != null ? RobotCertificate.NotBefore : "-")</td>
+          <td>@(RobotCertificate != null ? UiHelper.TimeToString(RobotCertificate.NotBefore) : "-")</td>
         </tr>
         <tr>
           <td>Valid Till</td>
-          <td>@(RobotCertificate != null ? RobotCertificate.NotAfter : "-")</td>
+          <td>@(RobotCertificate != null ? UiHelper.TimeToString(RobotCertificate.NotAfter) : "-")</td>
         </tr>
         <tr>
           <td>Backup Thumbprint</td>

@@ -45,8 +45,8 @@
             <tr>
               <td>@certificate.Id</td>
               <td>@certificate.Thumbprint</td>
-              <td>@certificate.NotBefore</td>
-              <td>@certificate.NotAfter</td>
+              <td>@UiHelper.TimeToString(certificate.NotBefore)</td>
+              <td>@UiHelper.TimeToString(certificate.NotAfter)</td>
               <td class="text-end">
                 <a href="@(AppRoutes.Administration.RobotCertificates.Index + $"/{certificateId}")" class="page-link link-primary">View</a>
               </td>
