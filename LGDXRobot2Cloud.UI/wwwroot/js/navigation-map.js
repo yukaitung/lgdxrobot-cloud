@@ -341,8 +341,8 @@ function _internalAddZui()
 
 function _internalGuidToHslColor(guid) 
 {
-  // Remove dashes and take the first 6 characters from the GUID
-  const colorPart = guid.replace(/-/g, '').substring(0, 6);
+  // Remove dashes and take the last 6 characters from the GUID
+  const colorPart = guid.replace(/-/g, '').substring(guid.length - 7, guid.length - 1);
   
   // If the GUID is shorter than 6 characters, fill with zeros
   const colorHex = colorPart.padEnd(6, '0');

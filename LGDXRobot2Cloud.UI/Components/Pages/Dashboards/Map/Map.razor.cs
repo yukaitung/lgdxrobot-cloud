@@ -67,33 +67,38 @@ public sealed partial class Map : ComponentBase, IDisposable
       return;
     }
 
-    var robotData = RobotDataService.GetRobotData(robotId, realmId);
-    if (robotData != null)
+    try
     {
-      if (!RobotsData.ContainsKey(robotId))
+      var robotData = RobotDataService.GetRobotData(robotId, realmId);
+      if (robotData != null)
       {
-        await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
+        if (!RobotsData.ContainsKey(robotId))
+        {
+          await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
+        }
+        else
+        {
+          await JSRuntime.InvokeVoidAsync("MoveRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
+        }
+        RobotsData[robotId] = robotData;
+        // Update offcanvas
+        if (SelectedRobot != null && SelectedRobot.RobotId == robotId)
+        {
+          SelectedRobot = robotData;
+        }      
+        await InvokeAsync(() => {
+          StateHasChanged();
+        });
       }
-      else
-      {
-        await JSRuntime.InvokeVoidAsync("MoveRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
-      }
-      RobotsData[robotId] = robotData;
-      // Update offcanvas
-      if (SelectedRobot != null && SelectedRobot.RobotId == robotId)
-      {
-        SelectedRobot = robotData;
-      }      
-      await InvokeAsync(() => {
-        StateHasChanged();
-      });
+    }
+    catch (Exception)
+    {
+      throw;
     }
   }
 
   protected override async Task OnInitializedAsync() 
   {
-    RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
-
     // Get Realm
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
@@ -117,11 +122,19 @@ public sealed partial class Map : ComponentBase, IDisposable
   {
     if (firstRender)
     {
-      ObjectReference = DotNetObjectReference.Create(this);
-      await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
-      foreach (var (robotId, robotData) in RobotsData)
+      try
       {
-        await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
+        RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
+        ObjectReference = DotNetObjectReference.Create(this);
+        await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
+        foreach (var (robotId, robotData) in RobotsData)
+        {
+          await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
+        }
+      }
+      catch (Exception)
+      {
+        throw;
       }
     }
     await base.OnAfterRenderAsync(firstRender);
