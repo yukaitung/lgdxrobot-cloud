@@ -147,7 +147,7 @@ public class RobotService(
       throw new LgdxValidation400Expection(nameof(robotCreateBusinessModel.RealmId), "Realm does not exist.");
     }
 
-    var id = Guid.NewGuid();
+    var id = Guid.CreateVersion7();
     var robotCertificate = _robotCertificateService.IssueRobotCertificate(id);
     var robot = new Robot {
       Id = id,

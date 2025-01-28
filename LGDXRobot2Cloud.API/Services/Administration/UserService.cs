@@ -72,13 +72,14 @@ public class UserService(
   public async Task<LgdxUserBusinessModel> CreateUserAsync(LgdxUserCreateAdminBusinessModel lgdxUserCreateAdminBusinessModel)
   {
     var user = new LgdxUser {
+      Id = Guid.CreateVersion7().ToString(),
       Email = lgdxUserCreateAdminBusinessModel.Email,
       EmailConfirmed = true,
       LockoutEnabled = true,
       Name = lgdxUserCreateAdminBusinessModel.Name,
       NormalizedEmail = lgdxUserCreateAdminBusinessModel.Email.ToUpper(),
       NormalizedUserName = lgdxUserCreateAdminBusinessModel.UserName.ToUpper(),
-      SecurityStamp = Guid.NewGuid().ToString(),
+      SecurityStamp = Guid.CreateVersion7().ToString(),
       UserName = lgdxUserCreateAdminBusinessModel.UserName
     };
     if (!string.IsNullOrWhiteSpace(lgdxUserCreateAdminBusinessModel.Password))

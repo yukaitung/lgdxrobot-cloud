@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace LGDXRobot2Cloud.Data.Services;
 
-public class InitializeDataRunner(LgdxContext context,
-  UserManager<LgdxUser> userManager) : IHostedService
+public class InitialiseDataRunner(
+    LgdxContext context,
+    UserManager<LgdxUser> userManager
+  ) : IHostedService
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly UserManager<LgdxUser> _userManager = userManager;
@@ -43,6 +45,7 @@ public class InitializeDataRunner(LgdxContext context,
     // Admin User
     var firstUser = new LgdxUser
     {
+      Id = Guid.CreateVersion7().ToString(),
       Email = "admin@example.com",
       EmailConfirmed = true,
       LockoutEnabled = true,

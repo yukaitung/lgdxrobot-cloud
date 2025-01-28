@@ -81,6 +81,7 @@ public class RoleService(
   public async Task<LgdxRoleBusinessModel> CreateRoleAsync(LgdxRoleCreateBusinessModel lgdxRoleBusinessModel)
   {
     var role = new LgdxRole {
+      Id = Guid.CreateVersion7().ToString(),
       Name = lgdxRoleBusinessModel.Name,
       Description = lgdxRoleBusinessModel.Description,
       NormalizedName = lgdxRoleBusinessModel.Name.ToUpper(),

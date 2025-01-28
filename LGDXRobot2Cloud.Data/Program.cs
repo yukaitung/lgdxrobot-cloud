@@ -12,12 +12,12 @@ builder.Services.AddDbContextPool<LgdxContext>(cfg =>
 	.EnableDetailedErrors()
 );
 
-bool initializeData = bool.Parse(builder.Configuration["initializeData"] ?? "false");
+bool initializeData = bool.Parse(builder.Configuration["initialiseData"] ?? "false");
 if (initializeData) 
 {
 	builder.Services.AddIdentity<LgdxUser, LgdxRole>()
   	.AddEntityFrameworkStores<LgdxContext>();
-	builder.Services.AddHostedService<InitializeDataRunner>();
+	builder.Services.AddHostedService<InitialiseDataRunner>();
 }
 
 var app = builder.Build();
