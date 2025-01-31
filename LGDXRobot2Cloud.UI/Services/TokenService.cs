@@ -44,6 +44,7 @@ public class TokenService : ITokenService
 
   public void Login(ClaimsPrincipal user, string accessToken, string refreshToken, DateTime accessTokenExpiresAt, DateTime refreshTokenExpiresAt)
   {
+    Tokens.TryRemove(GenerateAccessKey(user), out _);
     Tokens.TryAdd(GenerateAccessKey(user), new Token { 
       AccessToken = accessToken,
       RefreshToken = refreshToken,
