@@ -17,9 +17,6 @@ public class RobotCommandsEventArgs : EventArgs
 
 public interface IOnlineRobotsService
 {
-  event EventHandler<Guid> RobotCommandsUpdated;
-  event EventHandler<Guid> RobotHasNextTask;
-
   Task AddRobotAsync(Guid robotId);
   Task RemoveRobotAsync(Guid robotId);
   Task UpdateRobotDataAsync(Guid robotId, RobotClientsExchange data);
@@ -38,24 +35,18 @@ public interface IOnlineRobotsService
 public class OnlineRobotsService(
     IBus bus,
     IEmailService emailService,
+    IEventService eventService,
     IMemoryCache memoryCache,
     IRobotService robotService
   ) : IOnlineRobotsService
 {
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+  private readonly IEventService _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
   private static string GetOnlineRobotsKey(int realmId) => $"OnlineRobotsService_OnlineRobots_{realmId}";
   private static string GetRobotCommandsKey(Guid robotId) => $"OnlineRobotsService_RobotCommands_{robotId}";
-
-  public event EventHandler<Guid>? RobotCommandsUpdated;
-  public event EventHandler<Guid>? RobotHasNextTask;
-
-  protected void RobotCommandsHasUpdated(Guid robotId)
-  {
-    RobotCommandsUpdated?.Invoke(this, robotId);
-  }
 
   private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
   {
@@ -205,7 +196,7 @@ public class OnlineRobotsService(
     {
       robotCommands.AbortTask = enable;
       await SetRobotCommandsAsync(robotId, robotCommands);
-      RobotCommandsHasUpdated(robotId);
+      _eventService.RobotCommandsHasUpdated(robotId);
       return true;
     }
     else
@@ -221,7 +212,7 @@ public class OnlineRobotsService(
     {
       robotCommands.SoftwareEmergencyStop = enable;
       await SetRobotCommandsAsync(robotId, robotCommands);
-      RobotCommandsHasUpdated(robotId);
+      _eventService.RobotCommandsHasUpdated(robotId);
       return true;
     }
     else 
@@ -237,7 +228,7 @@ public class OnlineRobotsService(
     {
       robotCommands.PauseTaskAssigement = enable;
       await SetRobotCommandsAsync(robotId, robotCommands);
-      RobotCommandsHasUpdated(robotId);
+      _eventService.RobotCommandsHasUpdated(robotId);
       return true;
     }
     else 
@@ -262,7 +253,7 @@ public class OnlineRobotsService(
   public void SetAutoTaskNextApi(Guid robotId, AutoTask autoTask)
   {
     _memoryCache.Set($"OnlineRobotsService_RobotHasNextTask_{robotId}", autoTask);
-    RobotHasNextTask?.Invoke(this, robotId);
+    _eventService.RobotHasNextTaskTriggered(robotId);
   }
 
   public AutoTask? GetAutoTaskNextApi(Guid robotId)

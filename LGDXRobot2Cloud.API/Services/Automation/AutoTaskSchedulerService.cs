@@ -229,9 +229,6 @@ public class AutoTaskSchedulerService(
 
   public async Task<RobotClientsAutoTask?> GetAutoTaskAsync(Guid robotId)
   {
-    if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
-      return null;
-
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var ignoreRobotIds = _memoryCache.Get<HashSet<Guid>>(GetIgnoreRobotsKey(realmId));
     if (ignoreRobotIds != null && (ignoreRobotIds?.Contains(robotId) ?? false))
@@ -240,9 +237,29 @@ public class AutoTaskSchedulerService(
     }
 
     var currentTask = await GetRunningAutoTaskSqlAsync(robotId);
-    var continueAutoTask = currentTask != null;
-    currentTask ??= await AssignAutoTaskSqlAsync(robotId);
-    
+    bool continueAutoTask = currentTask != null;
+    if (currentTask == null)
+    {
+      if (!_onlineRobotsService.GetPauseAutoTaskAssignment(robotId)) 
+      {
+        var count = await _context.AutoTasks.AsNoTracking()
+          .Where(t => t.AssignedRobotId == robotId)
+          .Where(t => !LgdxHelper.AutoTaskStaticStates.Contains(t.CurrentProgressId))
+          .CountAsync();
+        if (count > 0)
+        {
+          // If there is already a task running, no task will be assigned.
+          return null;
+        }
+        currentTask = await AssignAutoTaskSqlAsync(robotId);
+      }
+      else
+      {
+        // If pause auto task assignment is true, new task will not be assigned.
+        return null;
+      }
+    }
+
     if (currentTask == null)
     {
       // No task for this robot, pause database access.

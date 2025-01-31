@@ -14,20 +14,21 @@ using System.Text;
 using LGDXRobot2Cloud.Data.Models.Business.Navigation;
 using LGDXRobot2Cloud.API.Services.Automation;
 using System.Threading.Channels;
+using LGDXRobot2Cloud.API.Services.Common;
 
 namespace LGDXRobot2Cloud.API.Services;
 
 [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme)]
 public class RobotClientsService(
-    IAutoTaskService autoTaskService,
     IAutoTaskSchedulerService autoTaskSchedulerService,
+    IEventService eventService,
     IOnlineRobotsService OnlineRobotsService,
     IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
     IRobotService robotService
   ) : RobotClientsServiceBase
 {
-  private readonly IAutoTaskService _autoTaskService = autoTaskService;
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService;
+  private readonly IEventService _eventService = eventService;
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value;
   private readonly IRobotService _robotService = robotService;
@@ -212,16 +213,10 @@ public class RobotClientsService(
       return;
     }
     _streamingRobotId = (Guid)robotId;
-    _onlineRobotsService.RobotCommandsUpdated += OnRobotCommandsUpdated;
-    _onlineRobotsService.RobotHasNextTask += OnRobotHasNextTask;
-    _autoTaskService.AutoTaskCreated += OnAutoTaskCreated;
+    _eventService.RobotCommandsUpdated += OnRobotCommandsUpdated;
+    _eventService.RobotHasNextTask += OnRobotHasNextTask;
+    _eventService.AutoTaskCreated += OnAutoTaskCreated;
 
-    // Get AutoTask / Pick Up Last Task
-    await responseStream.WriteAsync(new RobotClientsRespond {
-      Status = RobotClientsResultStatus.Success,
-      Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
-      Task = await _autoTaskSchedulerService.GetAutoTaskAsync((Guid)robotId)
-    });
     var clientToServer = ExchangeStreamClientToServerAsync((Guid)robotId, requestStream, context);
     var serverToClient = ExchangeStreamServerToClientAsync(responseStream, context);
     await Task.WhenAll(clientToServer, serverToClient);
@@ -232,14 +227,31 @@ public class RobotClientsService(
     while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
     {
       var request = requestStream.Current;
-      // Write
       _streamingRobotStatus = request.RobotStatus;
+      // Get auto task
+      if (request.RobotStatus == RobotClientsRobotStatus.Idle)
+      {
+        // Get AutoTask / Pick Up Last Task
+        if (request.RobotStatus == RobotClientsRobotStatus.Idle)
+        {
+          var task = await _autoTaskSchedulerService.GetAutoTaskAsync(robotId);
+          if (task != null)
+          {
+            await _streamMessageQueue.Writer.WriteAsync(new RobotClientsRespond {
+              Status = RobotClientsResultStatus.Success,
+              Commands = _onlineRobotsService.GetRobotCommands(_streamingRobotId),
+              Task = task
+            });
+          }
+        }
+      }
       await _onlineRobotsService.UpdateRobotDataAsync(robotId, request);
     }
-    // Stop wirting tasks
-    _onlineRobotsService.RobotCommandsUpdated -= OnRobotCommandsUpdated;
-    _onlineRobotsService.RobotHasNextTask -= OnRobotHasNextTask;
-    _autoTaskService.AutoTaskCreated -= OnAutoTaskCreated;
+    
+    // The reading stream is completed, stop wirting task
+    _eventService.RobotCommandsUpdated -= OnRobotCommandsUpdated;
+    _eventService.RobotHasNextTask -= OnRobotHasNextTask;
+    _eventService.AutoTaskCreated -= OnAutoTaskCreated;
     _streamMessageQueue.Writer.TryComplete();
     await _streamMessageQueue.Reader.Completion;
   }
@@ -248,7 +260,6 @@ public class RobotClientsService(
   {
     await foreach (var message in _streamMessageQueue.Reader.ReadAllAsync(context.CancellationToken))
     {
-      Console.WriteLine("Write");
       await responseStream.WriteAsync(message);
     }
   }
