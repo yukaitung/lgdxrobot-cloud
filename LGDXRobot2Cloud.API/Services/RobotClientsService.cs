@@ -231,18 +231,14 @@ public class RobotClientsService(
       // Get auto task
       if (request.RobotStatus == RobotClientsRobotStatus.Idle)
       {
-        // Get AutoTask / Pick Up Last Task
-        if (request.RobotStatus == RobotClientsRobotStatus.Idle)
+        var task = await _autoTaskSchedulerService.GetAutoTaskAsync(robotId);
+        if (task != null)
         {
-          var task = await _autoTaskSchedulerService.GetAutoTaskAsync(robotId);
-          if (task != null)
-          {
-            await _streamMessageQueue.Writer.WriteAsync(new RobotClientsRespond {
-              Status = RobotClientsResultStatus.Success,
-              Commands = _onlineRobotsService.GetRobotCommands(_streamingRobotId),
-              Task = task
-            });
-          }
+          await _streamMessageQueue.Writer.WriteAsync(new RobotClientsRespond {
+            Status = RobotClientsResultStatus.Success,
+            Commands = _onlineRobotsService.GetRobotCommands(_streamingRobotId),
+            Task = task
+          });
         }
       }
       await _onlineRobotsService.UpdateRobotDataAsync(robotId, request);
