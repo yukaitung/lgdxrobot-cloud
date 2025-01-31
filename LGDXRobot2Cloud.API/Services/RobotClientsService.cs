@@ -13,21 +13,27 @@ using System.Security.Claims;
 using System.Text;
 using LGDXRobot2Cloud.Data.Models.Business.Navigation;
 using LGDXRobot2Cloud.API.Services.Automation;
+using System.Threading.Channels;
 
 namespace LGDXRobot2Cloud.API.Services;
 
 [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme)]
 public class RobotClientsService(
+    IAutoTaskService autoTaskService,
     IAutoTaskSchedulerService autoTaskSchedulerService,
     IOnlineRobotsService OnlineRobotsService,
     IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
     IRobotService robotService
   ) : RobotClientsServiceBase
 {
+  private readonly IAutoTaskService _autoTaskService = autoTaskService;
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService;
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
   private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value;
   private readonly IRobotService _robotService = robotService;
+  private Guid _streamingRobotId = Guid.Empty;
+  private RobotClientsRobotStatus _streamingRobotStatus = RobotClientsRobotStatus.Offline;
+  private readonly Channel<RobotClientsRespond> _streamMessageQueue = Channel.CreateUnbounded<RobotClientsRespond>();
 
   private static Guid? ValidateRobotClaim(ServerCallContext context)
   {
@@ -150,7 +156,8 @@ public class RobotClientsService(
         BatteryCount = robotChassisInfo.BatteryCount,
         BatteryMaxVoltage = robotChassisInfo.BatteryMaxVoltage,
         BatteryMinVoltage = robotChassisInfo.BatteryMinVoltage
-      }
+      },
+      IsRealtimeExchange = await _robotService.GetRobotIsRealtimeExchange((Guid)robotId)
     };
   }
 
@@ -176,23 +183,118 @@ public class RobotClientsService(
     else
     {
       // Get AutoTask
+      RobotClientsAutoTask? task = null;
       if (request.RobotStatus == RobotClientsRobotStatus.Idle)
       {
-        var task = await _autoTaskSchedulerService.GetAutoTaskAsync((Guid)robotId);
-        return new RobotClientsRespond {
-          Status = RobotClientsResultStatus.Success,
-          Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
-          Task = task
-        };
+        task = await _autoTaskSchedulerService.GetAutoTaskAsync((Guid)robotId);
       }
-      else
-      {
-        return new RobotClientsRespond {
-          Status = RobotClientsResultStatus.Success,
-          Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
-        };
-      }
+      return new RobotClientsRespond {
+        Status = RobotClientsResultStatus.Success,
+        Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+        Task = task
+      };
     }
+  }
+
+  public override async Task ExchangeStream(IAsyncStreamReader<RobotClientsExchange> requestStream, IServerStreamWriter<RobotClientsRespond> responseStream, ServerCallContext context)
+  {
+    var robotId = ValidateRobotClaim(context);
+    if (robotId == null)
+    {
+      var response = ValidateRobotClaimFailed();
+      await responseStream.WriteAsync(response);
+      return;
+    }
+    if (!await ValidateOnlineRobotsAsync((Guid)robotId))
+    {
+      var response = ValidateOnlineRobotsFailed();
+      await responseStream.WriteAsync(response);
+      return;
+    }
+    _streamingRobotId = (Guid)robotId;
+    _onlineRobotsService.RobotCommandsUpdated += OnRobotCommandsUpdated;
+    _onlineRobotsService.RobotHasNextTask += OnRobotHasNextTask;
+    _autoTaskService.AutoTaskCreated += OnAutoTaskCreated;
+
+    // Get AutoTask / Pick Up Last Task
+    await responseStream.WriteAsync(new RobotClientsRespond {
+      Status = RobotClientsResultStatus.Success,
+      Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+      Task = await _autoTaskSchedulerService.GetAutoTaskAsync((Guid)robotId)
+    });
+    var clientToServer = ExchangeStreamClientToServerAsync((Guid)robotId, requestStream, context);
+    var serverToClient = ExchangeStreamServerToClientAsync(responseStream, context);
+    await Task.WhenAll(clientToServer, serverToClient);
+  }
+
+  private async Task ExchangeStreamClientToServerAsync(Guid robotId, IAsyncStreamReader<RobotClientsExchange> requestStream, ServerCallContext context)
+  {
+    while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
+    {
+      var request = requestStream.Current;
+      // Write
+      _streamingRobotStatus = request.RobotStatus;
+      await _onlineRobotsService.UpdateRobotDataAsync(robotId, request);
+    }
+    // Stop wirting tasks
+    _onlineRobotsService.RobotCommandsUpdated -= OnRobotCommandsUpdated;
+    _onlineRobotsService.RobotHasNextTask -= OnRobotHasNextTask;
+    _autoTaskService.AutoTaskCreated -= OnAutoTaskCreated;
+    _streamMessageQueue.Writer.TryComplete();
+    await _streamMessageQueue.Reader.Completion;
+  }
+
+  private async Task ExchangeStreamServerToClientAsync(IServerStreamWriter<RobotClientsRespond> responseStream, ServerCallContext context)
+  {
+    await foreach (var message in _streamMessageQueue.Reader.ReadAllAsync(context.CancellationToken))
+    {
+      Console.WriteLine("Write");
+      await responseStream.WriteAsync(message);
+    }
+  }
+
+  private async void OnRobotCommandsUpdated(object? sender, Guid robotId)
+  {
+    if (_streamingRobotId != robotId)
+      return;
+    await _streamMessageQueue.Writer.WriteAsync(new RobotClientsRespond {
+      Status = RobotClientsResultStatus.Success,
+      Commands = _onlineRobotsService.GetRobotCommands(_streamingRobotId),
+    });
+  }
+
+  private async void OnAutoTaskCreated(object? sender, EventArgs e)
+  {
+    // Read
+    if (_streamingRobotStatus != RobotClientsRobotStatus.Idle)
+      return;
+    var autoTask = await _autoTaskSchedulerService.GetAutoTaskAsync(_streamingRobotId);
+    if (autoTask != null)
+    {
+      await _streamMessageQueue.Writer.WriteAsync(new RobotClientsRespond {
+        Status = RobotClientsResultStatus.Success,
+        Commands = _onlineRobotsService.GetRobotCommands(_streamingRobotId),
+        Task = autoTask
+      });
+    }
+  }
+
+  private async void OnRobotHasNextTask(object? sender, Guid robotId)
+  {
+    // When an auto task is completed by API
+    if (_streamingRobotId != robotId)
+      return;
+    var manualAutoTask = _onlineRobotsService.GetAutoTaskNextApi(robotId);
+    RobotClientsAutoTask? task = null;
+    if (manualAutoTask != null)
+    {
+      task = await _autoTaskSchedulerService.AutoTaskNextConstructAsync(manualAutoTask);
+    }
+    await _streamMessageQueue.Writer.WriteAsync(new RobotClientsRespond {
+      Status = RobotClientsResultStatus.Success,
+      Commands = _onlineRobotsService.GetRobotCommands(robotId),
+      Task = task
+    });
   }
 
   public override async Task<RobotClientsRespond> AutoTaskNext(RobotClientsNextToken request, ServerCallContext context)

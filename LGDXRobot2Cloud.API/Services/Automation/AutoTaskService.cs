@@ -13,6 +13,8 @@ namespace LGDXRobot2Cloud.API.Services.Automation;
 
 public interface IAutoTaskService
 {
+  event EventHandler AutoTaskCreated;
+  
   Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realmId, string? name, AutoTaskCatrgory? autoTaskCatrgory, int pageNumber = 1, int pageSize = 10);
   Task<AutoTaskBusinessModel> GetAutoTaskAsync(int autoTaskId);
   Task<AutoTaskBusinessModel> CreateAutoTaskAsync(AutoTaskCreateBusinessModel autoTaskCreateBusinessModel);
@@ -34,6 +36,7 @@ public class AutoTaskService(
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+  public event EventHandler? AutoTaskCreated;
 
   public async Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realmId, string? name, AutoTaskCatrgory? autoTaskCatrgory, int pageNumber = 1, int pageSize = 10)
   {
@@ -214,6 +217,7 @@ public class AutoTaskService(
     await _context.AutoTasks.AddAsync(autoTask);
     await _context.SaveChangesAsync();
     _autoTaskSchedulerService.ResetIgnoreRobot(autoTask.RealmId);
+    AutoTaskCreated?.Invoke(this, EventArgs.Empty);
 
     var autoTaskBusinessModel = await _context.AutoTasks.AsNoTracking()
       .Where(t => t.Id == autoTask.Id)

@@ -30,6 +30,7 @@ public interface IRobotService
   Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name, Guid? robotId);
 
   Task<int?> GetRobotRealmIdAsync(Guid robotId);
+  Task<bool> GetRobotIsRealtimeExchange(Guid robotId);
 }
 
 public class RobotService(
@@ -330,5 +331,13 @@ public class RobotService(
 
     _memoryCache.Set($"RobotService_GetRobotRealmIdAsync_{robotId}", robot!.RealmId, TimeSpan.FromDays(1));
     return robot.RealmId;
+  }
+
+  public async Task<bool> GetRobotIsRealtimeExchange(Guid robotId)
+  {
+    return await _context.Robots.AsNoTracking()
+      .Where(r => r.Id == robotId)
+      .Select(r => r.IsRealtimeExchange)
+      .FirstOrDefaultAsync();
   }
 }
