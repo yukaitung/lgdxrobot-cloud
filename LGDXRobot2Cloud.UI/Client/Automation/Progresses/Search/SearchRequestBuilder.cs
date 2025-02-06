@@ -22,7 +22,7 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.Progresses.Search
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public SearchRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/Progresses/Search{?name*}", pathParameters)
+        public SearchRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/Progresses/Search{?name*,reserved*}", pathParameters)
         {
         }
         /// <summary>
@@ -30,7 +30,7 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.Progresses.Search
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public SearchRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/Progresses/Search{?name*}", rawUrl)
+        public SearchRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/Progresses/Search{?name*,reserved*}", rawUrl)
         {
         }
         /// <returns>A List&lt;global::LGDXRobot2Cloud.UI.Client.Models.ProgressSearchDto&gt;</returns>
@@ -88,6 +88,8 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.Progresses.Search
             [QueryParameter("name")]
             public string Name { get; set; }
 #endif
+            [QueryParameter("reserved")]
+            public bool? Reserved { get; set; }
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.

@@ -1,18 +1,53 @@
+@using LGDXRobot2Cloud.UI.Client.Models
+@using LGDXRobot2Cloud.UI.ViewModels.Navigation
+@using LGDXRobot2Cloud.Utilities.Enums
+
 <div class="card">
   <div class="card-header">
     <h3 class="card-title">Chassis Information</h3>
   </div>
-  <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <div class="card-body">
-      <ApiErrorAlert Errors="RobotChassisInfo?.Errors" />
-      <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
-      <RobotChassisInfoForm RobotChassisInfo="@RobotChassisInfo"/>
-    </div>
-    <div class="card-footer d-flex">
-      <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ChassisUpdate">
-        <button type="submit" class="btn btn-primary ms-auto">Update</button>
-      </AuthorizeView>
-    </div>
-  </EditForm>
+  <div class="table-responsive">
+    <table class="table card-table table-vcenter text-nowrap datatable">
+      <tbody>
+        <tr>
+          <td>Robot Type</td>
+          <td>@(RobotChassisInfo != null ? ((LgdxRobotType)RobotChassisInfo.RobotTypeId!).ToEnumMember() : "-")</td>
+        </tr>
+        <tr>
+          <td>Chassis Length X (m)</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisLengthX : "-")</td>
+        </tr>
+        <tr>
+          <td>Chassis Length Y (m)</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisLengthY : "-")</td>
+        </tr>
+        <tr>
+          <td>Chassis Wheel Count</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisWheelCount : "-")</td>
+        </tr>
+        <tr>
+          <td>Chassis Wheel Radius (m)</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.ChassisWheelRadius : "-")</td>
+        </tr>
+        <tr>
+          <td>Battery Count</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.BatteryCount : "-")</td>
+        </tr>
+        <tr>
+          <td>Battery Maximum Voltage (V)</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.BatteryMaxVoltage : "-")</td>
+        </tr>
+        <tr>
+          <td>Battery Minimum Voltage (V)</td>
+          <td>@(RobotChassisInfo != null ? RobotChassisInfo.BatteryMinVoltage : "-")</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
+
+@code
+{
+  [Parameter]
+  public RobotChassisInfoDto? RobotChassisInfo { get; set; }
+}

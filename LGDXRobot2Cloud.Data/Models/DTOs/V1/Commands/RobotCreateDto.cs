@@ -15,8 +15,6 @@ public record RobotCreateDto
   public bool IsRealtimeExchange { get; set; } = false;
 
   public bool IsProtectingHardwareSerialNumber { get; set; } = false;
-  
-  public required RobotChassisInfoCreateDto RobotChassisInfo { get; set; }
 }
 
 public static class RobotCreateDtoExtensions
@@ -27,8 +25,7 @@ public static class RobotCreateDtoExtensions
       Name = model.Name,
       RealmId = model.RealmId,
       IsRealtimeExchange = model.IsRealtimeExchange,
-      IsProtectingHardwareSerialNumber = model.IsProtectingHardwareSerialNumber,
-      RobotChassisInfo = model.RobotChassisInfo.ToBusinessModel(),
+      IsProtectingHardwareSerialNumber = model.IsProtectingHardwareSerialNumber
     };
   }
 }

@@ -19,7 +19,6 @@ public interface IRobotService
   Task<RobotCreateResponseBusinessModel> CreateRobotAsync(RobotCreateBusinessModel robotCreateBusinessModel);
   Task<bool> UpdateRobotAsync(Guid id, RobotUpdateBusinessModel robotUpdateDtoBusinessModel);
   Task<RobotChassisInfoBusinessModel?> GetRobotChassisInfoAsync(Guid robotId);
-  Task<bool> UpdateRobotChassisInfoAsync(Guid id, RobotChassisInfoUpdateBusinessModel robotChassisInfoUpdateBusinessModel);
   Task<bool> TestDeleteRobotAsync(Guid id);
   Task<bool> DeleteRobotAsync(Guid id);
 
@@ -161,16 +160,6 @@ public class RobotService(
         NotBefore = DateTime.SpecifyKind(robotCertificate.RobotCertificateNotBefore, DateTimeKind.Utc),
         NotAfter = DateTime.SpecifyKind(robotCertificate.RobotCertificateNotAfter, DateTimeKind.Utc)
       },
-      RobotChassisInfo = new RobotChassisInfo {
-        RobotTypeId = robotCreateBusinessModel.RobotChassisInfo.RobotTypeId,
-        ChassisLengthX = robotCreateBusinessModel.RobotChassisInfo.ChassisLengthX,
-        ChassisLengthY = robotCreateBusinessModel.RobotChassisInfo.ChassisLengthY,
-        ChassisWheelCount = robotCreateBusinessModel.RobotChassisInfo.ChassisWheelCount,
-        ChassisWheelRadius = robotCreateBusinessModel.RobotChassisInfo.ChassisWheelRadius,
-        BatteryCount = robotCreateBusinessModel.RobotChassisInfo.BatteryCount,
-        BatteryMaxVoltage = robotCreateBusinessModel.RobotChassisInfo.BatteryMaxVoltage,
-        BatteryMinVoltage = robotCreateBusinessModel.RobotChassisInfo.BatteryMinVoltage,
-      },
     };
     await _context.Robots.AddAsync(robot);
     await _context.SaveChangesAsync();
@@ -210,22 +199,6 @@ public class RobotService(
         BatteryMaxVoltage = r.BatteryMaxVoltage,
         BatteryMinVoltage = r.BatteryMinVoltage,
       }).FirstOrDefaultAsync();
-  }
-
-  public async Task<bool> UpdateRobotChassisInfoAsync(Guid id, RobotChassisInfoUpdateBusinessModel robotChassisInfoUpdateBusinessModel)
-  {
-    return await _context.RobotChassisInfos
-      .Where(r => r.RobotId == id)
-      .ExecuteUpdateAsync(setters => setters
-        .SetProperty(r => r.RobotTypeId, robotChassisInfoUpdateBusinessModel.RobotTypeId)
-        .SetProperty(r => r.ChassisLengthX, robotChassisInfoUpdateBusinessModel.ChassisLengthX)
-        .SetProperty(r => r.ChassisLengthY, robotChassisInfoUpdateBusinessModel.ChassisLengthY)
-        .SetProperty(r => r.ChassisWheelCount, robotChassisInfoUpdateBusinessModel.ChassisWheelCount)
-        .SetProperty(r => r.ChassisWheelRadius, robotChassisInfoUpdateBusinessModel.ChassisWheelRadius)
-        .SetProperty(r => r.BatteryCount, robotChassisInfoUpdateBusinessModel.BatteryCount)
-        .SetProperty(r => r.BatteryMaxVoltage, robotChassisInfoUpdateBusinessModel.BatteryMaxVoltage)
-        .SetProperty(r => r.BatteryMinVoltage, robotChassisInfoUpdateBusinessModel.BatteryMinVoltage)
-      ) == 1;
   }
 
   public async Task<bool> TestDeleteRobotAsync(Guid id)

@@ -9,6 +9,4 @@ public record RobotCreateBusinessModel
   public required bool IsRealtimeExchange { get; set; }
 
   public required bool IsProtectingHardwareSerialNumber { get; set; }
-
-  public required RobotChassisInfoCreateBusinessModel RobotChassisInfo { get; set; }
 }

@@ -54,7 +54,7 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.Progresses
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public ProgressesRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/Progresses{?hideReserved*,hideSystem*,name*,pageNumber*,pageSize*}", pathParameters)
+        public ProgressesRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/Progresses{?name*,pageNumber*,pageSize*,system*}", pathParameters)
         {
         }
         /// <summary>
@@ -62,7 +62,7 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.Progresses
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public ProgressesRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/Progresses{?hideReserved*,hideSystem*,name*,pageNumber*,pageSize*}", rawUrl)
+        public ProgressesRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/Progresses{?name*,pageNumber*,pageSize*,system*}", rawUrl)
         {
         }
         /// <returns>A List&lt;global::LGDXRobot2Cloud.UI.Client.Models.ProgressDto&gt;</returns>
@@ -147,10 +147,6 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.Progresses
         public partial class ProgressesRequestBuilderGetQueryParameters 
         #pragma warning restore CS1591
         {
-            [QueryParameter("hideReserved")]
-            public bool? HideReserved { get; set; }
-            [QueryParameter("hideSystem")]
-            public bool? HideSystem { get; set; }
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
             [QueryParameter("name")]
@@ -164,6 +160,8 @@ namespace LGDXRobot2Cloud.UI.Client.Automation.Progresses
             public int? PageNumber { get; set; }
             [QueryParameter("pageSize")]
             public int? PageSize { get; set; }
+            [QueryParameter("system")]
+            public bool? System { get; set; }
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.

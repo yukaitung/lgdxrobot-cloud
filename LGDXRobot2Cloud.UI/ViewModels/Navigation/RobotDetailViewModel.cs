@@ -34,14 +34,13 @@ public static class RobotDetailViewModelExtensions
     robotDetailViewModel.IsProtectingHardwareSerialNumber = (bool)robotDto.IsProtectingHardwareSerialNumber!;
   }
 
-  public static RobotCreateDto ToCreateDto(this RobotDetailViewModel robotDetailViewModel, RobotChassisInfoCreateDto robotChassisInfoCreateDto)
+  public static RobotCreateDto ToCreateDto(this RobotDetailViewModel robotDetailViewModel)
   {
     return new RobotCreateDto {
       Name = robotDetailViewModel.Name,
       RealmId = robotDetailViewModel.RealmId,
       IsRealtimeExchange = robotDetailViewModel.IsRealtimeExchange,
       IsProtectingHardwareSerialNumber = robotDetailViewModel.IsProtectingHardwareSerialNumber,
-      RobotChassisInfo = robotChassisInfoCreateDto
     };
   }
   
