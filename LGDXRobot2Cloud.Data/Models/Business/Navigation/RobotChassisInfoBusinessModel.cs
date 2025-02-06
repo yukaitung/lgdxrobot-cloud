@@ -4,7 +4,7 @@ namespace LGDXRobot2Cloud.Data.Models.Business.Navigation;
 
 public record RobotChassisInfoBusinessModel
 {
-  public required int Id { get; set; }
+  public int Id { get; set; }
 
   public required int RobotTypeId { get; set; }
 

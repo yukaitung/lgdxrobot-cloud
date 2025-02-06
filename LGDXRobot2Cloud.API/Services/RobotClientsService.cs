@@ -123,13 +123,19 @@ public class RobotClientsService(
       await _robotService.UpdateRobotSystemInfoAsync(robotIdGuid, incomingSystemInfo.ToUpdateBusinessModel());
     }
 
-    // Obtain Robot Chassis Info
-    var robotChassisInfo = await _robotService.GetRobotChassisInfoAsync((Guid)robotId);
-    if (robotChassisInfo == null) {
-      return new RobotClientsGreetRespond {
-          Status = RobotClientsResultStatus.Failed,
-          AccessToken = string.Empty
-        };
+    // Robot Chassis Info
+    if (request.ChassisInfo != null)
+    {
+      await _robotService.UpsertRobotChassisInfoAsync(robotIdGuid, new RobotChassisInfoBusinessModel{
+        RobotTypeId = request.ChassisInfo.RobotTypeId,
+        ChassisLengthX = request.ChassisInfo.ChassisLX,
+        ChassisLengthY = request.ChassisInfo.ChassisLY,
+        ChassisWheelCount = request.ChassisInfo.ChassisWheelCount,
+        ChassisWheelRadius = request.ChassisInfo.ChassisWheelRadius,
+        BatteryCount = request.ChassisInfo.BatteryCount,
+        BatteryMaxVoltage = request.ChassisInfo.BatteryMaxVoltage,
+        BatteryMinVoltage = request.ChassisInfo.BatteryMinVoltage,
+      });
     }
 
     // Generate Access Token
@@ -149,15 +155,6 @@ public class RobotClientsService(
     return new RobotClientsGreetRespond {
       Status = RobotClientsResultStatus.Success,
       AccessToken = token,
-      ChassisInfo = new RobotClientsChassisInfo {
-        ChassisLX = robotChassisInfo.ChassisLengthX,
-        ChassisLY = robotChassisInfo.ChassisLengthY,
-        ChassisWheelCount = robotChassisInfo.ChassisWheelCount,
-        ChassisWheelRadius = robotChassisInfo.ChassisWheelRadius,
-        BatteryCount = robotChassisInfo.BatteryCount,
-        BatteryMaxVoltage = robotChassisInfo.BatteryMaxVoltage,
-        BatteryMinVoltage = robotChassisInfo.BatteryMinVoltage
-      },
       IsRealtimeExchange = await _robotService.GetRobotIsRealtimeExchange((Guid)robotId)
     };
   }

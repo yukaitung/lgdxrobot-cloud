@@ -62,24 +62,25 @@ message RobotClientsSystemInfo {
 }
 
 message RobotClientsChassisInfo {
-  double ChassisLX = 1;
-  double ChassisLY = 2;
-  int32 ChassisWheelCount = 3;
-  double ChassisWheelRadius = 4;
-  int32 BatteryCount = 5;
-  double BatteryMaxVoltage = 6;
-  double BatteryMinVoltage = 7;
+  int32 RobotTypeId = 1;
+  double ChassisLX = 2;
+  double ChassisLY = 3;
+  int32 ChassisWheelCount = 4;
+  double ChassisWheelRadius = 5;
+  int32 BatteryCount = 6;
+  double BatteryMaxVoltage = 7;
+  double BatteryMinVoltage = 8;
 }
 
 message RobotClientsGreet {
   RobotClientsSystemInfo SystemInfo = 1;
+  optional RobotClientsChassisInfo ChassisInfo = 2;
 }
 
 message RobotClientsGreetRespond {
   RobotClientsResultStatus Status = 1;
   string AccessToken = 2;
-  optional RobotClientsChassisInfo ChassisInfo = 3;
-  bool IsRealtimeExchange = 4;
+  bool IsRealtimeExchange = 3;
 }
 
 /*
