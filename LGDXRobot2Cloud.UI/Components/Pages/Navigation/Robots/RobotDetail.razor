@@ -102,10 +102,8 @@
           <AuthorizeView Policy="@Permissions.Navigation.Robots.Delete" Context="DeleteModel">
             <DeleteEntryModal EntryName="Robot" Errors="DeleteEntryModalViewModel.Errors"
               IsReady="DeleteEntryModalViewModel.IsReady" OnDelete="HandleDelete">
-              Do you want to delete this Realm? This action cannot be undone. You must first remove the following entities that reference this Realm:
+              Do you want to delete this Robot? This action cannot be undone. You must first remove the following entities that reference this Robot:
               <ul>
-                <li>Robots</li>
-                <li>Waypoints</li>
                 <li>Tasks (Running/Waiting/Template)</li>
               </ul>
             </DeleteEntryModal>
