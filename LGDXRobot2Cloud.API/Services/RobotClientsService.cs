@@ -123,21 +123,6 @@ public class RobotClientsService(
       await _robotService.UpdateRobotSystemInfoAsync(robotIdGuid, incomingSystemInfo.ToUpdateBusinessModel());
     }
 
-    // Robot Chassis Info
-    if (request.ChassisInfo != null)
-    {
-      await _robotService.UpsertRobotChassisInfoAsync(robotIdGuid, new RobotChassisInfoBusinessModel{
-        RobotTypeId = request.ChassisInfo.RobotTypeId,
-        ChassisLengthX = request.ChassisInfo.ChassisLX,
-        ChassisLengthY = request.ChassisInfo.ChassisLY,
-        ChassisWheelCount = request.ChassisInfo.ChassisWheelCount,
-        ChassisWheelRadius = request.ChassisInfo.ChassisWheelRadius,
-        BatteryCount = request.ChassisInfo.BatteryCount,
-        BatteryMaxVoltage = request.ChassisInfo.BatteryMaxVoltage,
-        BatteryMinVoltage = request.ChassisInfo.BatteryMinVoltage,
-      });
-    }
-
     // Generate Access Token
     var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobot2SecretConfiguration.RobotClientsJwtSecret));
     var credentials = new SigningCredentials(securityKey, _lgdxRobot2SecretConfiguration.RobotClientsJwtAlgorithm);

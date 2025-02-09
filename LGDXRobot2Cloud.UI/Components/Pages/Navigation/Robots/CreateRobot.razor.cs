@@ -18,11 +18,12 @@ public sealed partial class CreateRobot
   public required NavigationManager NavigationManager { get; set; } = default!;
 
   private RobotDetailViewModel Robot { get; set; } = new();
+  private RobotChassisInfoViewModel RobotChassisInfo { get; set; } = new();
   private RobotCertificateIssueDto? RobotCertificates { get; set; }
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
-  public readonly List<string> stepHeadings = ["Information", "Download Cerificates", "Complete"];
+  public readonly List<string> stepHeadings = ["Information", "Chassis", "Download Cerificates", "Complete"];
   private int currentStep = 0;
 
   public async Task HandleValidSubmit()
@@ -30,9 +31,15 @@ public sealed partial class CreateRobot
     Robot.Errors = null;
     if (currentStep == 0)
     {
+      _editContext = new EditContext(RobotChassisInfo);
+      _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
+      currentStep++;
+    }
+    else if (currentStep == 1)
+    {
       try
       {
-        var response = await LgdxApiClient.Navigation.Robots.PostAsync(Robot.ToCreateDto());
+        var response = await LgdxApiClient.Navigation.Robots.PostAsync(Robot.ToCreateDto(RobotChassisInfo.ToCreateDto()));
         RobotCertificates = response;
       }
       catch (ApiException ex)
@@ -41,7 +48,7 @@ public sealed partial class CreateRobot
       }   
       currentStep++;
     }
-    else if (currentStep == 1)
+    else if (currentStep == 2)
     {
       RobotCertificates = null;
       currentStep++;

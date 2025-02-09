@@ -26,6 +26,14 @@ namespace LGDXRobot2Cloud.UI.Client.Models
 #endif
         /// <summary>The realmId property</summary>
         public int? RealmId { get; set; }
+        /// <summary>The robotChassisInfo property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public global::LGDXRobot2Cloud.UI.Client.Models.RobotChassisInfoCreateDto? RobotChassisInfo { get; set; }
+#nullable restore
+#else
+        public global::LGDXRobot2Cloud.UI.Client.Models.RobotChassisInfoCreateDto RobotChassisInfo { get; set; }
+#endif
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -48,6 +56,7 @@ namespace LGDXRobot2Cloud.UI.Client.Models
                 { "isRealtimeExchange", n => { IsRealtimeExchange = n.GetBoolValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
                 { "realmId", n => { RealmId = n.GetIntValue(); } },
+                { "robotChassisInfo", n => { RobotChassisInfo = n.GetObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.RobotChassisInfoCreateDto>(global::LGDXRobot2Cloud.UI.Client.Models.RobotChassisInfoCreateDto.CreateFromDiscriminatorValue); } },
             };
         }
         /// <summary>
@@ -61,6 +70,7 @@ namespace LGDXRobot2Cloud.UI.Client.Models
             writer.WriteBoolValue("isRealtimeExchange", IsRealtimeExchange);
             writer.WriteStringValue("name", Name);
             writer.WriteIntValue("realmId", RealmId);
+            writer.WriteObjectValue<global::LGDXRobot2Cloud.UI.Client.Models.RobotChassisInfoCreateDto>("robotChassisInfo", RobotChassisInfo);
         }
     }
 }
