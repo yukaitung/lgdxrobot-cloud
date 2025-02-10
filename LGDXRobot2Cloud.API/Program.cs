@@ -25,7 +25,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("secrets.json", true, true);
 builder.WebHost.ConfigureKestrel(cfg =>
 {
   cfg.ConfigureHttpsDefaults(ctx => ctx.ClientCertificateMode = ClientCertificateMode.AllowCertificate);

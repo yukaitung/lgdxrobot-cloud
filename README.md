@@ -51,6 +51,8 @@ Below are the configurations for the API, the UI, and the Worker. Most of the co
 * RabbitMQ
 * SFTP
 
+For the screts, refer to the [Official Documentation](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) on how to create the secrets.
+
 ##### 2.1 LGDXRobot2Cloud.API
 
 `appsettings.json`

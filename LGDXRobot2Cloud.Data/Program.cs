@@ -4,7 +4,6 @@ using LGDXRobot2Cloud.Data.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("secrets.json", true, true);
 builder.Services.AddDbContextPool<LgdxContext>(cfg => 
   cfg.UseNpgsql(builder.Configuration["PGSQLConnectionString"])
 	.LogTo(Console.WriteLine, LogLevel.Information)
