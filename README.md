@@ -171,7 +171,7 @@ You need to create the database and a first user.
 
 ```bash
 cd LGDXRobot2Cloud.Data
-dotnet ef database update && dotnet run --initialiseData "true" 
+dotnet ef database update && dotnet run --initialiseData "true"  --email "email@example.com" --fullName "Full Name" --userName "admin" --password "password"
 ```
 
 #### 4. Run
@@ -181,6 +181,15 @@ You can run the application using `dotnet run` in below projects:
 * LGDXRobot2Cloud.API
 * LGDXRobot2Cloud.UI
 * LGDXRobot2Cloud.Worker
+
+#### 5. Extra Configuration
+
+A map is required for the application to work, you should generate a map in ROS2 Nav2 stack.
+
+1. Go to Navigation -> Realms and select "View" for "First Realm"
+2. Convert the map from PGM to PNG, then upload the image
+3. Update Resolution, Origin X, Origin Y, Origin Rotation
+4. Restart LGDXRobot2Cloud.UI
 
 ## Development Notes
 

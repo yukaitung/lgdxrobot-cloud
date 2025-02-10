@@ -9,11 +9,13 @@ namespace LGDXRobot2Cloud.Data.Services;
 
 public class InitialiseDataRunner(
     LgdxContext context,
-    UserManager<LgdxUser> userManager
+    UserManager<LgdxUser> userManager,
+    IConfiguration configuration
   ) : IHostedService
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly UserManager<LgdxUser> _userManager = userManager;
+  private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
   public async Task StartAsync(CancellationToken cancellationToken)
   {
@@ -29,8 +31,8 @@ public class InitialiseDataRunner(
         Name = value.Name,
         NormalizedName = value.Name.ToUpper(),
       };
-      var roleStore = new RoleStore<LgdxRole>(context);
-      if (!context.Roles.Any(r => r.Name == role.Name))
+      var roleStore = new RoleStore<LgdxRole>(_context);
+      if (!_context.Roles.Any(r => r.Name == role.Name))
       {
         // Create Role
         await roleStore.CreateAsync(role, cancellationToken);
@@ -46,29 +48,29 @@ public class InitialiseDataRunner(
     var firstUser = new LgdxUser
     {
       Id = Guid.CreateVersion7().ToString(),
-      Email = "admin@example.com",
+      Email = _configuration["email"],
       EmailConfirmed = true,
       LockoutEnabled = true,
-      Name = "Admin",
-      NormalizedEmail = "admin@example.com".ToUpper(),
-      NormalizedUserName = "ADMIN",
+      Name = _configuration["fullName"],
+      NormalizedEmail = _configuration["email"]!.ToUpper(),
+      NormalizedUserName = _configuration["userName"]!.ToUpper(),
       SecurityStamp = Guid.NewGuid().ToString(),
-      UserName = "admin"
+      UserName = _configuration["userName"]
     };
 
-    if (!context.Users.Any(u => u.UserName == firstUser.UserName))
+    if (!_context.Users.Any(u => u.UserName == firstUser.UserName))
     {
       var password = new PasswordHasher<LgdxUser>();
-      var hashed = password.HashPassword(firstUser, "123456");
+      var hashed = password.HashPassword(firstUser, _configuration["password"]!);
       firstUser.PasswordHash = hashed;
 
-      var userStore = new UserStore<LgdxUser>(context);
+      var userStore = new UserStore<LgdxUser>(_context);
       await userStore.CreateAsync(firstUser, cancellationToken);
     }
     // Assign user to roles
-    LgdxUser? user = await _userManager.FindByEmailAsync(firstUser.Email);
+    LgdxUser? user = await _userManager.FindByEmailAsync(firstUser.Email!);
     var result = await _userManager.AddToRolesAsync(user!, ["Global Administrator"]);
-    await context.SaveChangesAsync(cancellationToken);
+    await _context.SaveChangesAsync(cancellationToken);
 
     Environment.Exit(0);
   }

@@ -488,6 +488,3 @@ $RECYCLE.BIN/
 
 # Secret file
 secrets.json
-
-# Keep until db design is stable
-*/Migrations
