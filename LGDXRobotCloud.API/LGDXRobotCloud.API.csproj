@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dceb32c6-a53a-45bc-ab71-38bf29c39084</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.67.0" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="9.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.1" />
+  </ItemGroup>
+  
+  <ItemGroup>
+		<ProjectReference Include="..\LGDXRobotCloud.Utilities\LGDXRobotCloud.Utilities.csproj" />
+    <ProjectReference Include="..\LGDXRobotCloud.Data\LGDXRobotCloud.Data.csproj" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\RobotClientsService.proto" GrpcServices="Server" />
+  </ItemGroup>
+
+</Project>

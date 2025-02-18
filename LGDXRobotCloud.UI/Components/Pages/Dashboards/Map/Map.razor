@@ -1,0 +1,107 @@
+@attribute [Route(AppRoutes.Dashboards.Map)]
+@attribute [Authorize (Policy = Permissions.Navigation.Robots.Read)]
+@using LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components
+@layout EmptyLayout
+
+<PageTitle>Map | LGDXRobot2 Cloud</PageTitle>
+
+<div id="navigation-map-div" class="flex-fill">
+  <a id="robotInformationPaneButton" class="btn d-none" data-bs-toggle="offcanvas" href="#robotInformationPane" role="button">
+    Toggle end offcanvas
+  </a>
+  @if (Realm != null)
+  {
+    <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Realm.Image" />
+  }
+  <div class="btn-group-vertical" style="position: absolute;right: 1em;top: 5em; background-color: var(--tblr-card-bg);">
+    <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
+    <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
+    <button class="btn" onclick="NavigationMapZoomReset()"<i class="ti ti-rotate"></i></button>
+  </div>
+  <canvas id="navigation-map-canvas" style="float: left;" />
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="robotInformationPane">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasEndLabel">Robot Detail</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    @if (SelectedRobot != null)
+    {
+      <div class="d-flex">
+        <h2 style="display: table;">@SelectedRobotName</h2>
+        <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@SelectedRobot.RobotStatus" /></h2>
+      </div>
+      <div class="mb-2">ID: @SelectedRobot.RobotId</div>
+      <div class="table-responsive mb-3">
+        <table class="table card-table table-vcenter datatable">
+          <tbody>
+            <tr>
+              <th colspan="2">
+                Robot Data
+              </th>
+            </tr>
+            <tr>
+              <td>Position</td>
+              <td>X: @Math.Round(SelectedRobot.Position.X, 4)<br />Y: @Math.Round(SelectedRobot.Position.Y, 4)<br />Rotation: @Math.Round(SelectedRobot.Position.Rotation, 4)</td>
+            </tr>
+            <tr>
+              <td>Batteries</td>
+              <td>
+                @if (SelectedRobot.Batteries.Count() > 0)
+                {
+                  @for (int i = 0; i < SelectedRobot.Batteries.Count(); i++)
+                  {
+                    @(' ')
+                    <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
+                      @(SelectedRobot.Batteries.ElementAt(i) + " V")
+                    </span>
+                  }
+                }
+                else
+                {
+                  <span class="badge badge-outline">Unavailable</span>
+                }
+              </td>
+            </tr>
+            <tr>
+              <td>Emergency Stops</td>
+              <td>Software: @SelectedRobot.CriticalStatus.SoftwareEmergencyStop<br />Hardware: @SelectedRobot.CriticalStatus.HardwareEmergencyStop</td>
+            </tr>
+            <tr>
+              <td>ETA</td>
+              <td>@Math.Round(SelectedRobot.NavProgress.Eta, 4)</td>
+            </tr>
+            <tr>
+              <td>Recoveries</td>
+              <td>@SelectedRobot.NavProgress.Recoveries</td>
+            </tr>
+            <tr>
+              <td>Distance Remaining</td>
+              <td>@Math.Round(SelectedRobot.NavProgress.DistanceRemaining, 4)</td>
+            </tr>
+            <tr>
+              <td>Waypoints Remaining</td>
+              <td>@SelectedRobot.NavProgress.WaypointsRemaining</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <a href="@(AppRoutes.Navigation.Robots.Index + $"/{SelectedRobot.RobotId}?ReturnUrl=" + AppRoutes.Dashboards.Map)" type="button" class="btn btn-primary">
+        Manage
+      </a>
+    }
+  </div>
+</div>
+
+<script>
+  @if (Realm != null)
+  { 
+    @($"var MAP_RESOLUTION = {Realm.Resolution};var MAP_ORIGIN_X = {Realm.OriginX};var MAP_ORIGIN_Y = {Realm.OriginY};var MAP_ORIGIN_ROTATION = {Realm.OriginRotation};")
+  }
+  else
+  {
+    @($"var MAP_RESOLUTION = 0;var MAP_ORIGIN_X = 0;var MAP_ORIGIN_Y = 0;var MAP_ORIGIN_ROTATION = 0")
+  }
+</script>

@@ -1,0 +1,83 @@
+@using LGDXRobotCloud.Utilities.Enums
+@using LGDXRobotCloud.UI.ViewModels.Navigation
+
+@if (RobotChassisInfo != null)
+{
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label required">Robot Type</label>
+    <div class="col">
+      <select id="@nameof(RobotChassisInfo.RobotTypeId)" class="form-select" value="@RobotChassisInfo.RobotTypeId" @onchange="@((e) => HandleLgdxRobotTypeId(e.Value ?? string.Empty))">
+        <option value="">Choose a robot type</option>
+        @foreach (LgdxRobotType robotType in Enum.GetValues(typeof(LgdxRobotType)))
+        {
+          <option value="@((int) robotType)" selected="@(@RobotChassisInfo.RobotTypeId == (int) robotType)">@(robotType.ToEnumMember())</option>
+        }
+      </select>
+      <ValidationMessage class="invalid-feedback" For="@(() => RobotChassisInfo.RobotTypeId)" />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label required" for="@nameof(RobotChassisInfo.ChassisLengthX)">Chassis Length X (m)</label>
+    <div class="col">
+      <InputNumber id="@nameof(RobotChassisInfo.ChassisLengthX)" type="number" step="any" class="form-control" @bind-Value="RobotChassisInfo.ChassisLengthX" />
+      <ValidationMessage class="invalid-feedback" For="@(() => RobotChassisInfo.ChassisLengthX)" />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label required" for="@nameof(RobotChassisInfo.ChassisLengthY)">Chassis Length Y (m)</label>
+    <div class="col">
+      <InputNumber id="@nameof(RobotChassisInfo.ChassisLengthY)" type="number" step="any" class="form-control" @bind-Value="RobotChassisInfo.ChassisLengthY" />
+      <ValidationMessage class="invalid-feedback" For="@(() => RobotChassisInfo.ChassisLengthY)" />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label required" for="@nameof(RobotChassisInfo.ChassisWheelCount)">Chassis Wheel Count</label>
+    <div class="col">
+      <InputNumber id="@nameof(RobotChassisInfo.ChassisWheelCount)" type="number" step="1" class="form-control" @bind-Value="RobotChassisInfo.ChassisWheelCount" />
+      <ValidationMessage class="invalid-feedback" For="@(() => RobotChassisInfo.ChassisWheelCount)" />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label required" for="@nameof(RobotChassisInfo.ChassisWheelRadius)">Chassis Wheel Radius (m)</label>
+    <div class="col">
+      <InputNumber id="@nameof(RobotChassisInfo.ChassisWheelRadius)" type="number" step="any" class="form-control" @bind-Value="RobotChassisInfo.ChassisWheelRadius" />
+      <ValidationMessage class="invalid-feedback" For="@(() => RobotChassisInfo.ChassisWheelRadius)" />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label required" for="@nameof(RobotChassisInfo.BatteryCount)">Battery Count</label>
+    <div class="col">
+      <InputNumber id="@nameof(RobotChassisInfo.BatteryCount)" type="number" step="1" class="form-control"  @bind-Value="RobotChassisInfo.BatteryCount" />
+      <ValidationMessage class="invalid-feedback" For="@(() => RobotChassisInfo.BatteryCount)" />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label required" for="@nameof(RobotChassisInfo.BatteryMaxVoltage)">Battery Maximum Voltage (V)</label>
+    <div class="col">
+      <InputNumber id="@nameof(RobotChassisInfo.BatteryMaxVoltage)" type="number" step="any" class="form-control"  @bind-Value="RobotChassisInfo.BatteryMaxVoltage" />
+      <ValidationMessage class="invalid-feedback" For="@(() => RobotChassisInfo.BatteryMaxVoltage)" />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label class="col-3 col-form-label required" for="@nameof(RobotChassisInfo.BatteryMinVoltage)">Battery Minimum Voltage (V)</label>
+    <div class="col">
+      <InputNumber id="@nameof(RobotChassisInfo.BatteryMinVoltage)" type="number" step="any" class="form-control" @bind-Value="RobotChassisInfo.BatteryMinVoltage" />
+      <ValidationMessage class="invalid-feedback" For="@(() => RobotChassisInfo.BatteryMinVoltage)" />
+    </div>
+  </div>
+}
+
+@code
+{
+  [Parameter]
+  public RobotChassisInfoViewModel? RobotChassisInfo { get; set; }
+
+  public void HandleLgdxRobotTypeId(object args)
+  {
+    var value = args.ToString();
+    if (!string.IsNullOrEmpty(value))
+      RobotChassisInfo!.RobotTypeId = int.Parse(value);
+    else
+      RobotChassisInfo!.RobotTypeId = null;
+  }
+} 

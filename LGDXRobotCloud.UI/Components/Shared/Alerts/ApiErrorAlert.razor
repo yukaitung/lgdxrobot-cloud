@@ -1,0 +1,28 @@
+@using LGDXRobotCloud.UI.Helpers
+@using Microsoft.AspNetCore.Mvc
+
+@if (Errors != null)
+{
+  <div class="alert alert-danger" role="alert">
+    <div class="d-flex">
+      <i class="me-2 ti ti-x" style="font-size: 24px;"></i>
+      <div>
+        Something went wrong while processing your request:
+        @if (Errors.Count > 0)
+        {
+          <ul class="mb-0 mt-1">
+            @foreach (var (field, error) in Errors)
+            {
+              <li class="text-red">@(error ?? string.Empty)</li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  [Parameter]
+  public IDictionary<string,string>? Errors { get; set; }
+}

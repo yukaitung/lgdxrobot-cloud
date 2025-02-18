@@ -1,0 +1,16 @@
+@using LGDXRobotCloud.UI.Helpers
+
+@if (Display)
+{
+  <div class="alert alert-success" role="alert">
+    <div class="d-flex">
+      <i class="me-2 ti ti-check" style="font-size: 22px;"></i>
+      <div>The system has been updated successfully.</div>
+    </div>
+  </div>
+}
+
+@code {
+  [Parameter]
+  public bool Display { get; set; }
+}

@@ -1,0 +1,136 @@
+@using LGDXRobotCloud.UI.ViewModels.Administration
+@attribute [Route(AppRoutes.Administration.Roles.Detail)]
+@attribute [Route(AppRoutes.Administration.Roles.Create)]
+@attribute [Authorize (Policy = Permissions.Administration.Roles.Read)]
+
+<PageHeader Title="@(Id != null ? "Edit Role" : "Create Role")">
+  <div class="row align-items-center">
+    <div class="col">
+      <ReturnLink HREF="@AppRoutes.Administration.Roles.Index" />
+      <h2 class="page-title">
+        @(Id != null ? "Edit Role" : "Create Role")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Role Detail</h3>
+    </div>
+    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+      <DataAnnotationsValidator />
+      <div class="card-body">
+        <ApiErrorAlert Errors="RolesDetailViewModel.Errors" />
+        <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
+        @if (Id != null)
+        {
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">ID</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@RolesDetailViewModel.Id</div>
+            </div>
+          </div>
+        }
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label required" for="@nameof(RolesDetailViewModel.Name)">Name</label>
+          <div class="col">
+            <InputText id="@nameof(RolesDetailViewModel.Name)" type="text" class="form-control" @bind-Value="RolesDetailViewModel.Name" />
+            <ValidationMessage class="invalid-feedback" For="@(() => RolesDetailViewModel.Name)" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label" for="@nameof(RolesDetailViewModel.Description)">Description</label>
+          <div class="col">
+            <InputTextArea id="@nameof(RolesDetailViewModel.Name)" class="form-control" rows="3" @bind-Value="RolesDetailViewModel.Description" />
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label" for="Scopes">Scopes</label>
+          <div class="col">
+            <InformationModal>
+              The permission field is mandatory.
+            </InformationModal>
+            <table class="table table-vcenter text-nowrap datatable">
+              <thead>
+                <tr>
+                  <th class="w-1">Sequence</th>
+                  <th>Scopes</th>
+                  <th class="w-1"><!-- Action --></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (int i = 0; i < RolesDetailViewModel.Scopes.Count; i++)
+                {
+                  var index = i;
+                  var scope = RolesDetailViewModel.Scopes[i];
+                  <tr>
+                    <td>
+                        @(index + 1)
+                    </td>
+                    <td class="d-flex gap-3">
+                      <InputSelect class="form-select" TValue="int" Value="scope.Area" ValueChanged="@((value) => HandleAreaChanged(index, value))" ValueExpression="@(() => scope.Area)">
+                        @for (int i = 0; i < ScopeOptionsSelect.Areas.Count(); i++)
+                        {
+                          <option value="@i">@ScopeOptionsSelect.Areas[i]</option>
+                        }
+                      </InputSelect>
+                      <InputSelect class="form-select" @bind-Value="scope.Controller">
+                        <option value="">Select... / All Controller</option>
+                        @for (int i = 0; i < ScopeOptionsSelect.Controllers[scope.Area].Count(); i++)
+                        {
+                          <option value="@i">@ScopeOptionsSelect.Controllers[scope.Area][i]</option>
+                        }
+                      </InputSelect>
+                      <InputSelect id="@($"{nameof(ScopeOption.Permission)}-{index}")" class="form-select" @bind-Value="scope.Permission">
+                        <option value="">Select Permission...</option>
+                        @for (int i = 0; i < ScopeOptionsSelect.Permissions.Count(); i++)
+                        {
+                          <option value="@i">@ScopeOptionsSelect.Permissions[i]</option>
+                        }
+                      </InputSelect>
+                    </td>
+                    <td>
+                      <button type="button"
+                        class="btn btn-ghost-danger btn-icon" @onclick="e => ListRemoveScope(index)">
+                        <i class="ti ti-trash" style="font-size: 16px;"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            <div class="row">
+              <button type="button" class="btn btn-secondary w-8 mx-auto mb-3" @onclick="ListAddScope">
+                Add Scope
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer d-flex">
+        <AuthorizeView Policy=@Permissions.Administration.Roles.Delete Context="DeleteButton">
+          @if (Id != null)
+          {
+            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+              Delete
+            </a>
+          }
+        </AuthorizeView>
+        <AuthorizeView Policy=@Permissions.Administration.Roles.Write Context="Write">
+          <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+        </AuthorizeView>
+      </div>
+    </EditForm>
+  </div>
+</PageBody>
+
+<AuthorizeView Policy=@Permissions.Administration.Roles.Delete Context="DeleteModal">
+  @if (Id != null)
+  {
+    <DeleteEntryModal EntryName="Role" OnDelete="HandleDelete">
+      Do you want to delete this Role? This action cannot be undone.
+    </DeleteEntryModal>
+  }
+</AuthorizeView>

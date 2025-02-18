@@ -1,0 +1,57 @@
+@using LGDXRobotCloud.UI.Client.Models
+@using LGDXRobotCloud.UI.ViewModels.Navigation
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">System Information</h3>
+  </div>
+  <div class="table-responsive">
+    <table class="table card-table table-vcenter text-nowrap datatable">
+      <tbody>
+        <tr>
+          <td>CPU Model</td>
+          <td>@(RobotSystemInfo != null ? RobotSystemInfo.Cpu : "-")</td>
+        </tr>
+        <tr>
+          <td>CPU Endianness</td>
+          <td>@(RobotSystemInfo != null ? ((bool)RobotSystemInfo.IsLittleEndian! ? "Little-endian" : "Big-endian") : "-")
+          </td>
+        </tr>
+        <tr>
+          <td>Motherboard Model</td>
+          <td>@(RobotSystemInfo != null ? RobotSystemInfo.Motherboard : "-")</td>
+        </tr>
+        <tr>
+          <td>Motherboard Serial Number</td>
+          <td>@(RobotSystemInfo != null ? RobotSystemInfo.MotherboardSerialNumber : "-")</td>
+        </tr>
+        <tr>
+          <td>RAM Size</td>
+          <td>@(RobotSystemInfo != null ? RobotSystemInfo.RamMiB + " MiB" : "-")</td>
+        </tr>
+        <tr>
+          <td>GPU Model</td>
+          <td>@(RobotSystemInfo?.Gpu != null ? RobotSystemInfo?.Gpu : "-")</td>
+        </tr>
+        <tr>
+          <td>Operation System</td>
+          <td>@(RobotSystemInfo != null ? RobotSystemInfo.Os : "-")</td>
+        </tr>
+        <tr>
+          <td>System Type</td>
+          <td>@(RobotSystemInfo != null ? ((bool)RobotSystemInfo.Is32Bit! ? "32 Bit" : "64 Bit") : "-")</td>
+        </tr>
+        <tr>
+          <td>MCU Serial Number</td>
+          <td>@(RobotSystemInfo != null ? RobotSystemInfo.McuSerialNumber : "-")</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@code
+{
+  [Parameter]
+  public RobotSystemInfoDto? RobotSystemInfo { get; set; }
+}

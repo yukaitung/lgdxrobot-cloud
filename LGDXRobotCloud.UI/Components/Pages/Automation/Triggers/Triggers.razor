@@ -1,0 +1,24 @@
+@attribute [Route(AppRoutes.Automation.Triggers.Index)]
+@attribute [Authorize (Policy = Permissions.Automation.Triggers.Read)]
+@using LGDXRobotCloud.UI.Components.Pages.Automation.Triggers.Components
+
+<PageHeader Title="Triggers">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Triggers
+      </h2>
+    </div>
+    <AuthorizeView Policy="@Permissions.Automation.Triggers.Write">
+      <div class="col-auto ms-auto">
+        <a href="@AppRoutes.Automation.Triggers.Create" type="button" class="btn btn-primary">
+          Create Trigger
+        </a>
+      </div>
+    </AuthorizeView>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <TriggersTable />
+</PageBody>

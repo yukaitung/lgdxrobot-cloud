@@ -1,4 +1,4 @@
-# LGDXRobot2-Cloud
+# LGDXRobot-Cloud
 
 A web application for managing and morning LGDXRobot operations, built with .NET and Blazor.
 
@@ -6,11 +6,11 @@ A web application for managing and morning LGDXRobot operations, built with .NET
 
 This application consists of following projects:
 
-* LGDXRobot2Cloud.API - The core API for the application
-* LGDXRobot2Cloud.Data - Defines the database schema and data access structures
-* LGDXRobot2Cloud.UI - The UI for the application
-* LGDXRobot2Cloud.Utilities - The shared utilities for the application
-* LGDXRobot2Cloud.Worker - Performs the time-consuming tasks for the application
+* LGDXRobotCloud.API - The core API for the application
+* LGDXRobotCloud.Data - Defines the database schema and data access structures
+* LGDXRobotCloud.UI - The UI for the application
+* LGDXRobotCloud.Utilities - The shared utilities for the application
+* LGDXRobotCloud.Worker - Performs the time-consuming tasks for the application
 
 ## Getting started
 
@@ -18,10 +18,10 @@ This application consists of following projects:
 
 This application requires PostgreSQL, RabbitMQ and a SMTP server, you can install them using Docker. 
 
-For the PostgreSQL, you can create it with a table called `LGDX` using the following command:
+For the PostgreSQL, you can create it with a table called `LGDXRobotCloud` using the following command:
 
 ```bash
-docker run --name postgres -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_USER=admin -e POSTGRES_DB=LGDX -v postgres-data:/var/lib/postgresql/data -p 5432:5432 -d postgres
+docker run --name postgres -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_USER=admin -e POSTGRES_DB=LGDXRobotCloud -v postgres-data:/var/lib/postgresql/data -p 5432:5432 -d postgres
 ```
 
 For RabbitMQ, you can use the following command:
@@ -53,7 +53,7 @@ Below are the configurations for the API, the UI, and the Worker. Most of the co
 
 For the screts, refer to the [Official Documentation](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) on how to create the secrets.
 
-##### 2.1 LGDXRobot2Cloud.API
+##### 2.1 LGDXRobotCloud.API
 
 `appsettings.json`
 
@@ -101,7 +101,7 @@ For the screts, refer to the [Official Documentation](https://learn.microsoft.co
 }
 ```
 
-##### 2.2 LGDXRobot2Cloud.Data
+##### 2.2 LGDXRobotCloud.Data
 
 `secrets` 
 
@@ -111,13 +111,13 @@ For the screts, refer to the [Official Documentation](https://learn.microsoft.co
 }
 ```
 
-##### 2.3 LGDXRobot2Cloud.UI
+##### 2.3 LGDXRobotCloud.UI
 
 `appsettings.json`
 
 ```json
 {
-  "Lgdxobot2CloudApiUrl": "https://localhost:5163", // The URL of the LGDXRobot2Cloud API
+  "LGDXRobotCloudApiUrl": "https://localhost:5163", // The URL of the LGDXRobotCloud API
 }
 ```
 
@@ -134,14 +134,14 @@ For the screts, refer to the [Official Documentation](https://learn.microsoft.co
 }
 ```
 
-##### 2.4 LGDXRobot2Cloud.Worker
+##### 2.4 LGDXRobotCloud.Worker
 
 `appsettings.json`
 
 ```json
 "EmailLinks": { // The values belows are used to generate the links in the emails
-  "AccessUrl": "https://localhost:5103/", // The URL of the LGDXRobot2Cloud UI
-  "PasswordResetPath": "ResetPassword" // The path to the password reset page in the LGDXRobot2Cloud UI
+  "AccessUrl": "https://localhost:5103/", // The URL of the LGDXRobotCloud UI
+  "PasswordResetPath": "ResetPassword" // The path to the password reset page in the LGDXRobotCloud UI
 }
 ```
 
@@ -172,7 +172,7 @@ For the screts, refer to the [Official Documentation](https://learn.microsoft.co
 You need to create the database and a first user.
 
 ```bash
-cd LGDXRobot2Cloud.Data
+cd LGDXRobotCloud.Data
 dotnet ef database update && dotnet run --initialiseData "true"  --email "email@example.com" --fullName "Full Name" --userName "admin" --password "password"
 ```
 
@@ -180,9 +180,9 @@ dotnet ef database update && dotnet run --initialiseData "true"  --email "email@
 
 You can run the application using `dotnet run` in below projects:
 
-* LGDXRobot2Cloud.API
-* LGDXRobot2Cloud.UI
-* LGDXRobot2Cloud.Worker
+* LGDXRobotCloud.API
+* LGDXRobotCloud.UI
+* LGDXRobotCloud.Worker
 
 #### 5. Extra Configuration
 
@@ -191,12 +191,12 @@ A map is required for the application to work, you should generate a map in ROS2
 1. Go to Navigation -> Realms and select "View" for "First Realm"
 2. Convert the map from PGM to PNG, then upload the image
 3. Update Resolution, Origin X, Origin Y, Origin Rotation
-4. Restart LGDXRobot2Cloud.UI
+4. Restart LGDXRobotCloud.UI
 
 ## Development Notes
 
-Use the following command to generate the client in LGDXRobot2Cloud.UI:
+Use the following command to generate the client in LGDXRobotCloud.UI:
 
 ```bash
-kiota generate -l CSharp -c LgdxApiClient -n LGDXRobot2Cloud.UI.Client -o ./Client -d https://localhost:5163/swagger/v1/swagger.json --clean-output
+kiota generate -l CSharp -c LgdxApiClient -n LGDXRobotCloud.UI.Client -o ./Client -d https://localhost:5163/swagger/v1/swagger.json --clean-output
 ```

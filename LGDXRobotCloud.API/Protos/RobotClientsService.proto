@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+option csharp_namespace = "LGDXRobotCloud.Protos";
+
+service RobotClientsService {
+  rpc Greet (RobotClientsGreet) returns (RobotClientsGreetRespond);
+  rpc Exchange (RobotClientsExchange) returns (RobotClientsRespond);
+  rpc ExchangeStream (stream RobotClientsExchange) returns (stream RobotClientsRespond);
+  rpc AutoTaskNext (RobotClientsNextToken) returns (RobotClientsRespond);
+  rpc AutoTaskAbort (RobotClientsAbortToken) returns (RobotClientsRespond);
+}
+
+/*
+** Common
+*/
+enum RobotClientsResultStatus {
+  Success = 0;
+  Failed = 1;
+}
+
+message RobotClientsDof {
+  double X = 1;
+  double Y = 2;
+  double Rotation = 3;
+}
+
+message RobotClientsRobotCommands {
+  bool AbortTask = 1;
+  bool RenewCertificate = 2;
+  bool SoftwareEmergencyStop = 3;
+  bool PauseTaskAssigement = 4;
+}
+
+message RobotClientsAutoTask {
+  int32 TaskId = 1;
+  string TaskName = 2;
+  int32 TaskProgressId = 3;
+  string TaskProgressName = 4;
+  repeated RobotClientsDof Waypoints = 5;
+  string NextToken = 6;
+}
+
+message RobotClientsRespond {
+  RobotClientsResultStatus Status = 1;
+  RobotClientsRobotCommands Commands = 2;
+  optional RobotClientsAutoTask Task = 3;
+}
+
+/*
+** Greet
+*/
+message RobotClientsSystemInfo {
+  string Cpu = 1;
+  string Motherboard = 2;
+  string MotherboardSerialNumber = 3;
+  bool IsLittleEndian = 4;
+  int32 RamMiB = 5;
+  string Gpu = 6;
+  string Os = 7;
+  bool Is32Bit = 8;
+  string McuSerialNumber = 9;
+}
+
+message RobotClientsChassisInfo {
+  int32 RobotTypeId = 1;
+  double ChassisLX = 2;
+  double ChassisLY = 3;
+  int32 ChassisWheelCount = 4;
+  double ChassisWheelRadius = 5;
+  int32 BatteryCount = 6;
+  double BatteryMaxVoltage = 7;
+  double BatteryMinVoltage = 8;
+}
+
+message RobotClientsGreet {
+  RobotClientsSystemInfo SystemInfo = 1;
+  optional RobotClientsChassisInfo ChassisInfo = 2;
+}
+
+message RobotClientsGreetRespond {
+  RobotClientsResultStatus Status = 1;
+  string AccessToken = 2;
+  bool IsRealtimeExchange = 3;
+}
+
+/*
+** Exchange
+*/
+enum RobotClientsRobotStatus {
+  Idle = 0;
+  Running = 1;
+  Stuck = 2;
+  Aborting = 3;
+  Paused = 4;
+  Critical = 5;
+  Charging = 6;
+  Offline = 7;
+}
+
+message RobotClientsRobotCriticalStatus {
+  bool HardwareEmergencyStop = 1;
+  bool SoftwareEmergencyStop = 2;
+  repeated int32 BatteryLow = 3;
+  repeated int32 MotorDamaged = 4;
+}
+
+message RobotClientsAutoTaskNavProgress {
+  double Eta = 1;
+  int32 Recoveries = 2;
+  double DistanceRemaining = 3;
+  int32 WaypointsRemaining = 4;
+}
+
+message RobotClientsExchange {
+  RobotClientsRobotStatus RobotStatus = 1;
+  RobotClientsRobotCriticalStatus CriticalStatus = 2;
+  repeated double Batteries = 3;
+  RobotClientsDof Position = 4;
+  RobotClientsAutoTaskNavProgress NavProgress = 5;
+}
+
+/*
+** AutoTaskNext
+*/
+message RobotClientsNextToken {
+  int32 TaskId = 1;
+  string NextToken = 2;
+}
+
+/*
+** AutoTaskAbort
+*/
+enum RobotClientsAbortReason {
+  Reserved = 0;
+  UserApi = 1;
+  Robot = 2;
+  NavStack = 3;
+}
+
+message RobotClientsAbortToken {
+  int32 TaskId = 1;
+  string NextToken = 2;
+  RobotClientsAbortReason AbortReason = 3;
+}

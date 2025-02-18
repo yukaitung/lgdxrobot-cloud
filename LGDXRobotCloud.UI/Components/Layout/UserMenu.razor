@@ -1,0 +1,51 @@
+@using LGDXRobotCloud.UI.Services
+<AuthorizeView>
+  <Authorized>
+    <div class="dropdown">
+      <button class="btn" data-bs-toggle="dropdown" style="padding: 7px;">
+        <i class="ti ti-user" style="font-size: 20px;"></i>
+      </button>
+      <div class="mt-2 dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+        <a href="#" class="dropdown-item disabled">
+          @context.User.Identity!.Name<br />
+          @@@RealmName
+        </a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changeRealm">
+          Change Realm
+        </a>
+        <a class="dropdown-item" href="@(AppRoutes.Identity.User + $"?ReturnUrl=" + NavigationManager.ToBaseRelativePath(NavigationManager.Uri))">
+          Profile
+        </a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#logoutModal">
+          Logout
+        </a>
+      </div>
+    </div>
+  </Authorized>
+</AuthorizeView>
+
+@code {
+  [Inject]
+  public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
+  [Inject]
+  public required NavigationManager NavigationManager { get; set; } = default!;
+  
+  private string RealmName { get; set; } = string.Empty;
+
+  protected override async Task OnInitializedAsync()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    await base.OnInitializedAsync();
+  }
+}

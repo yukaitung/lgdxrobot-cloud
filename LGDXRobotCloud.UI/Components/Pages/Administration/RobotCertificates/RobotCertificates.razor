@@ -1,0 +1,53 @@
+@attribute [Route(AppRoutes.Administration.RobotCertificates.Index)]
+@attribute [Authorize (Policy = Permissions.Administration.RobotCertificates.Read)]
+@using LGDXRobotCloud.UI.Components.Pages.Administration.RobotCertificates.Components
+
+<PageHeader Title="Robot Certificates">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Robot Certificates
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <a class="btn" data-bs-toggle="modal" data-bs-target="#rootCertificate" @onclick="GetRootCertificate">
+        Root Certificate
+      </a>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <RobotCertificatesTable />
+</PageBody>
+
+<div class="modal modal-blur fade" id="rootCertificate" tabindex="-1" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Root Certificate</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label">Invalid Before</label>
+          <div class="col">
+            <div class="col form-control-plaintext">@UiHelper.TimeToString(RootCertificate?.NotBefore)</div>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-3 col-form-label">Invalid After</label>
+          <div class="col">
+            <div class="col form-control-plaintext">@UiHelper.TimeToString(RootCertificate?.NotAfter)</div>
+          </div>
+        </div>
+        <textarea id="RootCertificateTextarea" class="form-control mb-2" rows="6" readonly>
+          @RootCertificate?.PublicKey
+        </textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

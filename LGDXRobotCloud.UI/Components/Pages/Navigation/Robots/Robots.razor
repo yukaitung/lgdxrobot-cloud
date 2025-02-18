@@ -1,0 +1,128 @@
+@attribute [Route(AppRoutes.Navigation.Robots.Index)]
+@attribute [Authorize (Policy = Permissions.Navigation.Robots.Read)]
+@using LGDXRobotCloud.UI.Services
+@using LGDXRobotCloud.Utilities.Enums
+@using LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components
+
+<PageHeader Title="Robots">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Robots
+      </h2>
+      <div class="text-secondary mt-1">
+        <i class="ti ti-map-pin-filled"></i>
+        @RealmName
+      </div>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="d-flex">
+        <div class="input-group me-3">
+          <input type="text" class="form-control form-control-sm" @bind="DataSearch" placeholder="Search Robot...">
+          <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
+          <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
+        </div>
+        <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="Create">
+          <a href="@AppRoutes.Navigation.Robots.Create" type="button" class="btn btn-primary">
+            Create Robot
+          </a>
+        </AuthorizeView>
+      </div>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  @if (RobotsList != null)
+  {
+    <div class="row row-deck row-cards">
+      @foreach (var robot in RobotsList)
+      {
+        Guid id = (Guid)robot.Id!;
+        <div class="col-sm-6 col-md-4">
+          <div class="card">
+            <RobotCardTop RobotStatus="@RobotsData[id]!.RobotStatus" />
+            <div class="card-body row">
+              <div class="d-flex">
+                <h2 style="display: table;">@robot.Name</h2>
+                <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@RobotsData[id]!.RobotStatus" /></h2>
+              </div>
+              <div class="mt-auto">
+                <div>ID: @id</div>
+                <div>Batteries:
+                @if (RobotsData[id]!.Batteries.Count() > 0)
+                {
+                  @for (int i = 0; i < RobotsData[id]!.Batteries.Count(); i++)
+                  {
+                    @(' ')
+                    <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
+                      @(RobotsData[id]!.Batteries.ElementAt(i) + " V")
+                    </span>
+                  }
+                }
+                else
+                {
+                  <span class="badge badge-outline">Unavailable</span>
+                }
+                </div>
+              </div>
+            </div>
+            <div class="d-flex">
+              <a href="@(AppRoutes.Navigation.Robots.Index + $"/{id}")" class="card-btn">
+                Manage
+              </a>
+              <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="Control">
+                @if (RobotsData[id]!.RobotStatus != RobotStatus.Offline)
+                {
+                  <a class="card-btn dropdown-toggle" data-bs-toggle="dropdown" style="cursor: pointer;" @onclick="(e) => HandleRobotSelect(robot)">
+                    Quick Action
+                  </a>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement">@(RobotsCommands[id]!.Commands.PauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")</a>
+                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop">@(RobotsCommands[id]!.Commands.SoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")</a>
+                  </div>
+                }  
+              </AuthorizeView>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+  else
+  {
+    <div class="row row-deck row-cards">
+      @for (int i = 0; i < 16; i++)
+      {
+        <div class="col-sm-6 col-md-4">
+          <div class="card">
+            <div class="card-body placeholder-glow">
+              <div class="placeholder col-12 placeholder-lg mb-3"></div>
+              <div>
+                <div class="placeholder col-9"></div>
+                <div class="placeholder col-9"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+  @if (RobotsList != null && RobotsList.Count() == 0)
+  {
+    <TableEmpty />
+  }
+
+  <div class="mt-3">
+    @if (PaginationHelper != null && RobotsList != null && RobotsList.Count() > 0)
+    {
+      <TablePagination PaginationHelper="PaginationHelper" ItemCount="RobotsList.Count()"
+        OnPageChange="HandlePageChange" />
+    }
+  </div>
+</PageBody>
+
+<AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ControlModal">
+  <PauseTaskAssigementModel RobotCommands="SelectedRobotCommands" />
+  <SoftwareEmergencyStopModel RobotCommands="SelectedRobotCommands" />
+</AuthorizeView>

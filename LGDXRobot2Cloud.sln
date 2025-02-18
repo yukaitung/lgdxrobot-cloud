@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobot2Cloud.API", "LGDXRobot2Cloud.API\LGDXRobot2Cloud.API.csproj", "{957BE5CB-A969-4625-82E9-B6C1868CC798}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobotCloud.API", "LGDXRobotCloud.API\LGDXRobotCloud.API.csproj", "{957BE5CB-A969-4625-82E9-B6C1868CC798}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobot2Cloud.Data", "LGDXRobot2Cloud.Data\LGDXRobot2Cloud.Data.csproj", "{50B22CA0-E69C-4122-A3D0-4AE981AE25C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobotCloud.Data", "LGDXRobotCloud.Data\LGDXRobotCloud.Data.csproj", "{50B22CA0-E69C-4122-A3D0-4AE981AE25C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobot2Cloud.UI", "LGDXRobot2Cloud.UI\LGDXRobot2Cloud.UI.csproj", "{6B464C9E-3467-4823-9E91-073EC56F0713}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobotCloud.UI", "LGDXRobotCloud.UI\LGDXRobotCloud.UI.csproj", "{6B464C9E-3467-4823-9E91-073EC56F0713}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobot2Cloud.Utilities", "LGDXRobot2Cloud.Utilities\LGDXRobot2Cloud.Utilities.csproj", "{E1063184-37EF-4078-A25C-C60A15A1DB58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobotCloud.Utilities", "LGDXRobotCloud.Utilities\LGDXRobotCloud.Utilities.csproj", "{E1063184-37EF-4078-A25C-C60A15A1DB58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobot2Cloud.Worker", "LGDXRobot2Cloud.Worker\LGDXRobot2Cloud.Worker.csproj", "{DE179E9A-BEAA-47DE-8C40-695ADBB8A147}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobotCloud.Worker", "LGDXRobotCloud.Worker\LGDXRobotCloud.Worker.csproj", "{DE179E9A-BEAA-47DE-8C40-695ADBB8A147}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

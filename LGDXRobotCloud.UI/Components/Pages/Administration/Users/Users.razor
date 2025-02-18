@@ -1,0 +1,24 @@
+@attribute [Route(AppRoutes.Administration.Users.Index)]
+@attribute [Authorize (Policy = Permissions.Administration.Users.Read)]
+@using LGDXRobotCloud.UI.Components.Pages.Administration.Users.Components
+
+<PageHeader Title="Users">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Users
+      </h2>
+    </div>
+    <AuthorizeView Policy=@Permissions.Administration.Users.Write>
+      <div class="col-auto ms-auto">
+        <a href="@AppRoutes.Administration.Users.Create" class="btn btn-primary">
+          Create User
+        </a>
+      </div>
+    </AuthorizeView>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <UsersTable />
+</PageBody>

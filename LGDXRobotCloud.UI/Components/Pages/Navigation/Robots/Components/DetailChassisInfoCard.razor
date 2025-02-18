@@ -1,0 +1,22 @@
+@using LGDXRobotCloud.UI.Client.Models
+@using LGDXRobotCloud.UI.ViewModels.Navigation
+@using LGDXRobotCloud.Utilities.Enums
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Chassis Information</h3>
+  </div>
+  <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="card-body">
+      <ApiErrorAlert Errors="RobotChassisInfo?.Errors" />
+      <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
+      <RobotChassisInfoForm RobotChassisInfo="@RobotChassisInfo"/>
+    </div>
+    <div class="card-footer d-flex">
+      <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ChassisUpdate">
+        <button type="submit" class="btn btn-primary ms-auto">Update</button>
+      </AuthorizeView>
+    </div>
+  </EditForm>
+</div>

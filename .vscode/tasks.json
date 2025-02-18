@@ -2,22 +2,22 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "build: LGDXRobot2Cloud.API",
+			"label": "build: LGDXRobotCloud.API",
 			"command": "dotnet",
 			"type": "process",
 			"args": [
 				"build",
-				"${workspaceFolder}/LGDXRobot2Cloud.API/LGDXRobot2Cloud.API.csproj"
+				"${workspaceFolder}/LGDXRobotCloud.API/LGDXRobotCloud.API.csproj"
 			],
 			"problemMatcher": "$msCompile"
 		},
 		{
-			"label": "build: LGDXRobot2Cloud.UI",
+			"label": "build: LGDXRobotCloud.UI",
 			"command": "dotnet",
 			"type": "process",
 			"args": [
 				"build",
-				"${workspaceFolder}/LGDXRobot2Cloud.UI/LGDXRobot2Cloud.UI.csproj"
+				"${workspaceFolder}/LGDXRobotCloud.UI/LGDXRobotCloud.UI.csproj"
 			],
 			"problemMatcher": "$msCompile"
 		},
@@ -26,7 +26,7 @@
 			"command": "dotnet ef database drop -f && rm -rf Migrations && dotnet ef migrations add InitialCreate && dotnet ef database update && dotnet run --initializeData \"true\"",
 			"type": "shell",
 			"options": {
-				"cwd": "${workspaceFolder}/LGDXRobot2Cloud.Data"
+				"cwd": "${workspaceFolder}/LGDXRobotCloud.Data"
 			}
 		},
 		{

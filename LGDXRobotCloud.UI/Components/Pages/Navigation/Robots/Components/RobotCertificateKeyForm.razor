@@ -1,0 +1,71 @@
+@using LGDXRobotCloud.UI.Client.Models
+
+<InformationModal>
+  The system does not store the "Robot Private Key" and "Robot Public Key". Please save the keys before continuing.
+</InformationModal>
+<div class="mb-3">
+  <label class="form-label">Root Certificate</label>
+  <textarea id="RootCertificateTextarea" class="form-control mb-2" rows="6"
+    readonly>@RobotCertificates!.RootCertificate</textarea>
+  <div class="input-group mb-2">
+    <input id="RootCertificateFileName" type="text" class="form-control" placeholder="File name for Root Certificate"
+      value="root.crt">
+    <button class="btn" type="button" onclick="downloadCertificate(0)">Download</button>
+  </div>
+</div>
+<div class="mb-3">
+  <label class="form-label">Robot Private Key</label>
+  <textarea id="RobotPrivateKeyTextarea" class="form-control mb-2" rows="6"
+    readonly>@RobotCertificates!.RobotCertificatePrivateKey</textarea>
+  <div class="input-group mb-2">
+    <input id="RobotPrivateKeyFileName" type="text" class="form-control" placeholder="File name for Robot Private Key"
+      value="@(RobotCertificates!.Robot!.Name).key">
+    <button class="btn" type="button" onclick="downloadCertificate(1)">Download</button>
+  </div>
+</div>
+<div class="mb-3">
+  <label class="form-label">Robot Public Key</label>
+  <textarea id="RobotPublicKeyTextarea" class="form-control mb-2" rows="6"
+    readonly>@RobotCertificates!.RobotCertificatePublicKey</textarea>
+  <div class="input-group mb-2">
+    <input id="RobotPublicKeyFileName" type="text" class="form-control" placeholder="File name for Robot Public Key"
+      value="@(RobotCertificates!.Robot.Name).crt">
+    <button class="btn" type="button" onclick="downloadCertificate(2)">Download</button>
+  </div>
+</div>
+
+<script>
+  function downloadCertificate(fileType) 
+  {
+    var text = "";
+    var filename = "";
+    switch (fileType)
+    {
+      case 0:
+        text = document.getElementById("RootCertificateTextarea").value;
+        filename = document.getElementById("RootCertificateFileName").value;
+        break;
+      case 1:
+        text = document.getElementById("RobotPrivateKeyTextarea").value;
+        filename = document.getElementById("RobotPrivateKeyFileName").value;
+        break;
+      case 2:
+        text = document.getElementById("RobotPublicKeyTextarea").value;
+        filename = document.getElementById("RobotPublicKeyFileName").value;
+        break;
+    }
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+</script>
+
+@code
+{
+  [Parameter]
+  public RobotCertificateIssueDto? RobotCertificates { get; set; }
+}
