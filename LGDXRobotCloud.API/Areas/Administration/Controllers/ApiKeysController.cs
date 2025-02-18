@@ -19,11 +19,11 @@ namespace LGDXRobotCloud.API.Areas.Administration.Controllers;
 [ValidateLgdxUserAccess]
 public sealed class ApiKeysController(
     IApiKeyService apiKeyService,
-    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration
   ) : ControllerBase
 {
   private readonly IApiKeyService _apiKeyService = apiKeyService ?? throw new ArgumentNullException(nameof(apiKeyService));
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobotCloudConfiguration));
 
   
 
@@ -31,7 +31,7 @@ public sealed class ApiKeysController(
   [ProducesResponseType(typeof(IEnumerable<ApiKeyDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<ApiKeyDto>>> GetApiKeys(string? name, bool isThirdParty = false, int pageNumber = 1, int pageSize = 10)
   {
-    pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
+    pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
     var (apiKeys, PaginationHelper) = await _apiKeyService.GetApiKeysAsync(name, isThirdParty, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(apiKeys.ToDto());

@@ -19,18 +19,18 @@ namespace LGDXRobotCloud.API.Areas.Administration.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public class UsersController(
-    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration,
     IUserService userService
   ) : ControllerBase
 {
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2Configuration));
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobotCloudConfiguration));
   private readonly IUserService _userService = userService ?? throw new ArgumentNullException(nameof(userService));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<LgdxUserListDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<LgdxUserListDto>>> GetUsers(string? name, int pageNumber = 1, int pageSize = 10)
   {
-    pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
+    pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
     var (users, PaginationHelper) = await _userService.GetUsersAsync(name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(users.ToDto());

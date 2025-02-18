@@ -23,11 +23,11 @@ public interface IRobotCertificateService
 
 public class RobotCertificateService(
     LgdxContext context,
-    IOptionsSnapshot<LgdxRobot2Configuration> options
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> options
   ) : IRobotCertificateService
 {
   private readonly LgdxContext _context = context;
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = options.Value;
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = options.Value;
 
   private record CertificateDetail 
   {
@@ -81,10 +81,10 @@ public class RobotCertificateService(
   {
     X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
     store.Open(OpenFlags.OpenExistingOnly);
-    X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobot2Configuration.RootCertificateSN);
+    X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobotCloudConfiguration.RootCertificateSN);
 
     var certificateNotBefore = DateTime.UtcNow;
-    var certificateNotAfter = DateTimeOffset.UtcNow.AddDays(_lgdxRobot2Configuration.RobotCertificateValidDay);
+    var certificateNotAfter = DateTimeOffset.UtcNow.AddDays(_lgdxRobotCloudConfiguration.RobotCertificateValidDay);
 
     var rsa = RSA.Create();
     var certificateRequest = new CertificateRequest("CN=LGDXRobot2 Robot Certificate for " + robotId.ToString() + ",OID.0.9.2342.19200300.100.1.1=" + robotId.ToString(), rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
@@ -156,7 +156,7 @@ public class RobotCertificateService(
   {
     X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
     store.Open(OpenFlags.OpenExistingOnly);
-    X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobot2Configuration.RootCertificateSN);
+    X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobotCloudConfiguration.RootCertificateSN);
     return new RootCertificateBusinessModel {
       NotBefore = rootCertificate.NotBefore.ToUniversalTime(),
       NotAfter = rootCertificate.NotAfter.ToUniversalTime(),

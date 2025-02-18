@@ -34,11 +34,11 @@ builder.WebHost.ConfigureKestrel(cfg =>
 /*
  * Configuration
  */
-builder.Services.Configure<LgdxRobot2Configuration>(
-	builder.Configuration.GetSection("LGDXRobot2")
+builder.Services.Configure<LgdxRobotCloudConfiguration>(
+	builder.Configuration.GetSection("LGDXRobotCloud")
 );
-builder.Services.Configure<LgdxRobot2SecretConfiguration>(
-	builder.Configuration.GetSection("LGDXRobot2Secret")
+builder.Services.Configure<LgdxRobotCloudSecretConfiguration>(
+	builder.Configuration.GetSection("LGDXRobotCloudSecret")
 );
 
 /*
@@ -107,15 +107,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			ValidateAudience = true,
 			ValidateLifetime = true,
 			ValidateIssuerSigningKey = true,
-			ValidIssuer = builder.Configuration["LGDXRobot2Secret:LgdxUserJwtIssuer"],
-			ValidAudience = builder.Configuration["LGDXRobot2Secret:LgdxUserJwtIssuer"],
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LGDXRobot2Secret:LgdxUserJwtSecret"] ?? string.Empty)),
+			ValidIssuer = builder.Configuration["LGDXRobotCloudSecret:LgdxUserJwtIssuer"],
+			ValidAudience = builder.Configuration["LGDXRobotCloudSecret:LgdxUserJwtIssuer"],
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LGDXRobotCloudSecret:LgdxUserJwtSecret"] ?? string.Empty)),
 			ClockSkew = TimeSpan.Zero
 		};
 	});
 builder.Services.AddTransient<ValidateRobotClientsCertificate>();
-builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme)
-	.AddCertificate(LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme, cfg =>
+builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.RobotClientsCertificateScheme)
+	.AddCertificate(LgdxRobotCloudAuthenticationSchemes.RobotClientsCertificateScheme, cfg =>
 	{
 		cfg.AllowedCertificateTypes = CertificateTypes.All;
 		cfg.RevocationMode = X509RevocationMode.NoCheck;
@@ -144,8 +144,8 @@ builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsC
 			}
 		};
 	});
-builder.Services.AddAuthentication(LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme)
-	.AddJwtBearer(LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme, cfg =>
+builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.RobotClientsJwtScheme)
+	.AddJwtBearer(LgdxRobotCloudAuthenticationSchemes.RobotClientsJwtScheme, cfg =>
 	{
 		cfg.TokenValidationParameters = new TokenValidationParameters
 		{

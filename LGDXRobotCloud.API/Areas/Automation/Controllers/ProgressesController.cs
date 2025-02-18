@@ -18,18 +18,18 @@ namespace LGDXRobotCloud.API.Areas.Automation.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class ProgressesController(
-    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration,
     IProgressService progressService
   ) : ControllerBase
 {
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobotCloudConfiguration));
   private readonly IProgressService _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<ProgressDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<ProgressDto>>> GetProgresses(string? name, int pageNumber = 1, int pageSize = 10, bool system = false)
   {
-    pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
+    pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
     var (progresses, PaginationHelper) = await _progressService.GetProgressesAsync(name, pageNumber, pageSize, system);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(progresses.ToDto());

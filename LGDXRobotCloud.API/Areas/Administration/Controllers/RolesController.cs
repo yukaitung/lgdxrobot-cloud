@@ -18,18 +18,18 @@ namespace LGDXRobotCloud.API.Areas.Administration.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class RolesController(
-    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration,
     IRoleService roleService
   ) : ControllerBase
 {
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobotCloudConfiguration));
   private readonly IRoleService _roleService = roleService ?? throw new ArgumentNullException(nameof(roleService));
   
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<LgdxRoleListDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<LgdxRoleListDto>>> GetRoles(string? name, int pageNumber = 1, int pageSize = 10)
   {
-    pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
+    pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
     var (roles, PaginationHelper) = await _roleService.GetRolesAsync(name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(roles.ToDto());

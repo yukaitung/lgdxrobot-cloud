@@ -27,22 +27,22 @@ public interface IAuthService
 public class AuthService(
     LgdxContext context,
     IEmailService emailService,
-    IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
+    IOptionsSnapshot<LgdxRobotCloudSecretConfiguration> lgdxRobotCloudSecretConfiguration,
     UserManager<LgdxUser> userManager
   ) : IAuthService
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-  private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobot2SecretConfiguration));
+  private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobotCloudSecretConfiguration));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
   private JwtSecurityToken GenerateJwtToken(List<Claim> claims, DateTime notBefore, DateTime expires)
   {
-    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobot2SecretConfiguration.LgdxUserJwtSecret));
-    var credentials = new SigningCredentials(securityKey, _lgdxRobot2SecretConfiguration.LgdxUserJwtAlgorithm);
+    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobotCloudSecretConfiguration.LgdxUserJwtSecret));
+    var credentials = new SigningCredentials(securityKey, _lgdxRobotCloudSecretConfiguration.LgdxUserJwtAlgorithm);
     return new JwtSecurityToken(
-      _lgdxRobot2SecretConfiguration.LgdxUserJwtIssuer,
-      _lgdxRobot2SecretConfiguration.LgdxUserJwtIssuer,
+      _lgdxRobotCloudSecretConfiguration.LgdxUserJwtIssuer,
+      _lgdxRobotCloudSecretConfiguration.LgdxUserJwtIssuer,
       claims,
       notBefore,
       expires,
@@ -109,8 +109,8 @@ public class AuthService(
     if (await _userManager.CheckPasswordAsync(user, loginRequestBusinessModel.Password))
     {
       var notBefore = DateTime.UtcNow;
-      var accessExpires = notBefore.AddMinutes(_lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins);
-      var refreshExpires = notBefore.AddMinutes(_lgdxRobot2SecretConfiguration.LgdxUserRefreshTokenExpiresMins);
+      var accessExpires = notBefore.AddMinutes(_lgdxRobotCloudSecretConfiguration.LgdxUserAccessTokenExpiresMins);
+      var refreshExpires = notBefore.AddMinutes(_lgdxRobotCloudSecretConfiguration.LgdxUserRefreshTokenExpiresMins);
       var accessToken = await GenerateAccessTokenAsync(user, notBefore, accessExpires);
       var refreshToken = GenerateRefreshToken(user, notBefore, refreshExpires);
       user.RefreshTokenHash = LgdxHelper.GenerateSha256Hash(refreshToken);
@@ -123,7 +123,7 @@ public class AuthService(
       {
         AccessToken = accessToken,
         RefreshToken = refreshToken,
-        ExpiresMins = _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins
+        ExpiresMins = _lgdxRobotCloudSecretConfiguration.LgdxUserAccessTokenExpiresMins
       };
     }
     else
@@ -177,9 +177,9 @@ public class AuthService(
 			ValidateAudience = true,
 			ValidateLifetime = true,
 			ValidateIssuerSigningKey = true,
-			ValidIssuer = _lgdxRobot2SecretConfiguration.LgdxUserJwtIssuer,
-			ValidAudience = _lgdxRobot2SecretConfiguration.LgdxUserJwtIssuer,
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobot2SecretConfiguration.LgdxUserJwtSecret)),
+			ValidIssuer = _lgdxRobotCloudSecretConfiguration.LgdxUserJwtIssuer,
+			ValidAudience = _lgdxRobotCloudSecretConfiguration.LgdxUserJwtIssuer,
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobotCloudSecretConfiguration.LgdxUserJwtSecret)),
 			ClockSkew = TimeSpan.Zero
 		};
     ClaimsPrincipal principal = tokenHandler.ValidateToken(refreshTokenRequestBusinessModel.RefreshToken, validationParameters, out SecurityToken validatedToken) 
@@ -197,7 +197,7 @@ public class AuthService(
 
     // Generate new token pair and update the database
     var notBefore = DateTime.UtcNow;
-    var accessExpires = notBefore.AddMinutes(_lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins);
+    var accessExpires = notBefore.AddMinutes(_lgdxRobotCloudSecretConfiguration.LgdxUserAccessTokenExpiresMins);
     var refreshExpires = validatedToken.ValidTo; // Reauthenticate to extend the expiration time
     var accessToken = await GenerateAccessTokenAsync(user, notBefore, accessExpires);
     var refreshToken = GenerateRefreshToken(user, notBefore, refreshExpires);
@@ -213,7 +213,7 @@ public class AuthService(
     {
       AccessToken = accessToken,
       RefreshToken = refreshToken,
-      ExpiresMins = _lgdxRobot2SecretConfiguration.LgdxUserAccessTokenExpiresMins
+      ExpiresMins = _lgdxRobotCloudSecretConfiguration.LgdxUserAccessTokenExpiresMins
     };
   }
 

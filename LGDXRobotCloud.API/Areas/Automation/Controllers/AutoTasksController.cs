@@ -20,18 +20,18 @@ namespace LGDXRobotCloud.API.Areas.Automation.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class AutoTasksController(
-    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration,
     IAutoTaskService autoTaskService
   ) : ControllerBase
 {
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobotCloudConfiguration));
   private readonly IAutoTaskService _autoTaskService = autoTaskService ?? throw new ArgumentNullException(nameof(autoTaskService));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<AutoTaskListDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<AutoTaskListDto>>> GetTasks(int? realmId, string? name, AutoTaskCatrgory? autoTaskCatrgory, int pageNumber = 1, int pageSize = 10)
   {
-    pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
+    pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
     var (tasks, PaginationHelper) = await _autoTaskService.GetAutoTasksAsync(realmId, name, autoTaskCatrgory, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(tasks.ToDto());

@@ -17,18 +17,18 @@ namespace LGDXRobotCloud.API.Areas.Automation.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public class TriggerRetriesController (
-  IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
+  IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration,
   ITriggerRetryService triggerRetryService
 ) : ControllerBase
 {
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobotCloudConfiguration));
   private readonly ITriggerRetryService _triggerRetryService = triggerRetryService ?? throw new ArgumentNullException(nameof(triggerRetryService));
   
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<TriggerRetryListDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<TriggerRetryListDto>>> GetTriggerRetries(int pageNumber = 1, int pageSize = 10)
   {
-    pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
+    pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
     var (triggerRetries, PaginationHelper) = await _triggerRetryService.GetTriggerRetriesAsync(pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(triggerRetries.ToDto());

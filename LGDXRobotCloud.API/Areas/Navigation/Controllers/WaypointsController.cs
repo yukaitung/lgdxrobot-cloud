@@ -19,17 +19,17 @@ namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 [ValidateLgdxUserAccess]
 public sealed class WaypointsController(
     IWaypointService waypointService,
-    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration
   ) : ControllerBase
 {
   private readonly IWaypointService _waypointService = waypointService ?? throw new ArgumentNullException(nameof(waypointService));
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobotCloudConfiguration));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<WaypointListDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<WaypointListDto>>> GetWaypoints(int? realmId, string? name, int pageNumber = 1, int pageSize = 10)
   {
-    pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
+    pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
     var (waypoints, PaginationHelper) = await _waypointService.GetWaypointsAsync(realmId, name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(waypoints.ToDto());

@@ -19,17 +19,17 @@ namespace LGDXRobotCloud.API.Areas.Administration.Controllers;
 [ValidateLgdxUserAccess]
 public sealed class RobotCertificatesController(
     IRobotCertificateService robotCertificateService,
-    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration
   ) : ControllerBase
 {
   private readonly IRobotCertificateService _robotCertificateService = robotCertificateService ?? throw new ArgumentNullException(nameof(robotCertificateService));
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value ?? throw new ArgumentNullException(nameof(lgdxRobot2Configuration));
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobotCloudConfiguration));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<RobotCertificateListDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<RobotCertificateListDto>>> GetCertificates(int pageNumber = 1, int pageSize = 10)
   {
-    pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
+    pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
     var (certificates, PaginationHelper) = await _robotCertificateService.GetRobotCertificatesAsync(pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(certificates.ToDto());

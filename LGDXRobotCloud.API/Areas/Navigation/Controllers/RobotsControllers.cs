@@ -21,18 +21,18 @@ namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 public sealed class RobotsController(
     IRobotService robotService,
     IOnlineRobotsService OnlineRobotsService,
-    IOptionsSnapshot<LgdxRobot2Configuration> options
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> options
   ) : ControllerBase
 {
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService ?? throw new ArgumentNullException(nameof(OnlineRobotsService));
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = options.Value ?? throw new ArgumentNullException(nameof(options));  
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = options.Value ?? throw new ArgumentNullException(nameof(options));  
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<RobotListDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<RobotListDto>>> GetRobots(int? realmId, string? name, int pageNumber = 1, int pageSize = 10)
   {
-    pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
+    pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
     var (robots, paginationHelper) = await _robotService.GetRobotsAsync(realmId, name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationHelper));
     return Ok(robots.ToDto());

@@ -18,18 +18,18 @@ namespace LGDXRobotCloud.API.Areas.Automation.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class FlowsController(
-    IOptionsSnapshot<LgdxRobot2Configuration> lgdxRobot2Configuration,
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration,
     IFlowService flowService
   ) : ControllerBase
 {
-  private readonly LgdxRobot2Configuration _lgdxRobot2Configuration = lgdxRobot2Configuration.Value;
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value;
   private readonly IFlowService _flowService = flowService;
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<FlowListDto>), StatusCodes.Status200OK)]
   public async Task<ActionResult<IEnumerable<FlowListDto>>> GetFlows(string? name, int pageNumber = 1, int pageSize = 10)
   {
-    pageSize = (pageSize > _lgdxRobot2Configuration.ApiMaxPageSize) ? _lgdxRobot2Configuration.ApiMaxPageSize : pageSize;
+    pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
     var (flows, PaginationHelper) = await _flowService.GetFlowsAsync(name, pageNumber, pageSize);
     Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(PaginationHelper));
     return Ok(flows.ToDto());

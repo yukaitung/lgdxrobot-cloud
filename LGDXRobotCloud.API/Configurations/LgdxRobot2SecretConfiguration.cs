@@ -2,7 +2,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace LGDXRobotCloud.API.Configurations;
 
-public class LgdxRobot2SecretConfiguration
+public class LgdxRobotCloudSecretConfiguration
 {
   public int LgdxUserAccessTokenExpiresMins{ get; set; } = 30;
   public int LgdxUserRefreshTokenExpiresMins{ get; set; } = 1440; // 1 day

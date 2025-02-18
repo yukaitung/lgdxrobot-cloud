@@ -74,7 +74,7 @@ For the screts, refer to the [Official Documentation](https://learn.microsoft.co
     }
   }
 },
-"LGDXRobot2": {
+"LGDXRobotCloud": {
   "RootCertificateSN": "", // The serial number of the root certificate
   "RobotCertificateValidDay": 365, // The number of days that a robot certificate is valid
   "ApiMaxPageSize": 100 // The maximum number of items that can be returned in a page
@@ -92,10 +92,10 @@ For the screts, refer to the [Official Documentation](https://learn.microsoft.co
     "Username": "username", // The username for the RabbitMQ server
     "Password": "secret" // The password for the RabbitMQ server
   },
-  "LGDXRobot2Secret": {
-    "LgdxUserJwtIssuer": "LGDXRobot2Users", // The issuer of the JWT token for the LGDXRobot2 users
+  "LGDXRobotCloudSecret": {
+    "LgdxUserJwtIssuer": "LGDXRobotCloudUsers", // The issuer of the JWT token for the LGDXRobot2 users
     "LgdxUserJwtSecret": "secret with at least 32 characters", // The secret of the JWT token for the LGDXRobot2 users
-    "RobotClientsJwtIssuer": "LGDXRobot2RobotClients", // The issuer of the JWT token for the LGDXRobot2 robot clients
+    "RobotClientsJwtIssuer": "LGDXRobotCloudobotClients", // The issuer of the JWT token for the LGDXRobot2 robot clients
     "RobotClientsJwtSecret": "secret with at least 32 characters" // The secret of the JWT token for the LGDXRobot2 robot clients
   }
 }

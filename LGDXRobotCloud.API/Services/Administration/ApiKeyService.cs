@@ -79,7 +79,7 @@ public class ApiKeyService(LgdxContext context) : IApiKeyService
     string base64String = Convert.ToBase64String(bytes)
       .Replace("+", "-")
       .Replace("/", "_");
-    return "LGDX2" + base64String;
+    return "LGDX" + base64String;
   }
 
   public async Task<ApiKeyBusinessModel> AddApiKeyAsync(ApiKeyCreateBusinessModel apiKeyCreateBusinessModel)

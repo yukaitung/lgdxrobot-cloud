@@ -18,19 +18,19 @@ using LGDXRobotCloud.API.Services.Common;
 
 namespace LGDXRobotCloud.API.Services;
 
-[Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsJwtScheme)]
+[Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.RobotClientsJwtScheme)]
 public class RobotClientsService(
     IAutoTaskSchedulerService autoTaskSchedulerService,
     IEventService eventService,
     IOnlineRobotsService OnlineRobotsService,
-    IOptionsSnapshot<LgdxRobot2SecretConfiguration> lgdxRobot2SecretConfiguration,
+    IOptionsSnapshot<LgdxRobotCloudSecretConfiguration> lgdxRobotCloudSecretConfiguration,
     IRobotService robotService
   ) : RobotClientsServiceBase
 {
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService;
   private readonly IEventService _eventService = eventService;
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
-  private readonly LgdxRobot2SecretConfiguration _lgdxRobot2SecretConfiguration = lgdxRobot2SecretConfiguration.Value;
+  private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value;
   private readonly IRobotService _robotService = robotService;
   private Guid _streamingRobotId = Guid.Empty;
   private RobotClientsRobotStatus _streamingRobotStatus = RobotClientsRobotStatus.Offline;
@@ -66,7 +66,7 @@ public class RobotClientsService(
     };
   }
 
-  [Authorize(AuthenticationSchemes = LgdxRobot2AuthenticationSchemes.RobotClientsCertificateScheme)]
+  [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.RobotClientsCertificateScheme)]
   public override async Task<RobotClientsGreetRespond> Greet(RobotClientsGreet request, ServerCallContext context)
   {
     var robotId = ValidateRobotClaim(context);
@@ -124,14 +124,14 @@ public class RobotClientsService(
     }
 
     // Generate Access Token
-    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobot2SecretConfiguration.RobotClientsJwtSecret));
-    var credentials = new SigningCredentials(securityKey, _lgdxRobot2SecretConfiguration.RobotClientsJwtAlgorithm);
+    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobotCloudSecretConfiguration.RobotClientsJwtSecret));
+    var credentials = new SigningCredentials(securityKey, _lgdxRobotCloudSecretConfiguration.RobotClientsJwtAlgorithm);
     var secToken = new JwtSecurityToken(
-      _lgdxRobot2SecretConfiguration.RobotClientsJwtIssuer,
-      _lgdxRobot2SecretConfiguration.RobotClientsJwtIssuer,
+      _lgdxRobotCloudSecretConfiguration.RobotClientsJwtIssuer,
+      _lgdxRobotCloudSecretConfiguration.RobotClientsJwtIssuer,
       [new Claim(ClaimTypes.NameIdentifier, robot.Id.ToString())],
       DateTime.UtcNow,
-      DateTime.UtcNow.AddMinutes(_lgdxRobot2SecretConfiguration.RobotClientsJwtExpireMins),
+      DateTime.UtcNow.AddMinutes(_lgdxRobotCloudSecretConfiguration.RobotClientsJwtExpireMins),
       credentials);
     var token = new JwtSecurityTokenHandler().WriteToken(secToken);
 

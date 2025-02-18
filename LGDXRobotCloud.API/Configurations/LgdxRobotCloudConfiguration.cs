@@ -1,6 +1,6 @@
 namespace LGDXRobotCloud.API.Configurations;
 
-public class LgdxRobot2Configuration
+public class LgdxRobotCloudConfiguration
 {
   public string RootCertificateSN { get; set; } = string.Empty;
   public int RobotCertificateValidDay { get; set; } = 365;
