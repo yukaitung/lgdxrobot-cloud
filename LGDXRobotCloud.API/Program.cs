@@ -59,7 +59,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(cfg =>{
-	cfg.SwaggerDoc("v1", new OpenApiInfo { Title = "LGDXRobot2", Version = "v1" });
+	cfg.SwaggerDoc("v1", new OpenApiInfo { Title = "LGDXRobot Cloud", Version = "v1" });
 	cfg.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
 		Description = "JWT Authorization header using the Bearer scheme.",
 		Name = "Authorization",
@@ -153,9 +153,9 @@ builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.RobotClie
 			ValidateAudience = true,
 			ValidateLifetime = true,
 			ValidateIssuerSigningKey = true,
-			ValidIssuer = builder.Configuration["LGDXRobot2Secret:RobotClientsJwtIssuer"],
-			ValidAudience = builder.Configuration["LGDXRobot2Secret:RobotClientsJwtIssuer"],
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LGDXRobot2Secret:RobotClientsJwtSecret"] ?? string.Empty)),
+			ValidIssuer = builder.Configuration["LGDXRobotCloudSecret:RobotClientsJwtIssuer"],
+			ValidAudience = builder.Configuration["LGDXRobotCloudSecret:RobotClientsJwtIssuer"],
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LGDXRobotCloudSecret:RobotClientsJwtSecret"] ?? string.Empty)),
 			ClockSkew = TimeSpan.Zero
 		};
 	});

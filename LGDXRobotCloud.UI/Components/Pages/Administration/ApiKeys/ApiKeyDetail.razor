@@ -40,12 +40,12 @@
                 <label class="col-3 col-form-label required">API Key Category</label>
                 <div class="col">
                   <select class="form-select" @onchange="@((e) => HandleApiKeyKindChanged(e.Value ?? string.Empty))">
-                    <option value="false">LGDXRobot2 API Key</option>
+                    <option value="false">LGDXRobot Cloud API Key</option>
                     <option value="true">Third-Party API Key</option>
                   </select>
                   <small class="form-hint">
-                    An LGDXRobot2 API Key grants access to LGDXRobot2 services for your services, 
-                    while a Third-Party API Key is for accessing Third-Party services for LGDXRobot2 services. 
+                    An LGDXRobot Cloud API Key grants access to LGDXRobot Cloud services for your services, 
+                    while a Third-Party API Key is for accessing Third-Party services for LGDXRobot Cloud services. 
                     This choice is permanent once made.
                   </small>
                 </div>

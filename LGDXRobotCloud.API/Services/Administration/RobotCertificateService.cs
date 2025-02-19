@@ -87,7 +87,7 @@ public class RobotCertificateService(
     var certificateNotAfter = DateTimeOffset.UtcNow.AddDays(_lgdxRobotCloudConfiguration.RobotCertificateValidDay);
 
     var rsa = RSA.Create();
-    var certificateRequest = new CertificateRequest("CN=LGDXRobot2 Robot Certificate for " + robotId.ToString() + ",OID.0.9.2342.19200300.100.1.1=" + robotId.ToString(), rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+    var certificateRequest = new CertificateRequest("CN=LGDXRobot Cloud Robot Certificate for " + robotId.ToString() + ",OID.0.9.2342.19200300.100.1.1=" + robotId.ToString(), rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
     var certificate = certificateRequest.Create(rootCertificate, certificateNotBefore, certificateNotAfter, RandomNumberGenerator.GetBytes(20));
 
     return new CertificateDetail {

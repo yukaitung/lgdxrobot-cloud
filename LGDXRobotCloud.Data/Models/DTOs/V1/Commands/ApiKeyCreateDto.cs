@@ -23,7 +23,7 @@ public record ApiKeyCreateDto
     }
     if (!IsThirdParty && !string.IsNullOrWhiteSpace(Secret))
     {
-      yield return new ValidationResult("LGDXRobot2 API Keys will be generated automatically.", [nameof(Secret)]);
+      yield return new ValidationResult("LGDXRobot Cloud API Keys will be generated automatically.", [nameof(Secret)]);
     }
   }
 }

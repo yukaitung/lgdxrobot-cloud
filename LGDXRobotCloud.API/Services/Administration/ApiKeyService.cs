@@ -109,7 +109,7 @@ public class ApiKeyService(LgdxContext context) : IApiKeyService
       ?? throw new LgdxNotFound404Exception();
     if (!apiKey.IsThirdParty && !string.IsNullOrEmpty(apiKeySecretUpdateBusinessModel.Secret))
     {
-      throw new LgdxValidation400Expection(nameof(apiKeySecretUpdateBusinessModel.Secret), "The LGDXRobot2 API Key cannot be changed.");
+      throw new LgdxValidation400Expection(nameof(apiKeySecretUpdateBusinessModel.Secret), "The LGDXRobot Cloud API Key cannot be changed.");
     }
 
     apiKey.Secret = apiKeySecretUpdateBusinessModel.Secret;
