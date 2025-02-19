@@ -93,10 +93,10 @@ For the screts, refer to the [Official Documentation](https://learn.microsoft.co
     "Password": "secret" // The password for the RabbitMQ server
   },
   "LGDXRobotCloudSecret": {
-    "LgdxUserJwtIssuer": "LGDXRobotCloudUsers", // The issuer of the JWT token for the LGDXRobot2 users
-    "LgdxUserJwtSecret": "secret with at least 32 characters", // The secret of the JWT token for the LGDXRobot2 users
-    "RobotClientsJwtIssuer": "LGDXRobotCloudobotClients", // The issuer of the JWT token for the LGDXRobot2 robot clients
-    "RobotClientsJwtSecret": "secret with at least 32 characters" // The secret of the JWT token for the LGDXRobot2 robot clients
+    "LgdxUserJwtIssuer": "LGDXRobotCloudUsers", // The issuer of the JWT token for the users
+    "LgdxUserJwtSecret": "secret with at least 32 characters", // The secret of the JWT token for the users
+    "RobotClientsJwtIssuer": "LGDXRobotCloudobotClients", // The issuer of the JWT token for the robot clients
+    "RobotClientsJwtSecret": "secret with at least 32 characters" // The secret of the JWT token for the robot clients
   }
 }
 ```
@@ -107,7 +107,7 @@ For the screts, refer to the [Official Documentation](https://learn.microsoft.co
 
 ```json
 {
-  "PGSQLConnectionString": "Host=localhost;Username=admin;Password=secret;Database=LGDX" // The connection string to the PostgreSQL database
+  "PGSQLConnectionString": "Host=localhost;Username=admin;Password=secret;Database=LGDXRobotCloud" // The connection string to the PostgreSQL database
 }
 ```
 
@@ -149,7 +149,7 @@ For the screts, refer to the [Official Documentation](https://learn.microsoft.co
 
 ```json
 {
-  "PGSQLConnectionString": "Host=localhost;Username=admin;Password=secret;Database=LGDX", // The connection string to the PostgreSQL database
+  "PGSQLConnectionString": "Host=localhost;Username=admin;Password=secret;Database=LGDXRobotCloud", // The connection string to the PostgreSQL database
   "RabbitMq": {
     "Host": "localhost", // The host name or IP address of the RabbitMQ server
     "VirtualHost": "/", // The virtual host of the RabbitMQ server

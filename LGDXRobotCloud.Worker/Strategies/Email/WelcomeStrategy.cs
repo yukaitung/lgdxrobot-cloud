@@ -42,7 +42,7 @@ public class WelcomeStrategy(
     {
       var message = new MimeMessage();
       message.To.Add(new MailboxAddress(to.Name, to.Email));
-      message.Subject = "Welcome To LGDXRobot2";
+      message.Subject = "Welcome To LGDXRobot Cloud";
       var emailBodyBuilder = new BodyBuilder
       {
         TextBody = html,

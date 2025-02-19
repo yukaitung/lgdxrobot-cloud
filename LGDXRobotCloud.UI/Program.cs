@@ -49,14 +49,14 @@ builder.Services.AddRazorComponents()
 // Add API
 builder.Services.AddKiotaHandlers();
 builder.Services.AddHttpClient<LgdxApiClientFactory>((sp, client) => {
-  client.BaseAddress = new Uri(builder.Configuration["LGDXRobotCloudApiUrl"] ?? string.Empty);
+  client.BaseAddress = new Uri(builder.Configuration["LGDXRobotCloudAPIUrl"] ?? string.Empty);
 })
 	.AddHttpMessageHandler(() => new HeadersInspectionHandler())
 	.AttachKiotaHandlers();
 builder.Services.AddTransient(sp => sp.GetRequiredService<LgdxApiClientFactory>().GetClient());
 var configureAction = (HttpClient client) => 
   { 
-		client.BaseAddress = new Uri(builder.Configuration["LGDXRobotCloudApiUrl"] ?? string.Empty);
+		client.BaseAddress = new Uri(builder.Configuration["LGDXRobotCloudAPIUrl"] ?? string.Empty);
 	};
 
 builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(configureAction);

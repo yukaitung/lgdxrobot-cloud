@@ -14,3 +14,8 @@
 .form-control-sm > .ts-control {
   padding: .125rem .25rem;
 }
+
+/* Firefox auto focus bug */
+.no-focus:focus {
+  outline: 0;
+}
