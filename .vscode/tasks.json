@@ -2,42 +2,28 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "build: LGDXRobotCloud.API",
+			"label": "build",
 			"command": "dotnet",
 			"type": "process",
 			"args": [
-				"build",
-				"${workspaceFolder}/LGDXRobotCloud.API/LGDXRobotCloud.API.csproj"
+				"build"
 			],
 			"problemMatcher": "$msCompile"
 		},
 		{
-			"label": "build: LGDXRobotCloud.UI",
+			"label": "test",
+			"dependsOn": [],
 			"command": "dotnet",
 			"type": "process",
 			"args": [
-				"build",
-				"${workspaceFolder}/LGDXRobotCloud.UI/LGDXRobotCloud.UI.csproj"
+				"test",
+				"--collect:\"XPlat Code Coverage\""
 			],
-			"problemMatcher": "$msCompile"
-		},
-		{
-			"label": "migration: reset",
-			"command": "dotnet ef database drop -f && rm -rf Migrations && dotnet ef migrations add InitialCreate && dotnet ef database update && dotnet run --initializeData \"true\"",
-			"type": "shell",
-			"options": {
-				"cwd": "${workspaceFolder}/LGDXRobotCloud.Data"
-			}
-		},
-		{
-			"label": "build: all",
-			"type": "dotnet",
-			"task": "build",
+			"problemMatcher": "$msCompile",
 			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"problemMatcher": [],
+					"kind": "test",
+					"isDefault": true
+			}
 		}
 	]
 }

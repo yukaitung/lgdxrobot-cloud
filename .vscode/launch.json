@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch LGDXRobotCloud.API (.NET 8)",
+      "name": "Launch LGDXRobotCloud.API (.NET 9)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build: LGDXRobotCloud.API",
-      "program": "${workspaceFolder}/LGDXRobotCloud.API/bin/Debug/net8.0/LGDXRobotCloud.API.dll",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/LGDXRobotCloud.API/bin/Debug/net9.0/LGDXRobotCloud.API.dll",
       "args": [],
       "cwd": "${workspaceFolder}/LGDXRobotCloud.API",
       "stopAtEntry": false,
@@ -23,13 +23,34 @@
       }
     },
     {
-      "name": "Launch LGDXRobotCloud.UI (.NET 8)",
+      "name": "Launch LGDXRobotCloud.UI (.NET 9)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build: LGDXRobotCloud.UI",
-      "program": "${workspaceFolder}/LGDXRobotCloud.UI/bin/Debug/net8.0/LGDXRobotCloud.UI.dll",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/LGDXRobotCloud.UI/bin/Debug/net9.0/LGDXRobotCloud.UI.dll",
       "args": [],
       "cwd": "${workspaceFolder}/LGDXRobotCloud.UI",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+        "uriFormat": "%s/"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      }
+    },
+    {
+      "name": "Launch LGDXRobotCloud.Worker (.NET 9)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/LGDXRobotCloud.Worker/bin/Debug/net9.0/LGDXRobotCloud.Worker.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/LGDXRobotCloud.Worker",
       "stopAtEntry": false,
       "serverReadyAction": {
         "action": "openExternally",
@@ -48,8 +69,9 @@
     {
       "name": "Launch All",
       "configurations": [
-        "Launch LGDXRobotCloud.API (.NET 8)",
-        "Launch LGDXRobotCloud.UI (.NET 8)"
+        "Launch LGDXRobotCloud.API (.NET 9)",
+        "Launch LGDXRobotCloud.UI (.NET 9)",
+        "Launch LGDXRobotCloud.Worker (.NET 9)"
       ],
       "stopAll": true,
     }
