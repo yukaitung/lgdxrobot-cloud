@@ -36,14 +36,14 @@ build:
 
 tests:
   stage: test
-  #before_script:
+  before_script:
     # Install report generator
-    #- 'dotnet tool install -g dotnet-reportgenerator-globaltool'
+    - 'dotnet tool install -g dotnet-reportgenerator-globaltool'
   script:
     # Run tests
     - 'dotnet test --no-build --output build --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
     # Generate coverage report
-    #- 'reportgenerator -reports:"Tests/**/coverage.cobertura.xml" -targetdir:"coveragereport" --reporttypes:"HtmlInline;Cobertura"'
+    - 'reportgenerator -reports:"Tests/**/coverage.cobertura.xml" -targetdir:"coveragereport" --reporttypes:"HtmlInline;Cobertura"'
   artifacts:
     when: always
     paths:
