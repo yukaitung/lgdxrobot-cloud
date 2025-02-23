@@ -35,13 +35,14 @@ tests:
   stage: test
   script:
     - 'dotnet test --collect:"XPlat Code Coverage" --no-restore'
+  coverage: '/Total\s*|*\s(\d+(?:\.\d+)?)/'
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
         path: Tests/*/TestResults/*/coverage.cobertura.xml
 
-deploy:
-  stage: deploy
-  script: echo "Define your deployment script!"
-  environment: production
+#deploy:
+#  stage: deploy
+#  script: echo "Define your deployment script!"
+#  environment: production
