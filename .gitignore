@@ -488,3 +488,4 @@ $RECYCLE.BIN/
 
 # Secret file
 secrets.json
+/cobertura
