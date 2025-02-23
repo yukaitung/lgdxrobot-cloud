@@ -29,23 +29,34 @@ before_script:
 build:
   stage: build
   script:
-    - 'dotnet build --no-restore'
+    - 'dotnet build --output build --no-restore'
+  artifacts:
+    paths:
+      - build
 
 tests:
   stage: test
+  #before_script:
+    # Install report generator
+    #- 'dotnet tool install -g dotnet-reportgenerator-globaltool'
   script:
-    - 'dotnet test --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
+    # Run tests
+    - 'dotnet test --no-build --output build --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
+    # Generate coverage report
+    #- 'reportgenerator -reports:"Tests/**/coverage.cobertura.xml" -targetdir:"coveragereport" --reporttypes:"HtmlInline;Cobertura"'
   artifacts:
     when: always
     paths:
+      - coveragereport/*.*
       - Tests/**/test-result.xml
-      - Tests/**/coverage.cobertura.xml
     reports:
       junit:
         - Tests/**/test-result.xml
       coverage_report:
         coverage_format: cobertura
         path: Tests/**/coverage.cobertura.xml
+  dependencies:
+    - build
 
 #deploy:
 #  stage: deploy
