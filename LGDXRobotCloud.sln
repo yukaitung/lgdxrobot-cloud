@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobotCloud.Utilities", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobotCloud.Worker", "LGDXRobotCloud.Worker\LGDXRobotCloud.Worker.csproj", "{DE179E9A-BEAA-47DE-8C40-695ADBB8A147}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8E876DA1-0D40-4BB7-9211-0743B6393753}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGDXRobotCloud.API.UnitTests", "Tests\LGDXRobotCloud.API.UnitTests\LGDXRobotCloud.API.UnitTests.csproj", "{4C1C1E66-79C5-4B76-B213-586F3C946F96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +46,12 @@ Global
 		{DE179E9A-BEAA-47DE-8C40-695ADBB8A147}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE179E9A-BEAA-47DE-8C40-695ADBB8A147}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE179E9A-BEAA-47DE-8C40-695ADBB8A147}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C1C1E66-79C5-4B76-B213-586F3C946F96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C1C1E66-79C5-4B76-B213-586F3C946F96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C1C1E66-79C5-4B76-B213-586F3C946F96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C1C1E66-79C5-4B76-B213-586F3C946F96}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4C1C1E66-79C5-4B76-B213-586F3C946F96} = {8E876DA1-0D40-4BB7-9211-0743B6393753}
 	EndGlobalSection
 EndGlobal

@@ -9,24 +9,24 @@ namespace LGDXRobotCloud.Data.DbContexts;
 public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbContext<LgdxUser, LgdxRole, string>(options)
 {
   // Administration
-  public DbSet<ApiKey> ApiKeys { get; set; }
+  public virtual DbSet<ApiKey> ApiKeys { get; set; }
 
   // Automation
-  public DbSet<AutoTask> AutoTasks { get; set; }
-  public DbSet<AutoTaskDetail> AutoTasksDetail { get; set; }
-  public DbSet<Flow> Flows { get; set; }
-  public DbSet<FlowDetail> FlowDetails { get; set; }
-  public DbSet<Progress> Progresses { get; set; }
-  public DbSet<Trigger> Triggers { get; set; }
-  public DbSet<TriggerRetry> TriggerRetries { get; set; }
+  public virtual DbSet<AutoTask> AutoTasks { get; set; }
+  public virtual DbSet<AutoTaskDetail> AutoTasksDetail { get; set; }
+  public virtual DbSet<Flow> Flows { get; set; }
+  public virtual DbSet<FlowDetail> FlowDetails { get; set; }
+  public virtual DbSet<Progress> Progresses { get; set; }
+  public virtual DbSet<Trigger> Triggers { get; set; }
+  public virtual DbSet<TriggerRetry> TriggerRetries { get; set; }
 
   // Navigation
-  public DbSet<Realm> Realms { get; set; }
-  public DbSet<Robot> Robots { get; set; }
-  public DbSet<RobotCertificate> RobotCertificates { get; set; }
-  public DbSet<RobotChassisInfo> RobotChassisInfos { get; set; }
-  public DbSet<RobotSystemInfo> RobotSystemInfos { get; set; }
-  public DbSet<Waypoint> Waypoints { get; set; }
+  public virtual DbSet<Realm> Realms { get; set; }
+  public virtual DbSet<Robot> Robots { get; set; }
+  public virtual DbSet<RobotCertificate> RobotCertificates { get; set; }
+  public virtual DbSet<RobotChassisInfo> RobotChassisInfos { get; set; }
+  public virtual DbSet<RobotSystemInfo> RobotSystemInfos { get; set; }
+  public virtual DbSet<Waypoint> Waypoints { get; set; }
 
   protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
   {
