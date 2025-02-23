@@ -1,5 +1,3 @@
-image: mcr.microsoft.com/dotnet/sdk:9.0
-
 variables:
   # 1) Name of directory where restore and build objects are stored.
   OBJECTS_DIRECTORY: 'obj'
@@ -23,18 +21,21 @@ cache:
   # 'pull-push' policy means that latest cache will be downloaded (if it exists)
   policy: pull-push
 
-before_script:
-  - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
-
 build:
+  image: mcr.microsoft.com/dotnet/sdk:9.0
   stage: build
+  before_script:
+    - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
     - 'dotnet build --no-restore'
 
 tests:
+  image: mcr.microsoft.com/dotnet/sdk:9.0
   stage: test
   dependencies:
     - build
+  before_script:
+    - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
     # Run tests
     - 'dotnet test --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
