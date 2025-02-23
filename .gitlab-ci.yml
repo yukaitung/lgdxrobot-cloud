@@ -38,7 +38,6 @@ tests:
   artifacts:
     when: always
     paths:
-      - Tests/*/TestResults/*/coverage.cobertura.xml
       - Tests/artifacts/*test-result.xml
       - cobertura/*/coverage.cobertura.xml
     reports:
