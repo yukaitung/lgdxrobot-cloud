@@ -28,6 +28,8 @@ build:
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
     - 'dotnet build --no-restore'
+  only:
+    - main
 
 tests:
   image: mcr.microsoft.com/dotnet/sdk:9.0
@@ -53,6 +55,8 @@ tests:
       coverage_report:
         coverage_format: cobertura
         path: coveragereport/Cobertura.xml
+  only:
+    - main
 
 pages:
   image: alpine:latest
