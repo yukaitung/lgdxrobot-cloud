@@ -34,7 +34,12 @@ build:
 tests:
   stage: test
   script:
-    - 'dotnet test --no-restore'
+    - 'dotnet test --collect:"XPlat Code Coverage" --no-restore'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: Tests/*/TestResults/*/coverage.cobertura.xml
 
 deploy:
   stage: deploy
