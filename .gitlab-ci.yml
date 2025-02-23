@@ -55,6 +55,7 @@ tests:
         path: coveragereport/Cobertura.xml
 
 pages:
+  image: alpine:latest
   stage: deploy
   dependencies:
     - tests
