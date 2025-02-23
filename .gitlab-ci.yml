@@ -34,9 +34,14 @@ build:
 tests:
   stage: test
   script:
-    - 'dotnet test --collect:"XPlat Code Coverage" --no-restore'
+    - 'dotnet test --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
   artifacts:
+    when: always
+    paths:
+      - Tests/artifacts/*test-result.xml
     reports:
+      junit:
+        - Tests/artifacts/*test-result.xml
       coverage_report:
         coverage_format: cobertura
         path: Tests/*/TestResults/*/coverage.cobertura.xml
