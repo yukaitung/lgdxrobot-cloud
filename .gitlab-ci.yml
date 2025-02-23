@@ -33,6 +33,8 @@ build:
 
 tests:
   stage: test
+  dependencies:
+    - build
   script:
     # Run tests
     - 'dotnet test --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
@@ -50,10 +52,16 @@ tests:
       coverage_report:
         coverage_format: cobertura
         path: coveragereport/Cobertura.xml
-  dependencies:
-    - build
 
-#deploy:
-#  stage: deploy
-#  script: echo "Define your deployment script!"
-#  environment: production
+pages:
+  stage: deploy
+  dependencies:
+    - tests
+  script:
+    - mv coveragereport/ public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  only:
+    - main
