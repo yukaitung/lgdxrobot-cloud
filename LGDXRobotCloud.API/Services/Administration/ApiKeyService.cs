@@ -116,7 +116,7 @@ public class ApiKeyService(LgdxContext context) : IApiKeyService
     return await _context.SaveChangesAsync() == 1;
   }
 
-    public async Task<bool> DeleteApiKeyAsync(int apiKeyId)
+  public async Task<bool> DeleteApiKeyAsync(int apiKeyId)
   {
     return await _context.ApiKeys.Where(a => a.Id == apiKeyId)
       .ExecuteDeleteAsync() == 1;
@@ -124,26 +124,15 @@ public class ApiKeyService(LgdxContext context) : IApiKeyService
 
   public async Task<IEnumerable<ApiKeySearchBusinessModel>> SearchApiKeysAsync(string? name)
   {
-    if (string.IsNullOrWhiteSpace(name))
-    {
-      return await _context.ApiKeys.AsNoTracking()
-        .Take(10)
-        .Select(a => new ApiKeySearchBusinessModel{
-          Id = a.Id,
-          Name = a.Name
-        })
-        .ToListAsync();
-    }
-    else
-    {
-      return await _context.ApiKeys.AsNoTracking()
-        .Where(w => w.Name.Contains(name))
-        .Take(10)
-        .Select(a => new ApiKeySearchBusinessModel{
-          Id = a.Id,
-          Name = a.Name
-        })
-        .ToListAsync();
-    }
+    var n = name ?? string.Empty;
+    return await _context.ApiKeys.AsNoTracking()
+      .Where(w => w.Name.ToLower().Contains(n.ToLower()))
+      .Where(w => w.IsThirdParty == true)
+      .Take(10)
+      .Select(t => new ApiKeySearchBusinessModel {
+        Id = t.Id,
+        Name = t.Name,
+      })
+      .ToListAsync();
   }
 }
