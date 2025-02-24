@@ -239,12 +239,13 @@ public class ApiKeyServiceTests
   [InlineData("")]
   [InlineData("Test")]
   [InlineData("Test API Key 1")]
+  [InlineData("Test API Key 3")]
   [InlineData("AAA")]
   public async Task SearchApiKeysAsync_CalledWithName_ShouldReturnApiKeysWithName(string name)
   {
     // Arrange
     var apiKeyService = new ApiKeyService(mockContext.Object);
-    var expected = testData.Where(a => a.Name.Contains(name)).ToList();
+    var expected = testData.Where(a => a.Name.Contains(name)).Where(a => a.IsThirdParty == true).ToList();
 
     // Act
     var apiKeys = await apiKeyService.SearchApiKeysAsync(name);
