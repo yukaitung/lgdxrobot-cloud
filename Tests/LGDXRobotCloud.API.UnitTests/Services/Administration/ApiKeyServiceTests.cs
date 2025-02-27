@@ -61,7 +61,12 @@ public class ApiKeyServiceTests
 
     // Assert
     Assert.Equal(expected.Count, apiKeys.Count());
-    Assert.All(apiKeys, a => Assert.False(a.IsThirdParty));
+    Assert.All(apiKeys, a => {
+      var expected = testData.FirstOrDefault(e => e.Id == a.Id);
+      Assert.NotNull(expected);
+      Assert.Equal(expected.Name, a.Name);
+      Assert.False(expected.IsThirdParty);
+    });
   }
 
   [Fact]
@@ -76,7 +81,12 @@ public class ApiKeyServiceTests
 
     // Assert
     Assert.Equal(expected.Count, apiKeys.Count());
-    Assert.All(apiKeys, a => Assert.True(a.IsThirdParty));
+    Assert.All(apiKeys, a => {
+      var expected = testData.FirstOrDefault(e => e.Id == a.Id);
+      Assert.NotNull(expected);
+      Assert.Equal(expected.Name, a.Name);
+      Assert.True(expected.IsThirdParty);
+    });
   }
 
   [Theory]
@@ -111,14 +121,15 @@ public class ApiKeyServiceTests
   {
     // Arrange
     var apiKeyService = new ApiKeyService(mockContext.Object);
+    var expected = testData.First(a => a.Id == apiKeyId);
 
     // Act
     var apiKey = await apiKeyService.GetApiKeyAsync(apiKeyId);
 
     // Assert
-    Assert.Equal(testData.First(a => a.Id == apiKeyId).Id, apiKey.Id);
-    Assert.Equal(testData.First(a => a.Id == apiKeyId).Name, apiKey.Name);
-    Assert.Equal(testData.First(a => a.Id == apiKeyId).IsThirdParty, apiKey.IsThirdParty);
+    Assert.Equal(expected.Id, apiKey.Id);
+    Assert.Equal(expected.Name, apiKey.Name);
+    Assert.Equal(expected.IsThirdParty, apiKey.IsThirdParty);
   }
 
   [Fact]
