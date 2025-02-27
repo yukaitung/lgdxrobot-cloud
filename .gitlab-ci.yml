@@ -38,6 +38,7 @@ tests:
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
     # Generate root certificate
+    - 'ls'
     - 'openssl req -x509 -new -nodes -keyout ./rootCA.key -sha256 -days 3650 -out ./rootCA.crt -config ./openssl.cnf'
     - 'openssl pkcs12 -export -out ./rootCA.pfx -inkey ./rootCA.key -in ./rootCA.crt -passout pass:'
     - 'dotnet dev-certs https -ep ./rootCA.pfx'
