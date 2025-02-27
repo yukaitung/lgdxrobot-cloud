@@ -38,9 +38,12 @@ tests:
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
     # Generate root certificate
-    - 'openssl req -x509 -new -nodes -keyout ./rootCA.key -sha256 -days 3650 -out ./rootCA.crt -config ./openssl.cnf'
-    - 'sudo cp rootCA.crt /usr/local/share/ca-certificates/rootCA.crt'
-    - 'sudo update-ca-certificates'
+    - 'apt install -y ca-certificates'
+    - 'openssl req -x509 -new -nodes -keyout rootCA.key -sha256 -days 3650 -out rootCA.crt -config openssl.cnf'
+    - 'openssl pkcs12 -export -out rootCA.pfx -inkey rootCA.key -in rootCA.crt -passout pass:'
+    - 'sudo cp rootCA.crt /usr/local/share/ca-certificates/'
+    - 'update-ca-certificates'
+    - 'dotnet dev-certs https --import rootCA.pfx'
     # Run tests
     - 'dotnet test --settings:".runsettings" --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
     # Generate coverage report
