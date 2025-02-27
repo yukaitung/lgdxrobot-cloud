@@ -40,6 +40,7 @@ tests:
     # Generate root certificate
     - 'openssl req -x509 -new -nodes -keyout rootCA.key -sha256 -days 3650 -out rootCA.crt -config openssl.cnf'
     - 'openssl pkcs12 -export -out rootCA.pfx -inkey rootCA.key -in rootCA.crt -passout pass:'
+    - 'cp rootCA.pfx Tests/LGDXRobotCloud.API.UnitTests/bin/Debug/net9.0/rootCA.pfx'
     # Run tests
     - 'dotnet test --settings:".runsettings" --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
     # Generate coverage report

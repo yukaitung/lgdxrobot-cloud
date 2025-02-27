@@ -97,9 +97,6 @@ public class RobotCertificateServiceTests
       };
     }
     
-    
-    
-
     for (int i = 0; i < robotCertificatesTestData.Count; i++)
     {
       robotCertificatesTestData[i].Robot = robotsTestData[i];
