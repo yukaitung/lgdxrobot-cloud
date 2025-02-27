@@ -81,15 +81,24 @@ public class RobotCertificateServiceTests
         localstore.Add(certificate);
         localstore.Close();
       }
+      lgdxRobotCloudConfiguration = new LgdxRobotCloudConfiguration {
+        RootCertificateSN = certificate.SerialNumber,
+        RobotCertificateValidDay = 1
+      };
+    }
+    else
+    {
+      X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
+      store.Open(OpenFlags.OpenExistingOnly);
+      X509Certificate2 rootCertificate = store.Certificates.First(c => c.Issuer == "CN=LGDXRobotTest");
+      lgdxRobotCloudConfiguration = new LgdxRobotCloudConfiguration {
+        RootCertificateSN = rootCertificate.SerialNumber,
+        RobotCertificateValidDay = 1
+      };
     }
     
-    X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
-    store.Open(OpenFlags.OpenExistingOnly);
-    X509Certificate2 rootCertificate = store.Certificates.First(c => c.Issuer == "CN=LGDXRobotTest");
-    lgdxRobotCloudConfiguration = new LgdxRobotCloudConfiguration {
-      RootCertificateSN = rootCertificate.SerialNumber,
-      RobotCertificateValidDay = 1
-    };
+    
+    
 
     for (int i = 0; i < robotCertificatesTestData.Count; i++)
     {
