@@ -67,6 +67,22 @@ public class RobotCertificateServiceTests
 
   public RobotCertificateServiceTests()
   {
+    string rootPath = "rootCA.pfx";
+    if(File.Exists(rootPath))
+    {
+      var certificate = new X509Certificate2(rootPath, string.Empty, 
+        X509KeyStorageFlags.MachineKeySet | 
+        X509KeyStorageFlags.PersistKeySet | 
+        X509KeyStorageFlags.Exportable);
+
+      using (var localstore = new X509Store(StoreName.My, StoreLocation.CurrentUser))
+      {
+        localstore.Open(OpenFlags.ReadWrite);
+        localstore.Add(certificate);
+        localstore.Close();
+      }
+    }
+    
     X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
     store.Open(OpenFlags.OpenExistingOnly);
     X509Certificate2 rootCertificate = store.Certificates.First(c => c.Issuer == "CN=LGDXRobotTest");
