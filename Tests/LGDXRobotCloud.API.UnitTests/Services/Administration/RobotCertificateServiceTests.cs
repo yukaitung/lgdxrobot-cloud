@@ -70,11 +70,7 @@ public class RobotCertificateServiceTests
     string rootPath = "rootCA.pfx";
     if(File.Exists(rootPath))
     {
-      var certificate = new X509Certificate2(rootPath, string.Empty, 
-        X509KeyStorageFlags.MachineKeySet | 
-        X509KeyStorageFlags.PersistKeySet | 
-        X509KeyStorageFlags.Exportable);
-
+      var certificate = X509CertificateLoader.LoadCertificateFromFile(rootPath);
       using (var localstore = new X509Store(StoreName.My, StoreLocation.CurrentUser))
       {
         localstore.Open(OpenFlags.ReadWrite);
