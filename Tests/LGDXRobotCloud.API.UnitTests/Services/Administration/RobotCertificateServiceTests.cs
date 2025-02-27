@@ -68,9 +68,13 @@ public class RobotCertificateServiceTests
   public RobotCertificateServiceTests()
   {
     string rootPath = "rootCA.pfx";
+    var certificate = new X509Certificate2(rootPath, string.Empty, 
+        X509KeyStorageFlags.MachineKeySet | 
+        X509KeyStorageFlags.PersistKeySet | 
+        X509KeyStorageFlags.Exportable);
     if(File.Exists(rootPath))
     {
-      var certificate = new X509Certificate2(rootPath, string.Empty, 
+      var certificate1 = new X509Certificate2(rootPath, string.Empty, 
         X509KeyStorageFlags.MachineKeySet | 
         X509KeyStorageFlags.PersistKeySet | 
         X509KeyStorageFlags.Exportable);
