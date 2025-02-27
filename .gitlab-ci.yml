@@ -38,13 +38,13 @@ tests:
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
     # Generate root certificate
-    - 'openssl req -x509 -new -nodes -keyout rootCA.key -sha256 -days 3650 -out rootCA.crt -config openssl.cnf'
+    - 'openssl req -x509 -new -nodes -keyout rootCA.key -sha256 -days 3650 -out rootCA.crt -config Tests/openssl.cnf'
     - 'openssl pkcs12 -export -out rootCA.pfx -inkey rootCA.key -in rootCA.crt -passout pass:'
     # !Important Don't forget to change dotnet version here
     - 'mkdir -p Tests/LGDXRobotCloud.API.UnitTests/bin/Debug/net9.0'
     - 'cp rootCA.pfx Tests/LGDXRobotCloud.API.UnitTests/bin/Debug/net9.0'
     # Run tests
-    - 'dotnet test --settings:".runsettings" --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
+    - 'dotnet test --settings:"Tests/.runsettings" --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
     # Generate coverage report
     - 'dotnet tool restore'
     - 'dotnet tool run reportgenerator -reports:"Tests/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:"HtmlInline;Cobertura;TextSummary"'
