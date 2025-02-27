@@ -68,8 +68,6 @@ public class RobotCertificateServiceTests
   public RobotCertificateServiceTests()
   {
     string rootPath = "rootCA.pfx";
-    string path = Directory.GetCurrentDirectory();
-    Console.WriteLine("The current directory is {0}", path);
     if(File.Exists(rootPath))
     {
       var certificate = new X509Certificate2(rootPath, string.Empty, 
