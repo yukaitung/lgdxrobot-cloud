@@ -96,7 +96,7 @@ public class RobotCertificateServiceTests
     mockConfiguration.Setup(o => o.Value).Returns(lgdxRobotCloudConfiguration);
   }
 
-  private X509Certificate2 CreateSelfSignedCertificate(string subjectName = "LGDXRobotTest", int keySize = 2048, int validYears = 1)
+  private static X509Certificate2 CreateSelfSignedCertificate(string subjectName = "LGDXRobotTest", int keySize = 2048, int validYears = 1)
   {
     using var rsa = RSA.Create(keySize);
 
@@ -114,9 +114,8 @@ public class RobotCertificateServiceTests
 
     var cert = certificateRequest.CreateSelfSigned(notBefore, notAfter);
 
-    // Export it to a certificate object, optionally saving to a file
     return new X509Certificate2(cert);
-    }
+  }
 
   [Fact]
   public async Task GetRobotCertificatesAsync_ShouldReturnLgdxRobotCertificates()
