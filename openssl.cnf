@@ -2,14 +2,14 @@
 default_bits       = 2048
 default_keyfile    = rootCA.key
 distinguished_name = req_distinguished_name
-req_extensions     = req_ext
+x509_extensions    = v3_ca
 prompt             = no
 
 [ req_distinguished_name ]
-CN = LGDXRobot2Test
+CN = LGDXRobotTest
 
 [ v3_ca ]
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer
-basicConstraints = CA:true
+basicConstraints = critical,CA:true
 keyUsage = critical, keyCertSign, cRLSign
