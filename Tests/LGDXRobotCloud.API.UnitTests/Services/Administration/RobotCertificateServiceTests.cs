@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using LGDXRobotCloud.API.Configurations;
 using LGDXRobotCloud.API.Exceptions;
@@ -67,32 +68,18 @@ public class RobotCertificateServiceTests
 
   public RobotCertificateServiceTests()
   {
-    string rootPath = "rootCA.pfx";
-    if(File.Exists(rootPath))
+    var certificate = CreateSelfSignedCertificate();
+    using (var localstore = new X509Store(StoreName.My, StoreLocation.CurrentUser))
     {
-      var certificate = X509CertificateLoader.LoadCertificateFromFile(rootPath);
-      using (var localstore = new X509Store(StoreName.My, StoreLocation.CurrentUser))
-      {
-        localstore.Open(OpenFlags.ReadWrite);
-        localstore.Add(certificate);
-        localstore.Close();
-      }
-      lgdxRobotCloudConfiguration = new LgdxRobotCloudConfiguration {
-        RootCertificateSN = certificate.SerialNumber,
-        RobotCertificateValidDay = 1
-      };
+      localstore.Open(OpenFlags.ReadWrite);
+      localstore.Add(certificate);
+      localstore.Close();
     }
-    else
-    {
-      X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
-      store.Open(OpenFlags.OpenExistingOnly);
-      X509Certificate2 rootCertificate = store.Certificates.First(c => c.Issuer == "CN=LGDXRobotTest");
-      lgdxRobotCloudConfiguration = new LgdxRobotCloudConfiguration {
-        RootCertificateSN = rootCertificate.SerialNumber,
-        RobotCertificateValidDay = 1
-      };
-    }
-    
+    lgdxRobotCloudConfiguration = new LgdxRobotCloudConfiguration {
+      RootCertificateSN = certificate.SerialNumber,
+      RobotCertificateValidDay = 1
+    };
+
     for (int i = 0; i < robotCertificatesTestData.Count; i++)
     {
       robotCertificatesTestData[i].Robot = robotsTestData[i];
@@ -108,6 +95,28 @@ public class RobotCertificateServiceTests
     mockConfiguration = new Mock<IOptionsSnapshot<LgdxRobotCloudConfiguration>>();
     mockConfiguration.Setup(o => o.Value).Returns(lgdxRobotCloudConfiguration);
   }
+
+  private X509Certificate2 CreateSelfSignedCertificate(string subjectName = "LGDXRobotTest", int keySize = 2048, int validYears = 1)
+  {
+    using var rsa = RSA.Create(keySize);
+
+    var certificateRequest = new CertificateRequest(
+        new X500DistinguishedName($"CN={subjectName}"),
+        rsa,
+        HashAlgorithmName.SHA256,
+        RSASignaturePadding.Pkcs1);
+
+    var notBefore = DateTimeOffset.UtcNow;
+    var notAfter = notBefore.AddYears(validYears);
+
+    var basicConstraints = new X509BasicConstraintsExtension(true, false, 0, true);
+      certificateRequest.CertificateExtensions.Add(basicConstraints);
+
+    var cert = certificateRequest.CreateSelfSigned(notBefore, notAfter);
+
+    // Export it to a certificate object, optionally saving to a file
+    return new X509Certificate2(cert);
+    }
 
   [Fact]
   public async Task GetRobotCertificatesAsync_ShouldReturnLgdxRobotCertificates()
