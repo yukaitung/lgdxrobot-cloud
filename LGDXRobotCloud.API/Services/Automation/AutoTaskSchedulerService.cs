@@ -148,8 +148,7 @@ public class AutoTaskSchedulerService(
         .ToListAsync();
       foreach (var t in taskDetails)
       {
-        if (t.Waypoint != null)
-          waypoints.Add(GenerateWaypoint(t));
+        waypoints.Add(GenerateWaypoint(t));
       }
     }
 
@@ -230,7 +229,7 @@ public class AutoTaskSchedulerService(
   public async Task<RobotClientsAutoTask?> GetAutoTaskAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    var ignoreRobotIds = _memoryCache.Get<HashSet<Guid>>(GetIgnoreRobotsKey(realmId));
+    _memoryCache.TryGetValue(GetIgnoreRobotsKey(realmId), out HashSet<Guid>? ignoreRobotIds);
     if (ignoreRobotIds != null && (ignoreRobotIds?.Contains(robotId) ?? false))
     {
       return null;
@@ -242,15 +241,6 @@ public class AutoTaskSchedulerService(
     {
       if (!_onlineRobotsService.GetPauseAutoTaskAssignment(robotId)) 
       {
-        var count = await _context.AutoTasks.AsNoTracking()
-          .Where(t => t.AssignedRobotId == robotId)
-          .Where(t => !LgdxHelper.AutoTaskStaticStates.Contains(t.CurrentProgressId))
-          .CountAsync();
-        if (count > 0)
-        {
-          // If there is already a task running, no task will be assigned.
-          return null;
-        }
         currentTask = await AssignAutoTaskSqlAsync(robotId);
       }
       else
@@ -321,8 +311,11 @@ public class AutoTaskSchedulerService(
   public async Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason)
   {
     var task = await AutoTaskAbortSqlAsync(taskId, robotId, token);
-    await DeleteTriggerRetries(taskId);
-    await _emailService.SendAutoTaskAbortEmailAsync(robotId, taskId, autoTaskAbortReason);
+    if (task != null)
+    {
+      await DeleteTriggerRetries(taskId);
+      await _emailService.SendAutoTaskAbortEmailAsync(robotId, taskId, autoTaskAbortReason);
+    }
     return await GenerateTaskDetail(task);
   }
 
