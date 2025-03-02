@@ -375,12 +375,6 @@ public class AutoTaskSchedulerServiceTests
   public AutoTaskSchedulerServiceTests()
   {
     mockMemoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(Mock.Of<ICacheEntry>);
-    for (int i = 0; i < autoTasks.Count; i++)
-    {
-      var details = autoTaskDetails.Where(a => a.AutoTaskId == autoTasks[i].Id).ToList();
-      foreach (var detail in details)
-        autoTasks[i].AutoTaskDetails.Add(detail);
-    }
     lgdxContext = Create.MockedDbContextFor<LgdxContext>();
     lgdxContext.Set<AutoTask>().AddRange(autoTasks);
     lgdxContext.Set<AutoTaskDetail>().AddRange(autoTaskDetails);
