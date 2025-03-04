@@ -618,4 +618,147 @@ public class AutoTaskServiceTests
     var exception = await Assert.ThrowsAsync<LgdxValidation400Expection>(act);
     Assert.Equal($"The Task Detail ID {detailId} is belongs to other Task.", exception.Message);
   }
+
+  [Fact]
+  public async Task DeleteAutoTaskAsync_CalledWithValidAutoTask_ShouldReturnsTrue()
+  {
+    // Arrange
+    int id = 1;
+    
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+
+    // Act
+    var actual = await autoTaskService.DeleteAutoTaskAsync(id);
+
+    // Assert
+    var expected = lgdxContext.AutoTasks.FirstOrDefault(t => t.Id == id);
+    Assert.True(actual);
+    Assert.Null(expected);
+  }
+
+  [Fact]
+  public async Task DeleteAutoTaskAsync_CalledWithInvalidAutoTask_ShouldThrowsNotFoundException()
+  {
+    // Arrange
+    int id = autoTasks.Count + 1;
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+
+    // Act
+    Task act() => autoTaskService.DeleteAutoTaskAsync(id);
+
+    // Assert
+    var exception = await Assert.ThrowsAsync<LgdxNotFound404Exception>(act);
+  }
+
+  [Theory]
+  [InlineData(2)]
+  [InlineData(3)]
+  [InlineData(4)]
+  [InlineData(5)]
+  public async Task DeleteAutoTaskAsync_CalledWithNonTemplateAutoTask_ShouldThrowsValidationExpection(int id)
+  {
+    // Arrange
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+
+    // Act
+    Task act() => autoTaskService.DeleteAutoTaskAsync(id);
+
+    // Assert
+    var exception = await Assert.ThrowsAsync<LgdxValidation400Expection>(act);
+    Assert.Equal("Cannot delete the task not in running status.", exception.Message);
+  }
+
+  [Fact]
+  public async Task AbortAutoTaskAsync_CalledWithRunningAutoTask_ShouldCalled()
+  {
+    // Arrange
+    int id = 5;
+    mockOnlineRobotService.Setup(m => m.SetAbortTaskAsync(It.IsAny<Guid>(), true)).Returns(Task.FromResult(true));
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+
+    // Act
+    await autoTaskService.AbortAutoTaskAsync(id);
+
+    // Assert
+    mockOnlineRobotService.Verify(m => m.SetAbortTaskAsync(It.IsAny<Guid>(), true), Times.Once());
+    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskAbortApiAsync(It.IsAny<int>()), Times.Never());
+  }
+
+  [Fact]
+  public async Task AbortAutoTaskAsync_CalledWithWaitingAutoTask_ShouldCalled()
+  {
+    // Arrange
+    int id = 2;
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+
+    // Act
+    await autoTaskService.AbortAutoTaskAsync(id);
+
+    // Assert
+    mockOnlineRobotService.Verify(m => m.SetAbortTaskAsync(It.IsAny<Guid>(), true), Times.Never());
+    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskAbortApiAsync(It.IsAny<int>()), Times.Once());
+  }
+
+  [Fact]
+  public async Task AbortAutoTaskAsync_CalledWithInvalidAutoTask_ShouldThrowsNotFoundException()
+  {
+    // Arrange
+    int id = autoTasks.Count + 1;
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+
+    // Act
+    Task act() => autoTaskService.AbortAutoTaskAsync(id);
+
+    // Assert
+    var exception = await Assert.ThrowsAsync<LgdxNotFound404Exception>(act);
+  }
+
+  [Theory]
+  [InlineData(1)]
+  [InlineData(3)]
+  [InlineData(4)]
+  public async Task AbortAutoTaskAsync_CalledWithStaticAutoTasks_ShouldThrowsValidationExpection(int id)
+  {
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+
+    // Act
+    Task act() => autoTaskService.AbortAutoTaskAsync(id);
+
+    // Assert
+    var exception = await Assert.ThrowsAsync<LgdxValidation400Expection>(act);
+    Assert.Equal("Cannot abort the task not in running status.", exception.Message);
+  }
+
+  [Fact]
+  public async Task AutoTaskNextApiAsync_CalledWithValidToken_ShouldCalled()
+  {
+    // Arrange
+    AutoTask? autoTask = lgdxContext.AutoTasks.FirstOrDefault(t => t.CurrentProgressId == (int)ProgressState.Moving);
+    mockAutoTaskSchedulerService.Setup(m => m.AutoTaskNextApiAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(autoTask));
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+
+    // Act
+    await autoTaskService.AutoTaskNextApiAsync((Guid)autoTask!.AssignedRobotId!, autoTask.Id, autoTask.NextToken!);
+
+    // Assert
+    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskNextApiAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string>()), Times.Once());
+    mockOnlineRobotService.Verify(m => m.SetAutoTaskNextApi(It.IsAny<Guid>(), It.IsAny<AutoTask>()), Times.Once());
+  }
+
+  [Fact]
+  public async Task AutoTaskNextApiAsync_CalledWithInvalidToken_ShouldThrowsValidationExpection()
+  {
+    // Arrange
+    AutoTask? autoTask = lgdxContext.AutoTasks.FirstOrDefault(t => t.CurrentProgressId == (int)ProgressState.Moving);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+
+    // Act
+    Task act() => autoTaskService.AutoTaskNextApiAsync((Guid)autoTask!.AssignedRobotId!, autoTask.Id, string.Empty);
+
+    // Assert
+    var exception = await Assert.ThrowsAsync<LgdxValidation400Expection>(act);
+    Assert.Equal("The next token is invalid.", exception.Message);
+    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskNextApiAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string>()), Times.Once());
+    mockOnlineRobotService.Verify(m => m.SetAutoTaskNextApi(It.IsAny<Guid>(), It.IsAny<AutoTask>()), Times.Never());
+  }
 }
