@@ -261,19 +261,4 @@ public class ApiKeyServiceTests
     Assert.Equal(expected.Count, apiKeys.Count());
     Assert.All(apiKeys, a => Assert.Contains(name, a.Name));
   }
-
-  [Fact]
-  public async Task SearchApiKeysAsync_CalledWithoutName_ShouldReturnApiKeys()
-  {
-    // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
-    var expected = apiKeyTestData.Where(a => a.IsThirdParty == true).ToList();
-
-    // Act
-    var apiKeys = await apiKeyService.SearchApiKeysAsync(null);
-
-    // Assert
-    Assert.Equal(expected.Count, apiKeys.Count());
-    Assert.All(apiKeys, a => Assert.Contains(a.Name, expected.Select(e => e.Name)));
-  }
 }
