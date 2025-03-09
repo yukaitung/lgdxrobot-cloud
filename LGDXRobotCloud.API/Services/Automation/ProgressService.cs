@@ -85,7 +85,7 @@ public class ProgressService(LgdxContext context) : IProgressService
 
     if (progress.System)
     {
-      throw new LgdxValidation400Expection(nameof(progressId), $"Cannot update system progress.");
+      throw new LgdxValidation400Expection(nameof(progressId), "Cannot update system progress.");
     }
     progress.Name = progressUpdateBusinessModel.Name;
     return await _context.SaveChangesAsync() >= 1;
