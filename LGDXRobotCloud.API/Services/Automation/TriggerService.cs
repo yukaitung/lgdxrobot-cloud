@@ -81,19 +81,24 @@ public sealed class TriggerService (
         ?? throw new LgdxNotFound404Exception();
   }
 
+  private async Task ValidateApiKey(int apiKeyId)
+  {
+    var apiKey = await _apiKeyService.GetApiKeyAsync(apiKeyId);
+    if (apiKey == null)
+    {
+      throw new LgdxValidation400Expection(nameof(TriggerBusinessModel.Id), $"The API Key Id {apiKeyId} is invalid.");
+    }
+    else if (!apiKey.IsThirdParty)
+    {
+      throw new LgdxValidation400Expection(nameof(TriggerBusinessModel.Id), "Only third party API key is allowed.");
+    }
+  }
+
   public async Task<TriggerBusinessModel> CreateTriggerAsync(TriggerCreateBusinessModel triggerCreateBusinessModel)
   {
     if (triggerCreateBusinessModel.ApiKeyId != null)
     {
-      var apiKey = await _apiKeyService.GetApiKeyAsync((int)triggerCreateBusinessModel.ApiKeyId);
-      if (apiKey == null)
-      {
-        throw new LgdxValidation400Expection(nameof(TriggerBusinessModel.Id), $"The API Key Id {triggerCreateBusinessModel.ApiKeyId} is invalid.");
-      }
-      else if (!apiKey.IsThirdParty)
-      {
-        throw new LgdxValidation400Expection(nameof(TriggerBusinessModel.Id), "Only third party API key is allowed.");
-      }
+      await ValidateApiKey((int)triggerCreateBusinessModel.ApiKeyId);
     }
 
     var trigger = new Trigger {
@@ -126,15 +131,7 @@ public sealed class TriggerService (
   {
     if (triggerUpdateBusinessModel.ApiKeyId != null)
     {
-      var apiKey = await _apiKeyService.GetApiKeyAsync((int)triggerUpdateBusinessModel.ApiKeyId);
-      if (apiKey == null)
-      {
-        throw new LgdxValidation400Expection(nameof(triggerId), $"The API Key Id {triggerUpdateBusinessModel.ApiKeyId} is invalid.");
-      }
-      else if (!apiKey.IsThirdParty)
-      {
-        throw new LgdxValidation400Expection(nameof(triggerId), "Only third party API key is allowed.");
-      }
+      await ValidateApiKey((int)triggerUpdateBusinessModel.ApiKeyId);
     }
 
     return await _context.Triggers

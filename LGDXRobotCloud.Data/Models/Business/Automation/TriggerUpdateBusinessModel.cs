@@ -10,7 +10,7 @@ public record TriggerUpdateBusinessModel
 
   public string? Body { get; set; }
 
-  public required bool SkipOnFailure { get; set; }
+  public bool SkipOnFailure { get; set; } = false;
   
   public int? ApiKeyInsertLocationId { get; set; }
 
