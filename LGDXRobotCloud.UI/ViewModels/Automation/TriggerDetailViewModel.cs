@@ -36,7 +36,7 @@ public class TriggerDetailViewModel : FormViewModel, IValidatableObject
   // API Keys
   public bool ApiKeyRequired { get; set; } = false;
   
-  public int ApiKeyInsertLocationId { get; set; } = 1;
+  public int? ApiKeyInsertLocationId { get; set; } = 1;
 
   [MaxLength(50)]
   public string? ApiKeyFieldName { get; set; }
@@ -133,7 +133,7 @@ public static class TriggerDetailViewModelExtensions
     triggerDetailViewModel.BodyDataList = TriggerDetailViewModel.GenerateBodyDataList(triggerDto.Body?.ToString() ?? string.Empty);
     triggerDetailViewModel.SkipOnFailure = (bool)triggerDto.SkipOnFailure!;
     triggerDetailViewModel.ApiKeyRequired = triggerDto.ApiKey != null;
-    triggerDetailViewModel.ApiKeyInsertLocationId = (int)triggerDto.ApiKeyInsertLocationId!;
+    triggerDetailViewModel.ApiKeyInsertLocationId = triggerDto.ApiKeyInsertLocationId;
     triggerDetailViewModel.ApiKeyFieldName = triggerDto.ApiKeyFieldName;
     triggerDetailViewModel.ApiKeyId = triggerDto.ApiKey?.Id;
     triggerDetailViewModel.ApiKeyName = triggerDto.ApiKey?.Name;

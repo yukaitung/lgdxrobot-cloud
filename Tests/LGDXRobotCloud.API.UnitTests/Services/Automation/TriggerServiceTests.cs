@@ -2,6 +2,7 @@ using EntityFrameworkCore.Testing.Moq;
 using LGDXRobotCloud.API.Exceptions;
 using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Automation;
+using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
@@ -14,6 +15,8 @@ namespace LGDXRobotCloud.API.UnitTests.Services.Automation;
 
 public class TriggerServiceTests
 {
+  private static readonly Guid RobotGuid = Guid.Parse("8b609e85-5865-472b-8ced-6c936ee5f127");
+
   private readonly List<Trigger> triggers = [
     new ()
     {
@@ -32,7 +35,7 @@ public class TriggerServiceTests
       Name = "Trigger 2",
       Url = "https://www.example.com",
       HttpMethodId = (int)TriggerHttpMethod.Post,
-      Body = "{}",
+      Body = """{"AutoTaskId":"((1))","AutoTaskName":"((2))","AutoTaskCurrentProgressId":"((3))","AutoTaskCurrentProgressName":"((4))","RobotId":"((5))","RobotName":"((6))","RealmId":"((7))","RealmName":"((8))"}""",
       ApiKeyInsertLocationId = (int)ApiKeyInsertLocation.Header,
       ApiKeyFieldName = "x-api-key",
       ApiKeyId = 1,
@@ -61,6 +64,11 @@ public class TriggerServiceTests
     {
       Id = 1,
       Name = "Flow 1"
+    },
+    new()
+    {
+      Id = 2,
+      Name = "Flow 2"
     }
   ];
 
@@ -70,10 +78,65 @@ public class TriggerServiceTests
       Id = 1,
       Order = 0,
       ProgressId = (int)ProgressState.Starting,
-      AutoTaskNextControllerId = (int)AutoTaskNextController.Robot,
+      AutoTaskNextControllerId = (int)AutoTaskNextController.API,
       TriggerId = 2,
       FlowId = 1
     },
+    new()
+    {
+      Id = 2,
+      Order = 0,
+      ProgressId = (int)ProgressState.Starting,
+      AutoTaskNextControllerId = (int)AutoTaskNextController.API,
+      TriggerId = 999,
+      FlowId = 2
+    },
+  ];
+
+  private readonly List<AutoTask> autoTasks = [
+    new() 
+    {
+      Id = 1,
+      Name = "Task 1",
+      Priority = 0,
+      FlowId = 1,
+      RealmId = 1,
+      AssignedRobotId = RobotGuid,
+      CurrentProgressId = (int)ProgressState.Starting,
+      NextToken = "123"
+    },
+    new() 
+    {
+      Id = 2,
+      Name = "Task 2",
+      Priority = 0,
+      FlowId = 2,
+      RealmId = 1,
+      AssignedRobotId = RobotGuid,
+      CurrentProgressId = (int)ProgressState.Starting,
+      NextToken = "321"
+    }
+  ];
+
+  private readonly List<Robot> robots = [
+    new() {
+      Id = RobotGuid,
+      Name = "Test Robot 1",
+      RealmId = 1
+    }
+  ];
+
+  private readonly List<Realm> realms = [
+    new ()
+    {
+      Id = 1,
+      Name = "Realm1",
+      Image = [],
+      Resolution = 1,
+      OriginX = 0,
+      OriginY = 0,
+      OriginRotation = 0
+    }
   ];
 
   private readonly Mock<IBus> mockBus = new();
@@ -87,6 +150,9 @@ public class TriggerServiceTests
     lgdxContext.Set<ApiKey>().AddRange(apiKeys);
     lgdxContext.Set<Flow>().AddRange(flows);
     lgdxContext.Set<FlowDetail>().AddRange(flowDetails);
+    lgdxContext.Set<Robot>().AddRange(robots);
+    lgdxContext.Set<Realm>().AddRange(realms);
+    lgdxContext.Set<AutoTask>().AddRange(autoTasks);
     lgdxContext.SaveChanges();
   }
 
@@ -294,4 +360,88 @@ public class TriggerServiceTests
       Assert.Contains(name, a.Name);
     });
   }
+
+  [Fact]
+  public async Task InitialiseTriggerAsync_Called_ShouldPublishTrigger()
+  {
+    // Arrange
+    var task = autoTasks.Where(t => t.Id == 1).FirstOrDefault();
+    task!.CurrentProgress = new Progress{
+      Id = (int)ProgressState.Starting,
+      Name = "Starting",
+      System = true
+    };
+    var flowDetail = flowDetails.Where(t => t.Id == 1).FirstOrDefault();
+    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var busParam = new List<AutoTaskTriggerContract>();
+    mockBus.Setup(m => m.Publish(Capture.In(busParam), It.IsAny<CancellationToken>()));
+    Dictionary<string, string> expected = new() {
+      { "AutoTaskId", task.Id.ToString() },
+      { "AutoTaskName", task.Name! },
+      { "AutoTaskCurrentProgressId", task.CurrentProgressId.ToString() },
+      { "AutoTaskCurrentProgressName", task.CurrentProgress.Name! },
+      { "RobotId", RobotGuid.ToString() },
+      { "RobotName", robots.Where(r => r.Id == task.AssignedRobotId).FirstOrDefault()!.Name },
+      { "RealmId", task.RealmId.ToString() },
+      { "RealmName", realms.Where(r => r.Id == task.RealmId).FirstOrDefault()!.Name },
+      { "NextToken", task.NextToken! }
+    };
+
+    // Act
+    await triggerService.InitialiseTriggerAsync(task!, flowDetail!);
+
+    // Assert
+    mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskTriggerContract>(), It.IsAny<CancellationToken>()), Times.Once());
+    Assert.Single(busParam);
+    Assert.All(busParam[0].Body, a => {
+      Assert.True(expected.ContainsKey(a.Key));
+      Assert.Equal(expected[a.Key], a.Value);
+    });
+    Assert.Equal(expected["AutoTaskId"], busParam[0].AutoTaskId.ToString());
+    Assert.Equal(expected["AutoTaskName"], busParam[0].AutoTaskName);
+    Assert.Equal(expected["RobotId"], busParam[0].RobotId.ToString());
+    Assert.Equal(expected["RobotName"], busParam[0].RobotName);
+    Assert.Equal(expected["RealmId"], busParam[0].RealmId.ToString());
+    Assert.Equal(expected["RealmName"], busParam[0].RealmName);
   }
+
+  [Fact]
+  public async Task InitialiseTriggerAsync_CalledWithInvalidTrigger_ShouldNotPublishTrigger()
+  {
+    // Arrange
+    var task = autoTasks.Where(t => t.Id == 2).FirstOrDefault();
+    task!.CurrentProgress = new Progress{
+      Id = (int)ProgressState.Starting,
+      Name = "Starting",
+      System = true
+    };
+    var flowDetail = flowDetails.Where(t => t.Id == 2).FirstOrDefault();
+    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+
+    // Act
+    await triggerService.InitialiseTriggerAsync(task!, flowDetail!);
+
+    // Assert
+    mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskTriggerContract>(), It.IsAny<CancellationToken>()), Times.Never());
+  }
+
+  [Fact]
+  public async Task RetryTriggerAsync_Called_ShouldPublishTrigger()
+  {
+    // Arrange
+    var task = autoTasks.Where(t => t.Id == 1).FirstOrDefault();
+    task!.CurrentProgress = new Progress{
+      Id = (int)ProgressState.Starting,
+      Name = "Starting",
+      System = true
+    };
+    var trigger = triggers.Where(t => t.Id == 2).FirstOrDefault();
+    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+
+    // Act
+    await triggerService.RetryTriggerAsync(task!, trigger!, "{}");
+
+    // Assert
+    mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskTriggerContract>(), It.IsAny<CancellationToken>()), Times.Once());
+  }
+}

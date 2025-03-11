@@ -191,13 +191,13 @@ public sealed class TriggerService (
     return i switch
     {
       (int)TriggerPresetValue.AutoTaskId => $"{autoTask.Id}",
-      (int)TriggerPresetValue.AutoTaskName => $"\"{autoTask.Name}\"",
+      (int)TriggerPresetValue.AutoTaskName => $"{autoTask.Name}",
       (int)TriggerPresetValue.AutoTaskCurrentProgressId => $"{autoTask.CurrentProgressId}",
-      (int)TriggerPresetValue.AutoTaskCurrentProgressName => $"\"{autoTask.CurrentProgress.Name!}\"",
-      (int)TriggerPresetValue.RobotId => $"\"{autoTask.AssignedRobotId}\"",
-      (int)TriggerPresetValue.RobotName => $"\"{GetRobotName((Guid)autoTask.AssignedRobotId!)}\"",
-      (int)TriggerPresetValue.RealmId => $"\"{autoTask.RealmId}\"",
-      (int)TriggerPresetValue.RealmName => $"\"{GetRealmName(autoTask.RealmId)}\"",
+      (int)TriggerPresetValue.AutoTaskCurrentProgressName => $"{autoTask.CurrentProgress.Name!}",
+      (int)TriggerPresetValue.RobotId => $"{autoTask.AssignedRobotId}",
+      (int)TriggerPresetValue.RobotName => $"{GetRobotName((Guid)autoTask.AssignedRobotId!)}",
+      (int)TriggerPresetValue.RealmId => $"{autoTask.RealmId}",
+      (int)TriggerPresetValue.RealmName => $"{GetRealmName(autoTask.RealmId)}",
       _ => string.Empty,
     };
   }
