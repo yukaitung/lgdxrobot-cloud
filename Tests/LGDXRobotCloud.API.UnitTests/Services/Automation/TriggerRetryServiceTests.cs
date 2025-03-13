@@ -1,4 +1,5 @@
 using EntityFrameworkCore.Testing.Moq;
+using LGDXRobotCloud.API.Exceptions;
 using LGDXRobotCloud.API.Services.Automation;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
@@ -93,5 +94,67 @@ public class TriggerRetryServiceTests
       Assert.Equal(e.AutoTaskId, a.AutoTaskId);
       Assert.Equal(e.CreatedAt, a.CreatedAt);
     });
+  }
+
+  [Fact]
+  public async Task GetTriggerRetryAsync_CalledWithValidId_ShouldReturnsTriggerRetry()
+  {
+    // Arrange
+    int id = 1;
+    var expected = triggerRetries.Where(t => t.Id == id).FirstOrDefault();
+    var triggerRetryService = new TriggerRetryService(mockTriggerService.Object, lgdxContext);
+
+    // Act
+    var actual = await triggerRetryService.GetTriggerRetryAsync(id);
+
+    // Assert
+    Assert.NotNull(actual);
+    Assert.Equal(expected!.TriggerId, actual.TriggerId);
+    Assert.Equal(expected!.AutoTaskId, actual.AutoTaskId);
+    Assert.Equal(expected!.CreatedAt, actual.CreatedAt);
+    Assert.Equal(expected.Body, actual.Body);
+  }
+
+  [Fact]
+  public async Task GetTriggerRetryAsync_CalledWithInvalidId_ShouldThrowsNotFoundException()
+  {
+    // Arrange
+    int id = triggerRetries.Count + 1;
+    var triggerRetryService = new TriggerRetryService(mockTriggerService.Object, lgdxContext);
+
+    // Act
+    Task act() => triggerRetryService.GetTriggerRetryAsync(id);
+
+    // Assert
+    var exception = await Assert.ThrowsAsync<LgdxNotFound404Exception>(act);
+  }
+
+  [Fact]
+  public async Task RetryTriggerRetryAsync_CalledWithValidId_ShouldCalled()
+  {
+    // Arrange
+    int id = 1;
+    var triggerRetryService = new TriggerRetryService(mockTriggerService.Object, lgdxContext);
+
+    // Act
+    await triggerRetryService.RetryTriggerRetryAsync(id);
+
+    // Assert
+    mockTriggerService.Verify(s => s.RetryTriggerAsync(It.IsAny<AutoTask>(), It.IsAny<Trigger>(), It.IsAny<string>()), Times.Once());
+  }
+
+  [Fact]
+  public async Task RetryTriggerRetryAsync_CalledWithInvalidId_ShouldThrowsNotFoundException()
+  {
+    // Arrange
+    int id = triggerRetries.Count + 1;
+    var triggerRetryService = new TriggerRetryService(mockTriggerService.Object, lgdxContext);
+
+    // Act
+    Task act() => triggerRetryService.RetryTriggerRetryAsync(id);
+
+    // Assert
+    var exception = await Assert.ThrowsAsync<LgdxNotFound404Exception>(act);
+    mockTriggerService.Verify(s => s.RetryTriggerAsync(It.IsAny<AutoTask>(), It.IsAny<Trigger>(), It.IsAny<string>()), Times.Never());
   }
 }
