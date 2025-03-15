@@ -89,7 +89,7 @@ public class OnlineRobotsService(
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     // Unregister the robot
-    var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId));
+    _memoryCache.TryGetValue(GetOnlineRobotsKey(realmId), out HashSet<Guid>? OnlineRobotsIds);
     if (OnlineRobotsIds != null && OnlineRobotsIds.Contains(robotId))
     {
       OnlineRobotsIds.Remove(robotId);
@@ -179,7 +179,8 @@ public class OnlineRobotsService(
 
   public RobotClientsRobotCommands? GetRobotCommands(Guid robotId)
   {
-    return _memoryCache.Get<RobotClientsRobotCommands>(GetRobotCommandsKey(robotId));
+    _memoryCache.TryGetValue(GetRobotCommandsKey(robotId), out RobotClientsRobotCommands? robotCommands);
+    return robotCommands;
   }
 
   public async Task<bool> IsRobotOnlineAsync(Guid robotId)

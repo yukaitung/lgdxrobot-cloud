@@ -3,6 +3,7 @@ using EntityFrameworkCore.Testing.Moq.Extensions;
 using LGDXRobotCloud.API.Services.Automation;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
+using LGDXRobotCloud.API.UnitTests.Utilities;
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
@@ -363,15 +364,6 @@ public class AutoTaskSchedulerServiceTests
   private readonly Mock<ITriggerService> mockTriggerService = new();
   private readonly LgdxContext lgdxContext;
 
-  public static class MockMemoryCacheService 
-  {
-    public static Mock<IMemoryCache> GetMemoryCache(object expectedValue) 
-    {
-      var mockMemoryCache = new Mock<IMemoryCache>();
-      mockMemoryCache.Setup(x => x.TryGetValue(It.IsAny<object>(), out expectedValue)).Returns(true);
-      return mockMemoryCache;
-    }
-  }
   public AutoTaskSchedulerServiceTests()
   {
     mockMemoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(Mock.Of<ICacheEntry>);
