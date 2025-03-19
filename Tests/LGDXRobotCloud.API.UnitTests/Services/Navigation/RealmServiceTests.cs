@@ -16,7 +16,7 @@ public class RealmServiceTests
     new ()
     {
       Id = 1,
-      Name = "Realm 2",
+      Name = "Realm 1",
       Image = [],
       Resolution = 1,
       OriginX = 0,
