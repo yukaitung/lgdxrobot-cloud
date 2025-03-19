@@ -355,6 +355,7 @@ public class RobotService(
     }
 
     var robot = await _context.Robots.AsNoTracking()
+      .Where(m => m.Id == robotId)
       .Select(m => new { m.Id, m.RealmId })
       .FirstOrDefaultAsync();
     if (robot == null)
