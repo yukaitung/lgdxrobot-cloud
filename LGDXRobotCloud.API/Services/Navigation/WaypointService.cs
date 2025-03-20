@@ -39,7 +39,6 @@ public class WaypointService(LgdxContext context) : IWaypointService
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
     var waypoints = await query.AsNoTracking()
-      .Include(w => w.Realm)
       .OrderBy(a => a.Id)
       .Skip(pageSize * (pageNumber - 1))
       .Take(pageSize)
