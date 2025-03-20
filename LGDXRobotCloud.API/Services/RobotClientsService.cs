@@ -15,6 +15,7 @@ using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.API.Services.Automation;
 using System.Threading.Channels;
 using LGDXRobotCloud.API.Services.Common;
+using LGDXRobotCloud.API.Authorisation;
 
 namespace LGDXRobotCloud.API.Services;
 
@@ -36,47 +37,23 @@ public class RobotClientsService(
   private RobotClientsRobotStatus _streamingRobotStatus = RobotClientsRobotStatus.Offline;
   private readonly Channel<RobotClientsRespond> _streamMessageQueue = Channel.CreateUnbounded<RobotClientsRespond>();
 
-  private static Guid? ValidateRobotClaim(ServerCallContext context)
+  private static Guid GetRobotId(ServerCallContext context)
   {
     var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
-    if (robotClaim == null)
-    {
-      return null;
-    }
-    return Guid.Parse(robotClaim.Value);
-  }
-
-  private static RobotClientsRespond ValidateRobotClaimFailed()
-  {
-    return new RobotClientsRespond {
-      Status = RobotClientsResultStatus.Failed,
-    };
-  }
-
-  // TODO: Validate in authorisation
-  private async Task<bool> ValidateOnlineRobotsAsync(Guid robotId)
-  {
-    return await _onlineRobotsService.IsRobotOnlineAsync(robotId);
-  }
-
-  private static RobotClientsRespond ValidateOnlineRobotsFailed()
-  {
-    return new RobotClientsRespond {
-      Status = RobotClientsResultStatus.Failed,
-    };
+    return Guid.Parse(robotClaim!.Value);
   }
 
   [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.RobotClientsCertificateScheme)]
   public override async Task<RobotClientsGreetRespond> Greet(RobotClientsGreet request, ServerCallContext context)
   {
-    var robotId = ValidateRobotClaim(context);
-    if (robotId == null)
+    var robotClaim = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier);
+    if (robotClaim == null || !Guid.TryParse(robotClaim.Value, out var robotId))
       return new RobotClientsGreetRespond {
         Status = RobotClientsResultStatus.Failed,
         AccessToken = string.Empty
       };
 
-    var robotIdGuid = (Guid)robotId;
+    var robotIdGuid = robotId;
     var robot = await _robotService.GetRobotAsync(robotIdGuid);
     if (robot == null)
       return new RobotClientsGreetRespond {
@@ -135,31 +112,28 @@ public class RobotClientsService(
       credentials);
     var token = new JwtSecurityTokenHandler().WriteToken(secToken);
 
-    await _onlineRobotsService.AddRobotAsync((Guid)robotId);
+    await _onlineRobotsService.AddRobotAsync(robotId);
 
     return new RobotClientsGreetRespond {
       Status = RobotClientsResultStatus.Success,
       AccessToken = token,
-      IsRealtimeExchange = await _robotService.GetRobotIsRealtimeExchange((Guid)robotId)
+      IsRealtimeExchange = await _robotService.GetRobotIsRealtimeExchange(robotId)
     };
   }
 
+  [RobotClientShouldOnline]
   public override async Task<RobotClientsRespond> Exchange(RobotClientsExchange request, ServerCallContext context)
   {
-    var robotId = ValidateRobotClaim(context);
-    if (robotId == null)
-      return ValidateRobotClaimFailed();
-    if (!await ValidateOnlineRobotsAsync((Guid)robotId))
-      return ValidateOnlineRobotsFailed();
+    var robotId = GetRobotId(context);
 
-    await _onlineRobotsService.UpdateRobotDataAsync((Guid)robotId, request);
-    var manualAutoTask = _onlineRobotsService.GetAutoTaskNextApi((Guid)robotId);
+    await _onlineRobotsService.UpdateRobotDataAsync(robotId, request);
+    var manualAutoTask = _onlineRobotsService.GetAutoTaskNextApi(robotId);
     if (manualAutoTask != null)
     {
       // Triggered by API
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
-        Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+        Commands = _onlineRobotsService.GetRobotCommands(robotId),
         Task = await _autoTaskSchedulerService.AutoTaskNextConstructAsync(manualAutoTask)
       };
     }
@@ -169,37 +143,27 @@ public class RobotClientsService(
       RobotClientsAutoTask? task = null;
       if (request.RobotStatus == RobotClientsRobotStatus.Idle)
       {
-        task = await _autoTaskSchedulerService.GetAutoTaskAsync((Guid)robotId);
+        task = await _autoTaskSchedulerService.GetAutoTaskAsync(robotId);
       }
       return new RobotClientsRespond {
         Status = RobotClientsResultStatus.Success,
-        Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+        Commands = _onlineRobotsService.GetRobotCommands(robotId),
         Task = task
       };
     }
   }
 
+  [RobotClientShouldOnline]
   public override async Task ExchangeStream(IAsyncStreamReader<RobotClientsExchange> requestStream, IServerStreamWriter<RobotClientsRespond> responseStream, ServerCallContext context)
   {
-    var robotId = ValidateRobotClaim(context);
-    if (robotId == null)
-    {
-      var response = ValidateRobotClaimFailed();
-      await responseStream.WriteAsync(response);
-      return;
-    }
-    if (!await ValidateOnlineRobotsAsync((Guid)robotId))
-    {
-      var response = ValidateOnlineRobotsFailed();
-      await responseStream.WriteAsync(response);
-      return;
-    }
-    _streamingRobotId = (Guid)robotId;
+    var robotId = GetRobotId(context);
+    
+    _streamingRobotId = robotId;
     _eventService.RobotCommandsUpdated += OnRobotCommandsUpdated;
     _eventService.RobotHasNextTask += OnRobotHasNextTask;
     _eventService.AutoTaskCreated += OnAutoTaskCreated;
 
-    var clientToServer = ExchangeStreamClientToServerAsync((Guid)robotId, requestStream, context);
+    var clientToServer = ExchangeStreamClientToServerAsync(robotId, requestStream, context);
     var serverToClient = ExchangeStreamServerToClientAsync(responseStream, context);
     await Task.WhenAll(clientToServer, serverToClient);
   }
@@ -286,37 +250,31 @@ public class RobotClientsService(
     });
   }
 
+  [RobotClientShouldOnline]
   public override async Task<RobotClientsRespond> AutoTaskNext(RobotClientsNextToken request, ServerCallContext context)
   {
-    var robotId = ValidateRobotClaim(context);
-    if (robotId == null)
-      return ValidateRobotClaimFailed();
-    if (!await ValidateOnlineRobotsAsync((Guid)robotId))
-      return ValidateOnlineRobotsFailed();
+    var robotId = GetRobotId(context);
 
-    var task = await _autoTaskSchedulerService.AutoTaskNextAsync((Guid)robotId, request.TaskId, request.NextToken);
+    var task = await _autoTaskSchedulerService.AutoTaskNextAsync(robotId, request.TaskId, request.NextToken);
     return new RobotClientsRespond {
       Status = task != null ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
-      Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+      Commands = _onlineRobotsService.GetRobotCommands(robotId),
       Task = task
     };
   }
 
+  [RobotClientShouldOnline]
   public override async Task<RobotClientsRespond> AutoTaskAbort(RobotClientsAbortToken request, ServerCallContext context)
   {
-    var robotId = ValidateRobotClaim(context);
-    if (robotId == null)
-      return ValidateRobotClaimFailed();
-    if (!await ValidateOnlineRobotsAsync((Guid)robotId))
-      return ValidateOnlineRobotsFailed();
+    var robotId = GetRobotId(context);
 
-    await _onlineRobotsService.SetAbortTaskAsync((Guid)robotId, false);
+    await _onlineRobotsService.SetAbortTaskAsync(robotId, false);
 
     AutoTaskAbortReason autoTaskAbortReason = (AutoTaskAbortReason)(int)request.AbortReason;
-    var task = await _autoTaskSchedulerService.AutoTaskAbortAsync((Guid)robotId, request.TaskId, request.NextToken, autoTaskAbortReason);
+    var task = await _autoTaskSchedulerService.AutoTaskAbortAsync(robotId, request.TaskId, request.NextToken, autoTaskAbortReason);
     return new RobotClientsRespond {
       Status = task != null ? RobotClientsResultStatus.Success : RobotClientsResultStatus.Failed,
-      Commands = _onlineRobotsService.GetRobotCommands((Guid)robotId),
+      Commands = _onlineRobotsService.GetRobotCommands(robotId),
       Task = task
     };
   }

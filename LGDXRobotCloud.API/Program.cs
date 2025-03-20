@@ -166,6 +166,13 @@ builder.Services.AddAuthorizationBuilder()
 		policyBuilder.RequireAuthenticatedUser();
 		policyBuilder.AddRequirements(new ValidateLgdxUserAccessRequirement());
 	});
+builder.Services.AddScoped<IAuthorizationHandler, RobotClientShouldOnlineHandler>();
+builder.Services.AddAuthorizationBuilder()
+	.AddPolicy("RobotClientShouldOnline", policyBuilder =>
+	{
+		policyBuilder.RequireAuthenticatedUser();
+		policyBuilder.AddRequirements(new RobotClientShouldOnlineRequirement());
+	});
 
 /*
  * LGDX Depency Injection
