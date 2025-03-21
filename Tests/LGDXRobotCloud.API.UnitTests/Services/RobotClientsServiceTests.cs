@@ -12,6 +12,8 @@ using Grpc.Core;
 using System.Security.Claims;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.Data.Models.Business.Administration;
+using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Utilities.Enums;
 
 namespace LGDXRobotCloud.API.UnitTests.Services;
 
@@ -69,6 +71,14 @@ public class RobotClientsServiceTests
     AssignedTasks = []
   };
 
+  private readonly RobotClientsAutoTask robotClientsAutoTask = new() {
+    TaskId = 1,
+    TaskName = "Task",
+    TaskProgressId = 1,
+    TaskProgressName = "TaskProgress",
+    NextToken = "NextToken"
+  };
+
   private readonly Mock<IAutoTaskSchedulerService> mockAutoTaskSchedulerService = new();
   private readonly Mock<IEventService> mockEventService = new();
   private readonly Mock<IOnlineRobotsService> mockOnlineRobotsService = new();
@@ -81,6 +91,12 @@ public class RobotClientsServiceTests
     lgdxRobotCloudSecretConfiguration.RobotClientsJwtSecret = "12345678901234567890123456789012";
     mockConfiguration = new Mock<IOptionsSnapshot<LgdxRobotCloudSecretConfiguration>>();
     mockConfiguration.Setup(o => o.Value).Returns(lgdxRobotCloudSecretConfiguration);
+    mockOnlineRobotsService.Setup(m => m.GetRobotCommands(RobotGuid)).Returns(new RobotClientsRobotCommands {
+      AbortTask = true,
+      RenewCertificate = true,
+      SoftwareEmergencyStop = true,
+      PauseTaskAssigement = true,
+    });
   }
 
   private static ServerCallContext GenerateServerCallContext(string functionName, string? robotId)
@@ -291,5 +307,116 @@ public class RobotClientsServiceTests
     mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Never);
     mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Never);
     mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Never);
+  }
+
+  private static readonly RobotClientsExchange robotClientsExchange = new() {
+    RobotStatus = RobotClientsRobotStatus.Idle,
+    CriticalStatus = new RobotClientsRobotCriticalStatus {
+      HardwareEmergencyStop = true,
+      SoftwareEmergencyStop = true,
+    },
+    Position = new RobotClientsDof {
+      X = 1,
+      Y = 2,
+      Rotation = 3,
+    },
+    NavProgress = new RobotClientsAutoTaskNavProgress {
+      Eta = 1,
+      Recoveries = 2,
+      DistanceRemaining = 3,
+      WaypointsRemaining = 4,
+    }
+  };
+
+  [Fact]
+  public async Task Exchange_Called_ShouldReturnRobotClientsRespond()
+  {
+    // Arrange
+    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Exchange), RobotGuid.ToString());
+    mockAutoTaskSchedulerService.Setup(m => m.GetAutoTaskAsync(RobotGuid)).ReturnsAsync(robotClientsAutoTask);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
+
+    // Act
+    var actural = await robotClientsService.Exchange(robotClientsExchange, serverCallContext);
+
+    // Assert
+    Assert.NotNull(actural);
+    Assert.Equal(RobotClientsResultStatus.Success, actural.Status);
+    Assert.NotNull(actural.Task);
+    mockOnlineRobotsService.Verify(m => m.UpdateRobotDataAsync(RobotGuid, robotClientsExchange), Times.Once);
+    mockOnlineRobotsService.Verify(m => m.GetAutoTaskNextApi(RobotGuid), Times.Once);
+    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskNextConstructAsync(It.IsAny<AutoTask>()), Times.Never);
+    mockAutoTaskSchedulerService.Verify(m => m.GetAutoTaskAsync(RobotGuid), Times.Once);
+    mockOnlineRobotsService.Verify(m => m.GetRobotCommands(RobotGuid), Times.Once);
+  }
+
+  [Fact]
+  public async Task Exchange_CalledWithRunningRobot_ShouldReturnRobotClientsRespond()
+  {
+    // Arrange
+    RobotClientsExchange localRobotClientsExchange = new() {
+      RobotStatus = RobotClientsRobotStatus.Running,
+      CriticalStatus = new RobotClientsRobotCriticalStatus {
+        HardwareEmergencyStop = true,
+        SoftwareEmergencyStop = true,
+      },
+      Position = new RobotClientsDof {
+        X = 1,
+        Y = 2,
+        Rotation = 3,
+      },
+      NavProgress = new RobotClientsAutoTaskNavProgress {
+        Eta = 1,
+        Recoveries = 2,
+        DistanceRemaining = 3,
+        WaypointsRemaining = 4,
+      }
+    };
+    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Exchange), RobotGuid.ToString());
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
+
+    // Act
+    var actural = await robotClientsService.Exchange(localRobotClientsExchange, serverCallContext);
+
+    // Assert
+    Assert.NotNull(actural);
+    Assert.Equal(RobotClientsResultStatus.Success, actural.Status);
+    Assert.Null(actural.Task);
+    mockOnlineRobotsService.Verify(m => m.UpdateRobotDataAsync(RobotGuid, localRobotClientsExchange), Times.Once);
+    mockOnlineRobotsService.Verify(m => m.GetAutoTaskNextApi(RobotGuid), Times.Once);
+    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskNextConstructAsync(It.IsAny<AutoTask>()), Times.Never);
+    mockAutoTaskSchedulerService.Verify(m => m.GetAutoTaskAsync(RobotGuid), Times.Never);
+    mockOnlineRobotsService.Verify(m => m.GetRobotCommands(RobotGuid), Times.Once);
+  }
+
+  [Fact]
+  public async Task Exchange_CalledWithApiTask_ShouldReturnRobotClientsRespond()
+  {
+    // Arrange
+    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Exchange), RobotGuid.ToString());
+    mockOnlineRobotsService.Setup(m => m.GetAutoTaskNextApi(RobotGuid)).Returns(new AutoTask {
+      Id = 1,
+      Name = "Task",
+      Priority = 0,
+      FlowId = 1,
+      RealmId = 1,
+      AssignedRobotId = RobotGuid,
+      CurrentProgressId = (int)ProgressState.Moving,
+    });
+    mockAutoTaskSchedulerService.Setup(m => m.AutoTaskNextConstructAsync(It.IsAny<AutoTask>())).ReturnsAsync(robotClientsAutoTask);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
+
+    // Act
+    var actural = await robotClientsService.Exchange(robotClientsExchange, serverCallContext);
+
+    // Assert
+    Assert.NotNull(actural);
+    Assert.Equal(RobotClientsResultStatus.Success, actural.Status);
+    Assert.NotNull(actural.Task);
+    mockOnlineRobotsService.Verify(m => m.UpdateRobotDataAsync(RobotGuid, robotClientsExchange), Times.Once);
+    mockOnlineRobotsService.Verify(m => m.GetAutoTaskNextApi(RobotGuid), Times.Once);
+    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskNextConstructAsync(It.IsAny<AutoTask>()), Times.Once);
+    mockAutoTaskSchedulerService.Verify(m => m.GetAutoTaskAsync(RobotGuid), Times.Never);
+    mockOnlineRobotsService.Verify(m => m.GetRobotCommands(RobotGuid), Times.Once);
   }
 }
