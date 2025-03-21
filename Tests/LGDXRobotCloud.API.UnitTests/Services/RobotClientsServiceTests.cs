@@ -1,0 +1,295 @@
+using LGDXRobotCloud.API.Configurations;
+using LGDXRobotCloud.API.Services.Automation;
+using LGDXRobotCloud.API.Services.Common;
+using LGDXRobotCloud.API.Services.Navigation;
+using LGDXRobotCloud.Protos;
+using Grpc.Core.Testing;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using Moq;
+using RobotClientsService = LGDXRobotCloud.API.Services.RobotClientsService;
+using Grpc.Core;
+using System.Security.Claims;
+using LGDXRobotCloud.Data.Models.Business.Navigation;
+using LGDXRobotCloud.Data.Models.Business.Administration;
+
+namespace LGDXRobotCloud.API.UnitTests.Services;
+
+public class RobotClientsServiceTests
+{
+  private static readonly Guid RobotGuid = Guid.Parse("8b609e85-5865-472b-8ced-6c936ee5f127");
+
+  private readonly RobotBusinessModel robot = new() {
+    Id = RobotGuid,
+    Name = "Robot",
+    RealmId = 1,
+    RealmName = "Realm",
+    IsRealtimeExchange = true,
+    IsProtectingHardwareSerialNumber = true,
+    RobotCertificate = new RobotCertificateBusinessModel {
+      Id = RobotGuid,
+      RobotId = RobotGuid,
+      RobotName = "Robot",
+      Thumbprint = "Thumbprint",
+      ThumbprintBackup = "ThumbprintBackup",
+      NotBefore = DateTime.Now,
+      NotAfter = DateTime.Now
+    },
+    AssignedTasks = []
+  };
+
+  private readonly RobotBusinessModel robotWithSystemInfo = new() {
+    Id = RobotGuid,
+    Name = "Robot",
+    RealmId = 1,
+    RealmName = "Realm",
+    IsRealtimeExchange = true,
+    IsProtectingHardwareSerialNumber = true,
+    RobotCertificate = new RobotCertificateBusinessModel {
+      Id = RobotGuid,
+      RobotId = RobotGuid,
+      RobotName = "Robot",
+      Thumbprint = "Thumbprint",
+      ThumbprintBackup = "ThumbprintBackup",
+      NotBefore = DateTime.Now,
+      NotAfter = DateTime.Now
+    },
+    RobotSystemInfo = new RobotSystemInfoBusinessModel {
+      Id = 1,
+      Cpu = "Cpu",
+      IsLittleEndian = true,
+      Motherboard = "Motherboard",
+      MotherboardSerialNumber = "MotherboardSerialNumber",
+      RamMiB = 1,
+      Gpu = "Gpu",
+      Os = "Os",
+      Is32Bit = true,
+      McuSerialNumber = "McuSerialNumber",
+    },
+    AssignedTasks = []
+  };
+
+  private readonly Mock<IAutoTaskSchedulerService> mockAutoTaskSchedulerService = new();
+  private readonly Mock<IEventService> mockEventService = new();
+  private readonly Mock<IOnlineRobotsService> mockOnlineRobotsService = new();
+  private readonly Mock<IRobotService> mockRobotService = new();
+  private readonly Mock<IOptionsSnapshot<LgdxRobotCloudSecretConfiguration>> mockConfiguration;
+  private readonly LgdxRobotCloudSecretConfiguration lgdxRobotCloudSecretConfiguration = new();
+
+  public RobotClientsServiceTests()
+  {
+    lgdxRobotCloudSecretConfiguration.RobotClientsJwtSecret = "12345678901234567890123456789012";
+    mockConfiguration = new Mock<IOptionsSnapshot<LgdxRobotCloudSecretConfiguration>>();
+    mockConfiguration.Setup(o => o.Value).Returns(lgdxRobotCloudSecretConfiguration);
+  }
+
+  private static ServerCallContext GenerateServerCallContext(string functionName, string? robotId)
+  {
+    var httpContext = new DefaultHttpContext();
+    if (robotId != null)
+      httpContext.User.AddIdentity(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, robotId)]));
+    var serverCallContext = TestServerCallContext.Create(
+      functionName,
+      "127.0.0.1",
+      DateTime.UtcNow.AddMinutes(1),
+      [],
+      CancellationToken.None,
+      "127.0.0.1",
+      null,
+      null,
+      (metadata) => Task.CompletedTask,
+      () => new WriteOptions(),
+      (writeOptions) => {}
+    );
+    serverCallContext.UserState["__HttpContext"] = httpContext;
+    return serverCallContext;
+  }
+
+  private static readonly RobotClientsGreet robotClientsGreet = new() {
+    SystemInfo = new RobotClientsSystemInfo {
+      Cpu = "Cpu",
+      IsLittleEndian = true,
+      Motherboard = "Motherboard",
+      MotherboardSerialNumber = "MotherboardSerialNumber",
+      RamMiB = 1,
+      Gpu = "Gpu",
+      Os = "Os",
+      Is32Bit = true,
+      McuSerialNumber = "McuSerialNumber",
+    }
+  };
+
+  [Fact]
+  public async Task Greet_Called_ShouldReturnRobotClientsGreetRespond()
+  {
+    // Arrange
+    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
+    mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robot);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
+
+    // Act
+    var actural = await robotClientsService.Greet(robotClientsGreet, serverCallContext);
+
+    // Assert
+    Assert.NotNull(actural);
+    Assert.Equal(RobotClientsResultStatus.Success, actural.Status);
+    Assert.NotEmpty(actural.AccessToken);
+    Assert.True(actural.IsRealtimeExchange);
+    mockRobotService.Verify(m => m.GetRobotAsync(RobotGuid), Times.Once);
+    mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Once);
+    mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Never);
+    mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Once);
+  }
+
+  [Fact]
+  public async Task Greet_CalledWithInvalidRobotId_ShouldReturnRobotClientsGreetErrorRespond()
+  {
+    // Arrange
+    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), "InvalidRobotId");
+    mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robot);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
+
+    // Act
+    var actural = await robotClientsService.Greet(robotClientsGreet, serverCallContext);
+
+    // Assert
+    Assert.NotNull(actural);
+    Assert.Equal(RobotClientsResultStatus.Failed, actural.Status);
+    Assert.Empty(actural.AccessToken);
+    mockRobotService.Verify(m => m.GetRobotAsync(RobotGuid), Times.Never);
+    mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Never);
+    mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Never);
+    mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Never);
+  }
+
+  [Fact]
+  public async Task Greet_CalledWitMissingRobotId_ShouldReturnRobotClientsGreetErrorRespond()
+  {
+    // Arrange
+    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), null);
+    mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robot);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
+
+    // Act
+    var actural = await robotClientsService.Greet(robotClientsGreet, serverCallContext);
+
+    // Assert
+    Assert.NotNull(actural);
+    Assert.Equal(RobotClientsResultStatus.Failed, actural.Status);
+    Assert.Empty(actural.AccessToken);
+    mockRobotService.Verify(m => m.GetRobotAsync(RobotGuid), Times.Never);
+    mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Never);
+    mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Never);
+    mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Never);
+  }
+
+  [Fact]
+  public async Task Greet_CalledWitInexistRobotId_ShouldReturnRobotClientsGreetErrorRespond()
+  {
+    // Arrange
+    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
+
+    // Act
+    var actural = await robotClientsService.Greet(robotClientsGreet, serverCallContext);
+
+    // Assert
+    Assert.NotNull(actural);
+    Assert.Equal(RobotClientsResultStatus.Failed, actural.Status);
+    Assert.Empty(actural.AccessToken);
+    mockRobotService.Verify(m => m.GetRobotAsync(RobotGuid), Times.Once);
+    mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Never);
+    mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Never);
+    mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Never);
+  }
+
+  [Fact]
+  public async Task Greet_CalledWithRobotSystemInfo_ShouldReturnRobotClientsGreetRespond()
+  {
+    // Arrange
+    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
+    mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robotWithSystemInfo);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
+
+    // Act
+    var actural = await robotClientsService.Greet(robotClientsGreet, serverCallContext);
+
+    // Assert
+    Assert.NotNull(actural);
+    Assert.Equal(RobotClientsResultStatus.Success, actural.Status);
+    Assert.NotEmpty(actural.AccessToken);
+    Assert.True(actural.IsRealtimeExchange);
+    mockRobotService.Verify(m => m.GetRobotAsync(RobotGuid), Times.Once);
+    mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Never);
+    mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Once);
+    mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Once);
+  }
+
+  [Fact]
+  public async Task Greet_CalledWithRobotSystemInfoDisparencyMotherboardSerialNumber_ShouldReturnRobotClientsGreetRespond()
+  {
+    // Arrange
+    var localRobotClientsGreet = new RobotClientsGreet {
+      SystemInfo = new RobotClientsSystemInfo {
+        Cpu = "Cpu",
+        IsLittleEndian = true,
+        Motherboard = "Motherboard",
+        MotherboardSerialNumber = "123123",
+        RamMiB = 1,
+        Gpu = "Gpu",
+        Os = "Os",
+        Is32Bit = true,
+        McuSerialNumber = "McuSerialNumber",
+      }
+    };
+    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
+    mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robotWithSystemInfo);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
+
+    // Act
+    var actural = await robotClientsService.Greet(localRobotClientsGreet, serverCallContext);
+
+    // Assert
+    Assert.NotNull(actural);
+    Assert.Equal(RobotClientsResultStatus.Failed, actural.Status);
+    Assert.Empty(actural.AccessToken);
+    mockRobotService.Verify(m => m.GetRobotAsync(RobotGuid), Times.Once);
+    mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Never);
+    mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Never);
+    mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Never);
+  }
+
+  [Fact]
+  public async Task Greet_CalledWithRobotSystemInfoDisparencyMcuSerialNumber_ShouldReturnRobotClientsGreetRespond()
+  {
+    // Arrange
+    var localRobotClientsGreet = new RobotClientsGreet {
+      SystemInfo = new RobotClientsSystemInfo {
+        Cpu = "Cpu",
+        IsLittleEndian = true,
+        Motherboard = "Motherboard",
+        MotherboardSerialNumber = "MotherboardSerialNumber",
+        RamMiB = 1,
+        Gpu = "Gpu",
+        Os = "Os",
+        Is32Bit = true,
+        McuSerialNumber = "123123",
+      }
+    };
+    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
+    mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robotWithSystemInfo);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
+
+    // Act
+    var actural = await robotClientsService.Greet(localRobotClientsGreet, serverCallContext);
+
+    // Assert
+    Assert.NotNull(actural);
+    Assert.Equal(RobotClientsResultStatus.Failed, actural.Status);
+    Assert.Empty(actural.AccessToken);
+    mockRobotService.Verify(m => m.GetRobotAsync(RobotGuid), Times.Once);
+    mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Never);
+    mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Never);
+    mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Never);
+  }
+}

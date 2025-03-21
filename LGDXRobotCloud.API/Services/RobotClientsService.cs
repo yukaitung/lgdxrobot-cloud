@@ -74,7 +74,7 @@ public class RobotClientsService(
       Is32Bit = request.SystemInfo.Is32Bit,
       McuSerialNumber = request.SystemInfo.McuSerialNumber,
     };
-    var systemInfo = await _robotService.GetRobotSystemInfoAsync(robotIdGuid);
+    var systemInfo = robot.RobotSystemInfo;
     if (systemInfo == null)
     {
       // Create Robot System Info for the first time
@@ -117,7 +117,7 @@ public class RobotClientsService(
     return new RobotClientsGreetRespond {
       Status = RobotClientsResultStatus.Success,
       AccessToken = token,
-      IsRealtimeExchange = await _robotService.GetRobotIsRealtimeExchange(robotId)
+      IsRealtimeExchange = robot.IsRealtimeExchange
     };
   }
 
