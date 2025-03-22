@@ -9,6 +9,7 @@ namespace LGDXRobotCloud.API.UnitTests.Authorisation;
 public class ValidateRobotClientsCertificateTests
 {
   private readonly LgdxContext lgdxContext;
+  private readonly Guid RobotGuid = Guid.Parse("8b609e85-5865-472b-8ced-6c936ee5f127");
 
   public ValidateRobotClientsCertificateTests()
   {
@@ -20,7 +21,7 @@ public class ValidateRobotClientsCertificateTests
   {
     // Arrange
     var certificate = CertificateHelper.CreateSelfSignedCertificate();
-    var robotId = Guid.Parse("8b609e85-5865-472b-8ced-6c936ee5f127");
+    var robotId = RobotGuid;
     RobotCertificate robotCertificate = new() {
       Id = robotId,
       RobotId = robotId,
@@ -46,7 +47,7 @@ public class ValidateRobotClientsCertificateTests
     // Arrange
     var certificate = CertificateHelper.CreateSelfSignedCertificate();
     var newCertificate = CertificateHelper.CreateSelfSignedCertificate();
-    var robotId = Guid.Parse("8b609e85-5865-472b-8ced-6c936ee5f127");
+    var robotId = RobotGuid;
     RobotCertificate robotCertificate = new() {
       Id = robotId,
       RobotId = robotId,
@@ -71,7 +72,7 @@ public class ValidateRobotClientsCertificateTests
   {
     // Arrange
     var certificate = CertificateHelper.CreateSelfSignedCertificate();
-    var robotId = Guid.Parse("8b609e85-5865-472b-8ced-6c936ee5f127");
+    var robotId = RobotGuid;
     RobotCertificate robotCertificate = new() {
       Id = robotId,
       RobotId = robotId,
