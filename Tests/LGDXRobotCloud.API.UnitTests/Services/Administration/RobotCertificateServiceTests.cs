@@ -1,9 +1,9 @@
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using EntityFrameworkCore.Testing.Moq;
 using LGDXRobotCloud.API.Configurations;
 using LGDXRobotCloud.API.Exceptions;
 using LGDXRobotCloud.API.Services.Administration;
+using LGDXRobotCloud.API.UnitTests.Utilities;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
@@ -65,7 +65,7 @@ public class RobotCertificateServiceTests
 
   public RobotCertificateServiceTests()
   {
-    var certificate = CreateSelfSignedCertificate();
+    var certificate = CertificateHelper.CreateSelfSignedCertificate();
     using (var localstore = new X509Store(StoreName.My, StoreLocation.CurrentUser))
     {
       localstore.Open(OpenFlags.ReadWrite);
@@ -88,27 +88,6 @@ public class RobotCertificateServiceTests
     lgdxContext.Set<RobotCertificate>().AddRange(robotCertificatesTestData);
     lgdxContext.Set<Robot>().AddRange(robotsTestData);
     lgdxContext.SaveChanges();
-  }
-
-  private static X509Certificate2 CreateSelfSignedCertificate(string subjectName = "LGDXRobotTest", int keySize = 2048, int validYears = 1)
-  {
-    using var rsa = RSA.Create(keySize);
-
-    var certificateRequest = new CertificateRequest(
-        new X500DistinguishedName($"CN={subjectName}"),
-        rsa,
-        HashAlgorithmName.SHA256,
-        RSASignaturePadding.Pkcs1);
-
-    var notBefore = DateTimeOffset.UtcNow;
-    var notAfter = notBefore.AddYears(validYears);
-
-    var basicConstraints = new X509BasicConstraintsExtension(true, false, 0, true);
-      certificateRequest.CertificateExtensions.Add(basicConstraints);
-
-    var cert = certificateRequest.CreateSelfSigned(notBefore, notAfter);
-
-    return new X509Certificate2(cert);
   }
 
   [Fact]
