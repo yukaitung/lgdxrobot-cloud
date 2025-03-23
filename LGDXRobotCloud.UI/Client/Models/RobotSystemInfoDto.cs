@@ -9,9 +9,11 @@ namespace LGDXRobotCloud.UI.Client.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class RobotSystemInfoDto : IParsable
+    public partial class RobotSystemInfoDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData { get; set; }
         /// <summary>The cpu property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -69,6 +71,13 @@ namespace LGDXRobotCloud.UI.Client.Models
         /// <summary>The ramMiB property</summary>
         public int? RamMiB { get; set; }
         /// <summary>
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.RobotSystemInfoDto"/> and sets the default values.
+        /// </summary>
+        public RobotSystemInfoDto()
+        {
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <returns>A <see cref="global::LGDXRobotCloud.UI.Client.Models.RobotSystemInfoDto"/></returns>
@@ -115,6 +124,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             writer.WriteStringValue("motherboardSerialNumber", MotherboardSerialNumber);
             writer.WriteStringValue("os", Os);
             writer.WriteIntValue("ramMiB", RamMiB);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

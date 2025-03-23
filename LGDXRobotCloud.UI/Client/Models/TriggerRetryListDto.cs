@@ -9,9 +9,11 @@ namespace LGDXRobotCloud.UI.Client.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class TriggerRetryListDto : IParsable
+    public partial class TriggerRetryListDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData { get; set; }
         /// <summary>The autoTask property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -27,11 +29,18 @@ namespace LGDXRobotCloud.UI.Client.Models
         /// <summary>The trigger property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto? Trigger { get; set; }
+        public global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto2? Trigger { get; set; }
 #nullable restore
 #else
-        public global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto Trigger { get; set; }
+        public global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto2 Trigger { get; set; }
 #endif
+        /// <summary>
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.TriggerRetryListDto"/> and sets the default values.
+        /// </summary>
+        public TriggerRetryListDto()
+        {
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -53,7 +62,7 @@ namespace LGDXRobotCloud.UI.Client.Models
                 { "autoTask", n => { AutoTask = n.GetObjectValue<global::LGDXRobotCloud.UI.Client.Models.AutoTaskSearchDto>(global::LGDXRobotCloud.UI.Client.Models.AutoTaskSearchDto.CreateFromDiscriminatorValue); } },
                 { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
                 { "id", n => { Id = n.GetIntValue(); } },
-                { "trigger", n => { Trigger = n.GetObjectValue<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto>(global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto.CreateFromDiscriminatorValue); } },
+                { "trigger", n => { Trigger = n.GetObjectValue<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto2>(global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto2.CreateFromDiscriminatorValue); } },
             };
         }
         /// <summary>
@@ -66,7 +75,8 @@ namespace LGDXRobotCloud.UI.Client.Models
             writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.AutoTaskSearchDto>("autoTask", AutoTask);
             writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
             writer.WriteIntValue("id", Id);
-            writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto>("trigger", Trigger);
+            writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto2>("trigger", Trigger);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

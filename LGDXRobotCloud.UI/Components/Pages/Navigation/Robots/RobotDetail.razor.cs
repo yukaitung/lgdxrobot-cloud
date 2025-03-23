@@ -132,7 +132,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
         Id = autoTaskUpdateContract.RealmId,
         Name = RealmName
       },
-      AssignedRobot = new RobotSearchDto {
+      AssignedRobot = new RobotSearchDto2 {
         Id = autoTaskUpdateContract.AssignedRobotId,
         Name = autoTaskUpdateContract.AssignedRobotName
       },

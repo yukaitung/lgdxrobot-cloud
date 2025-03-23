@@ -54,7 +54,7 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
         Id = autoTaskUpdateContract.RealmId,
         Name = RealmName
       },
-      AssignedRobot = new RobotSearchDto {
+      AssignedRobot = new RobotSearchDto2 {
         Id = autoTaskUpdateContract.AssignedRobotId,
         Name = autoTaskUpdateContract.AssignedRobotName
       },
@@ -72,7 +72,7 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
         RealmId = RealmId,
-        AutoTaskCatrgory = (int?)(RunningAutoTasks ? AutoTaskCatrgory.Running : AutoTaskCatrgory.Waiting),
+        AutoTaskCatrgory = (RunningAutoTasks ? AutoTaskCatrgory.Running : AutoTaskCatrgory.Waiting).ToString(),
         PageSize = MaxPageSize
       };
     });

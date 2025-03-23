@@ -9,9 +9,11 @@ namespace LGDXRobotCloud.UI.Client.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class RobotUpdateDto : IParsable
+    public partial class RobotUpdateDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData { get; set; }
         /// <summary>The isProtectingHardwareSerialNumber property</summary>
         public bool? IsProtectingHardwareSerialNumber { get; set; }
         /// <summary>The isRealtimeExchange property</summary>
@@ -24,6 +26,13 @@ namespace LGDXRobotCloud.UI.Client.Models
 #else
         public string Name { get; set; }
 #endif
+        /// <summary>
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.RobotUpdateDto"/> and sets the default values.
+        /// </summary>
+        public RobotUpdateDto()
+        {
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -57,6 +66,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             writer.WriteBoolValue("isProtectingHardwareSerialNumber", IsProtectingHardwareSerialNumber);
             writer.WriteBoolValue("isRealtimeExchange", IsRealtimeExchange);
             writer.WriteStringValue("name", Name);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

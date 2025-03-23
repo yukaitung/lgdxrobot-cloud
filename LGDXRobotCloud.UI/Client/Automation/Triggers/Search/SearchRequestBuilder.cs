@@ -33,20 +33,20 @@ namespace LGDXRobotCloud.UI.Client.Automation.Triggers.Search
         public SearchRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/Triggers/Search{?name*}", rawUrl)
         {
         }
-        /// <returns>A List&lt;global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto&gt;</returns>
+        /// <returns>A List&lt;global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto2&gt;</returns>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public async Task<List<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto>?> GetAsync(Action<RequestConfiguration<global::LGDXRobotCloud.UI.Client.Automation.Triggers.Search.SearchRequestBuilder.SearchRequestBuilderGetQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task<List<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto2>?> GetAsync(Action<RequestConfiguration<global::LGDXRobotCloud.UI.Client.Automation.Triggers.Search.SearchRequestBuilder.SearchRequestBuilderGetQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #nullable restore
 #else
-        public async Task<List<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto>> GetAsync(Action<RequestConfiguration<global::LGDXRobotCloud.UI.Client.Automation.Triggers.Search.SearchRequestBuilder.SearchRequestBuilderGetQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task<List<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto2>> GetAsync(Action<RequestConfiguration<global::LGDXRobotCloud.UI.Client.Automation.Triggers.Search.SearchRequestBuilder.SearchRequestBuilderGetQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #endif
             var requestInfo = ToGetRequestInformation(requestConfiguration);
-            var collectionResult = await RequestAdapter.SendCollectionAsync<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto>(requestInfo, global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto.CreateFromDiscriminatorValue, default, cancellationToken).ConfigureAwait(false);
+            var collectionResult = await RequestAdapter.SendCollectionAsync<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto2>(requestInfo, global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto2.CreateFromDiscriminatorValue, default, cancellationToken).ConfigureAwait(false);
             return collectionResult?.AsList();
         }
         /// <returns>A <see cref="RequestInformation"/></returns>

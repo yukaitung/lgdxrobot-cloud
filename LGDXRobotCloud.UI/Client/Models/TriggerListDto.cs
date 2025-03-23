@@ -9,9 +9,11 @@ namespace LGDXRobotCloud.UI.Client.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class TriggerListDto : IParsable
+    public partial class TriggerListDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData { get; set; }
         /// <summary>The httpMethodId property</summary>
         public int? HttpMethodId { get; set; }
         /// <summary>The id property</summary>
@@ -32,6 +34,13 @@ namespace LGDXRobotCloud.UI.Client.Models
 #else
         public string Url { get; set; }
 #endif
+        /// <summary>
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.TriggerListDto"/> and sets the default values.
+        /// </summary>
+        public TriggerListDto()
+        {
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -67,6 +76,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             writer.WriteIntValue("id", Id);
             writer.WriteStringValue("name", Name);
             writer.WriteStringValue("url", Url);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

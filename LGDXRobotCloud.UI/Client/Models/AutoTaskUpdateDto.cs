@@ -9,9 +9,11 @@ namespace LGDXRobotCloud.UI.Client.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class AutoTaskUpdateDto : IParsable
+    public partial class AutoTaskUpdateDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData { get; set; }
         /// <summary>The assignedRobotId property</summary>
         public Guid? AssignedRobotId { get; set; }
         /// <summary>The autoTaskDetails property</summary>
@@ -34,6 +36,13 @@ namespace LGDXRobotCloud.UI.Client.Models
 #endif
         /// <summary>The priority property</summary>
         public int? Priority { get; set; }
+        /// <summary>
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.AutoTaskUpdateDto"/> and sets the default values.
+        /// </summary>
+        public AutoTaskUpdateDto()
+        {
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -71,6 +80,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             writer.WriteIntValue("flowId", FlowId);
             writer.WriteStringValue("name", Name);
             writer.WriteIntValue("priority", Priority);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

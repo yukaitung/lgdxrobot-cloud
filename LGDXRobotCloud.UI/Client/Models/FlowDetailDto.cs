@@ -9,9 +9,11 @@ namespace LGDXRobotCloud.UI.Client.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class FlowDetailDto : IParsable
+    public partial class FlowDetailDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData { get; set; }
         /// <summary>The autoTaskNextControllerId property</summary>
         public int? AutoTaskNextControllerId { get; set; }
         /// <summary>The id property</summary>
@@ -34,6 +36,13 @@ namespace LGDXRobotCloud.UI.Client.Models
 #else
         public global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto Trigger { get; set; }
 #endif
+        /// <summary>
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.FlowDetailDto"/> and sets the default values.
+        /// </summary>
+        public FlowDetailDto()
+        {
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -71,6 +80,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             writer.WriteIntValue("order", Order);
             writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.ProgressSearchDto>("progress", Progress);
             writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.TriggerSearchDto>("trigger", Trigger);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

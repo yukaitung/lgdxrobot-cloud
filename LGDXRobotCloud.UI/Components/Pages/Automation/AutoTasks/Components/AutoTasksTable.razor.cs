@@ -49,7 +49,7 @@ public sealed partial class AutoTasksTable : AbstractTable
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
         RealmId = RealmId,
-        AutoTaskCatrgory = (int?)AutoTaskCatrgory,
+        AutoTaskCatrgory = AutoTaskCatrgory.ToString(),
         Name = DataSearch,
         PageNumber = 1,
         PageSize = PageSize
@@ -71,7 +71,7 @@ public sealed partial class AutoTasksTable : AbstractTable
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
         RealmId = RealmId,
-        AutoTaskCatrgory = (int?)AutoTaskCatrgory,
+        AutoTaskCatrgory = AutoTaskCatrgory.ToString(),
         Name = DataSearch,
         PageNumber = 1,
         PageSize = PageSize
@@ -106,7 +106,7 @@ public sealed partial class AutoTasksTable : AbstractTable
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
         RealmId = RealmId,
-        AutoTaskCatrgory = (int?)AutoTaskCatrgory,
+        AutoTaskCatrgory = AutoTaskCatrgory.ToString(),
         Name = DataSearch,
         PageNumber = pageNum,
         PageSize = PageSize
@@ -128,7 +128,7 @@ public sealed partial class AutoTasksTable : AbstractTable
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new AutoTasksRequestBuilderGetQueryParameters {
         RealmId = RealmId,
-        AutoTaskCatrgory = (int?)AutoTaskCatrgory,
+        AutoTaskCatrgory = AutoTaskCatrgory.ToString(),
         Name = DataSearch,
         PageNumber = CurrentPage,
         PageSize = PageSize

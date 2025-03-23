@@ -146,8 +146,15 @@ namespace LGDXRobotCloud.UI.Client.Automation.AutoTasks
         public partial class AutoTasksRequestBuilderGetQueryParameters 
         #pragma warning restore CS1591
         {
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
             [QueryParameter("autoTaskCatrgory")]
-            public int? AutoTaskCatrgory { get; set; }
+            public string? AutoTaskCatrgory { get; set; }
+#nullable restore
+#else
+            [QueryParameter("autoTaskCatrgory")]
+            public string AutoTaskCatrgory { get; set; }
+#endif
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
             [QueryParameter("name")]

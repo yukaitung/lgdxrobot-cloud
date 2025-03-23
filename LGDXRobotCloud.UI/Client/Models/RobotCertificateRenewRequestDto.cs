@@ -9,11 +9,20 @@ namespace LGDXRobotCloud.UI.Client.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class RobotCertificateRenewRequestDto : IParsable
+    public partial class RobotCertificateRenewRequestDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData { get; set; }
         /// <summary>The revokeOldCertificate property</summary>
         public bool? RevokeOldCertificate { get; set; }
+        /// <summary>
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.RobotCertificateRenewRequestDto"/> and sets the default values.
+        /// </summary>
+        public RobotCertificateRenewRequestDto()
+        {
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -43,6 +52,7 @@ namespace LGDXRobotCloud.UI.Client.Models
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             writer.WriteBoolValue("revokeOldCertificate", RevokeOldCertificate);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }
