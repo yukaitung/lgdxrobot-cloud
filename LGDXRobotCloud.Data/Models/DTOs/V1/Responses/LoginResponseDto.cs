@@ -7,4 +7,6 @@ public record LoginResponseDto
   public required string RefreshToken { get; set; }
 
   public required int ExpiresMins { get; set; }
+
+  public required bool RequiresTwoFactor { get; set; }
 }

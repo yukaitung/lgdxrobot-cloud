@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using LGDXRobotCloud.API.Services.Identity;
 using LGDXRobotCloud.Data.Models.Business.Administration;
+using LGDXRobotCloud.Data.Models.Business.Identity;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Responses;
@@ -52,5 +53,15 @@ public sealed class UserController(
     var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
     await _authService.UpdatePasswordAsync(userId!, updatePasswordRequestDto.ToBusinessModel());
     return NoContent();
+  }
+
+  [HttpPost("TwoFactor")]
+  [ProducesResponseType(typeof(TwoFactorRespondDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult<TwoFactorRespondDto>> UpdateTwoFactor(TwoFactorRequestDto twoFactorRequestDto)
+  {
+    var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+    var respond = await _currentUserService.UpdateTwoFactorAsync(userId!, twoFactorRequestDto.ToBusinessModel());
+    return Ok(respond.ToDto());
   }
 }

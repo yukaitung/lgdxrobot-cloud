@@ -10,6 +10,10 @@ public record LoginRequestDto
 
   [Required (ErrorMessage = "Please enter a password.")]
   public required string Password { get; set; }
+
+  public string? TwoFactorCode { get; set; }
+  
+  public string? TwoFactorRecoveryCode { get; set; }
 }
 
 public static class LoginRequestDtoExtensions
@@ -19,7 +23,9 @@ public static class LoginRequestDtoExtensions
     return new LoginRequestBusinessModel
     {
       Username = loginRequestDto.Username,
-      Password = loginRequestDto.Password
+      Password = loginRequestDto.Password,
+      TwoFactorCode = loginRequestDto.TwoFactorCode,
+      TwoFactorRecoveryCode = loginRequestDto.TwoFactorRecoveryCode
     };
   }
 }

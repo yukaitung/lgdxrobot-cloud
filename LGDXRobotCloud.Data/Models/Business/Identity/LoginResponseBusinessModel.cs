@@ -9,6 +9,8 @@ public record LoginResponseBusinessModel
   public required string RefreshToken { get; set; }
 
   public required int ExpiresMins { get; set; }
+
+  public required bool RequiresTwoFactor { get; set; }
 }
 
 public static class LoginResponseBusinessModelExtensions
@@ -18,7 +20,8 @@ public static class LoginResponseBusinessModelExtensions
     return new LoginResponseDto {
       AccessToken = loginResponseBusinessModel.AccessToken,
       RefreshToken = loginResponseBusinessModel.RefreshToken,
-      ExpiresMins = loginResponseBusinessModel.ExpiresMins
+      ExpiresMins = loginResponseBusinessModel.ExpiresMins,
+      RequiresTwoFactor = loginResponseBusinessModel.RequiresTwoFactor
     };
   }
 }

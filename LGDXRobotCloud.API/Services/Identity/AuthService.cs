@@ -28,12 +28,14 @@ public class AuthService(
     LgdxContext context,
     IEmailService emailService,
     IOptionsSnapshot<LgdxRobotCloudSecretConfiguration> lgdxRobotCloudSecretConfiguration,
+    SignInManager<LgdxUser> signInManager,
     UserManager<LgdxUser> userManager
   ) : IAuthService
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobotCloudSecretConfiguration));
+  private readonly SignInManager<LgdxUser> _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
   private JwtSecurityToken GenerateJwtToken(List<Claim> claims, DateTime notBefore, DateTime expires)
@@ -100,47 +102,51 @@ public class AuthService(
     var user = await _userManager.FindByNameAsync(loginRequestBusinessModel.Username) 
       ?? throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The user does not exist.");
 
-    if (await _userManager.IsLockedOutAsync(user))
+    var loginResult = await _signInManager.PasswordSignInAsync(user, loginRequestBusinessModel.Password, false, true);
+    if (loginResult.RequiresTwoFactor)
     {
-      throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The user is locked out.");
+      if (!string.IsNullOrEmpty(loginRequestBusinessModel.TwoFactorCode))
+      {
+        loginResult = await signInManager.TwoFactorAuthenticatorSignInAsync(loginRequestBusinessModel.TwoFactorCode, false, false);
+      }
+      else if (!string.IsNullOrEmpty(loginRequestBusinessModel.TwoFactorRecoveryCode))
+      {
+        loginResult = await signInManager.TwoFactorRecoveryCodeSignInAsync(loginRequestBusinessModel.TwoFactorRecoveryCode);
+      }
+      else
+      {
+        return new LoginResponseBusinessModel 
+        {
+          AccessToken = string.Empty,
+          RefreshToken = string.Empty,
+          ExpiresMins = 0,
+          RequiresTwoFactor = true
+        };
+      }
+    }
+    if (!loginResult.Succeeded)
+    {
+      throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), loginResult.ToString());
     }
 
-    // Check password and generate token
-    if (await _userManager.CheckPasswordAsync(user, loginRequestBusinessModel.Password))
+    var notBefore = DateTime.UtcNow;
+    var accessExpires = notBefore.AddMinutes(_lgdxRobotCloudSecretConfiguration.LgdxUserAccessTokenExpiresMins);
+    var refreshExpires = notBefore.AddMinutes(_lgdxRobotCloudSecretConfiguration.LgdxUserRefreshTokenExpiresMins);
+    var accessToken = await GenerateAccessTokenAsync(user, notBefore, accessExpires);
+    var refreshToken = GenerateRefreshToken(user, notBefore, refreshExpires);
+    user.RefreshTokenHash = LgdxHelper.GenerateSha256Hash(refreshToken);
+    var updateTokenResult = await _userManager.UpdateAsync(user);
+    if (!updateTokenResult.Succeeded)
     {
-      var notBefore = DateTime.UtcNow;
-      var accessExpires = notBefore.AddMinutes(_lgdxRobotCloudSecretConfiguration.LgdxUserAccessTokenExpiresMins);
-      var refreshExpires = notBefore.AddMinutes(_lgdxRobotCloudSecretConfiguration.LgdxUserRefreshTokenExpiresMins);
-      var accessToken = await GenerateAccessTokenAsync(user, notBefore, accessExpires);
-      var refreshToken = GenerateRefreshToken(user, notBefore, refreshExpires);
-      user.RefreshTokenHash = LgdxHelper.GenerateSha256Hash(refreshToken);
-      var result = await _userManager.UpdateAsync(user);
-      if (!result.Succeeded)
-      {
-        throw new LgdxIdentity400Expection(result.Errors);
-      }
-      return new LoginResponseBusinessModel 
-      {
-        AccessToken = accessToken,
-        RefreshToken = refreshToken,
-        ExpiresMins = _lgdxRobotCloudSecretConfiguration.LgdxUserAccessTokenExpiresMins
-      };
+      throw new LgdxIdentity400Expection(updateTokenResult.Errors);
     }
-    else
+    return new LoginResponseBusinessModel 
     {
-      // Password is incorrect
-      var incrementLockoutResult = await _userManager.AccessFailedAsync(user);
-      if (!incrementLockoutResult.Succeeded)
-      {
-        // Return the same failure we do when resetting the lockout fails after a correct password.
-        throw new LgdxIdentity400Expection(incrementLockoutResult.Errors);
-      }
-      if (await _userManager.IsLockedOutAsync(user))
-      {
-        throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The user is locked out.");
-      }
-    }    
-    throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "Login failed.");
+      AccessToken = accessToken,
+      RefreshToken = refreshToken,
+      ExpiresMins = _lgdxRobotCloudSecretConfiguration.LgdxUserAccessTokenExpiresMins,
+      RequiresTwoFactor = false
+    };
   }
 
   public async Task ForgotPasswordAsync(ForgotPasswordRequestBusinessModel forgotPasswordRequestBusinessModel)
