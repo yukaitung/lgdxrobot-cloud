@@ -10,8 +10,6 @@ namespace LGDXRobotCloud.API.UnitTests.Authorisation;
 public class RobotClientShouldOnlineHandlerTests
 {
   private static readonly Guid RobotGuid = Guid.Parse("8b609e85-5865-472b-8ced-6c936ee5f127");
-
-  private readonly Mock<IHttpContextAccessor> mockHttpContextAccessor = new();
   private readonly Mock<IOnlineRobotsService> mockOnlineRobotsService = new();
 
   private AuthorizationHandlerContext GenerateContext(string? robotId)
@@ -21,9 +19,6 @@ public class RobotClientShouldOnlineHandlerTests
     {
       claim.AddClaim(new Claim(ClaimTypes.NameIdentifier, robotId));
     }
-    var httpContext = new DefaultHttpContext();
-    httpContext.User.AddIdentity(claim);
-    mockHttpContextAccessor.Setup(m => m.HttpContext).Returns(httpContext);
     var user = new ClaimsPrincipal(claim);
     var requirement = new RobotClientShouldOnlineRequirement();
     return new AuthorizationHandlerContext([requirement], user, null);
@@ -35,7 +30,7 @@ public class RobotClientShouldOnlineHandlerTests
     // Arrange
     mockOnlineRobotsService.Setup(m => m.IsRobotOnlineAsync(RobotGuid)).ReturnsAsync(true);
     var context = GenerateContext(RobotGuid.ToString());
-    var robotClientShouldOnlineHandler = new RobotClientShouldOnlineHandler(mockHttpContextAccessor.Object, mockOnlineRobotsService.Object);
+    var robotClientShouldOnlineHandler = new RobotClientShouldOnlineHandler(mockOnlineRobotsService.Object);
 
     // Act
     await robotClientShouldOnlineHandler.HandleAsync(context);
@@ -51,7 +46,7 @@ public class RobotClientShouldOnlineHandlerTests
     // Arrange
     mockOnlineRobotsService.Setup(m => m.IsRobotOnlineAsync(RobotGuid)).ReturnsAsync(true);
     var context = GenerateContext(null);
-    var robotClientShouldOnlineHandler = new RobotClientShouldOnlineHandler(mockHttpContextAccessor.Object, mockOnlineRobotsService.Object);
+    var robotClientShouldOnlineHandler = new RobotClientShouldOnlineHandler(mockOnlineRobotsService.Object);
 
     // Act
     await robotClientShouldOnlineHandler.HandleAsync(context);
@@ -66,7 +61,7 @@ public class RobotClientShouldOnlineHandlerTests
   {
     // Arrange
     var context = GenerateContext("InvalidRobotId");
-    var robotClientShouldOnlineHandler = new RobotClientShouldOnlineHandler(mockHttpContextAccessor.Object, mockOnlineRobotsService.Object);
+    var robotClientShouldOnlineHandler = new RobotClientShouldOnlineHandler(mockOnlineRobotsService.Object);
 
     // Act
     await robotClientShouldOnlineHandler.HandleAsync(context);
@@ -81,7 +76,7 @@ public class RobotClientShouldOnlineHandlerTests
   {
     // Arrange
     var context = GenerateContext(RobotGuid.ToString());
-    var robotClientShouldOnlineHandler = new RobotClientShouldOnlineHandler(mockHttpContextAccessor.Object, mockOnlineRobotsService.Object);
+    var robotClientShouldOnlineHandler = new RobotClientShouldOnlineHandler(mockOnlineRobotsService.Object);
 
     // Act
     await robotClientShouldOnlineHandler.HandleAsync(context);

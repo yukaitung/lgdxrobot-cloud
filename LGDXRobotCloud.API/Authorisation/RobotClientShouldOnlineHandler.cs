@@ -5,16 +5,14 @@ using Microsoft.AspNetCore.Authorization;
 namespace LGDXRobotCloud.API.Authorisation;
 
 public class RobotClientShouldOnlineHandler (
-  IHttpContextAccessor httpContextAccessor,
   IOnlineRobotsService OnlineRobotsService
 ) : AuthorizationHandler<RobotClientShouldOnlineRequirement>
 {
-  private readonly HttpContext _httpContext = httpContextAccessor.HttpContext ?? throw new ArgumentException(nameof(httpContextAccessor));
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService ?? throw new ArgumentException(nameof(OnlineRobotsService));
 
   protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, RobotClientShouldOnlineRequirement requirement)
   {
-    var robotClaim = _httpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+    var robotClaim = context.User.FindFirst(ClaimTypes.NameIdentifier);
     if (robotClaim == null)
     {
       context.Fail();
