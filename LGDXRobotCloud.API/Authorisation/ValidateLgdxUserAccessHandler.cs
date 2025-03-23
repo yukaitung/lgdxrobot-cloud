@@ -44,7 +44,7 @@ public class ValidateLgdxUserAccessHandler(
   private bool HasAreaAccess(string str)
   {
     string? area = _httpContext.Request.RouteValues["area"]?.ToString();
-    if (string.IsNullOrEmpty(area))
+    if (string.IsNullOrWhiteSpace(area))
     {
       return false;
     }
@@ -54,7 +54,7 @@ public class ValidateLgdxUserAccessHandler(
   private bool HasControllerAccess(string str)
   {
     string? controller = _httpContext.Request.RouteValues["controller"]?.ToString();
-    if (string.IsNullOrEmpty(controller))
+    if (string.IsNullOrWhiteSpace(controller))
     {
       return false;
     }
