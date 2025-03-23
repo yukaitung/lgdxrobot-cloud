@@ -13,7 +13,7 @@
       "serverReadyAction": {
         "action": "openExternally",
         "pattern": "\\bNow listening on:\\s+https?://\\S+",
-        "uriFormat": "https://localhost:5163/swagger"
+        "uriFormat": "https://localhost:5163/scalar"
       },
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development"

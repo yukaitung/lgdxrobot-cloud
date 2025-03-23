@@ -15,11 +15,15 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -27,7 +31,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(cfg =>
 {
-  cfg.ConfigureHttpsDefaults(ctx => ctx.ClientCertificateMode = ClientCertificateMode.AllowCertificate);
+	cfg.ConfigureHttpsDefaults(ctx => ctx.ClientCertificateMode = ClientCertificateMode.AllowCertificate);
 	cfg.AddServerHeader = false;
 });
 
@@ -57,35 +61,13 @@ builder.Services.AddMassTransit(cfg =>
 });
 builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(cfg =>{
-	cfg.SwaggerDoc("v1", new OpenApiInfo { Title = "LGDXRobot Cloud", Version = "v1" });
-	cfg.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-		Description = "JWT Authorization header using the Bearer scheme.",
-		Name = "Authorization",
-		In = ParameterLocation.Header,
-		Type = SecuritySchemeType.ApiKey,
-		BearerFormat = "JWT",
-    Scheme = "Bearer"
-	});
-	cfg.AddSecurityRequirement(new OpenApiSecurityRequirement
-	{
-		{
-			new OpenApiSecurityScheme
-			{
-				Reference = new OpenApiReference
-				{
-					Type = ReferenceType.SecurityScheme,
-					Id = "Bearer"
-				}
-			},
-			[]
-		}
-	});
+builder.Services.AddOpenApi(options =>
+{
+	options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
 });
 builder.Services.AddGrpc(cfg => cfg.EnableDetailedErrors = true);
-builder.Services.AddDbContextPool<LgdxContext>(cfg => 
-  cfg.UseNpgsql(builder.Configuration["PGSQLConnectionString"])
+builder.Services.AddDbContextPool<LgdxContext>(cfg =>
+	cfg.UseNpgsql(builder.Configuration["PGSQLConnectionString"])
 	.LogTo(Console.WriteLine, LogLevel.Information)
 	.EnableSensitiveDataLogging()
 	.EnableDetailedErrors()
@@ -96,7 +78,7 @@ builder.Services.AddHttpContextAccessor();
  * Authentication
  */
 builder.Services.AddIdentity<LgdxUser, LgdxRole>()
-  .AddEntityFrameworkStores<LgdxContext>()
+	.AddEntityFrameworkStores<LgdxContext>()
 	.AddTokenProvider<AuthenticatorTokenProvider<LgdxUser>>(TokenOptions.DefaultAuthenticatorProvider);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(cfg =>
@@ -125,7 +107,7 @@ builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.RobotClie
 			{
 				string subject = ctx.ClientCertificate.Subject;
 				string guid = subject.Substring(subject.IndexOf("OID.0.9.2342.19200300.100.1.1=") + 30, 36);
-				if (guid == string.Empty) 
+				if (guid == string.Empty)
 				{
 					ctx.Fail("Robot ID not found.");
 					return;
@@ -136,7 +118,7 @@ builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.RobotClie
 					ctx.Fail("Invalid certificate / Robot not found.");
 					return;
 				}
-				var claims = new [] {
+				var claims = new[] {
 					new Claim(ClaimTypes.NameIdentifier, guid)
 				};
 				ctx.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ctx.Scheme.Name));
@@ -211,8 +193,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+	app.MapOpenApi();
+	app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
@@ -227,3 +209,55 @@ app.MapGrpcService<RobotClientsService>();
 app.UseLgdxExpectionHandling();
 
 app.Run();
+
+internal sealed class BearerSecuritySchemeTransformer(
+	IAuthenticationSchemeProvider authenticationSchemeProvider,
+	IServer server
+) : IOpenApiDocumentTransformer
+{
+	public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
+	{
+		var authenticationSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();
+		if (authenticationSchemes.Any(authScheme => authScheme.Name == JwtBearerDefaults.AuthenticationScheme))
+		{
+			var requirements = new Dictionary<string, OpenApiSecurityScheme>
+			{
+				["Bearer"] = new OpenApiSecurityScheme
+				{
+					Type = SecuritySchemeType.Http,
+					Scheme = "bearer", // "bearer" refers to the header name here
+					In = ParameterLocation.Header,
+					BearerFormat = "Json Web Token"
+				}
+			};
+			document.Components ??= new OpenApiComponents();
+			document.Components.SecuritySchemes = requirements;
+		}
+		document.Info = new()
+		{
+			Title = "LGDXRobot Cloud API",
+			Version = "v1",
+			Description = "Core API for the LGDXRobot Cloud.",
+			Contact = new OpenApiContact
+			{
+				Name = "LGDXRobot",
+				Url = new Uri("https://lgdxrobot.bristolgram.uk"),
+			},
+			License = new OpenApiLicense
+			{
+				Name = "The MIT License",
+				Url = new Uri("https://opensource.org/license/MIT")
+			}
+		};
+		var address = server.Features.Get<IServerAddressesFeature>()!.Addresses.LastOrDefault(); // HTTPS port must higher
+		address = address!.Replace("[::]", "localhost");
+		document.Servers =
+    [
+      new()
+			{
+				Url = address,
+				Description = "Default Server"
+			}
+		];
+	}
+}

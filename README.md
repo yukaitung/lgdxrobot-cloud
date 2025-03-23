@@ -198,5 +198,5 @@ A map is required for the application to work, you should generate a map in ROS2
 Use the following command to generate the client in LGDXRobotCloud.UI:
 
 ```bash
-kiota generate -l CSharp -c LgdxApiClient -n LGDXRobotCloud.UI.Client -o ./Client -d https://localhost:5163/swagger/v1/swagger.json --clean-output
+kiota generate -l CSharp -c LgdxApiClient -n LGDXRobotCloud.UI.Client -o ./Client -d https://localhost:5163/openapi/v1.json --clean-output
 ```
