@@ -1,6 +1,7 @@
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -11,7 +12,10 @@ builder.Services.AddDbContextPool<LgdxContext>(cfg =>
 	.EnableSensitiveDataLogging()
 	.EnableDetailedErrors()
 );
+builder.Services.AddIdentity<LgdxUser, LgdxRole>()
+  .AddEntityFrameworkStores<LgdxContext>();
 
+var app = builder.Build();
 bool initializeData = bool.Parse(builder.Configuration["initialiseData"] ?? "false");
 if (initializeData) 
 {
@@ -25,10 +29,7 @@ if (initializeData)
 		Environment.Exit(1);
 	}
 
-	builder.Services.AddIdentity<LgdxUser, LgdxRole>()
-  	.AddEntityFrameworkStores<LgdxContext>();
-	builder.Services.AddHostedService<InitialiseDataRunner>();
+	using var scope = app.Services.CreateScope();
+	InitialiseDataRunner initialiseDataRunner = new(scope.ServiceProvider.GetRequiredService<LgdxContext>()!, scope.ServiceProvider.GetRequiredService<UserManager<LgdxUser>>()!, builder.Configuration);
+	await initialiseDataRunner.StartAsync(CancellationToken.None);
 }
-
-var app = builder.Build();
-app.Run();

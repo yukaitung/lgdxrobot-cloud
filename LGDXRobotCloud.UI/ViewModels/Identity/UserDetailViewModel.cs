@@ -18,6 +18,8 @@ public sealed class UserDetailViewModel : FormViewModel
   public string Email { get; set; } = null!;
 
   public List<string> Roles { get; set; } = [];
+
+  public bool TwoFactorEnabled { get; set; } = false;
 }
 
 public static class UserDetailViewModelExtensions
@@ -29,6 +31,7 @@ public static class UserDetailViewModelExtensions
     userDetailViewModel.UserName = lgdxUserDto.UserName!;
     userDetailViewModel.Email = lgdxUserDto.Email!;
     userDetailViewModel.Roles = lgdxUserDto.Roles!;
+    userDetailViewModel.TwoFactorEnabled = (bool)lgdxUserDto.TwoFactorEnabled!;
   }
 
   public static LgdxUserUpdateDto ToUpdateDto(this UserDetailViewModel userDetailViewModel)

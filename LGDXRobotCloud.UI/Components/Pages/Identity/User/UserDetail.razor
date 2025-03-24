@@ -1,3 +1,5 @@
+@using System.Text.RegularExpressions
+@using Net.Codecrete.QrCodeGenerator
 @attribute [Route(AppRoutes.Identity.User)]
 @attribute [Authorize]
 
@@ -124,6 +126,77 @@
             <button type="submit" class="btn btn-primary ms-auto">Update</button>
           </div>
         </EditForm>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Two-Factor Authentication (2FA) Setting</h3>
+        </div>
+        <div class="card-body">
+          <FormSubmissionSuccessAlert Display="UserDetailTwoFactorViewModel.IsSuccess" />
+          <ApiErrorAlert Errors="UserDetailTwoFactorViewModel.Errors" />
+          @if (UserDetailViewModel.TwoFactorEnabled)
+          {
+            <button>Disable</button>
+          }
+          else if (UserDetailTwoFactorViewModel.Step == 0)
+          {
+            <button type="button" class="btn btn-primary d-sm-inline-block ms-auto" @onclick="HandleStart2FASetup">
+              Setup Two-Factor Authentication
+            </button>
+          }
+          else if (UserDetailTwoFactorViewModel.Step == 1)
+          {
+            <EditForm EditContext="@_editContextTwoFactor" OnValidSubmit="HandleValidSubmitTwoFactor">
+            <DataAnnotationsValidator />
+            <FormValidationErrorAlert Errors="@_editContextPassword.GetValidationMessages()" />
+            <p>To use an authenticator app go through the following steps:</p>
+            <ul class="steps steps-counter steps-vertical">
+              <li class="step-item">
+                Download a two-factor authenticator app like Microsoft Authenticator for
+                <a href="https://go.microsoft.com/fwlink/?Linkid=825072">Android</a> and
+                <a href="https://go.microsoft.com/fwlink/?Linkid=825073">iOS</a> or
+                Google Authenticator for
+                <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;hl=en">Android</a> and
+                <a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">iOS</a>.
+              </li>
+              <li class="step-item">
+                Scan the QR Code or enter this key <code>@Regex.Replace(UserDetailTwoFactorViewModel.SharedKey, ".{4}(?=.)", "$0 ")</code> into your two factor authenticator app. Spaces and casing do not matter.<br />
+                <div class="mt-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="300" width="300" stroke="none" version="1.1" viewBox="0 0 45 45">
+                      <rect width="100%" height="100%" fill="#FFFFFF"/>
+                      <path d="@UserDetailTwoFactorViewModel.SvgGraphicsPath" fill="#000000" />
+                    </svg>
+                </div>
+              </li>
+              <li class="step-item">
+                Once you have scanned the QR code or input the key above, your two factor authentication app will provide you with a unique code. Enter the code in the confirmation box below:
+                <InputText id="@nameof(UserDetailTwoFactorViewModel.VerficationCode)" @bind-Value="UserDetailTwoFactorViewModel.VerficationCode" type="text" class="form-control mt-2" />
+                <ValidationMessage class="invalid-feedback" For="@(() => UserDetailTwoFactorViewModel.VerficationCode)" />
+                <button type="submit" class="btn btn-primary mt-2">Verify</button>
+              </li>
+            </ul>
+            </EditForm>
+          }
+          else if (UserDetailTwoFactorViewModel.Step == 2)
+          {
+            <p>
+              <strong>Put these codes in a safe place.</strong>
+            </p>
+            <p>
+              If you lose your device and don't have the recovery codes you will lose access to your account.
+            </p>
+            <pre>
+              @foreach (var code in UserDetailTwoFactorViewModel.RecoveryCodes)
+              {
+                var c = code;
+                @c<br />
+              }
+            </pre>
+          }
+        </div>
       </div>
     </div>
   </div>

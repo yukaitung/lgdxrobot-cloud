@@ -73,7 +73,8 @@ public static class UserDetailViewModelExtensions
       Name = userDetailViewModel.Name,
       UserName = userDetailViewModel.UserName,
       Email = userDetailViewModel.Email,
-      Roles = userDetailViewModel.Roles
+      Roles = userDetailViewModel.Roles,
+      Password = userDetailViewModel.Password
     };
   }
 }

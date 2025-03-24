@@ -79,7 +79,8 @@ builder.Services.AddHttpContextAccessor();
  */
 builder.Services.AddIdentity<LgdxUser, LgdxRole>()
 	.AddEntityFrameworkStores<LgdxContext>()
-	.AddTokenProvider<AuthenticatorTokenProvider<LgdxUser>>(TokenOptions.DefaultAuthenticatorProvider);
+	.AddTokenProvider<AuthenticatorTokenProvider<LgdxUser>>(TokenOptions.DefaultAuthenticatorProvider)
+	.AddTokenProvider<DataProtectorTokenProvider<LgdxUser>>(TokenOptions.DefaultProvider);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(cfg =>
 	{
