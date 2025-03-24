@@ -1,3 +1,4 @@
+@using LGDXRobotCloud.UI.ViewModels.Identity
 @attribute [Route(AppRoutes.Identity.Login)]
 @layout AuthLayout
 
@@ -6,11 +7,12 @@
 </div>
 
 <h2 class="h2 text-center mb-4">Welcome</h2>
-<EditForm EditContext="_editContext" method="post" OnInvalidSubmit="HandleInvalidLogin" OnValidSubmit="HandleLogin" FormName="Login">
+<EditForm EditContext="_editContext" method="post" OnValidSubmit="HandleLogin" FormName="Login">
   <DataAnnotationsValidator />
   <ApiErrorAlert Errors="LoginViewModel.Errors" />
   <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
-    <div style="@(LoginViewModel.RequiresTwoFactor == false ? "display: block;" : "display: none;")">
+    <input type="hidden" id="@($"{nameof(LoginViewModel)}.{nameof(LoginViewModel.State)}")" name="@($"{nameof(LoginViewModel)}.{nameof(LoginViewModel.State)}")" value="@(LoginViewModel.State)" />
+    <div style="@(LoginViewModel.State == LoginViewModelState.Username ? "display: block;" : "display: none;")">
       <div class="mb-3">
         <label class="form-label" for="@nameof(LoginViewModel.Username)">Username</label>
         <InputText id="@nameof(LoginViewModel.Username)" class="form-control" type="text"
@@ -27,8 +29,8 @@
         <button type="submit" class="btn btn-primary w-100">Log In</button>
       </div>
     </div>
-    <div style="@(LoginViewModel.RequiresTwoFactor == true ? "display: block;" : "display: none;")">
-      <p class="my-4 text-center">Please enter the code in authenticator app.</p>
+    <div style="@(LoginViewModel.State == LoginViewModelState.TwoFactorCode ? "display: block;" : "display: none;")">
+      <p class="my-4 text-center">Please enter the code in the authenticator app.</p>
       <div class="my-5">
         <div class="row g-2">
           @if (LoginViewModel.TwoFactorCode != null)
@@ -41,7 +43,6 @@
                   inputmode="numeric" pattern="[0-9]*" data-code-input="" @bind-Value="LoginViewModel.TwoFactorCode[index]" />
               </div>
             }
-            <input type="hidden" name="@nameof(LoginViewModel.TwoFactorCode)" id="@nameof(LoginViewModel.TwoFactorCode)" value="True" />
           }
           <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.TwoFactorCode)" />
         </div>

@@ -4,9 +4,18 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Identity;
 
+public enum LoginViewModelState
+{
+  Username = 0,
+  TwoFactorCode = 1,
+  TwoFactorRecoveryCode = 2,
+}
+
 public sealed class LoginViewModel : FormViewModel, IValidatableObject
 {
   private const int _twoFactorCodeLength = 6;
+
+  public LoginViewModelState State { get; set; } = LoginViewModelState.Username;
 
   [Required (ErrorMessage = "Please enter a username.")]
   public string Username { get; set; } = null!;
@@ -14,15 +23,13 @@ public sealed class LoginViewModel : FormViewModel, IValidatableObject
   [Required (ErrorMessage = "Please enter a password.")]
   public string Password { get; set; } = null!;
 
-  public bool RequiresTwoFactor { get; set; } = false;
-
   public List<string?> TwoFactorCode { get; set; } = [];
 
   public string? TwoFactorRecoveryCode { get; set; } = null!;
 
   public void SetupTwoFactor()
   {
-    RequiresTwoFactor = true;
+    State = LoginViewModelState.TwoFactorCode;
     TwoFactorCode = [];
     for (int i = 0; i < _twoFactorCodeLength; i++)
     {
@@ -32,7 +39,7 @@ public sealed class LoginViewModel : FormViewModel, IValidatableObject
 
   public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
   {
-    if (TwoFactorCode != null)
+    if (State == LoginViewModelState.TwoFactorCode)
     {
       bool isValid = true;
       for (int i = 0; i < TwoFactorCode.Count; i++)
