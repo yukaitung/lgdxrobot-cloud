@@ -26,6 +26,8 @@ public sealed partial class UserDetail : ComponentBase
   private UserDetailPasswordViewModel UserDetailPasswordViewModel { get; set; } = new();
   private UserDetailTwoFactorViewModel UserDetailTwoFactorViewModel { get; set; } = new();
   private IDictionary<string,string>? DisableTwoFactorModalErrors { get; set; }
+  private IDictionary<string,string>? ResetRecoveryCodesModalErrors { get; set; }
+  private List<string>? ResetRecoveryCodes { get; set; } = null;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
   private EditContext _editContext = null!;
   private EditContext _editContextPassword = null!;
@@ -62,6 +64,19 @@ public sealed partial class UserDetail : ComponentBase
     catch (ApiException ex)
     {
       UserDetailPasswordViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
+  }
+
+  public async Task HandleResetRecoveryCodes()
+  {
+    try
+    {
+      var response = await LgdxApiClient.Identity.User.TwoFA.Reset.PostAsync();
+      ResetRecoveryCodes = response!.RecoveryCodes!;
+    }
+    catch (ApiException ex)
+    {
+      ResetRecoveryCodesModalErrors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 

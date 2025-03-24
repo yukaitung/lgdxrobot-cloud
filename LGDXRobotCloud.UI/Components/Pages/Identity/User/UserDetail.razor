@@ -139,6 +139,7 @@
           <ApiErrorAlert Errors="UserDetailTwoFactorViewModel.Errors" />
           @if (UserDetailViewModel.TwoFactorEnabled)
           {
+            <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#resetRecoveryCodesModal">Reset Recovery Codes</button>
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#disableTwoFactorModal">Disable Two-Factor Authentication</button>
           }
           else if (UserDetailTwoFactorViewModel.Step == 0)
@@ -196,6 +197,43 @@
               }
             </pre>
           }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal modal-blur fade" id="resetRecoveryCodesModal" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-1 modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Reset Recovery Codes</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ApiErrorAlert Errors="ResetRecoveryCodesModalErrors" />
+          @if (ResetRecoveryCodes == null)
+          {
+            <button type="button" class="btn btn-primary" @onclick="HandleResetRecoveryCodes">Start Reset Recovery Codes</button>
+          }
+          else
+          {
+            <p>
+              <strong>Put these codes in a safe place.</strong>
+            </p>
+            <p>
+              If you lose your device and don't have the recovery codes you will lose access to your account.
+            </p>
+            <pre>
+              @foreach (var code in ResetRecoveryCodes)
+              {
+                var c = code;
+                @c<br />
+              }
+            </pre>
+          }
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary ms-auto" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
