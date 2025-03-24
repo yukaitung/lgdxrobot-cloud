@@ -107,11 +107,11 @@ public class AuthService(
     {
       if (!string.IsNullOrEmpty(loginRequestBusinessModel.TwoFactorCode))
       {
-        loginResult = await signInManager.TwoFactorAuthenticatorSignInAsync(loginRequestBusinessModel.TwoFactorCode, false, false);
+        loginResult = await _signInManager.TwoFactorAuthenticatorSignInAsync(loginRequestBusinessModel.TwoFactorCode, false, false);
       }
       else if (!string.IsNullOrEmpty(loginRequestBusinessModel.TwoFactorRecoveryCode))
       {
-        loginResult = await signInManager.TwoFactorRecoveryCodeSignInAsync(loginRequestBusinessModel.TwoFactorRecoveryCode);
+        loginResult = await _signInManager.TwoFactorRecoveryCodeSignInAsync(loginRequestBusinessModel.TwoFactorRecoveryCode);
       }
       else
       {

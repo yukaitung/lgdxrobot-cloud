@@ -1,4 +1,5 @@
 using LGDXRobotCloud.UI.Client;
+using LGDXRobotCloud.UI.Constants;
 using LGDXRobotCloud.UI.Helpers;
 using LGDXRobotCloud.UI.Services;
 using LGDXRobotCloud.UI.ViewModels.Identity;
@@ -42,11 +43,40 @@ public sealed partial class Login : ComponentBase
     return base.OnInitializedAsync();
   }
 
+  public void HandleInvalidLogin()
+  {
+    if (LoginViewModel.TwoFactorCode != null)
+    {
+      // Reset 2FA
+      LoginViewModel.SetupTwoFactor();
+    }
+  }
+
   public async Task HandleLogin()
   {
+    string? twoFactorCode = null;
+    string? twoFactorRecoveryCode = null;
+    if (LoginViewModel.TwoFactorCode != null)
+    {
+      List<char> codeList = new();
+      foreach (string? code in LoginViewModel.TwoFactorCode)
+      {
+        if (!string.IsNullOrWhiteSpace(code))
+        {
+          codeList.Add(code[0]);
+        }
+      }
+      twoFactorCode = new string(codeList.ToArray());
+    }
     try
     {
-      var loginResponse = await LgdxApiClient.Identity.Auth.Login.PostAsync(LoginViewModel.ToLoginRequestDto());
+      var loginResponse = await LgdxApiClient.Identity.Auth.Login.PostAsync(LoginViewModel.ToLoginRequestDto(twoFactorCode, twoFactorRecoveryCode));
+      if ((bool)loginResponse!.RequiresTwoFactor!)
+      {
+        // Show 2FA page
+        LoginViewModel.SetupTwoFactor();
+        return;
+      }
       var accessToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponse!.AccessToken);
       var refreshToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponse!.RefreshToken);
       var identity = new ClaimsIdentity(accessToken.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -63,6 +93,11 @@ public sealed partial class Login : ComponentBase
     catch (ApiException ex)
     {
       LoginViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      if (LoginViewModel.TwoFactorCode != null)
+      {
+        // Reset 2FA
+        LoginViewModel.SetupTwoFactor();
+      }
     }
   }
 }

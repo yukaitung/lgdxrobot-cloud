@@ -6,21 +6,72 @@
 </div>
 
 <h2 class="h2 text-center mb-4">Welcome</h2>
-<EditForm EditContext="_editContext" method="post" OnValidSubmit="HandleLogin" FormName="Login">
+<EditForm EditContext="_editContext" method="post" OnInvalidSubmit="HandleInvalidLogin" OnValidSubmit="HandleLogin" FormName="Login">
   <DataAnnotationsValidator />
   <ApiErrorAlert Errors="LoginViewModel.Errors" />
   <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
-  <div class="mb-3">
-    <label class="form-label" for="@nameof(LoginViewModel.Username)">Username</label>
-    <InputText id="@nameof(LoginViewModel.Username)" class="form-control" type="text" @bind-Value="LoginViewModel.Username" />
-    <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.Username)" />
-  </div>
-  <div class="mb-3">
-    <label class="form-label" for="@nameof(LoginViewModel.Password)">Password</label>
-    <InputText id="@nameof(LoginViewModel.Password)" class="form-control" type="password" @bind-Value="LoginViewModel.Password" />
-  </div>
-  <a href="@AppRoutes.Identity.ForgotPassword">Forgot password</a>
-  <div class="form-footer">
-    <button type="submit" class="btn btn-primary w-100">Log In</button>
-  </div>
+    <div style="@(LoginViewModel.RequiresTwoFactor == false ? "display: block;" : "display: none;")">
+      <div class="mb-3">
+        <label class="form-label" for="@nameof(LoginViewModel.Username)">Username</label>
+        <InputText id="@nameof(LoginViewModel.Username)" class="form-control" type="text"
+          @bind-Value="LoginViewModel.Username" />
+        <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.Username)" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="@nameof(LoginViewModel.Password)">Password</label>
+        <InputText id="@nameof(LoginViewModel.Password)" class="form-control" type="password"
+          @bind-Value="LoginViewModel.Password" />
+      </div>
+      <a href="@AppRoutes.Identity.ForgotPassword">Forgot password</a>
+      <div class="form-footer">
+        <button type="submit" class="btn btn-primary w-100">Log In</button>
+      </div>
+    </div>
+    <div style="@(LoginViewModel.RequiresTwoFactor == true ? "display: block;" : "display: none;")">
+      <p class="my-4 text-center">Please enter the code in authenticator app.</p>
+      <div class="my-5">
+        <div class="row g-2">
+          @if (LoginViewModel.TwoFactorCode != null)
+          {
+            @for (int i = 0; i < LoginViewModel.TwoFactorCode.Count; i++)
+            {
+              int index = i;
+              <div class="col">
+                <InputText type="text" class="form-control form-control-lg text-center px-3 py-3" maxlength="1"
+                  inputmode="numeric" pattern="[0-9]*" data-code-input="" @bind-Value="LoginViewModel.TwoFactorCode[index]" />
+              </div>
+            }
+            <input type="hidden" name="@nameof(LoginViewModel.TwoFactorCode)" id="@nameof(LoginViewModel.TwoFactorCode)" value="True" />
+          }
+          <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.TwoFactorCode)" />
+        </div>
+      </div>
+      <div class="form-footer">
+        <div class="btn-list flex-nowrap">
+          <a href="/" type="button" class="btn btn-3 w-100">Cancel</a>
+          <button type="submit" class="btn btn-primary btn-3 w-100">Verify</button>
+        </div>
+      </div>
+    </div>
 </EditForm>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var inputs = document.querySelectorAll("[data-code-input]");
+    // Attach an event listener to each input element
+    for (let i = 0; i < inputs.length; i++) {
+      inputs[i].addEventListener("input", function (e) {
+        // If the input field has a character, and there is a next input field, focus it
+        if (e.target.value.length === e.target.maxLength && i + 1 < inputs.length) {
+          inputs[i + 1].focus();
+        }
+      });
+      inputs[i].addEventListener("keydown", function (e) {
+        // If the input field is empty and the keyCode for Backspace (8) is detected, and there is a previous input field, focus it
+        if (e.target.value.length === 0 && e.keyCode === 8 && i > 0) {
+          inputs[i - 1].focus();
+        }
+      });
+    }
+  });
+</script>
