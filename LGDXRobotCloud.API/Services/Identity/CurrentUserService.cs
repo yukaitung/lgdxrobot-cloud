@@ -10,7 +10,10 @@ public interface ICurrentUserService
 {
   Task<LgdxUserBusinessModel> GetUserAsync(string userId);
   Task<bool> UpdateUserAsync(string userId, LgdxUserUpdateBusinessModel lgdxUserBusinessModel);
-  Task<TwoFactorRespondBusinessModel> UpdateTwoFactorAsync(string userId, TwoFactorRequestBusinessModel twoFactorRequestBusinessModel);
+  Task<string> InitiateTwoFactorAsync(string userId);
+  Task<List<string>> EnableTwoFactorAsync(string userId, string twoFactorCode);
+  Task<List<string>> ResetRecoveryCodesAsync(string userId);
+  Task<bool> DisableTwoFactorAsync(string userId);
 }
 
 public class CurrentUserService(
@@ -54,53 +57,12 @@ public class CurrentUserService(
     return true;
   }
 
-  public async Task<TwoFactorRespondBusinessModel> UpdateTwoFactorAsync(string userId, TwoFactorRequestBusinessModel twoFactorRequestBusinessModel)
+  public async Task<string> InitiateTwoFactorAsync(string userId)
   {
     var user = await _userManager.FindByIdAsync(userId)
       ?? throw new LgdxNotFound404Exception();
 
-    if (twoFactorRequestBusinessModel.Enable == true)
-    {
-      if (twoFactorRequestBusinessModel.ResetSharedKey)
-      {
-        throw new LgdxValidation400Expection("CannotResetSharedKeyAndEnable",
-          "Resetting the 2fa shared key must disable 2fa until a 2fa token based on the new shared key is validated.");
-      }
-      if (string.IsNullOrEmpty(twoFactorRequestBusinessModel.TwoFactorCode))
-      {
-        throw new LgdxValidation400Expection("RequiresTwoFactor",
-          "No 2fa token was provided by the request. A valid 2fa token is required to enable 2fa.");
-      }
-      if (!await _userManager.VerifyTwoFactorTokenAsync(user, _userManager.Options.Tokens.AuthenticatorTokenProvider, twoFactorRequestBusinessModel.TwoFactorCode))
-      {
-        throw new LgdxValidation400Expection("InvalidTwoFactorCode",
-          "The 2fa token provided by the request was invalid. A valid 2fa token is required to enable 2fa.");
-      }
-
-      await _userManager.SetTwoFactorEnabledAsync(user, true);
-    }
-    else if (twoFactorRequestBusinessModel.Enable == false || twoFactorRequestBusinessModel.ResetSharedKey)
-    {
-      await _userManager.SetTwoFactorEnabledAsync(user, false);
-    }
-
-    if (twoFactorRequestBusinessModel.ResetSharedKey)
-    {
-      await _userManager.ResetAuthenticatorKeyAsync(user);
-    }
-
-    string[]? recoveryCodes = null;
-    if (twoFactorRequestBusinessModel.ResetRecoveryCodes || (twoFactorRequestBusinessModel.Enable == true && await _userManager.CountRecoveryCodesAsync(user) == 0))
-    {
-      var recoveryCodesEnumerable = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
-      recoveryCodes = recoveryCodesEnumerable?.ToArray();
-    }
-
-    if (twoFactorRequestBusinessModel.ForgetMachine)
-    {
-      await _signInManager.ForgetTwoFactorClientAsync();
-    }
-
+    await _userManager.SetTwoFactorEnabledAsync(user, false);   
     var key = await _userManager.GetAuthenticatorKeyAsync(user);
     if (string.IsNullOrEmpty(key))
     {
@@ -112,14 +74,50 @@ public class CurrentUserService(
         throw new NotSupportedException("The user manager must produce an authenticator key after reset.");
       }
     }
+    return key;
+  }
 
-    return new TwoFactorRespondBusinessModel
+  public async Task<List<string>> EnableTwoFactorAsync(string userId, string twoFactorCode)
+  {
+    var user = await _userManager.FindByIdAsync(userId)
+      ?? throw new LgdxNotFound404Exception();
+
+    if (string.IsNullOrEmpty(twoFactorCode))
     {
-      SharedKey = key,
-      RecoveryCodes = recoveryCodes,
-      RecoveryCodesLeft = recoveryCodes?.Length ?? await _userManager.CountRecoveryCodesAsync(user),
-      IsTwoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(user),
-      IsMachineRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user),
-    };
+      throw new LgdxValidation400Expection("RequiresTwoFactor",
+        "No 2fa token was provided by the request. A valid 2fa token is required to enable 2fa.");
+    }
+    if (!await _userManager.VerifyTwoFactorTokenAsync(user, _userManager.Options.Tokens.AuthenticatorTokenProvider, twoFactorCode))
+      {
+        throw new LgdxValidation400Expection("InvalidTwoFactorCode",
+          "The 2fa token provided by the request was invalid. A valid 2fa token is required to enable 2fa.");
+      }
+    await _userManager.SetTwoFactorEnabledAsync(user, true);
+
+    List<string> recoveryCodes = [];
+    if (await _userManager.CountRecoveryCodesAsync(user) == 0)
+    {
+      var recoveryCodesEnumerable = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+      recoveryCodes = recoveryCodesEnumerable?.ToList() ?? [];
+    }
+    return recoveryCodes;
+  }
+
+  public async Task<List<string>> ResetRecoveryCodesAsync(string userId)
+  {
+    var user = await _userManager.FindByIdAsync(userId)
+      ?? throw new LgdxNotFound404Exception();
+    
+    var recoveryCodesEnumerable = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+    return recoveryCodesEnumerable?.ToList() ?? [];
+  }
+
+  public async Task<bool> DisableTwoFactorAsync(string userId)
+  { 
+    var user = await _userManager.FindByIdAsync(userId)
+      ?? throw new LgdxNotFound404Exception();
+
+    await _userManager.ResetAuthenticatorKeyAsync(user);
+    return true;
   }
 }

@@ -55,13 +55,50 @@ public sealed class UserController(
     return NoContent();
   }
 
-  [HttpPost("TwoFactor")]
-  [ProducesResponseType(typeof(TwoFactorRespondDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-  public async Task<ActionResult<TwoFactorRespondDto>> UpdateTwoFactor(TwoFactorRequestDto twoFactorRequestDto)
+  [HttpPost("2FA/Initiate")]
+  [ProducesResponseType(typeof(InitiateTwoFactorResponseDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult<InitiateTwoFactorResponseDto>> InitiateTwoFactor()
   {
     var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-    var respond = await _currentUserService.UpdateTwoFactorAsync(userId!, twoFactorRequestDto.ToBusinessModel());
-    return Ok(respond.ToDto());
+    var respond = await _currentUserService.InitiateTwoFactorAsync(userId!);
+    return Ok(new InitiateTwoFactorResponseDto {
+      SharedKey = respond
+    });
+  }
+
+  [HttpPost("2FA/Enable")]
+  [ProducesResponseType(typeof(EnableTwoFactorRespondDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult<EnableTwoFactorRespondDto>> EnableTwoFactor(EnableTwoFactorRequestDto enableTwoFactorRequestDto)
+  {
+    var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+    var respond = await _currentUserService.EnableTwoFactorAsync(userId!, enableTwoFactorRequestDto.TwoFactorCode);
+    return Ok(new EnableTwoFactorRespondDto {
+      RecoveryCodes = respond
+    });
+  }
+
+  [HttpPost("2FA/Reset")]
+  [ProducesResponseType(typeof(ResetRecoveryCodesRespondDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult<ResetRecoveryCodesRespondDto>> ResetRecoveryCodes()
+  {
+    var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+    var respond = await _currentUserService.ResetRecoveryCodesAsync(userId!);
+    return Ok(new ResetRecoveryCodesRespondDto {
+      RecoveryCodes = respond
+    });
+  }
+
+  [HttpPost("2FA/Disable")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult> DisableTwoFactor()
+  {
+    var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+    await _currentUserService.DisableTwoFactorAsync(userId!);
+    return Ok();
   }
 }
