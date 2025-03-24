@@ -64,6 +64,21 @@ public sealed partial class UserDetail : ComponentBase
     }
   }
 
+  public async Task HandleResetTwoFactor()
+  {
+    try
+    {
+      var response = await LgdxApiClient.Identity.User.TwoFactor.PostAsync(new TwoFactorRequestDto{
+        ResetSharedKey = true
+      });
+      UserDetailViewModel.TwoFactorEnabled = (bool)response!.IsTwoFactorEnabled!;
+    }
+    catch (ApiException ex)
+    {
+      UserDetailTwoFactorViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
+  }
+
   public async Task HandleValidSubmitTwoFactor()
   {
     try

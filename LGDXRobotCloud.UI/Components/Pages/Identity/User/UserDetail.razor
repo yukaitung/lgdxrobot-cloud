@@ -139,7 +139,7 @@
           <ApiErrorAlert Errors="UserDetailTwoFactorViewModel.Errors" />
           @if (UserDetailViewModel.TwoFactorEnabled)
           {
-            <button>Disable</button>
+            <button class="btn bth-danger" @onclick="HandleResetTwoFactor">Disable</button>
           }
           else if (UserDetailTwoFactorViewModel.Step == 0)
           {
