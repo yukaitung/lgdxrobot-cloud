@@ -25,8 +25,9 @@ public sealed partial class UserDetail : ComponentBase
   private UserDetailViewModel UserDetailViewModel { get; set; } = new();
   private UserDetailPasswordViewModel UserDetailPasswordViewModel { get; set; } = new();
   private UserDetailTwoFactorViewModel UserDetailTwoFactorViewModel { get; set; } = new();
-  private EditContext _editContext = null!;
+  private IDictionary<string,string>? DisableTwoFactorModalErrors { get; set; }
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
+  private EditContext _editContext = null!;
   private EditContext _editContextPassword = null!;
   private EditContext _editContextTwoFactor = null!;
 
@@ -73,7 +74,7 @@ public sealed partial class UserDetail : ComponentBase
     }
     catch (ApiException ex)
     {
-      UserDetailTwoFactorViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      DisableTwoFactorModalErrors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 

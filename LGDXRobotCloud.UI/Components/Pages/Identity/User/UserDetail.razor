@@ -139,7 +139,7 @@
           <ApiErrorAlert Errors="UserDetailTwoFactorViewModel.Errors" />
           @if (UserDetailViewModel.TwoFactorEnabled)
           {
-            <button class="btn bth-danger" @onclick="HandleTwoFactorDisable">Disable</button>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#disableTwoFactorModal">Disable Two-Factor Authentication</button>
           }
           else if (UserDetailTwoFactorViewModel.Step == 0)
           {
@@ -196,6 +196,33 @@
               }
             </pre>
           }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal modal-blur fade" id="disableTwoFactorModal" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-status bg-danger"></div>
+        <div class="modal-body text-center py-4">
+          <i class="ti ti-alert-triangle text-danger mb-2 text-center" style="font-size: 48px;"></i>
+          <h3 class="text-center">Are you sure?</h3>
+          <ApiErrorAlert Errors="DisableTwoFactorModalErrors" />
+          <div class="text-secondary">Are you sure you want to disable Two-Factor Authentication? You can enable it again anytime.</div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100">
+            <div class="row">
+              <div class="col">
+                <a class="btn btn-3 w-100" data-bs-dismiss="modal">Cancel</a>
+              </div>
+              <div class="col">
+                <button type="button" class="btn btn-danger btn-4 w-100" @onclick="HandleTwoFactorDisable" data-bs-dismiss="modal">Disable</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

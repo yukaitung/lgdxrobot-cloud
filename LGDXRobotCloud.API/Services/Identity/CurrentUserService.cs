@@ -94,7 +94,6 @@ public class CurrentUserService(
       }
     await _userManager.SetTwoFactorEnabledAsync(user, true);
 
-    await _userManager.CountRecoveryCodesAsync(user);
     var recoveryCodesEnumerable = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
     return recoveryCodesEnumerable?.ToList() ?? [];
   }
@@ -114,6 +113,7 @@ public class CurrentUserService(
       ?? throw new LgdxNotFound404Exception();
 
     await _userManager.ResetAuthenticatorKeyAsync(user);
+    await _userManager.SetTwoFactorEnabledAsync(user, false);   
     return true;
   }
 }
