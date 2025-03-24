@@ -43,8 +43,24 @@
                   inputmode="numeric" pattern="[0-9]*" data-code-input="" @bind-Value="LoginViewModel.TwoFactorCode[index]" />
               </div>
             }
+            <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.TwoFactorCode[0])" />
           }
-          <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.TwoFactorCode)" />
+        </div>
+      </div>
+      <button type="submit" class="btn-link border-0" name="@($"{nameof(LoginViewModel)}.{nameof(LoginViewModel.InputRecoveryCode)}")" value="True" >Enter recovery code instead</button>
+      <div class="form-footer">
+        <div class="btn-list flex-nowrap">
+          <a href="/" type="button" class="btn btn-3 w-100">Cancel</a>
+          <button type="submit" class="btn btn-primary btn-3 w-100">Verify</button>
+        </div>
+      </div>
+    </div>
+    <div style="@(LoginViewModel.State == LoginViewModelState.TwoFactorRecoveryCode ? "display: block;" : "display: none;")">
+      <p class="my-4 text-center">Please enter the the recovery code.</p>
+      <div class="my-5">
+        <div class="row">
+          <InputText type="text" class="form-control form-control-lg text-center px-3 py-3" @bind-Value="LoginViewModel.TwoFactorRecoveryCode" />
+          <ValidationMessage class="invalid-feedback" For="@(() => LoginViewModel.TwoFactorRecoveryCode)" />
         </div>
       </div>
       <div class="form-footer">

@@ -44,6 +44,12 @@ public sealed partial class Login : ComponentBase
 
   public async Task HandleLogin()
   {
+    if (LoginViewModel.State == LoginViewModelState.TwoFactorCode && LoginViewModel.InputRecoveryCode)
+    {
+      LoginViewModel.State = LoginViewModelState.TwoFactorRecoveryCode;
+      return;
+    }
+
     string? twoFactorCode = null;
     string? twoFactorRecoveryCode = null;
     if (LoginViewModel.State == LoginViewModelState.TwoFactorCode)
@@ -58,6 +64,10 @@ public sealed partial class Login : ComponentBase
         }
       }
       twoFactorCode = new string(codeList.ToArray());
+    }
+    else if (LoginViewModel.State == LoginViewModelState.TwoFactorRecoveryCode)
+    {
+      twoFactorRecoveryCode = LoginViewModel.TwoFactorRecoveryCode;
     }
     try
     {

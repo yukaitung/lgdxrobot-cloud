@@ -25,6 +25,8 @@ public sealed class LoginViewModel : FormViewModel, IValidatableObject
 
   public List<string?> TwoFactorCode { get; set; } = [];
 
+  public bool InputRecoveryCode { get; set; } = false;
+
   public string? TwoFactorRecoveryCode { get; set; } = null!;
 
   public void SetupTwoFactor()
@@ -39,7 +41,7 @@ public sealed class LoginViewModel : FormViewModel, IValidatableObject
 
   public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
   {
-    if (State == LoginViewModelState.TwoFactorCode)
+    if (InputRecoveryCode == false && State == LoginViewModelState.TwoFactorCode)
     {
       bool isValid = true;
       for (int i = 0; i < TwoFactorCode.Count; i++)
@@ -53,6 +55,10 @@ public sealed class LoginViewModel : FormViewModel, IValidatableObject
       {
         yield return new ValidationResult("Please enter a code.", [nameof(TwoFactorCode)]);
       }
+    }
+    if (State == LoginViewModelState.TwoFactorRecoveryCode && string.IsNullOrWhiteSpace(TwoFactorRecoveryCode))
+    {
+      yield return new ValidationResult("Please enter a recovery code.", [nameof(TwoFactorRecoveryCode)]);
     }
   }
 }
