@@ -94,13 +94,9 @@ public class CurrentUserService(
       }
     await _userManager.SetTwoFactorEnabledAsync(user, true);
 
-    List<string> recoveryCodes = [];
-    if (await _userManager.CountRecoveryCodesAsync(user) == 0)
-    {
-      var recoveryCodesEnumerable = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
-      recoveryCodes = recoveryCodesEnumerable?.ToList() ?? [];
-    }
-    return recoveryCodes;
+    await _userManager.CountRecoveryCodesAsync(user);
+    var recoveryCodesEnumerable = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+    return recoveryCodesEnumerable?.ToList() ?? [];
   }
 
   public async Task<List<string>> ResetRecoveryCodesAsync(string userId)

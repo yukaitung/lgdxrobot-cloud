@@ -64,14 +64,12 @@ public sealed partial class UserDetail : ComponentBase
     }
   }
 
-  public async Task HandleResetTwoFactor()
+  public async Task HandleTwoFactorDisable()
   {
     try
     {
-      var response = await LgdxApiClient.Identity.User.TwoFactor.PostAsync(new TwoFactorRequestDto{
-        ResetSharedKey = true
-      });
-      UserDetailViewModel.TwoFactorEnabled = (bool)response!.IsTwoFactorEnabled!;
+      var response = await LgdxApiClient.Identity.User.TwoFA.Disable.PostAsync();
+      UserDetailViewModel.TwoFactorEnabled = false;
     }
     catch (ApiException ex)
     {
@@ -79,13 +77,12 @@ public sealed partial class UserDetail : ComponentBase
     }
   }
 
-  public async Task HandleValidSubmitTwoFactor()
+  public async Task HandleTwoFactorEnable()
   {
     try
     {
-      var response = await LgdxApiClient.Identity.User.TwoFactor.PostAsync(new TwoFactorRequestDto{
+      var response = await LgdxApiClient.Identity.User.TwoFA.Enable.PostAsync(new EnableTwoFactorRequestDto{
         TwoFactorCode = UserDetailTwoFactorViewModel.VerficationCode,
-        Enable = true
       });
       UserDetailTwoFactorViewModel.RecoveryCodes = response!.RecoveryCodes!;
       UserDetailTwoFactorViewModel.Step = 2;
@@ -96,11 +93,11 @@ public sealed partial class UserDetail : ComponentBase
     }
   }
 
-  public async Task HandleStart2FASetup()
+  public async Task HandleTwoFactorInitiate()
   {
     try
     {
-      var response = await LgdxApiClient.Identity.User.TwoFactor.PostAsync(new TwoFactorRequestDto());
+      var response = await LgdxApiClient.Identity.User.TwoFA.Initiate.PostAsync();
       UserDetailTwoFactorViewModel.SharedKey = response!.SharedKey!;
       var uri = GenerateQrCodeUri(UserDetailViewModel.UserName, response!.SharedKey!);
       var qr = QrCode.EncodeText(uri, QrCode.Ecc.Medium);

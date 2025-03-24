@@ -139,17 +139,17 @@
           <ApiErrorAlert Errors="UserDetailTwoFactorViewModel.Errors" />
           @if (UserDetailViewModel.TwoFactorEnabled)
           {
-            <button class="btn bth-danger" @onclick="HandleResetTwoFactor">Disable</button>
+            <button class="btn bth-danger" @onclick="HandleTwoFactorDisable">Disable</button>
           }
           else if (UserDetailTwoFactorViewModel.Step == 0)
           {
-            <button type="button" class="btn btn-primary d-sm-inline-block ms-auto" @onclick="HandleStart2FASetup">
+            <button type="button" class="btn btn-primary d-sm-inline-block ms-auto" @onclick="HandleTwoFactorInitiate">
               Setup Two-Factor Authentication
             </button>
           }
           else if (UserDetailTwoFactorViewModel.Step == 1)
           {
-            <EditForm EditContext="@_editContextTwoFactor" OnValidSubmit="HandleValidSubmitTwoFactor">
+            <EditForm EditContext="@_editContextTwoFactor" OnValidSubmit="HandleTwoFactorEnable">
             <DataAnnotationsValidator />
             <FormValidationErrorAlert Errors="@_editContextPassword.GetValidationMessages()" />
             <p>To use an authenticator app go through the following steps:</p>
