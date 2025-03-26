@@ -178,7 +178,7 @@ public class RoleService(
   {
     var n = name ?? string.Empty;
     return await _context.Roles.AsNoTracking()
-      .Where(w => w.Name!.ToLower().Contains(n.ToLower()))
+      .Where(r => r.NormalizedName!.Contains(n))
       .Take(10)
       .Select(t => new LgdxRoleSearchBusinessModel {
         Id = Guid.Parse(t.Id!),
