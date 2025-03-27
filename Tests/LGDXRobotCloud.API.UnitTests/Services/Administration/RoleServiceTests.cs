@@ -69,7 +69,6 @@ public class RoleServiceTests
     lgdxContext.SaveChanges();
   }
 
-
   [Theory]
   [InlineData("")]
   [InlineData("ROLE")]
@@ -86,8 +85,8 @@ public class RoleServiceTests
 
     // Assert
     Assert.Equal(expected.Count, actual.Count());
-    Assert.All(roles, r => {
-      var expected = roles.FirstOrDefault(e => e.Id == r.Id);
+    Assert.All(actual, r => {
+      var expected = actual.FirstOrDefault(e => e.Id == r.Id);
       Assert.NotNull(expected);
       Assert.Equal(expected.Name, r.Name);
       Assert.Equal(expected.Description, r.Description);
@@ -431,8 +430,8 @@ public class RoleServiceTests
 
     // Assert
     Assert.Equal(expected.Count, actual.Count());
-    Assert.All(roles, r => {
-      var expected = roles.FirstOrDefault(e => e.Id == r.Id);
+    Assert.All(actual, r => {
+      var expected = actual.FirstOrDefault(e => e.Id == r.Id);
       Assert.NotNull(expected);
       Assert.Equal(expected.Name, r.Name);
     });
