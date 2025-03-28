@@ -108,10 +108,18 @@ public class AuthService(
       if (!string.IsNullOrEmpty(loginRequestBusinessModel.TwoFactorCode))
       {
         loginResult = await _signInManager.TwoFactorAuthenticatorSignInAsync(loginRequestBusinessModel.TwoFactorCode, false, false);
+        if (!loginResult.Succeeded)
+        {
+          throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The 2FA code is invalid.");
+        }
       }
       else if (!string.IsNullOrEmpty(loginRequestBusinessModel.TwoFactorRecoveryCode))
       {
         loginResult = await _signInManager.TwoFactorRecoveryCodeSignInAsync(loginRequestBusinessModel.TwoFactorRecoveryCode);
+        if (!loginResult.Succeeded)
+        {
+          throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The recovery code is invalid.");
+        }
       }
       else
       {
@@ -126,7 +134,14 @@ public class AuthService(
     }
     if (!loginResult.Succeeded)
     {
-      throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), loginResult.ToString());
+      if (loginResult.IsLockedOut)
+      {
+        throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The account is locked.");
+      }
+      else
+      {
+        throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The username or password is invalid.");
+      }
     }
 
     var notBefore = DateTime.UtcNow;
