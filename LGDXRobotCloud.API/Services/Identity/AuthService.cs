@@ -136,7 +136,7 @@ public class AuthService(
     {
       if (loginResult.IsLockedOut)
       {
-        throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The account is locked.");
+        throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The account is lockedout.");
       }
       else
       {
@@ -203,8 +203,7 @@ public class AuthService(
 			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobotCloudSecretConfiguration.LgdxUserJwtSecret)),
 			ClockSkew = TimeSpan.Zero
 		};
-    ClaimsPrincipal principal = tokenHandler.ValidateToken(refreshTokenRequestBusinessModel.RefreshToken, validationParameters, out SecurityToken validatedToken) 
-      ?? throw new LgdxValidation400Expection(nameof(refreshTokenRequestBusinessModel.RefreshToken), "Invalid refresh token.");
+    ClaimsPrincipal principal = tokenHandler.ValidateToken(refreshTokenRequestBusinessModel.RefreshToken, validationParameters, out SecurityToken validatedToken);
 
     // The token is valid, check the database
     var userId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
