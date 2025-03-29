@@ -7,7 +7,12 @@
       "library": "@tabler/core@1.1.1",
       "destination": "wwwroot/libs/tabler",
       "files":[
-        "dist/**"
+        "dist/css/tabler.min.css",
+        "dist/css/tabler.min.css.map",
+        "dist/css/tabler-vendors.min.css",
+        "dist/css/tabler-vendors.min.css.map",
+        "dist/js/tabler.min.js",
+        "dist/js/tabler.min.js.map"
       ]
     },
     {
@@ -16,7 +21,19 @@
       "destination": "wwwroot/libs/tabler-icons",
       "files": [
         "dist/tabler-icons.min.css",
+        "dist/tabler-icons.min.css.map",
         "dist/fonts/*"
+      ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "tom-select@latest",
+      "destination": "wwwroot/libs/tom-select",
+      "files":[
+        "dist/js/tom-select.base.min.js",
+        "dist/js/tom-select.base.min.js.map",
+        "dist/css/tom-select.bootstrap5.css",
+        "dist/css/tom-select.bootstrap5.css.map"
       ]
     },
     {

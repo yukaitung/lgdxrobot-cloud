@@ -34,7 +34,7 @@ public class RoleService(
     if (!string.IsNullOrWhiteSpace(name))
     {
       name = name.Trim().ToUpper();
-      query = query.Where(u => u.NormalizedName!.Contains(name));
+      query = query.Where(u => u.NormalizedName!.Contains(name.ToUpper()));
     }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
@@ -178,7 +178,7 @@ public class RoleService(
   {
     var n = name ?? string.Empty;
     return await _context.Roles.AsNoTracking()
-      .Where(r => r.NormalizedName!.Contains(n))
+      .Where(r => r.NormalizedName!.Contains(n.ToUpper()))
       .Take(10)
       .Select(t => new LgdxRoleSearchBusinessModel {
         Id = Guid.Parse(t.Id!),

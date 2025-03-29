@@ -35,7 +35,7 @@ public class UserService(
     if (!string.IsNullOrWhiteSpace(name))
     {
       name = name.Trim().ToUpper();
-      query = query.Where(u => u.NormalizedUserName!.Contains(name));
+      query = query.Where(u => u.NormalizedUserName!.Contains(name.ToUpper()));
     }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);

@@ -1,16 +1,18 @@
 @if (Errors != null && Errors.Any())
 {
-  <div class="alert alert-warning" role="alert">
+  <div class="alert alert-important alert-warning" role="alert">
     <div class="d-flex">
       <i class="me-2 ti ti-exclamation-circle" style="font-size: 22px;"></i>
       <div>
-        A few things need fixing before submission.
-        <ul class="mb-0 mt-1">
-          @foreach (string error in Errors)
-          {
-            <li>@(error)</li>
-          }
-        </ul>
+        <h4 class="alert-heading">A few things need fixing before submission:</h4>
+        <div class="alert-description">
+          <ul class="alert-list">
+            @foreach (string error in Errors)
+            {
+              <li>@(error)</li>
+            }
+          </ul>
+        </div>
       </div>
     </div>
   </div>
