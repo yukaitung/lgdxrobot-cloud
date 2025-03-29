@@ -17,11 +17,9 @@ public interface ICurrentUserService
 }
 
 public class CurrentUserService(
-  SignInManager<LgdxUser> signInManager,
     UserManager<LgdxUser> userManager
   ) : ICurrentUserService
 {
-  private readonly SignInManager<LgdxUser> _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
   public async Task<LgdxUserBusinessModel> GetUserAsync(string userId)
@@ -84,13 +82,11 @@ public class CurrentUserService(
 
     if (string.IsNullOrEmpty(twoFactorCode))
     {
-      throw new LgdxValidation400Expection("RequiresTwoFactor",
-        "No 2fa token was provided by the request. A valid 2fa token is required to enable 2fa.");
+      throw new LgdxValidation400Expection("RequiresTwoFactor", "The 2FA code is required.");
     }
     if (!await _userManager.VerifyTwoFactorTokenAsync(user, _userManager.Options.Tokens.AuthenticatorTokenProvider, twoFactorCode))
       {
-        throw new LgdxValidation400Expection("InvalidTwoFactorCode",
-          "The 2fa token provided by the request was invalid. A valid 2fa token is required to enable 2fa.");
+        throw new LgdxValidation400Expection("InvalidTwoFactorCode", "The 2FA code is invalid.");
       }
     await _userManager.SetTwoFactorEnabledAsync(user, true);
 
