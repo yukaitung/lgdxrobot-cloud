@@ -48,7 +48,7 @@
         </div>
         <div class="mb-3 row">
           <label class="col-3 col-form-label" for="Scopes">Scopes</label>
-          <div class="col">
+          <div class="col d-flex flex-column">
             <InformationModal>
               The permission field is mandatory.
             </InformationModal>
@@ -101,11 +101,9 @@
                 }
               </tbody>
             </table>
-            <div class="row">
-              <button type="button" class="btn btn-secondary w-8 mx-auto mb-3" @onclick="ListAddScope">
-                Add Scope
-              </button>
-            </div>
+            <button type="button" class="btn btn-secondary align-self-center" @onclick="ListAddScope">
+              Add Scope
+            </button>
           </div>
         </div>
       </div>

@@ -129,7 +129,7 @@
         }
         <div class="mb-3 row">
           <label class="col-2 col-form-label">Waypoints</label>
-          <div class="col">
+          <div class="col d-flex flex-column">
             <table class="table table-vcenter text-nowrap datatable">
               <thead>
                 <tr>
@@ -138,10 +138,10 @@
                   {
                     <th class="w-1"></th>
                   }
-                  <th style="width:250px">Waypoint</th>
-                  <th>X</th>
-                  <th>Y</th>
-                  <th>Rotation</th>
+                  <th class="w-25">Waypoint</th>
+                  <th class="w-25">X</th>
+                  <th class="w-25">Y</th>
+                  <th class="w-25">Rotation</th>
                   @if (IsEditable())
                   {
                     <th class="w-1"></th>
@@ -177,7 +177,7 @@
                     <td>
                       @if (IsEditable())
                       {
-                        <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control form-control"
+                        <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control"
                           @bind-Value="taskDetail.WaypointId">
                           @if (taskDetail.WaypointName != null)
                           {
@@ -193,7 +193,7 @@
                     <td>
                       @if (IsEditable())
                       {
-                        <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX">
+                        <input type="text" class="form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX">
                       }
                       else
                       {
@@ -203,7 +203,7 @@
                     <td>
                       @if (IsEditable())
                       {
-                        <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY">
+                        <input type="text" class="form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY">
                       }
                       else
                       {
@@ -213,7 +213,7 @@
                     <td>
                       @if (IsEditable())
                       {
-                        <input type="text" class="form-control form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation">
+                        <input type="text" class="form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation">
                       }
                       else
                       {
@@ -236,11 +236,9 @@
             </table>
             @if (IsEditable())
             {
-              <div class="row">
-                <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="TaskAddStep">
-                  Add Step
-                </button>
-              </div>
+              <button type="button" class="btn btn-secondary align-self-center" @onclick="TaskAddStep">
+                Add Waypoint
+              </button>
             }
           </div>
         </div>

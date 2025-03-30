@@ -42,7 +42,7 @@
         </div>
         <div class="mb-3 row">
           <label class="col-2 col-form-label required">Flow Detail</label>
-          <div class="col">
+          <div class="col d-flex flex-column">
             <div class="invalid-feedback" style="display: block;">@_editContext.GetValidationMessages(() => FlowDetailViewModel.FlowDetails).FirstOrDefault()</div>
             <InformationModal>
               1. The "Moving" progress should be included in the flow.<br />
@@ -54,7 +54,7 @@
                   <th class="w-1">@(Id != null ? "Id" : "Order")</th>
                   <th class="w-1"></th>
                   <th class="w-25">Progress Name</th>
-                  <th>Proceed Condition</th>
+                  <th class="w-25">Proceed Condition</th>
                   <th class="w-25">Trigger</th>
                   <th class="w-1"><!-- Action --></th>
                 </tr>
@@ -74,10 +74,10 @@
                       }
                     </td>
                     <td>
-                      <button type="button" class="btn btn-ghost-secondary btn-icon @(i < 1 ? "disabled" : "")" @onclick="e => FlowStepMoveUp(index)">
+                      <button type="button" class="btn btn-ghost-secondary btn-icon" @onclick="e => FlowStepMoveUp(index)" disabled="@(i < 1)">
                         <i class="ti ti-arrow-up" style="font-size: 16px;"></i>
                       </button>
-                      <button type="button" class="btn btn-ghost-secondary btn-icon @(i >= FlowDetailViewModel.FlowDetails.Count() - 1 ? "disabled" : "")"  @onclick="e => FlowStepMoveDown(index)">
+                      <button type="button" class="btn btn-ghost-secondary btn-icon"  @onclick="e => FlowStepMoveDown(index)" disabled="@(i >= FlowDetailViewModel.FlowDetails.Count() - 1)">
                         <i class="ti ti-arrow-down" style="font-size: 16px;"></i>
                       </button>
                     </td>
@@ -106,7 +106,7 @@
                       </InputSelect>
                     </td>
                     <td>
-                      <button type="button" class="btn btn-ghost-danger btn-icon @(FlowDetailViewModel.FlowDetails.Count() <= 1 ? "disabled" : "")" @onclick="e => FlowRemoveStep(index)">
+                      <button type="button" class="btn btn-ghost-danger btn-icon" @onclick="e => FlowRemoveStep(index)" disabled="@(FlowDetailViewModel.FlowDetails.Count() <= 1)">
                         <i class="ti ti-trash" style="font-size: 16px;"></i>
                       </button>
                     </td>
@@ -114,11 +114,9 @@
                 }
               </tbody>
             </table>
-            <div class="row">
-              <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="FlowAddStep">
-                Add Process
-              </button>
-            </div>
+            <button type="button" class="btn btn-secondary align-self-center" @onclick="FlowAddStep">
+              Add Process
+            </button>
           </div>
         </div>
       </div>

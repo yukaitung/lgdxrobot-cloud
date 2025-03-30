@@ -68,7 +68,7 @@
         }
         <div class="mb-3 row">
           <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Roles)">Roles</label>
-          <div class="col">
+          <div class="col d-flex flex-column">
             <table class="table table-vcenter text-nowrap datatable">
               <thead>
                 <tr>
@@ -94,20 +94,18 @@
                     </td>
                     <td>
                       <button type="button"
-                        class="btn btn-ghost-danger btn-icon @(UserDetailViewModel.Roles.Count <= 1 ? "disabled" : "")"
-                        @onclick="e => ListRemoveRole(index)">
-                        <i class="ti ti-trash" style="font-size: 16px;"></i>
+                        class="btn btn-ghost-danger btn-icon"
+                        @onclick="e => ListRemoveRole(index)" disabled="@(UserDetailViewModel.Roles.Count <= 1)">
+                          <i class="ti ti-trash" style="font-size: 16px;"></i>
                       </button>
                     </td>
                   </tr>
                 }
               </tbody>
             </table>
-            <div class="row">
-              <button type="button" class="btn btn-secondary w-8 mx-auto mb-3" @onclick="ListAddRole">
-                Add Role
-              </button>
-            </div>
+            <button type="button" class="btn btn-secondary align-self-center" @onclick="ListAddRole">
+              Add Role
+            </button>
           </div>
         </div>
         @if (Id != null)

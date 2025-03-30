@@ -178,12 +178,22 @@ function AdvanceControlExchange(elementList, indexA, indexB, isDelete = false) {
     let idB = AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].getValue();
     let objA = {Id: idA, Name: idA ? AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].options[idA].Name: ""};
     let objB = {Id: idB, Name: idB ? AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].options[idB].Name: ""};
+    console.log(objA);
+    console.log(objB);
       AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].clearOptions();
-      AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].addOption(objB);
+      AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].addItem(objB.Id, true);
+      if (objB.Id.length > 0)
+      {
+        AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].addOption(objB);
+      }
       AdvancedSelectDict[elementList[i] + indexA + TOM_SELECT_OBJECT].setValue(objB.Id);
     if (isDelete != true) {
       AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].clearOptions();
-      AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].addOption(objA);
+      AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].addItem(objA.Id, true);
+      if (objA.Id.length > 0)
+      {
+        AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].addOption(objA);
+      }
       AdvancedSelectDict[elementList[i] + indexB + TOM_SELECT_OBJECT].setValue(objA.Id);
     }
   }

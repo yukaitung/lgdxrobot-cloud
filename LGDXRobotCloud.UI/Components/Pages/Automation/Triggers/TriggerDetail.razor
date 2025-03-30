@@ -60,7 +60,7 @@
         </div>
         <div class="mb-3 row">
           <label class="col-3 col-form-label" for="Body">Body</label>
-          <div class="col">
+          <div class="col d-flex flex-column">
             <table class="table table-vcenter text-nowrap datatable">
               <thead>
                 <tr>
@@ -96,7 +96,7 @@
                     </td>
                     <td>
                       <button type="button"
-                        class="btn btn-ghost-danger btn-icon btn @(TriggerDetailViewModel.BodyDataList.Count <= 1 ? "disabled" : "")" @onclick="e => BodyRemoveStep(index)">
+                        class="btn btn-ghost-danger btn-icon btn" @onclick="e => BodyRemoveStep(index)">
                         <i class="ti ti-trash" style="font-size: 16px;"></i>
                       </button>
                     </td>
@@ -104,11 +104,9 @@
                 }
               </tbody>
             </table>
-            <div class="row">
-              <button type="button" class="btn btn-secondary w-8 mx-auto" @onclick="BodyAddStep">
-                Add Value
-              </button>
-            </div>
+            <button type="button" class="btn btn-secondary align-self-center" @onclick="BodyAddStep">
+              Add Data
+            </button>
           </div>
         </div>
         <div class="mb-3 row">
