@@ -298,6 +298,7 @@ public class AuthServiceTests
 
     // Assert
     var exception = await Assert.ThrowsAsync<LgdxValidation400Expection>(act);
+    Assert.Equal("The username or password is invalid.", exception.Message);
     mockUserManager.Verify(m => m.FindByNameAsync(It.IsAny<string>()), Times.Once);
     mockSignInManager.Verify(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true), Times.Never);
     mockUserManager.Verify(m => m.GetRolesAsync(It.IsAny<LgdxUser>()), Times.Never);
@@ -497,7 +498,7 @@ public class AuthServiceTests
 
     // Assert
     var exception = await Assert.ThrowsAsync<LgdxValidation400Expection>(act);
-    Assert.Equal("The username or password is invalid.", exception.Message);
+    Assert.Equal("User not found.", exception.Message);
     mockUserManager.Verify(m => m.FindByNameAsync(It.IsAny<string>()), Times.Once);
     mockUserManager.Verify(m => m.UpdateAsync(It.IsAny<LgdxUser>()), Times.Once);
   }
