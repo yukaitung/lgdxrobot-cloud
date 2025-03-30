@@ -116,6 +116,12 @@
               <div class="col form-control-plaintext">@UserDetailViewModel.AccessFailedCount</div>
             </div>
           </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Two-Factor Authentication</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@(UserDetailViewModel.TwoFactorEnabled ? "Enable" : "Disable")</div>
+            </div>
+          </div>
         }
       </div>
       <div class="card-footer d-flex">
