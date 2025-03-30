@@ -17,6 +17,8 @@ public record LgdxUserBusinessModel
   public required bool TwoFactorEnabled { get; set; }
 
   public required int AccessFailedCount { get; set; }
+
+  public DateTime? LockoutEnd { get; set; }
 }
 
 public static class LgdxUserBusinessModelExtensions
@@ -31,6 +33,7 @@ public static class LgdxUserBusinessModelExtensions
       Roles = model.Roles,
       TwoFactorEnabled = model.TwoFactorEnabled,
       AccessFailedCount = model.AccessFailedCount,
+      LockoutEnd = model.LockoutEnd
     };
   }
 }

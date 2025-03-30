@@ -100,7 +100,7 @@ public class AuthService(
   public async Task<LoginResponseBusinessModel> LoginAsync(LoginRequestBusinessModel loginRequestBusinessModel)
   {
     var user = await _userManager.FindByNameAsync(loginRequestBusinessModel.Username) 
-      ?? throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The user does not exist.");
+      ?? throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The username or password is invalid.");
 
     var loginResult = await _signInManager.PasswordSignInAsync(user, loginRequestBusinessModel.Password, false, true);
     if (loginResult.RequiresTwoFactor)

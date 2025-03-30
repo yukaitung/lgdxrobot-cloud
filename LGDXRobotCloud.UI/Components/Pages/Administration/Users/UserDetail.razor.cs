@@ -83,6 +83,19 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
     InitaisedAdvanceSelect--;
   }
 
+  public async Task HandleUnlockUser()
+  {
+    try
+    {
+      await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].Unlock.PatchAsync();
+      UserDetailViewModel.LockoutEnd = null;
+    }
+    catch (ApiException ex)
+    {
+      UserDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
+  }
+
   public async Task HandleValidSubmit()
   {
     try

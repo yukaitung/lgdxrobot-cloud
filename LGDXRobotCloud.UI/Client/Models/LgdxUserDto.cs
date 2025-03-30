@@ -26,6 +26,8 @@ namespace LGDXRobotCloud.UI.Client.Models
 #endif
         /// <summary>The id property</summary>
         public Guid? Id { get; set; }
+        /// <summary>The lockoutEnd property</summary>
+        public DateTimeOffset? LockoutEnd { get; set; }
         /// <summary>The name property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -80,6 +82,7 @@ namespace LGDXRobotCloud.UI.Client.Models
                 { "accessFailedCount", n => { AccessFailedCount = n.GetIntValue(); } },
                 { "email", n => { Email = n.GetStringValue(); } },
                 { "id", n => { Id = n.GetGuidValue(); } },
+                { "lockoutEnd", n => { LockoutEnd = n.GetDateTimeOffsetValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
                 { "roles", n => { Roles = n.GetCollectionOfPrimitiveValues<string>()?.AsList(); } },
                 { "twoFactorEnabled", n => { TwoFactorEnabled = n.GetBoolValue(); } },
@@ -96,6 +99,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             writer.WriteIntValue("accessFailedCount", AccessFailedCount);
             writer.WriteStringValue("email", Email);
             writer.WriteGuidValue("id", Id);
+            writer.WriteDateTimeOffsetValue("lockoutEnd", LockoutEnd);
             writer.WriteStringValue("name", Name);
             writer.WriteCollectionOfPrimitiveValues<string>("roles", Roles);
             writer.WriteBoolValue("twoFactorEnabled", TwoFactorEnabled);

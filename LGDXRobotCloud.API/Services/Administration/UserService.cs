@@ -66,6 +66,7 @@ public class UserService(
       Roles = roles,
       TwoFactorEnabled = user.TwoFactorEnabled,
       AccessFailedCount = user.AccessFailedCount,
+      LockoutEnd = user.LockoutEnd?.DateTime,
     };
   }
 

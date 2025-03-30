@@ -15,4 +15,6 @@ public record LgdxUserDto
   public required bool TwoFactorEnabled { get; set; }
   
   public required int AccessFailedCount { get; set; }
+
+  public DateTime? LockoutEnd { get; set; }
 }

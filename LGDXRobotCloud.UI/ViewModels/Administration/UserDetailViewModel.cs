@@ -26,6 +26,8 @@ public class UserDetailViewModel : FormViewModel, IValidatableObject
   
   public int AccessFailedCount { get; set; }
 
+  public DateTimeOffset? LockoutEnd { get; set; }
+
   public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
   {
     if (Roles.Count == 0)
@@ -55,6 +57,7 @@ public static class UserDetailViewModelExtensions
     userDetailViewModel.Roles = lgdxUserDto.Roles!;
     userDetailViewModel.TwoFactorEnabled = (bool)lgdxUserDto.TwoFactorEnabled!;
     userDetailViewModel.AccessFailedCount = (int)lgdxUserDto.AccessFailedCount!;
+    userDetailViewModel.LockoutEnd = lgdxUserDto.LockoutEnd;
   }
 
   public static LgdxUserUpdateAdminDto ToUpdateDto(this UserDetailViewModel userDetailViewModel)
