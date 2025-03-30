@@ -21,6 +21,9 @@ public sealed partial class Login : ComponentBase
   public required ITokenService TokenService { get; set; }
 
   [Inject]
+  public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
   [CascadingParameter]
@@ -90,6 +93,15 @@ public sealed partial class Login : ComponentBase
           ExpiresUtc = refreshToken.ValidTo
         });
       TokenService.Login(user, loginResponse!.AccessToken!, loginResponse!.RefreshToken!, accessToken.ValidTo, refreshToken.ValidTo);
+
+      // Setup session data
+      var sessionSettings = TokenService.GetSessionSettings(user);
+      if (sessionSettings.CurrentRealmId == 0)
+      {
+        var realm = await CachedRealmService.GetDefaultRealmAsync();
+        TokenService.UpdateSessionSettings(user, new SessionSettings { CurrentRealmId = realm.Id ?? 0 });
+      }
+
       NavigationManager.NavigateTo(ReturnUrl ?? "/");
     }
     catch (ApiException ex)

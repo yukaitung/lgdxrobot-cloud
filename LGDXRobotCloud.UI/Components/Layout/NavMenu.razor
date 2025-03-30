@@ -2,18 +2,22 @@
 
 <aside class="navbar navbar-vertical navbar-expand-lg">
 	<div class="container-fluid">
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
+		<!-- Mobile Header Beign -->
+		<button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
 			aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<h1 class="navbar-brand navbar-brand-autodark sidebar-logo sidebar-item no-focus">
+		<h1 class="navbar-brand navbar-brand-autodark sidebar-logo sidebar-item">
 			<a href="">
-				<img src="/img/logo.png" height="32" alt="LGDXRobot Cloud" class="navbar-brand-image">
+				<img class="navbar-brand-image" src="/img/logo.png" height="32" alt="LGDXRobot Cloud">
 			</a>
 		</h1>
 		<div class="nav-item sidebar-item">
 			<UserMenu />
 		</div>
+		<!-- Mobile Header End -->
+
+		<!-- Menu -->
 		<div class="collapse navbar-collapse" id="sidebar-menu">
 			<ul class="navbar-nav">
 				<NavItem href="" Match="NavLinkMatch.All">
