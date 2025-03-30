@@ -2,7 +2,7 @@ using LGDXRobotCloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
-namespace LGDXRobotCloud.UI.Components.Layout;
+namespace LGDXRobotCloud.UI.Components.Shared.Layout;
 
 public sealed partial class ChangeRealmButton : ComponentBase
 {

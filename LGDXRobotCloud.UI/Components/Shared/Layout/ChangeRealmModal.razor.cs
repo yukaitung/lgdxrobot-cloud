@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 
-namespace LGDXRobotCloud.UI.Components.Layout;
+namespace LGDXRobotCloud.UI.Components.Shared.Layout;
 
 public sealed partial class ChangeRealmModal : ComponentBase, IDisposable
 {
