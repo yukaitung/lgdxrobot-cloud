@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 var builder = Host.CreateApplicationBuilder(args);
-builder.Configuration.AddJsonFile("secrets.json", true, true);
+builder.Configuration.AddUserSecrets<Program>();
 
 /*
  * Configuration
@@ -22,7 +22,6 @@ builder.Services.Configure<EmailLinksConfiguration>(
 /*
  * Infrastructure
  */
-var connectionString = builder.Configuration["MySQLConnectionString"];
 builder.Services.AddDbContextPool<LgdxContext>(cfg => 
   cfg.UseNpgsql(builder.Configuration["PGSQLConnectionString"])
 	.LogTo(Console.WriteLine, LogLevel.Information)

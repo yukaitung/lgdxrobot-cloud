@@ -15,7 +15,6 @@ using Microsoft.Kiota.Http.HttpClientLibrary.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Configuration.AddJsonFile("secrets.json", true, true);
 builder.Services.AddMassTransit(cfg =>
 {
 	var entryAssembly = Assembly.GetEntryAssembly();
