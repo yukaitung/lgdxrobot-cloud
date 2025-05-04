@@ -102,7 +102,7 @@ public sealed partial class Login : ComponentBase
         TokenService.UpdateSessionSettings(user, new SessionSettings { CurrentRealmId = realm.Id ?? 0 });
       }
 
-      NavigationManager.NavigateTo(ReturnUrl ?? "/");
+      NavigationManager.NavigateTo(string.IsNullOrWhiteSpace(ReturnUrl) ? "/" : ReturnUrl);
     }
     catch (ApiException ex)
     {
