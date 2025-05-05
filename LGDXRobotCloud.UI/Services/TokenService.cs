@@ -144,7 +144,10 @@ public class TokenService : ITokenService
   public void UpdateSessionSettings(ClaimsPrincipal user, SessionSettings sessionSettings)
   {
     Tokens.TryGetValue(GenerateAccessKey(user), out Token? token);
-    token!.SessionSettings = sessionSettings;
+    if (token == null)
+      return;
+
+    token.SessionSettings = sessionSettings;
     Tokens.TryUpdate(GenerateAccessKey(user), token, token);
   }
 

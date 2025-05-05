@@ -5,6 +5,7 @@ using LGDXRobotCloud.Data.Models.Business.Identity;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobotCloud.Utilities.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ namespace LGDXRobotCloud.API.Areas.Identity.Controllers;
 [ApiController]
 [Area("Identity")]
 [Route("[area]/[controller]")]
+[Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificationScheme)]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public sealed class UserController(
     IAuthService authService,

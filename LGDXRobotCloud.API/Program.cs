@@ -1,3 +1,4 @@
+using LGDXRobotCloud.API.Authentication;
 using LGDXRobotCloud.API.Authorisation;
 using LGDXRobotCloud.API.Configurations;
 using LGDXRobotCloud.API.Middleware;
@@ -81,8 +82,8 @@ builder.Services.AddIdentity<LgdxUser, LgdxRole>()
 	.AddEntityFrameworkStores<LgdxContext>()
 	.AddTokenProvider<AuthenticatorTokenProvider<LgdxUser>>(TokenOptions.DefaultAuthenticatorProvider)
 	.AddTokenProvider<DataProtectorTokenProvider<LgdxUser>>(TokenOptions.DefaultProvider);
-builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.RobotApiOrCertificateScheme)
-	.AddCertificate(LgdxRobotCloudAuthenticationSchemes.RobotApiOrCertificateScheme, cfg =>
+builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.CertificationScheme)
+	.AddCertificate(LgdxRobotCloudAuthenticationSchemes.CertificationScheme, cfg =>
 		{
 			cfg.AllowedCertificateTypes = CertificateTypes.All;
 			cfg.RevocationMode = X509RevocationMode.NoCheck;
@@ -100,6 +101,11 @@ builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.RobotApiO
 				}
 			};
 		}
+	);
+builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.ApiKeyScheme)
+	.AddScheme<ApiKeyAuthenticationSchemeOptions, ApiKeyAuthenticationSchemeHandler>(
+		LgdxRobotCloudAuthenticationSchemes.ApiKeyScheme,
+		options => {}
 	);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(cfg =>

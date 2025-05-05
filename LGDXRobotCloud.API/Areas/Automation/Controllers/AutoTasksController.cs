@@ -5,6 +5,7 @@ using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobotCloud.Utilities.Constants;
 using LGDXRobotCloud.Utilities.Enums;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +18,7 @@ namespace LGDXRobotCloud.API.Areas.Automation.Controllers;
 [ApiController]
 [Area("Automation")]
 [Route("[area]/[controller]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class AutoTasksController(
     IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration,
@@ -29,6 +30,7 @@ public sealed class AutoTasksController(
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<AutoTaskListDto>), StatusCodes.Status200OK)]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   public async Task<ActionResult<IEnumerable<AutoTaskListDto>>> GetTasks(int? realmId, string? name, AutoTaskCatrgory? autoTaskCatrgory, int pageNumber = 1, int pageSize = 10)
   {
     pageSize = (pageSize > _lgdxRobotCloudConfiguration.ApiMaxPageSize) ? _lgdxRobotCloudConfiguration.ApiMaxPageSize : pageSize;
@@ -40,6 +42,7 @@ public sealed class AutoTasksController(
   [HttpGet("{id}", Name = "GetTask")]
   [ProducesResponseType(typeof(AutoTaskDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   public async Task<ActionResult<AutoTaskDto>> GetTask(int id)
   {
     var autoTask = await _autoTaskService.GetAutoTaskAsync(id);
@@ -49,6 +52,7 @@ public sealed class AutoTasksController(
   [HttpPost("")]
   [ProducesResponseType(typeof(AutoTaskDto), StatusCodes.Status201Created)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   public async Task<ActionResult> CreateTask(AutoTaskCreateDto autoTaskCreateDto)
   {
     var autoTask = await _autoTaskService.CreateAutoTaskAsync(autoTaskCreateDto.ToBusinessModel());
@@ -59,6 +63,7 @@ public sealed class AutoTasksController(
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   public async Task<ActionResult> UpdateTask(int id, AutoTaskUpdateDto autoTaskUpdateDto)
   {
     await _autoTaskService.UpdateAutoTaskAsync(id, autoTaskUpdateDto.ToBusinessModel());
@@ -69,6 +74,7 @@ public sealed class AutoTasksController(
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   public async Task<ActionResult> DeleteTask(int id)
   {
     await _autoTaskService.DeleteAutoTaskAsync(id);
@@ -79,13 +85,13 @@ public sealed class AutoTasksController(
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   public async Task<ActionResult> AbortTask(int id)
   {
     await _autoTaskService.AbortAutoTaskAsync(id);
     return NoContent();
   }
 
-  [AllowAnonymous]
   [HttpPost("{id}/Next")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]

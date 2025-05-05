@@ -10,12 +10,14 @@ using LGDXRobotCloud.Data.Models.DTOs.V1.Commands;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
+using LGDXRobotCloud.Utilities.Constants;
 
 namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 
 [ApiController]
 [Area("Navigation")]
 [Route("[area]/[controller]")]
+[Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificationScheme)]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class RobotsController(

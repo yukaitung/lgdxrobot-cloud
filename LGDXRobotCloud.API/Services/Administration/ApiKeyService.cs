@@ -5,6 +5,7 @@ using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobotCloud.API.Services.Administration;
 
@@ -19,11 +20,16 @@ public interface IApiKeyService
   Task<bool> DeleteApiKeyAsync(int apiKeyId);
 
   Task<IEnumerable<ApiKeySearchBusinessModel>> SearchApiKeysAsync(string? name);
+  Task<bool> ValidateApiKeyAsync(string apiKey);
 }
 
-public class ApiKeyService(LgdxContext context) : IApiKeyService
+public class ApiKeyService(
+    IMemoryCache memoryCache,
+    LgdxContext context
+  ) : IApiKeyService
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
   public async Task<(IEnumerable<ApiKeyBusinessModel>, PaginationHelper)>GetApiKeysAsync(string? name, bool isThirdParty, int pageNumber, int pageSize)
   {
@@ -84,7 +90,8 @@ public class ApiKeyService(LgdxContext context) : IApiKeyService
 
   public async Task<ApiKeyBusinessModel> AddApiKeyAsync(ApiKeyCreateBusinessModel apiKeyCreateBusinessModel)
   {
-    apiKeyCreateBusinessModel.Secret ??= GenerateApiKeys();
+    if (!apiKeyCreateBusinessModel.IsThirdParty)
+      apiKeyCreateBusinessModel.Secret = GenerateApiKeys();
     var apikey = apiKeyCreateBusinessModel.ToEntity();
     await _context.ApiKeys.AddAsync(apikey);
     await _context.SaveChangesAsync();
@@ -134,5 +141,27 @@ public class ApiKeyService(LgdxContext context) : IApiKeyService
         Name = t.Name,
       })
       .ToListAsync();
+  }
+
+  public async Task<bool> ValidateApiKeyAsync(string apiKey)
+  {
+    string hashed = LgdxHelper.GenerateSha256Hash(apiKey);
+    _memoryCache.TryGetValue($"ValidateApiKeyAsync_{hashed}", out bool? exist);
+    if (exist != null)
+    {
+      return (bool)exist;
+    }
+
+    var result = await _context.ApiKeys.AsNoTracking()
+      .Where(a => a.Secret == apiKey)
+      .Where(a => !a.IsThirdParty)
+      .AnyAsync();
+
+    if (result)
+    {
+      _memoryCache.Set($"ValidateApiKeyAsync_{hashed}", true, TimeSpan.FromMinutes(5));
+    }
+
+    return result;
   }
 }

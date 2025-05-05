@@ -4,6 +4,8 @@ using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
+using Microsoft.Extensions.Caching.Memory;
+using Moq;
 
 namespace LGDXRobotCloud.API.UnitTests.Services.Administration;
 
@@ -37,7 +39,8 @@ public class ApiKeyServiceTests
   ];
 
   private readonly LgdxContext lgdxContext;
-
+  private readonly Mock<IMemoryCache> mockMemoryCache = new();
+  
   public ApiKeyServiceTests()
   {
     lgdxContext = Create.MockedDbContextFor<LgdxContext>();
@@ -49,7 +52,7 @@ public class ApiKeyServiceTests
   public async Task GetApiKeysAsync_CalledWithLgdxApiKey_ShouldReturnLgdxApiKeys()
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
     var expected = apiKeyTestData.Where(a => a.IsThirdParty == false).ToList();
 
     // Act
@@ -69,7 +72,7 @@ public class ApiKeyServiceTests
   public async Task GetApiKeysAsync_CalledWithThirdPartyApiKey_ShouldReturnThirdPartyApiKeys()
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
     var expected = apiKeyTestData.Where(a => a.IsThirdParty == true).ToList();
 
     // Act
@@ -94,7 +97,7 @@ public class ApiKeyServiceTests
   {
     // Arrange
     bool isThirdParty = false;
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
     var expected = apiKeyTestData.Where(a => a.Name.Contains(name) && a.IsThirdParty == isThirdParty).ToList();
 
     // Act
@@ -116,7 +119,7 @@ public class ApiKeyServiceTests
   public async Task GetApiKeyAsync_CalledWithApiKeyId_ShouldReturnApiKey(int apiKeyId)
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
     var expected = apiKeyTestData.First(a => a.Id == apiKeyId);
 
     // Act
@@ -132,7 +135,7 @@ public class ApiKeyServiceTests
   public async Task GetApiKeyAsync_CalledWithInvalidApiKeyId_ShouldReturnLgdxNotFound404Exception()
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
 
     // Act
     Task act() => apiKeyService.GetApiKeyAsync(apiKeyTestData.Count + 1);
@@ -149,7 +152,7 @@ public class ApiKeyServiceTests
   public async Task GetApiKeySecretAsync_CalledWithApiKeyId_ShouldReturnApiKeySecret(int apiKeyId)
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
 
     // Act
     var result = await apiKeyService.GetApiKeySecretAsync(apiKeyId);
@@ -162,7 +165,7 @@ public class ApiKeyServiceTests
   public async Task GetApiKeySecretAsync_CalledWithInvalidApiKeyId_ShouldReturnLgdxNotFound404Exception()
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
 
     // Act
     Task act() => apiKeyService.GetApiKeySecretAsync(apiKeyTestData.Count + 1);
@@ -177,7 +180,7 @@ public class ApiKeyServiceTests
   public async Task AddApiKeyAsync_CalledWithApiKey_ShouldReturnApiKey(bool isThirdParty)
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
     var apiKeyCreateBusinessModel = new ApiKeyCreateBusinessModel {
       Name = "Test API Key",
       IsThirdParty = isThirdParty
@@ -197,7 +200,7 @@ public class ApiKeyServiceTests
   public async Task UpdateApiKeySecretAsync_CalledWithThirdPartyApiKey_ShouldReturnTrue(int apiKeyId, string secret)
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
     var apiKeyUpdateBusinessModel = new ApiKeySecretUpdateBusinessModel {
       Secret = secret
     };
@@ -214,7 +217,7 @@ public class ApiKeyServiceTests
   public async Task UpdateApiKeySecretAsync_CalledWithInvalidApiKeyId_ShouldReturnLgdxNotFound404Exception()
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
     var apiKeyUpdateBusinessModel = new ApiKeySecretUpdateBusinessModel {
       Secret = "New Secret"
     };
@@ -230,7 +233,7 @@ public class ApiKeyServiceTests
   public async Task UpdateApiKeySecretAsync_CalledWithLgdxApiKey_ShouldReturnLgdxValidation400Expection()
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
     var apiKeyUpdateBusinessModel = new ApiKeySecretUpdateBusinessModel {
       Secret = "New Secret"
     };
@@ -251,7 +254,7 @@ public class ApiKeyServiceTests
   public async Task SearchApiKeysAsync_CalledWithName_ShouldReturnApiKeysWithName(string name)
   {
     // Arrange
-    var apiKeyService = new ApiKeyService(lgdxContext);
+    var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
     var expected = apiKeyTestData.Where(a => a.Name.Contains(name)).Where(a => a.IsThirdParty == true).ToList();
 
     // Act
