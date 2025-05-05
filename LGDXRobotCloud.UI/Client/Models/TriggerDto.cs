@@ -52,8 +52,6 @@ namespace LGDXRobotCloud.UI.Client.Models
 #else
         public string Name { get; set; }
 #endif
-        /// <summary>The skipOnFailure property</summary>
-        public bool? SkipOnFailure { get; set; }
         /// <summary>The url property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -94,7 +92,6 @@ namespace LGDXRobotCloud.UI.Client.Models
                 { "httpMethodId", n => { HttpMethodId = n.GetIntValue(); } },
                 { "id", n => { Id = n.GetIntValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
-                { "skipOnFailure", n => { SkipOnFailure = n.GetBoolValue(); } },
                 { "url", n => { Url = n.GetStringValue(); } },
             };
         }
@@ -112,7 +109,6 @@ namespace LGDXRobotCloud.UI.Client.Models
             writer.WriteIntValue("httpMethodId", HttpMethodId);
             writer.WriteIntValue("id", Id);
             writer.WriteStringValue("name", Name);
-            writer.WriteBoolValue("skipOnFailure", SkipOnFailure);
             writer.WriteStringValue("url", Url);
             writer.WriteAdditionalData(AdditionalData);
         }

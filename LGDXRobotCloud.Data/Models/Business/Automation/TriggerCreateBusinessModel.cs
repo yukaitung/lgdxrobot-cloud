@@ -9,8 +9,6 @@ public record TriggerCreateBusinessModel
   public required int HttpMethodId { get; set; }
 
   public string? Body { get; set; }
-
-  public bool SkipOnFailure { get; set; } = false;
   
   public int? ApiKeyInsertLocationId { get; set; }
 

@@ -11,8 +11,6 @@ public record TriggerDto
   public required int HttpMethodId { get; set; }
 
   public string? Body { get; set; }
-
-  public required bool SkipOnFailure { get; set; }
   
   public int? ApiKeyInsertLocationId { get; set; }
 

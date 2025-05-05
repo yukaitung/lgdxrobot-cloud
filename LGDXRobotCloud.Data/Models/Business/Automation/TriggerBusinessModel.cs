@@ -13,8 +13,6 @@ public record TriggerBusinessModel
   public required int HttpMethodId { get; set; }
 
   public string? Body { get; set; }
-
-  public required bool SkipOnFailure { get; set; }
   
   public int? ApiKeyInsertLocationId { get; set; }
 
@@ -35,7 +33,6 @@ public static class TriggerBusinessModelExtensions
       Url = triggerBusinessModel.Url,
       HttpMethodId = triggerBusinessModel.HttpMethodId,
       Body = triggerBusinessModel.Body,
-      SkipOnFailure = triggerBusinessModel.SkipOnFailure,
       ApiKeyInsertLocationId = triggerBusinessModel.ApiKeyInsertLocationId,
       ApiKeyFieldName = triggerBusinessModel.ApiKeyFieldName,
       ApiKey = triggerBusinessModel.ApiKeyId != null ? new ApiKeySearchDto {

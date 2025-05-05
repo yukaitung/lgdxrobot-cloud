@@ -71,7 +71,6 @@ public sealed class TriggerService (
         Url = t.Url,
         HttpMethodId = t.HttpMethodId,
         Body = t.Body,
-        SkipOnFailure = t.SkipOnFailure,
         ApiKeyInsertLocationId = t.ApiKeyInsertLocationId,
         ApiKeyFieldName = t.ApiKeyFieldName,
         ApiKeyId = t.ApiKey!.Id,
@@ -106,7 +105,6 @@ public sealed class TriggerService (
       Url = triggerCreateBusinessModel.Url,
       HttpMethodId = triggerCreateBusinessModel.HttpMethodId,
       Body = triggerCreateBusinessModel.Body,
-      SkipOnFailure = triggerCreateBusinessModel.SkipOnFailure,
       ApiKeyInsertLocationId = triggerCreateBusinessModel.ApiKeyInsertLocationId,
       ApiKeyFieldName = triggerCreateBusinessModel.ApiKeyFieldName,
       ApiKeyId = triggerCreateBusinessModel.ApiKeyId,
@@ -119,7 +117,6 @@ public sealed class TriggerService (
       Url = trigger.Url,
       HttpMethodId = trigger.HttpMethodId,
       Body = trigger.Body,
-      SkipOnFailure = trigger.SkipOnFailure,
       ApiKeyInsertLocationId = trigger.ApiKeyInsertLocationId,
       ApiKeyFieldName = trigger.ApiKeyFieldName,
       ApiKeyId = trigger.ApiKeyId,
@@ -141,7 +138,6 @@ public sealed class TriggerService (
         .SetProperty(t => t.Url, triggerUpdateBusinessModel.Url)
         .SetProperty(t => t.HttpMethodId, triggerUpdateBusinessModel.HttpMethodId)
         .SetProperty(t => t.Body, triggerUpdateBusinessModel.Body)
-        .SetProperty(t => t.SkipOnFailure, triggerUpdateBusinessModel.SkipOnFailure)
         .SetProperty(t => t.ApiKeyInsertLocationId, triggerUpdateBusinessModel.ApiKeyInsertLocationId)
         .SetProperty(t => t.ApiKeyFieldName, triggerUpdateBusinessModel.ApiKeyFieldName)
         .SetProperty(t => t.ApiKeyId, triggerUpdateBusinessModel.ApiKeyId)) == 1;

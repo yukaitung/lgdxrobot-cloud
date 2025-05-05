@@ -17,7 +17,6 @@ public record TriggerCreateDto
 
   public string? Body { get; set; }
 
-  public required bool SkipOnFailure { get; set; } = false;
   
   public int? ApiKeyInsertLocationId { get; set; }
 
@@ -55,7 +54,6 @@ public static class TriggerCreateDtoExtensions
       Url = triggerCreateDto.Url,
       HttpMethodId = triggerCreateDto.HttpMethodId,
       Body = triggerCreateDto.Body,
-      SkipOnFailure = triggerCreateDto.SkipOnFailure,
       ApiKeyInsertLocationId = triggerCreateDto.ApiKeyInsertLocationId,
       ApiKeyFieldName = triggerCreateDto.ApiKeyFieldName,
       ApiKeyId = triggerCreateDto.ApiKeyId,

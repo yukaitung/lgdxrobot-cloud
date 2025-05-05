@@ -31,8 +31,6 @@ public class TriggerDetailViewModel : FormViewModel, IValidatableObject
 
   public string? Body { get; set; }
 
-  public bool SkipOnFailure { get; set; } = false;
-
   // API Keys
   public bool ApiKeyRequired { get; set; } = false;
   
@@ -131,7 +129,6 @@ public static class TriggerDetailViewModelExtensions
     triggerDetailViewModel.Url = triggerDto.Url!;
     triggerDetailViewModel.HttpMethodId = (int)triggerDto.HttpMethodId!;
     triggerDetailViewModel.BodyDataList = TriggerDetailViewModel.GenerateBodyDataList(triggerDto.Body?.ToString() ?? string.Empty);
-    triggerDetailViewModel.SkipOnFailure = (bool)triggerDto.SkipOnFailure!;
     triggerDetailViewModel.ApiKeyRequired = triggerDto.ApiKey != null;
     triggerDetailViewModel.ApiKeyInsertLocationId = triggerDto.ApiKeyInsertLocationId;
     triggerDetailViewModel.ApiKeyFieldName = triggerDto.ApiKeyFieldName;
@@ -146,7 +143,6 @@ public static class TriggerDetailViewModelExtensions
       Url = triggerDetailViewModel.Url,
       HttpMethodId = triggerDetailViewModel.HttpMethodId,
       Body = TriggerDetailViewModel.GenerateBodyJson(triggerDetailViewModel.BodyDataList),
-      SkipOnFailure = triggerDetailViewModel.SkipOnFailure,
       ApiKeyInsertLocationId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyInsertLocationId : null,
       ApiKeyFieldName = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyFieldName : null,
       ApiKeyId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyId : null
@@ -160,7 +156,6 @@ public static class TriggerDetailViewModelExtensions
       Url = triggerDetailViewModel.Url,
       HttpMethodId = triggerDetailViewModel.HttpMethodId,
       Body = TriggerDetailViewModel.GenerateBodyJson(triggerDetailViewModel.BodyDataList),
-      SkipOnFailure = triggerDetailViewModel.SkipOnFailure,
       ApiKeyInsertLocationId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyInsertLocationId : null,
       ApiKeyFieldName = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyFieldName : null,
       ApiKeyId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyId : null

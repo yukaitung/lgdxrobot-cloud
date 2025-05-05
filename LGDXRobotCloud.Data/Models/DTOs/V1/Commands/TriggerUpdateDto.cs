@@ -17,7 +17,6 @@ public record TriggerUpdateDto : IValidatableObject
 
   public string? Body { get; set; }
 
-  public required bool SkipOnFailure { get; set; } = false;
   
   public int? ApiKeyInsertLocationId { get; set; }
 
@@ -55,7 +54,6 @@ public static class TriggerUpdateDtoExtensions
       Url = triggerUpdateDto.Url,
       HttpMethodId = triggerUpdateDto.HttpMethodId,
       Body = triggerUpdateDto.Body,
-      SkipOnFailure = triggerUpdateDto.SkipOnFailure,
       ApiKeyInsertLocationId = triggerUpdateDto.ApiKeyInsertLocationId,
       ApiKeyFieldName = triggerUpdateDto.ApiKeyFieldName,
       ApiKeyId = triggerUpdateDto.ApiKeyId,
