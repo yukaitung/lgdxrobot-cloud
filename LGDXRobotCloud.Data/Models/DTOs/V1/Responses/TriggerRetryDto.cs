@@ -10,5 +10,7 @@ public record TriggerRetryDto
 
   public required string Body { get; set; }
 
+  public required int SameTriggerFailed { get; set; }
+
   public required DateTime CreatedAt { get; set; }
 }

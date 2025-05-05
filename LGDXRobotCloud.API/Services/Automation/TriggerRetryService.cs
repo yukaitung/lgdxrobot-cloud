@@ -1,5 +1,6 @@
 using LGDXRobotCloud.API.Exceptions;
 using LGDXRobotCloud.Data.DbContexts;
+using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ public interface ITriggerRetryService
   Task<TriggerRetryBusinessModel> GetTriggerRetryAsync(int triggerRetryId);
   Task<bool> DeleteTriggerRetryAsync(int triggerRetryId);
   Task RetryTriggerRetryAsync(int triggerRetryId);
+  Task RetryAllFailedTriggerAsync(int triggerId);
 }
 
 public class TriggerRetryService (
@@ -47,23 +49,28 @@ public class TriggerRetryService (
 
   public async Task<TriggerRetryBusinessModel> GetTriggerRetryAsync(int triggerRetryId)
   {
-    return await _context.TriggerRetries.AsNoTracking()
+    TriggerRetry triggerRetry = await _context.TriggerRetries.AsNoTracking()
       .Where(tr => tr.Id == triggerRetryId)
       .Include(tr => tr.Trigger)
       .Include(tr => tr.AutoTask)
-      .Select(tr => new TriggerRetryBusinessModel {
-        Id = tr.Id,
-        TriggerId = tr.TriggerId,
-        TriggerName = tr.Trigger.Name,
-        TriggerUrl = tr.Trigger.Url,
-        TriggerHttpMethodId = tr.Trigger.HttpMethodId,
-        AutoTaskId = tr.AutoTaskId,
-        AutoTaskName = tr.AutoTask.Name,
-        Body = tr.Body,
-        CreatedAt = tr.CreatedAt
-      })
-      .FirstOrDefaultAsync()
-        ?? throw new LgdxNotFound404Exception();
+      .FirstOrDefaultAsync() ?? throw new LgdxNotFound404Exception();
+
+    int SameTriggerFailed = await _context.TriggerRetries.AsNoTracking()
+      .Where(tr => tr.TriggerId == triggerRetry.TriggerId)
+      .CountAsync();
+
+    return new TriggerRetryBusinessModel {
+      Id = triggerRetry.Id,
+      TriggerId = triggerRetry.TriggerId,
+      TriggerName = triggerRetry.Trigger.Name,
+      TriggerUrl = triggerRetry.Trigger.Url,
+      TriggerHttpMethodId = triggerRetry.Trigger.HttpMethodId,
+      AutoTaskId = triggerRetry.AutoTaskId,
+      AutoTaskName = triggerRetry.AutoTask.Name,
+      Body = triggerRetry.Body,
+      SameTriggerFailed = SameTriggerFailed,
+      CreatedAt = triggerRetry.CreatedAt
+    };
   }
 
   public async Task<bool> DeleteTriggerRetryAsync(int triggerRetryId)
@@ -90,5 +97,24 @@ public class TriggerRetryService (
     {
       await DeleteTriggerRetryAsync(triggerRetryId);
     }
+  }
+
+  public async Task RetryAllFailedTriggerAsync(int triggerId)
+  {
+    var triggerRetries = await _context.TriggerRetries
+      .Where(tr => tr.TriggerId == triggerId)
+      .Include(tr => tr.Trigger)
+      .Include(tr => tr.AutoTask)
+      .AsSplitQuery()
+      .ToListAsync();
+
+    foreach (var tr in triggerRetries)
+    {
+      if (await _triggerService.RetryTriggerAsync(tr.AutoTask, tr.Trigger, tr.Body))
+      {
+        _context.TriggerRetries.Remove(tr);
+      }
+    }
+    _context.SaveChanges();
   }
 }

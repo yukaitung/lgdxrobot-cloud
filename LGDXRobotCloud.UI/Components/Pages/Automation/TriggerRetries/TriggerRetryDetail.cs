@@ -35,6 +35,24 @@ public sealed partial class TriggerRetryDetail : ComponentBase
     }
   }
 
+  public async Task HandleRetryAllFailedRequests(int? triggerId)
+  {
+    if (triggerId == null)
+    {
+      return;
+    }
+
+    try
+    {
+      await LgdxApiClient.Automation.TriggerRetries.Triggers[(int)triggerId].Retry.PostAsync();
+      NavigationManager.NavigateTo(AppRoutes.Automation.TriggerRetries.Index);
+    }
+    catch (ApiException ex)
+    {
+      Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
+  }
+
   public async Task HandleDelete()
   {
     try

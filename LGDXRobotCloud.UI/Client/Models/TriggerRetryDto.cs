@@ -34,6 +34,8 @@ namespace LGDXRobotCloud.UI.Client.Models
         public DateTimeOffset? CreatedAt { get; set; }
         /// <summary>The id property</summary>
         public int? Id { get; set; }
+        /// <summary>The sameTriggerFailed property</summary>
+        public int? SameTriggerFailed { get; set; }
         /// <summary>The trigger property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -71,6 +73,7 @@ namespace LGDXRobotCloud.UI.Client.Models
                 { "body", n => { Body = n.GetStringValue(); } },
                 { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
                 { "id", n => { Id = n.GetIntValue(); } },
+                { "sameTriggerFailed", n => { SameTriggerFailed = n.GetIntValue(); } },
                 { "trigger", n => { Trigger = n.GetObjectValue<global::LGDXRobotCloud.UI.Client.Models.TriggerListDto>(global::LGDXRobotCloud.UI.Client.Models.TriggerListDto.CreateFromDiscriminatorValue); } },
             };
         }
@@ -85,6 +88,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             writer.WriteStringValue("body", Body);
             writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
             writer.WriteIntValue("id", Id);
+            writer.WriteIntValue("sameTriggerFailed", SameTriggerFailed);
             writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.TriggerListDto>("trigger", Trigger);
             writer.WriteAdditionalData(AdditionalData);
         }

@@ -9,28 +9,28 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
-namespace LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Item.Retry
+namespace LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Triggers.Item.Retry
 {
     /// <summary>
-    /// Builds and executes requests for operations under \Automation\TriggerRetries\{id}\Retry
+    /// Builds and executes requests for operations under \Automation\TriggerRetries\Triggers\{triggerId}\Retry
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     public partial class RetryRequestBuilder : BaseRequestBuilder
     {
         /// <summary>
-        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Item.Retry.RetryRequestBuilder"/> and sets the default values.
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Triggers.Item.Retry.RetryRequestBuilder"/> and sets the default values.
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public RetryRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/TriggerRetries/{id}/Retry", pathParameters)
+        public RetryRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/TriggerRetries/Triggers/{triggerId}/Retry", pathParameters)
         {
         }
         /// <summary>
-        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Item.Retry.RetryRequestBuilder"/> and sets the default values.
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Triggers.Item.Retry.RetryRequestBuilder"/> and sets the default values.
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public RetryRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/TriggerRetries/{id}/Retry", rawUrl)
+        public RetryRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Automation/TriggerRetries/Triggers/{triggerId}/Retry", rawUrl)
         {
         }
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
@@ -73,11 +73,11 @@ namespace LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Item.Retry
         /// <summary>
         /// Returns a request builder with the provided arbitrary URL. Using this method means any other path or query parameters are ignored.
         /// </summary>
-        /// <returns>A <see cref="global::LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Item.Retry.RetryRequestBuilder"/></returns>
+        /// <returns>A <see cref="global::LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Triggers.Item.Retry.RetryRequestBuilder"/></returns>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
-        public global::LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Item.Retry.RetryRequestBuilder WithUrl(string rawUrl)
+        public global::LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Triggers.Item.Retry.RetryRequestBuilder WithUrl(string rawUrl)
         {
-            return new global::LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Item.Retry.RetryRequestBuilder(rawUrl, RequestAdapter);
+            return new global::LGDXRobotCloud.UI.Client.Automation.TriggerRetries.Triggers.Item.Retry.RetryRequestBuilder(rawUrl, RequestAdapter);
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.

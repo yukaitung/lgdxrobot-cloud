@@ -44,12 +44,22 @@ public class TriggerRetriesController (
   }
 
   [HttpPost("{id}/Retry")]
-  [ProducesResponseType(typeof(TriggerRetryDto), StatusCodes.Status204NoContent)]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult<TriggerRetryDto>> RetryTriggerRetry(int id)
   {
     await _triggerRetryService.RetryTriggerRetryAsync(id);
+    return NoContent();
+  }
+
+  [HttpPost("Triggers/{triggerId}/Retry")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult<TriggerRetryDto>> RetryAllFailedTrigger(int triggerId)
+  {
+    await _triggerRetryService.RetryAllFailedTriggerAsync(triggerId);
     return NoContent();
   }
 

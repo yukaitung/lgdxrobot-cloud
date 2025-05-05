@@ -20,6 +20,8 @@ public record TriggerRetryBusinessModel
 
   public required string Body { get; set; }
 
+  public required int SameTriggerFailed { get; set; }
+
   public required DateTime CreatedAt { get; set; }
 }
 
@@ -40,6 +42,7 @@ public static class TriggerRetryBusinessModelExtensions
         Name = triggerRetryBusinessModel.AutoTaskName
       },
       Body = triggerRetryBusinessModel.Body,
+      SameTriggerFailed = triggerRetryBusinessModel.SameTriggerFailed,
       CreatedAt = triggerRetryBusinessModel.CreatedAt
     };
   }
