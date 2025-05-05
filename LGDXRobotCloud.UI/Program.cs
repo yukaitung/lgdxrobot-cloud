@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using LGDXRobotCloud.UI;
 using LGDXRobotCloud.UI.Authorisation;
 using LGDXRobotCloud.UI.Components;
@@ -46,19 +47,27 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Add API
+var store = new X509Store(StoreLocation.CurrentUser);
+store.Open(OpenFlags.ReadOnly);
+var certificate = store.Certificates.First(cert => cert.SerialNumber == builder.Configuration["LGDXRobotCloudAPICertificateSN"]);
+var clientHandler = new HttpClientHandler();
+clientHandler.ClientCertificates.Add(certificate);
+var url = new Uri(builder.Configuration["LGDXRobotCloudAPIUrl"] ?? string.Empty);
+
 builder.Services.AddKiotaHandlers();
-builder.Services.AddHttpClient<LgdxApiClientFactory>((sp, client) => {
-  client.BaseAddress = new Uri(builder.Configuration["LGDXRobotCloudAPIUrl"] ?? string.Empty);
+builder.Services.AddHttpClient<LgdxApiClientFactory>((sp, client) => 
+{
+  client.BaseAddress = url;
 })
 	.AddHttpMessageHandler(() => new HeadersInspectionHandler())
+	.ConfigurePrimaryHttpMessageHandler(() => clientHandler)
 	.AttachKiotaHandlers();
 builder.Services.AddTransient(sp => sp.GetRequiredService<LgdxApiClientFactory>().GetClient());
-var configureAction = (HttpClient client) => 
-  { 
-		client.BaseAddress = new Uri(builder.Configuration["LGDXRobotCloudAPIUrl"] ?? string.Empty);
-	};
-
-builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(configureAction);
+builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client =>
+{ 
+	client.BaseAddress = url;
+})
+	.ConfigurePrimaryHttpMessageHandler(() => clientHandler);
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 builder.Services.AddSingleton<IRealTimeService, RealTimeService>();

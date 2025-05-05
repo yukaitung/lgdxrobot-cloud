@@ -2,7 +2,7 @@ using LGDXRobotCloud.API.Services.Identity;
 using LGDXRobotCloud.Data.Models.Business.Identity;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Responses;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using LGDXRobotCloud.Utilities.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,12 +11,11 @@ namespace LGDXRobotCloud.API.Areas.Identity.Controllers;
 [ApiController]
 [Area("Identity")]
 [Route("[area]/[controller]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.RobotApiOrCertificateScheme)]
 public sealed class AuthController(IAuthService authService) : ControllerBase
 {
   private readonly IAuthService _authService = authService ?? throw new ArgumentNullException(nameof(authService));
 
-  [AllowAnonymous]
   [HttpPost("Login")]
   [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -26,7 +25,6 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     return Ok(result.ToDto());
   }
 
-  [AllowAnonymous]
   [HttpPost("ForgotPassword")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<ActionResult> ForgotPassword(ForgotPasswordRequestDto forgotPasswordRequestDto)
@@ -35,7 +33,6 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     return Ok();
   }
 
-  [AllowAnonymous]
   [HttpPost("ResetPassword")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -45,7 +42,6 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     return Ok();
   }
 
-  [AllowAnonymous]
   [HttpPost("Refresh")]
   [ProducesResponseType(typeof(RefreshTokenResponseDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]

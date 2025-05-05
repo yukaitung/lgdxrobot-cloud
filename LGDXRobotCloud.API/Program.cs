@@ -81,6 +81,26 @@ builder.Services.AddIdentity<LgdxUser, LgdxRole>()
 	.AddEntityFrameworkStores<LgdxContext>()
 	.AddTokenProvider<AuthenticatorTokenProvider<LgdxUser>>(TokenOptions.DefaultAuthenticatorProvider)
 	.AddTokenProvider<DataProtectorTokenProvider<LgdxUser>>(TokenOptions.DefaultProvider);
+builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.RobotApiOrCertificateScheme)
+	.AddCertificate(LgdxRobotCloudAuthenticationSchemes.RobotApiOrCertificateScheme, cfg =>
+		{
+			cfg.AllowedCertificateTypes = CertificateTypes.All;
+			cfg.RevocationMode = X509RevocationMode.NoCheck;
+			cfg.Events = new CertificateAuthenticationEvents()
+			{
+				OnCertificateValidated = ctx =>
+				{
+					if (ctx.ClientCertificate.Thumbprint != builder.Configuration["LGDXRobotCloud:InternalCertificateThumbprint"])
+					{
+						ctx.Fail("Invalid certificate.");
+						return Task.CompletedTask;
+					}
+					ctx.Success();
+					return Task.CompletedTask;
+				}
+			};
+		}
+	);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(cfg =>
 	{
