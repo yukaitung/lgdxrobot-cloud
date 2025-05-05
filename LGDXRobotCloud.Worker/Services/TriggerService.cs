@@ -48,27 +48,36 @@ public class TriggerService(
     var bodyStr = JsonSerializer.Serialize(body);
     var requestBody = new StringContent(bodyStr, Encoding.UTF8, "application/json");
     HttpResponseMessage? httpResult = null;
-    switch (trigger.HttpMethodId)
+    string exceptionMessage = string.Empty;
+    try
     {
-      case (int) TriggerHttpMethod.Get:
-        httpResult = await _httpClient.GetAsync(trigger.Url);
-        break;
-      case (int) TriggerHttpMethod.Post:
-        httpResult = await _httpClient.PostAsync(trigger.Url, requestBody);
-        break;
-      case (int) TriggerHttpMethod.Put:
-        httpResult = await _httpClient.PutAsync(trigger.Url, requestBody);
-        break;
-      case (int) TriggerHttpMethod.Patch:
-        httpResult = await _httpClient.PatchAsync(trigger.Url, requestBody);
-        break;
-      case (int) TriggerHttpMethod.Delete:
-        httpResult = await _httpClient.DeleteAsync(trigger.Url);
-        break;
-      default:
-        break;
+      switch (trigger.HttpMethodId)
+      {
+        case (int) TriggerHttpMethod.Get:
+          httpResult = await _httpClient.GetAsync(trigger.Url);
+          break;
+        case (int) TriggerHttpMethod.Post:
+          httpResult = await _httpClient.PostAsync(trigger.Url, requestBody);
+          break;
+        case (int) TriggerHttpMethod.Put:
+          httpResult = await _httpClient.PutAsync(trigger.Url, requestBody);
+          break;
+        case (int) TriggerHttpMethod.Patch:
+          httpResult = await _httpClient.PatchAsync(trigger.Url, requestBody);
+          break;
+        case (int) TriggerHttpMethod.Delete:
+          httpResult = await _httpClient.DeleteAsync(trigger.Url);
+          break;
+        default:
+          break;
+      }
     }
-    if (httpResult != null && !httpResult.IsSuccessStatusCode) 
+    catch (Exception ex)
+    {
+      exceptionMessage = ex.Message;
+    }
+    
+    if (!string.IsNullOrWhiteSpace(exceptionMessage) || (httpResult != null && !httpResult.IsSuccessStatusCode)) 
     {
       // Add to trigger retry
       body.Remove(apiKeyFieldName);
@@ -79,6 +88,10 @@ public class TriggerService(
       });
       await _context.SaveChangesAsync();
 
+      // Convert message
+      string errorStatusCode = httpResult != null ? ((int)httpResult.StatusCode).ToString() : string.Empty;
+      string errorReasonPhrase = httpResult != null ? httpResult.ReasonPhrase ?? string.Empty : exceptionMessage;
+      
       // Send email
       List<string> recipientIds = await _context.UserRoles.AsNoTracking()
         .Where(ur => ur.RoleId == LgdxRolesHelper.GetSystemRoleId(LgdxRoleType.EmailRecipient).ToString())
@@ -101,8 +114,8 @@ public class TriggerService(
             TriggerName = trigger.Name,
             TriggerUrl = trigger.Url,
             HttpMethodId = trigger.HttpMethodId.ToString(),
-            StatusCode = ((int)httpResult.StatusCode).ToString(),
-            Reason = httpResult.ReasonPhrase ?? string.Empty,
+            StatusCode = errorStatusCode,
+            Reason = errorReasonPhrase,
             AutoTaskId = autoTaskTriggerContract.AutoTaskId.ToString(),
             AutoTaskName = autoTaskTriggerContract.AutoTaskName,
             RobotId = autoTaskTriggerContract.RobotId.ToString(),
