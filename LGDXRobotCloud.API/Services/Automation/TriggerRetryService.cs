@@ -86,6 +86,9 @@ public class TriggerRetryService (
       .Where(t => t.Id == triggerRetry.TriggerId)
       .FirstOrDefaultAsync() ?? throw new LgdxValidation400Expection(nameof(triggerRetry.TriggerId), "Trigger ID is invalid.");
 
-    await _triggerService.RetryTriggerAsync(autoTask, trigger, triggerRetry.Body);
+    if (await _triggerService.RetryTriggerAsync(autoTask, trigger, triggerRetry.Body))
+    {
+      await DeleteTriggerRetryAsync(triggerRetryId);
+    }
   }
 }

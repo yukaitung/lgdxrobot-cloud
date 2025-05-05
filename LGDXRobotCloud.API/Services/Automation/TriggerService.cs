@@ -24,7 +24,7 @@ public interface ITriggerService
   Task<IEnumerable<TriggerSearchBusinessModel>> SearchTriggersAsync(string? name);
 
   Task InitialiseTriggerAsync(AutoTask autoTask, FlowDetail flowDetail);
-  Task RetryTriggerAsync(AutoTask autoTask, Trigger trigger, string body);
+  Task<bool> RetryTriggerAsync(AutoTask autoTask, Trigger trigger, string body);
 }
 
 public sealed class TriggerService (
@@ -245,7 +245,7 @@ public sealed class TriggerService (
     }
   }
 
-  public async Task RetryTriggerAsync(AutoTask autoTask, Trigger trigger, string body)
+  public async Task<bool> RetryTriggerAsync(AutoTask autoTask, Trigger trigger, string body)
   {
     var bodyDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(body ?? "{}");
     if (bodyDictionary != null)
@@ -260,6 +260,8 @@ public sealed class TriggerService (
         RealmId = autoTask.RealmId,
         RealmName = GetRealmName(autoTask.RealmId),
       });
+      return true;
     }
+    return false;
   }
 }
