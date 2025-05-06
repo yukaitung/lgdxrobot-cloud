@@ -183,7 +183,8 @@ public class ApiKeyServiceTests
     var apiKeyService = new ApiKeyService(mockMemoryCache.Object, lgdxContext);
     var apiKeyCreateBusinessModel = new ApiKeyCreateBusinessModel {
       Name = "Test API Key",
-      IsThirdParty = isThirdParty
+      IsThirdParty = isThirdParty,
+      Secret = "123456"
     };
 
     // Act
