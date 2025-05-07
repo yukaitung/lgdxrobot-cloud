@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using static LGDXRobotCloud.UI.Client.Automation.AutoTasks.AutoTasksRequestBuilder;
 
-namespace LGDXRobotCloud.UI.Components.Pages.Dashboards.AutoTasks.Components;
+namespace LGDXRobotCloud.UI.Components.Pages.Home.Components;
 
 public sealed partial class RealtimeAutoTasksTable : IDisposable
 {

@@ -30,12 +30,6 @@
 					</NavItem>
 				</AuthorizeView>
 
-				<AuthorizeView Policy="@Permissions.Automation.AutoTasks.Read" Context="AutoTasks">
-					<NavItem href="@AppRoutes.Dashboards.AutoTasks">
-						Tasks Dashboard
-					</NavItem>
-				</AuthorizeView>
-
 				<AuthorizeView Policy="@Permissions.Navigation.Area" Context="Navigation">
 					<NavDropdown title="Navigation" href="Navigation">
 						<div class="dropdown-menu-column">
