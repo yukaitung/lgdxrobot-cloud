@@ -90,7 +90,7 @@ public sealed partial class WaypointDetail : ComponentBase
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     WaypointDetailViewModel.RealmId = settings.CurrentRealmId;
-    WaypointDetailViewModel.RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    WaypointDetailViewModel.RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await base.OnInitializedAsync();
   }
 

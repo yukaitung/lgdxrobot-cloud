@@ -96,11 +96,8 @@ public sealed partial class Login : ComponentBase
 
       // Setup session data
       var sessionSettings = TokenService.GetSessionSettings(user);
-      if (sessionSettings.CurrentRealmId == 0)
-      {
-        var realm = await CachedRealmService.GetDefaultRealmAsync();
-        TokenService.UpdateSessionSettings(user, new SessionSettings { CurrentRealmId = realm.Id ?? 0 });
-      }
+      var realm = await CachedRealmService.GetDefaultRealmAsync();
+      TokenService.UpdateSessionSettings(user, new SessionSettings { CurrentRealmId = realm.Id ?? 0 });
 
       NavigationManager.NavigateTo(string.IsNullOrWhiteSpace(ReturnUrl) ? "/" : ReturnUrl);
     }

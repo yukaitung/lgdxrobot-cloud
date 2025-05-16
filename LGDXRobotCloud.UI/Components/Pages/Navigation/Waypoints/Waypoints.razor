@@ -44,7 +44,7 @@
   {
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
-    RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await base.OnInitializedAsync();
   }
 }

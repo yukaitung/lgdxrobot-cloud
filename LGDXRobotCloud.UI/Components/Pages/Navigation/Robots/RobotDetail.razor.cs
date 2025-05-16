@@ -180,7 +180,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     var realmId = settings.CurrentRealmId;
-    RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
 
     if (Guid.TryParse(Id, out Guid _id))
     {

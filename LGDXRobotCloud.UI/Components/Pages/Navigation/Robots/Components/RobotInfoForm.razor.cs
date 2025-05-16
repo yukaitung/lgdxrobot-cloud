@@ -23,7 +23,7 @@ public sealed partial class RobotInfoForm : ComponentBase
   [Parameter]
   public RobotDetailViewModel? Robot { get; set; }
 
-  public override Task SetParametersAsync(ParameterView parameters)
+  public override async Task SetParametersAsync(ParameterView parameters)
   {
     parameters.SetParameterProperties(this);
     if (parameters.TryGetValue<RobotDetailViewModel?>(nameof(Robot), out var _robot))
@@ -33,9 +33,9 @@ public sealed partial class RobotInfoForm : ComponentBase
         var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
         var settings = TokenService.GetSessionSettings(user);
         _robot.RealmId = settings.CurrentRealmId;
-        _robot.RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+        _robot.RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
       }
     }
-    return base.SetParametersAsync(parameters);
+    await base.SetParametersAsync(parameters);
   }
 }

@@ -222,7 +222,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     AutoTaskDetailViewModel.RealmId = settings.CurrentRealmId;
-    AutoTaskDetailViewModel.RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    AutoTaskDetailViewModel.RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await base.OnInitializedAsync();
   }
 

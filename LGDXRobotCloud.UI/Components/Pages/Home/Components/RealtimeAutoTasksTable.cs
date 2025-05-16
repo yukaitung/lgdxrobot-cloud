@@ -150,7 +150,7 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     RealmId = settings.CurrentRealmId;
-    RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     RealTimeService.AutoTaskUpdated += OnAutoTaskUpdated;
     await Refresh();
     await base.OnInitializedAsync();

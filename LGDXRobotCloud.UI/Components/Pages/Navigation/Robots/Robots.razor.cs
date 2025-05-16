@@ -195,7 +195,7 @@ public sealed partial class Robots : ComponentBase, IDisposable
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     RealmId = settings.CurrentRealmId;
-    RealmName = CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await Refresh();
     RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
     RealTimeService.RobotCommandsUpdated += OnRobotCommandsUpdated;

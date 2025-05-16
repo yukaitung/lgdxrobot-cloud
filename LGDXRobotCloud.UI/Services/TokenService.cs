@@ -26,6 +26,7 @@ public record SessionSettings
 public class TokenService : ITokenService
 {
   private readonly ConcurrentDictionary<string, Token> Tokens = new();
+  private readonly ConcurrentDictionary<string, SessionSettings> SessionSettings = new();
 
   private record Token
   {
@@ -33,7 +34,6 @@ public class TokenService : ITokenService
     public required string RefreshToken { set; get; }
     public required DateTime AccessTokenExpiresAt { set; get; }
     public required DateTime RefreshTokenExpiresAt { set; get; }
-    public SessionSettings SessionSettings { set; get; } = new();
   }
 
   private static string GenerateAccessKey(ClaimsPrincipal user)
@@ -41,16 +41,25 @@ public class TokenService : ITokenService
     var userId = user.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value;
     return $"TokenService_{userId}";
   }
+  
+  private static string GenerateSessionSettingsKey(ClaimsPrincipal user)
+  {
+    var userId = user.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value;
+    return $"TokenService_SessionSettings_{userId}";
+  }
 
   public void Login(ClaimsPrincipal user, string accessToken, string refreshToken, DateTime accessTokenExpiresAt, DateTime refreshTokenExpiresAt)
   {
     Tokens.TryRemove(GenerateAccessKey(user), out _);
-    Tokens.TryAdd(GenerateAccessKey(user), new Token { 
+    Tokens.TryAdd(GenerateAccessKey(user), new Token
+    {
       AccessToken = accessToken,
       RefreshToken = refreshToken,
       AccessTokenExpiresAt = accessTokenExpiresAt,
       RefreshTokenExpiresAt = refreshTokenExpiresAt
     });
+    Tokens.TryRemove(GenerateSessionSettingsKey(user), out _);
+    SessionSettings.TryAdd(GenerateSessionSettingsKey(user), new());
   }
 
   public bool IsLoggedIn(ClaimsPrincipal user)
@@ -131,9 +140,9 @@ public class TokenService : ITokenService
 
   public SessionSettings GetSessionSettings(ClaimsPrincipal user)
   {
-    if (Tokens.TryGetValue(GenerateAccessKey(user), out Token? token))
+    if (SessionSettings.TryGetValue(GenerateSessionSettingsKey(user), out SessionSettings? sessionSettings))
     {
-      return token!.SessionSettings;
+      return sessionSettings;
     }
     else
     {
@@ -143,16 +152,16 @@ public class TokenService : ITokenService
 
   public void UpdateSessionSettings(ClaimsPrincipal user, SessionSettings sessionSettings)
   {
-    Tokens.TryGetValue(GenerateAccessKey(user), out Token? token);
-    if (token == null)
+    SessionSettings.TryGetValue(GenerateSessionSettingsKey(user), out SessionSettings? ss);
+    if (ss == null)
       return;
 
-    token.SessionSettings = sessionSettings;
-    Tokens.TryUpdate(GenerateAccessKey(user), token, token);
+    SessionSettings.TryUpdate(GenerateSessionSettingsKey(user), sessionSettings, ss);
   }
 
   public void Logout(ClaimsPrincipal user)
   {
     Tokens.TryRemove(GenerateAccessKey(user), out _);
+    SessionSettings.TryRemove(GenerateSessionSettingsKey(user), out _);
   }
 }
