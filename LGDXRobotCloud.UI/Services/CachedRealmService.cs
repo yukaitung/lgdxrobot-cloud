@@ -89,6 +89,15 @@ public sealed class CachedRealmService (
 
   public string GetRealmName(int realmId)
   {
+    if (realmId == 0)
+    {
+      if (_memoryCache.TryGetValue($"RealmService_GetDefaultRealm", out RealmDto? cachedMap))
+      {
+        return cachedMap?.Name ?? string.Empty;
+      }
+      return string.Empty;
+    }
+
     if (_memoryCache.TryGetValue($"RealmService_GetCurrrentRealmAsync_{realmId}", out RealmDto? realm))
     {
       return realm?.Name ?? string.Empty;
