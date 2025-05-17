@@ -28,7 +28,7 @@
     <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="Control">
       @if (RobotData != null && RobotCommands != null && RobotData.RobotStatus != RobotStatus.Offline)
       {
-        <div class="col-md-auto ms-auto d-print-none">
+        <div class="col-md-auto ms-auto">
           <div class="btn-list">
             <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement" style="width: 185px;">
               @(RobotCommands.Commands.PauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")

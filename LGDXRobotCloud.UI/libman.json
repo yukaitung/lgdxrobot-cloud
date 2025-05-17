@@ -4,7 +4,7 @@
   "libraries": [
     {
       "provider": "jsdelivr",
-      "library": "@tabler/core@1.1.1",
+      "library": "@tabler/core@1.2.0",
       "destination": "wwwroot/libs/tabler",
       "files":[
         "dist/css/tabler.min.css",

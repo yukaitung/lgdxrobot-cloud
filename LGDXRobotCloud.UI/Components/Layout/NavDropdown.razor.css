@@ -1,3 +1,4 @@
+/* Rotate the arrow */
 a.nav-link.dropdown-toggle.show::after {
   transform: rotate(-45deg);
 }

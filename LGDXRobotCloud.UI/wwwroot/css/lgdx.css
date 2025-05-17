@@ -15,3 +15,20 @@
 .no-focus:focus {
   outline: 0;
 }
+
+/* Remove balance for scroll bar */
+* {
+  scrollbar-color: auto;
+}
+@media (min-width: 992px) {
+  :root, :host {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* fix colour for nav items */
+a.dropdown-item.active, a.nav-link.active {
+  background-color: var(--tblr-dropdown-link-active-bg) !important;
+  color: var(--tblr-primary) !important;
+}
