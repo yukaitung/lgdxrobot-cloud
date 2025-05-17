@@ -67,33 +67,46 @@ public sealed partial class Map : ComponentBase, IDisposable
       return;
     }
 
-    try
+    var robotData = RobotDataService.GetRobotData(robotId, realmId);
+    if (robotData != null)
     {
-      var robotData = RobotDataService.GetRobotData(robotId, realmId);
-      if (robotData != null)
+      if (!RobotsData.ContainsKey(robotId))
       {
-        if (!RobotsData.ContainsKey(robotId))
+        try
         {
           await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
         }
-        else
+        catch (TaskCanceledException)
+        {
+          Console.WriteLine("TaskCanceledException");
+        }
+        catch (ObjectDisposedException)
+        {
+          Console.WriteLine("ObjectDisposedException");
+        }
+      }
+      else
+      {
+        try
         {
           await JSRuntime.InvokeVoidAsync("MoveRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
         }
-        RobotsData[robotId] = robotData;
-        // Update offcanvas
-        if (SelectedRobot != null && SelectedRobot.RobotId == robotId)
+        catch (TaskCanceledException)
         {
-          SelectedRobot = robotData;
-        }      
-        await InvokeAsync(() => {
-          StateHasChanged();
-        });
+          Console.WriteLine("TaskCanceledException");
+        }
+        catch (ObjectDisposedException)
+        {
+          Console.WriteLine("ObjectDisposedException");
+        }
       }
-    }
-    catch (Exception)
-    {
-      throw;
+      RobotsData[robotId] = robotData;
+      // Update offcanvas
+      if (SelectedRobot != null && SelectedRobot.RobotId == robotId)
+      {
+        SelectedRobot = robotData;
+      }      
+      await InvokeAsync(StateHasChanged);
     }
   }
 
