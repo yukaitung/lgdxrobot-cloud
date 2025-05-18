@@ -286,7 +286,7 @@
     </div>
 
     <!-- Task Journey -->
-    @if (AutoTaskDetailViewModel.AutoTaskJourneys.Count > 0)
+    @if (AutoTaskDetailViewModel.IsClone == false && AutoTaskDetailViewModel.AutoTaskJourneys.Count > 0)
     {
       <div class="col-12">
         <div class="card">
