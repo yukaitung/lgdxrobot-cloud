@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using LGDXRobotCloud.UI.Client.Models;
+using LGDXRobotCloud.UI.Helpers;
 using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Automation;
@@ -13,7 +14,7 @@ public record TaskDetailBody : IValidatableObject
   public double? CustomY { get; set; }
 
   public double? CustomRotation { get; set; }
-  
+
   public int? WaypointId { get; set; }
 
   public string? WaypointName { get; set; }
@@ -29,6 +30,17 @@ public record TaskDetailBody : IValidatableObject
   }
 }
 
+public record AutoTaskJourney
+{
+  public int Id { get; set; }
+
+  public int? CurrentProcessId { get; set; }
+
+  public string? CurrentProcessName { get; set; }
+
+  public string CreatedTime { get; set; } = null!;
+}
+
 public class AutoTaskDetailViewModel : FormViewModel, IValidatableObject
 {
   public int Id { get; set; }
@@ -37,15 +49,17 @@ public class AutoTaskDetailViewModel : FormViewModel, IValidatableObject
 
   public List<TaskDetailBody> AutoTaskDetails { get; set; } = [];
 
-  [Required (ErrorMessage = "Please enter a priority.")]
+  public List<AutoTaskJourney> AutoTaskJourneys { get; set; } = [];
+
+  [Required(ErrorMessage = "Please enter a priority.")]
   public int Priority { get; set; } = 0;
 
-  [Required (ErrorMessage = "Please select a Flow.")]
+  [Required(ErrorMessage = "Please select a Flow.")]
   public int? FlowId { get; set; } = null;
 
   public string? FlowName { get; set; } = null;
 
-  [Required (ErrorMessage = "Please select a Realm.")]
+  [Required(ErrorMessage = "Please select a Realm.")]
   public int? RealmId { get; set; } = null;
 
   public string? RealmName { get; set; } = null;
@@ -92,7 +106,8 @@ public static class AutoTaskDetailViewModelExtensions
     autoTaskDetailViewModel.AssignedRobotName = autoTaskDto.AssignedRobot?.Name;
     autoTaskDetailViewModel.CurrentProgressId = (int)autoTaskDto.CurrentProgress!.Id!;
     autoTaskDetailViewModel.CurrentProgressName = autoTaskDto.CurrentProgress!.Name!;
-    autoTaskDetailViewModel.AutoTaskDetails = autoTaskDto.AutoTaskDetails!.Select(t => new TaskDetailBody {
+    autoTaskDetailViewModel.AutoTaskDetails = autoTaskDto.AutoTaskDetails!.Select(t => new TaskDetailBody
+    {
       Id = t.Id,
       CustomX = t.CustomX,
       CustomY = t.CustomY,
@@ -100,6 +115,12 @@ public static class AutoTaskDetailViewModelExtensions
       WaypointId = t.Waypoint?.Id,
       WaypointName = t.Waypoint?.Name,
       Order = (int)t.Order!
+    }).ToList();
+    autoTaskDetailViewModel.AutoTaskJourneys = autoTaskDto.AutoTaskJourneys!.Select(t => new AutoTaskJourney {
+      Id = (int)t.Id!,
+      CurrentProcessId = t.CurrentProcessId,
+      CurrentProcessName = t.CurrentProcessName ?? "Deleted Process",
+      CreatedTime = UiHelper.TimeToString(t.CreatedTime)
     }).ToList();
   }
 

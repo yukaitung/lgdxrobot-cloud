@@ -17,6 +17,8 @@ public class AutoTask
   
   public ICollection<AutoTaskDetail> AutoTaskDetails { get; set; } = [];
 
+  public ICollection<AutoTaskJourney> AutoTaskJourneys { get; set; } = [];
+
   public int Priority { get; set; }
 
   [ForeignKey("FlowId")]

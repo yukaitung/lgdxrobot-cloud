@@ -99,10 +99,13 @@ public class AutoTaskService(
       .Include(t => t.AutoTaskDetails
         .OrderBy(td => td.Order))
         .ThenInclude(td => td.Waypoint)
+      .Include(t => t.AutoTaskJourneys)
+        .ThenInclude(tj => tj.CurrentProgress)
       .Include(t => t.AssignedRobot)
       .Include(t => t.CurrentProgress)
       .Include(t => t.Flow)
       .Include(t => t.Realm)
+      .AsSplitQuery()
       .Select(t => new AutoTaskBusinessModel {
         Id = t.Id,
         Name = t.Name,
@@ -115,6 +118,15 @@ public class AutoTaskService(
         AssignedRobotName = t.AssignedRobot!.Name,
         CurrentProgressId = t.CurrentProgressId,
         CurrentProgressName = t.CurrentProgress.Name,
+        AutoTaskJourneys = t.AutoTaskJourneys.Select(tj => new AutoTaskJourneyBusinessModel
+        {
+          Id = tj.Id,
+          CurrentProcessId = tj.CurrentProgressId,
+          CurrentProcessName = tj.CurrentProgress == null ? null : tj.CurrentProgress.Name,
+          CreatedTime = tj.CreatedTime,
+        })
+        .OrderBy(tj => tj.Id)
+        .ToList(),
         AutoTaskDetails = t.AutoTaskDetails.Select(td => new AutoTaskDetailBusinessModel {
           Id = td.Id,
           Order = td.Order,
