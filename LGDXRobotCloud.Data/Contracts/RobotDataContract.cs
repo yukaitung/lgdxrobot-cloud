@@ -25,7 +25,7 @@ public record RobotCriticalStatus
   public List<int> MotorDamaged { get; set; } = [];
 }
 
-public record RobotDataContract 
+public record RobotDataContract
 {
   public required Guid RobotId { get; set; }
   public required int RealmId { get; set; }
@@ -34,4 +34,5 @@ public record RobotDataContract
   public List<double> Batteries { get; set; } = [];
   public RobotDof Position { get; set; } = new();
   public AutoTaskNavProgress NavProgress { get; set; } = new();
+  public DateTime CurrentTime { get; set; } = DateTime.UtcNow;
 }
