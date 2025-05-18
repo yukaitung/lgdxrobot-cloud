@@ -343,7 +343,7 @@ public class RobotClientsServiceTests
     Assert.NotNull(actural);
     Assert.Equal(RobotClientsResultStatus.Success, actural.Status);
     Assert.NotNull(actural.Task);
-    mockOnlineRobotsService.Verify(m => m.UpdateRobotDataAsync(RobotGuid, robotClientsExchange), Times.Once);
+    mockOnlineRobotsService.Verify(m => m.UpdateRobotDataAsync(RobotGuid, robotClientsExchange, false), Times.Once);
     mockOnlineRobotsService.Verify(m => m.GetAutoTaskNextApi(RobotGuid), Times.Once);
     mockAutoTaskSchedulerService.Verify(m => m.AutoTaskNextConstructAsync(It.IsAny<AutoTask>()), Times.Never);
     mockAutoTaskSchedulerService.Verify(m => m.GetAutoTaskAsync(RobotGuid), Times.Once);
@@ -382,7 +382,7 @@ public class RobotClientsServiceTests
     Assert.NotNull(actural);
     Assert.Equal(RobotClientsResultStatus.Success, actural.Status);
     Assert.Null(actural.Task);
-    mockOnlineRobotsService.Verify(m => m.UpdateRobotDataAsync(RobotGuid, localRobotClientsExchange), Times.Once);
+    mockOnlineRobotsService.Verify(m => m.UpdateRobotDataAsync(RobotGuid, localRobotClientsExchange, false), Times.Once);
     mockOnlineRobotsService.Verify(m => m.GetAutoTaskNextApi(RobotGuid), Times.Once);
     mockAutoTaskSchedulerService.Verify(m => m.AutoTaskNextConstructAsync(It.IsAny<AutoTask>()), Times.Never);
     mockAutoTaskSchedulerService.Verify(m => m.GetAutoTaskAsync(RobotGuid), Times.Never);
@@ -413,7 +413,7 @@ public class RobotClientsServiceTests
     Assert.NotNull(actural);
     Assert.Equal(RobotClientsResultStatus.Success, actural.Status);
     Assert.NotNull(actural.Task);
-    mockOnlineRobotsService.Verify(m => m.UpdateRobotDataAsync(RobotGuid, robotClientsExchange), Times.Once);
+    mockOnlineRobotsService.Verify(m => m.UpdateRobotDataAsync(RobotGuid, robotClientsExchange, false), Times.Once);
     mockOnlineRobotsService.Verify(m => m.GetAutoTaskNextApi(RobotGuid), Times.Once);
     mockAutoTaskSchedulerService.Verify(m => m.AutoTaskNextConstructAsync(It.IsAny<AutoTask>()), Times.Once);
     mockAutoTaskSchedulerService.Verify(m => m.GetAutoTaskAsync(RobotGuid), Times.Never);

@@ -19,7 +19,7 @@ public interface IOnlineRobotsService
 {
   Task AddRobotAsync(Guid robotId);
   Task RemoveRobotAsync(Guid robotId);
-  Task UpdateRobotDataAsync(Guid robotId, RobotClientsExchange data);
+  Task UpdateRobotDataAsync(Guid robotId, RobotClientsExchange data, bool realtime = false);
   RobotClientsRobotCommands? GetRobotCommands(Guid robotId);
 
   Task<bool> IsRobotOnlineAsync(Guid robotId);
@@ -47,6 +47,7 @@ public class OnlineRobotsService(
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
   private static string GetOnlineRobotsKey(int realmId) => $"OnlineRobotsService_OnlineRobots_{realmId}";
   private static string GetRobotCommandsKey(Guid robotId) => $"OnlineRobotsService_RobotCommands_{robotId}";
+  private const int robotAliveMinutes = 5;
 
   private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
   {
@@ -83,6 +84,7 @@ public class OnlineRobotsService(
     // Register the robot
     _memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
     _memoryCache.Set(GetRobotCommandsKey(robotId), new RobotClientsRobotCommands());
+    _memoryCache.Set($"OnlineRobotsService_RobotData_ConnectionAlive_{robotId}", true, TimeSpan.FromMinutes(robotAliveMinutes));
   }
 
   public async Task RemoveRobotAsync(Guid robotId)
@@ -96,9 +98,18 @@ public class OnlineRobotsService(
       _memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
     }    
     _memoryCache.Remove(GetRobotCommandsKey(robotId));
+    
+    // Publish the robot is offline
+    await _bus.Publish(new RobotDataContract
+    {
+      RobotId = robotId,
+      RealmId = realmId,
+      RobotStatus = RobotStatus.Offline,
+      CurrentTime = DateTime.MinValue
+    });
   }
 
-  public async Task UpdateRobotDataAsync(Guid robotId, RobotClientsExchange data)
+  public async Task UpdateRobotDataAsync(Guid robotId, RobotClientsExchange data, bool realtime = false)
   {
     if (_memoryCache.TryGetValue<bool>($"OnlineRobotsService_RobotData_Pause_{robotId}", out var _))
     {
@@ -106,7 +117,8 @@ public class OnlineRobotsService(
       return;
     }
     _memoryCache.Set($"OnlineRobotsService_RobotData_Pause_{robotId}", true, TimeSpan.FromSeconds(1));
-    
+    _memoryCache.Set($"OnlineRobotsService_RobotData_ConnectionAlive_{robotId}", true, TimeSpan.FromMinutes(robotAliveMinutes));
+
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var robotStatus = ConvertRobotStatus(data.RobotStatus);
     await _bus.Publish(new RobotDataContract {
@@ -129,8 +141,9 @@ public class OnlineRobotsService(
         Eta = data.NavProgress.Eta,
         Recoveries = data.NavProgress.Recoveries,
         DistanceRemaining = data.NavProgress.DistanceRemaining,
-        WaypointsRemaining = data.NavProgress.WaypointsRemaining  
-      }
+        WaypointsRemaining = data.NavProgress.WaypointsRemaining
+      },
+      CurrentTime = realtime ? DateTime.MaxValue : DateTime.UtcNow
     });
 
     if(_memoryCache.TryGetValue<RobotClientsRobotCommands>(GetRobotCommandsKey(robotId), out var robotCommands))
