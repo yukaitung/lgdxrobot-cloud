@@ -21,7 +21,7 @@
     <form @onsubmit="HandleSubmit">
       <div class="card-body">
         <div class="mb-3 row">
-          <ul class="steps steps-counter">
+          <ul class="steps steps-counter steps-vertical">
             @for (int i = 0; i < stepHeadings.Count(); i++)
             {
               <li class="step-item @(currentStep == i ? "active" : "")">@stepHeadings[i]</li>
