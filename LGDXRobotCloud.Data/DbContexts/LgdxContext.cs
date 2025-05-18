@@ -14,6 +14,7 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
   // Automation
   public virtual DbSet<AutoTask> AutoTasks { get; set; }
   public virtual DbSet<AutoTaskDetail> AutoTasksDetail { get; set; }
+  public virtual DbSet<AutoTaskJourney> AutoTasksJourney { get; set; }
   public virtual DbSet<Flow> Flows { get; set; }
   public virtual DbSet<FlowDetail> FlowDetails { get; set; }
   public virtual DbSet<Progress> Progresses { get; set; }
@@ -70,6 +71,12 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
       .HasOne(e => e.Waypoint)
       .WithMany()
       .HasForeignKey(e => e.WaypointId)
+      .OnDelete(DeleteBehavior.SetNull)
+      .IsRequired(false);
+    modelBuilder.Entity<AutoTaskJourney>()
+      .HasOne(e => e.CurrentProgress)
+      .WithMany()
+      .HasForeignKey(e => e.CurrentProgressId)
       .OnDelete(DeleteBehavior.SetNull)
       .IsRequired(false);
     // Automation.FlowDetails

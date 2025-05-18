@@ -259,6 +259,14 @@ public class AutoTaskService(
 
     if (autoTask.CurrentProgressId == (int)ProgressState.Waiting)
     {
+      var autoTaskJourney = new AutoTaskJourney
+      {
+        AutoTaskId = autoTaskBusinessModel.Id,
+        CurrentProgressId = autoTask.CurrentProgressId
+      };
+      await _context.AutoTasksJourney.AddAsync(autoTaskJourney);
+      await _context.SaveChangesAsync();
+
       await _bus.Publish(autoTaskBusinessModel.ToContract());
     }
 
