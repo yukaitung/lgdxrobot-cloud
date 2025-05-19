@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/test"
 @using LGDXRobotCloud.UI.Components.Pages.Home.Components
 @using LGDXRobotCloud.UI.Components.Shared
 @using LGDXRobotCloud.UI.Services
@@ -9,39 +9,28 @@
   <div class="row align-items-center">
     <div class="col">
       <h2 class="page-title">
+        Home
+      </h2>
+      <div class="text-secondary mt-1">
         <i class="ti ti-map-pin-filled"></i>
         @RealmName
-      </h2>
-    </div>
-    <div class="col-auto ms-auto">
-      <nav class="nav nav-segmented nav-2" role="tablist">
-        @for (int i = 0; i < Pages.Count; i++)
-        {
-          var num = i;
-          <input type="radio" class="nav-link-input" name="segmented" id="@($"segmented-checkbox-{num}")" checked="@(CurrentPage == num)">
-          <label for="@($"segmented-checkbox-{num}")" class="nav-link" role="tab" @onclick="() => HandlePageChange(num)">@Pages[i]</label>
-        }
-      </nav>
+      </div>
     </div>
   </div>
 </PageHeader>
 
-@switch (CurrentPage)
-{
-  default:
-  case 0:
-    <Dashboard />
-    break;
-  case 1:
-    <Map />
-    break;
-  case 2:
-    <Tasks />
-    break;
-  case 3:
-    <Robots />
-    break;
-}
+<PageBody>
+  <div class="row row-cards">
+    <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Read">
+      <div class="col-12">
+        <RealtimeAutoTasksTable Title="Running Tasks" RunningAutoTasks="true" />
+      </div>
+      <div class="col-12">
+        <RealtimeAutoTasksTable Title="Waiting Queue" RunningAutoTasks="false" />
+      </div>
+    </AuthorizeView>
+  </div>
+</PageBody>
 
 @code {
   [Inject]
@@ -52,10 +41,8 @@
 
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
-
+  
   private string RealmName { get; set; } = string.Empty;
-  private List<string> Pages = ["Dashboard", "Map", "Tasks", "Robots"];
-  private int CurrentPage = 0;
 
   protected override async Task OnInitializedAsync()
   {
@@ -63,10 +50,5 @@
     var settings = TokenService.GetSessionSettings(user);
     RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await base.OnInitializedAsync();
-  }
-
-  private void HandlePageChange(int page)
-  {
-    CurrentPage = page;
   }
 }
