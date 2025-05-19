@@ -123,7 +123,7 @@ public class AutoTaskService(
           Id = tj.Id,
           CurrentProcessId = tj.CurrentProgressId,
           CurrentProcessName = tj.CurrentProgress == null ? null : tj.CurrentProgress.Name,
-          CreatedTime = tj.CreatedTime,
+          CreatedAt = tj.CreatedAt,
         })
         .OrderBy(tj => tj.Id)
         .ToList(),

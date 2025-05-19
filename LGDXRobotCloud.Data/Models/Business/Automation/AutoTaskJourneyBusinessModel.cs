@@ -10,7 +10,7 @@ public record AutoTaskJourneyBusinessModel
 
   public string? CurrentProcessName { get; set; }
 
-  public required DateTime CreatedTime { get; set; }
+  public required DateTime CreatedAt { get; set; }
 }
 
 public static class AutoTaskJourneyBusinessModelExtensions
@@ -22,7 +22,7 @@ public static class AutoTaskJourneyBusinessModelExtensions
       Id = model.Id,
       CurrentProcessId = model.CurrentProcessId,
       CurrentProcessName = model.CurrentProcessName,
-      CreatedTime = model.CreatedTime,
+      CreatedAt = model.CreatedAt,
     };
   }
 }

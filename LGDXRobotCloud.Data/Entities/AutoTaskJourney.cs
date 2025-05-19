@@ -23,5 +23,5 @@ public class AutoTaskJourney
   public int AutoTaskId { get; set; }
 
   [Precision(0)]
-  public DateTime CreatedTime { get; set; } = DateTime.UtcNow;
+  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

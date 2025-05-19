@@ -14,8 +14,8 @@ namespace LGDXRobotCloud.UI.Client.Models
     {
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
         public IDictionary<string, object> AdditionalData { get; set; }
-        /// <summary>The createdTime property</summary>
-        public DateTimeOffset? CreatedTime { get; set; }
+        /// <summary>The createdAt property</summary>
+        public DateTimeOffset? CreatedAt { get; set; }
         /// <summary>The currentProcessId property</summary>
         public int? CurrentProcessId { get; set; }
         /// <summary>The currentProcessName property</summary>
@@ -53,7 +53,7 @@ namespace LGDXRobotCloud.UI.Client.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "createdTime", n => { CreatedTime = n.GetDateTimeOffsetValue(); } },
+                { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
                 { "currentProcessId", n => { CurrentProcessId = n.GetIntValue(); } },
                 { "currentProcessName", n => { CurrentProcessName = n.GetStringValue(); } },
                 { "id", n => { Id = n.GetIntValue(); } },
@@ -66,7 +66,7 @@ namespace LGDXRobotCloud.UI.Client.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
-            writer.WriteDateTimeOffsetValue("createdTime", CreatedTime);
+            writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
             writer.WriteIntValue("currentProcessId", CurrentProcessId);
             writer.WriteStringValue("currentProcessName", CurrentProcessName);
             writer.WriteIntValue("id", Id);

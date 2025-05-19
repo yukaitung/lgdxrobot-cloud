@@ -8,5 +8,5 @@ public record AutoTaskJourneyDto
 
   public string? CurrentProcessName { get; set; }
 
-  public required DateTime CreatedTime { get; set; }
+  public required DateTime CreatedAt { get; set; }
 }

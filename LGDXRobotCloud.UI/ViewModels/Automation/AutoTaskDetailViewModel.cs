@@ -38,7 +38,7 @@ public record AutoTaskJourney
 
   public string? CurrentProcessName { get; set; }
 
-  public string CreatedTime { get; set; } = null!;
+  public string CreatedAt { get; set; } = null!;
 }
 
 public class AutoTaskDetailViewModel : FormViewModel, IValidatableObject
@@ -120,7 +120,7 @@ public static class AutoTaskDetailViewModelExtensions
       Id = (int)t.Id!,
       CurrentProcessId = t.CurrentProcessId,
       CurrentProcessName = t.CurrentProcessName ?? "Deleted Process",
-      CreatedTime = UiHelper.TimeToString(t.CreatedTime)
+      CreatedAt = UiHelper.TimeToString(t.CreatedAt)
     }).ToList();
   }
 
