@@ -101,7 +101,6 @@ public sealed class AutoTasksController(
     return NoContent();
   }
   
-  [AllowAnonymous]
   [HttpGet("Statistics/{realmId}")]
   [ProducesResponseType(typeof(AutoTaskStatisticsDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
