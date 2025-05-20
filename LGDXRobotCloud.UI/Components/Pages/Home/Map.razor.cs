@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 
-namespace LGDXRobotCloud.UI.Components.Pages.Dashboards.Map;
+namespace LGDXRobotCloud.UI.Components.Pages.Home;
 
 public sealed partial class Map : ComponentBase, IDisposable
 {
@@ -68,45 +68,31 @@ public sealed partial class Map : ComponentBase, IDisposable
     }
 
     var robotData = RobotDataService.GetRobotData(robotId, realmId);
-    if (robotData != null)
+    try
     {
-      if (!RobotsData.ContainsKey(robotId))
+      if (robotData != null)
       {
-        try
+
+        if (!RobotsData.ContainsKey(robotId))
         {
           await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
         }
-        catch (TaskCanceledException)
-        {
-          Console.WriteLine("TaskCanceledException");
-        }
-        catch (ObjectDisposedException)
-        {
-          Console.WriteLine("ObjectDisposedException");
-        }
-      }
-      else
-      {
-        try
+        else
         {
           await JSRuntime.InvokeVoidAsync("MoveRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
         }
-        catch (TaskCanceledException)
+        RobotsData[robotId] = robotData;
+        // Update offcanvas
+        if (SelectedRobot != null && SelectedRobot.RobotId == robotId)
         {
-          Console.WriteLine("TaskCanceledException");
+          SelectedRobot = robotData;
         }
-        catch (ObjectDisposedException)
-        {
-          Console.WriteLine("ObjectDisposedException");
-        }
+        await InvokeAsync(StateHasChanged);
       }
-      RobotsData[robotId] = robotData;
-      // Update offcanvas
-      if (SelectedRobot != null && SelectedRobot.RobotId == robotId)
-      {
-        SelectedRobot = robotData;
-      }      
-      await InvokeAsync(StateHasChanged);
+    }
+    catch (TaskCanceledException)
+    {
+      Console.WriteLine("TaskCanceledException");
     }
   }
 

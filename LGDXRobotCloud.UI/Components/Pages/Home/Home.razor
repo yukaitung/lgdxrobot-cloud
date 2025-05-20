@@ -7,7 +7,7 @@
 
 <PageHeader Title="Home">
   <div class="row align-items-center">
-    <div class="col-2">
+    <div class="d-none d-sm-block col-2">
       <h2 class="page-title">
         Home
       </h2>
@@ -27,7 +27,7 @@
       </nav>
     </div>
     <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write">
-      <div class="col-2 d-flex justify-content-end">
+      <div class="d-none d-sm-flex col-2 justify-content-end">
         <a href="@(AppRoutes.Automation.AutoTasks.Create + "?ReturnUrl=/")" type="button" class="btn btn-primary">
           Create Task
         </a>
