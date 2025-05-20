@@ -56,7 +56,7 @@ public sealed class AutoTasksController(
   public async Task<ActionResult> CreateTask(AutoTaskCreateDto autoTaskCreateDto)
   {
     var autoTask = await _autoTaskService.CreateAutoTaskAsync(autoTaskCreateDto.ToBusinessModel());
-    return CreatedAtAction(nameof(GetTask), new {id = autoTask.Id}, autoTask.ToDto());
+    return CreatedAtAction(nameof(GetTask), new { id = autoTask.Id }, autoTask.ToDto());
   }
 
   [HttpPut("{id}")]
@@ -99,5 +99,15 @@ public sealed class AutoTasksController(
   {
     await _autoTaskService.AutoTaskNextApiAsync(autoTaskNextDto.RobotId, id, autoTaskNextDto.NextToken);
     return NoContent();
+  }
+  
+  [AllowAnonymous]
+  [HttpGet("Statistics/{realmId}")]
+  [ProducesResponseType(typeof(AutoTaskStatisticsDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult<AutoTaskStatisticsDto>> GetStatistics(int realmId)
+  {
+    var statistics = await _autoTaskService.GetAutoTaskStatisticsAsync(realmId);
+    return Ok(statistics.ToDto());
   }
 }
