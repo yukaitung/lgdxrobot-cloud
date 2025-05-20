@@ -36,14 +36,7 @@ public sealed class RobotDataService(
     {
       return robotData;
     }
-    else
-    {
-      // Unregister the robot data in the cache
-      var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId)) ?? [];
-      OnlineRobotsIds.Remove(robotId);
-      _memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
-      return null;
-    }
+    return null;
   }
 
   public void UpdateRobotData(RobotDataContract robotData)
@@ -57,7 +50,7 @@ public sealed class RobotDataService(
       OnlineRobotsIds.Add(robotId);
       memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
     }
-    _memoryCache.Set(GetRobotDataKey(robotId), robotData, DateTimeOffset.Now.AddMinutes(1));
+    _memoryCache.Set(GetRobotDataKey(robotId), robotData);
     _realTimeService.RobotDataHasUpdated(new RobotUpdatEventArgs { RobotId = robotId, RealmId = realmId });
   }
 

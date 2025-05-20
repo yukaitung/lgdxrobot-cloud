@@ -1,1 +1,49 @@
-<h1>Task</h1>
+@using LGDXRobotCloud.UI.Components.Pages.Home.Components
+@using LGDXRobotCloud.UI.Components.Shared
+@using LGDXRobotCloud.UI.Services
+@using LGDXRobotCloud.Utilities.Enums
+
+<PageBody>
+  <div class="row row-cards">
+    <div class="col-sm-6 col-lg-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="subheader">Waiting Task</div>
+          <div class="h1 mb-3">75%</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="subheader">Running Task</div>
+          <div class="h1 mb-3">75%</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="subheader">Completed Tasks</div>
+          <div class="h1 mb-3">75%</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="subheader">Success Rate</div>
+          <div class="h1 mb-3">75%</div>
+        </div>
+      </div>
+    </div>
+    <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Read">
+      <div class="col-12">
+        <RealtimeAutoTasksTable Title="Running Tasks" RunningAutoTasks="true" />
+      </div>
+      <div class="col-12">
+        <RealtimeAutoTasksTable Title="Waiting Queue" RunningAutoTasks="false" />
+      </div>
+    </AuthorizeView>
+  </div>
+</PageBody>

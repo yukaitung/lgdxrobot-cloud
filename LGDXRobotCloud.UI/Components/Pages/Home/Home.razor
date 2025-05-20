@@ -7,13 +7,16 @@
 
 <PageHeader Title="Home">
   <div class="row align-items-center">
-    <div class="col">
+    <div class="col-2">
       <h2 class="page-title">
+        Home
+      </h2>
+      <div class="text-secondary mt-1">
         <i class="ti ti-map-pin-filled"></i>
         @RealmName
-      </h2>
+      </div>
     </div>
-    <div class="col-auto ms-auto">
+    <div class="col d-flex justify-content-center">
       <nav class="nav nav-segmented nav-2" role="tablist">
         @for (int i = 0; i < Pages.Count; i++)
         {
@@ -23,6 +26,13 @@
         }
       </nav>
     </div>
+    <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write">
+      <div class="col-2 d-flex justify-content-end">
+        <a href="@(AppRoutes.Automation.AutoTasks.Create + "?ReturnUrl=/")" type="button" class="btn btn-primary">
+          Create Task
+        </a>
+      </div>
+    </AuthorizeView>
   </div>
 </PageHeader>
 
@@ -30,15 +40,12 @@
 {
   default:
   case 0:
-    <Dashboard />
+    <Tasks />
     break;
   case 1:
     <Map />
     break;
   case 2:
-    <Tasks />
-    break;
-  case 3:
     <Robots />
     break;
 }
@@ -54,7 +61,7 @@
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
   private string RealmName { get; set; } = string.Empty;
-  private List<string> Pages = ["Dashboard", "Map", "Tasks", "Robots"];
+  private List<string> Pages = ["Tasks", "Map", "Robots"];
   private int CurrentPage = 0;
 
   protected override async Task OnInitializedAsync()
