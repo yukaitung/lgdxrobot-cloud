@@ -87,15 +87,6 @@ public sealed class AutoTasksController(
     return NoContent();
   }
 
-  [HttpPost("{id}/Next")]
-  [ProducesResponseType(StatusCodes.Status204NoContent)]
-  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> AutoTaskNext(int id, AutoTaskNextDto autoTaskNextDto)
-  {
-    await _autoTaskService.AutoTaskNextApiAsync(autoTaskNextDto.RobotId, id, autoTaskNextDto.NextToken);
-    return NoContent();
-  }
-
   [HttpGet("Statistics/{realmId}")]
   [ProducesResponseType(typeof(AutoTaskStatisticsDto), StatusCodes.Status200OK)]
   public async Task<ActionResult<AutoTaskStatisticsDto>> GetStatistics(int realmId)
