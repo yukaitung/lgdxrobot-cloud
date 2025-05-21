@@ -25,72 +25,83 @@
   <div class="offcanvas-body">
     @if (SelectedRobot != null)
     {
-      <div class="d-flex">
-        <h2 style="display: table;">@SelectedRobotName</h2>
-        <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@SelectedRobot.RobotStatus" /></h2>
+      <div class="row row-deck row-cards">
+        <!-- Robot Name  -->
+        <div class="col-12 d-flex">
+          <h2 style="display: table;">@SelectedRobotName</h2>
+          <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@SelectedRobot.RobotStatus" /></h2>
+        </div>
+        <!-- Robot Data  -->
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="datagrid">
+                <div class="datagrid-item">
+                  <div class="datagrid-title">ID</div>
+                  <div class="datagrid-content">@SelectedRobot.RobotId</div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">Position</div>
+                  <div class="datagrid-content">
+                    X: @Math.Round(SelectedRobot.Position.X, 4)<br />Y: @Math.Round(SelectedRobot.Position.Y, 4)<br />Rotation: @Math.Round((SelectedRobot.Position.Rotation * 180 / Math.PI), 4)
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">Batteries</div>
+                  <div class="datagrid-content">
+                    @if (SelectedRobot.Batteries.Count() > 0)
+                    {
+                      @for (int i = 0; i < SelectedRobot.Batteries.Count(); i++)
+                      {
+                        @(' ')
+                        <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
+                          @(SelectedRobot.Batteries.ElementAt(i) + " V")
+                        </span>
+                      }
+                    }
+                    else
+                    {
+                      <span class="badge badge-outline">Unavailable</span>
+                    }
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">Emergency Stops</div>
+                  <div class="datagrid-content">Software: @SelectedRobot.CriticalStatus.SoftwareEmergencyStop<br />Hardware: @SelectedRobot.CriticalStatus.HardwareEmergencyStop</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Task Data  -->
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="datagrid">
+                <div class="datagrid-item">
+                  <div class="datagrid-title">ETA</div>
+                  <div class="datagrid-content">@Math.Round(SelectedRobot.NavProgress.Eta, 4)</div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">Recoveries</div>
+                  <div class="datagrid-content">@SelectedRobot.NavProgress.Recoveries</div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">Distance Remaining</div>
+                  <div class="datagrid-content">@Math.Round(SelectedRobot.NavProgress.DistanceRemaining, 4)</div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">Waypoints Remaining</div>
+                  <div class="datagrid-content">@SelectedRobot.NavProgress.WaypointsRemaining</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="mb-2">ID: @SelectedRobot.RobotId</div>
-      <div class="table-responsive mb-3">
-        <table class="table card-table table-vcenter datatable">
-          <tbody>
-            <tr>
-              <th colspan="2">
-                Robot Data
-              </th>
-            </tr>
-            <tr>
-              <td>Position</td>
-              <td>X: @Math.Round(SelectedRobot.Position.X, 4)<br />Y: @Math.Round(SelectedRobot.Position.Y, 4)<br />Rotation: @Math.Round(SelectedRobot.Position.Rotation, 4)</td>
-            </tr>
-            <tr>
-              <td>Batteries</td>
-              <td>
-                @if (SelectedRobot.Batteries.Count() > 0)
-                {
-                  @for (int i = 0; i < SelectedRobot.Batteries.Count(); i++)
-                  {
-                    @(' ')
-                    <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
-                      @(SelectedRobot.Batteries.ElementAt(i) + " V")
-                    </span>
-                  }
-                }
-                else
-                {
-                  <span class="badge badge-outline">Unavailable</span>
-                }
-              </td>
-            </tr>
-            <tr>
-              <td>Emergency Stops</td>
-              <td>Software: @SelectedRobot.CriticalStatus.SoftwareEmergencyStop<br />Hardware: @SelectedRobot.CriticalStatus.HardwareEmergencyStop</td>
-            </tr>
-            <tr>
-              <td>ETA</td>
-              <td>@Math.Round(SelectedRobot.NavProgress.Eta, 4)</td>
-            </tr>
-            <tr>
-              <td>Recoveries</td>
-              <td>@SelectedRobot.NavProgress.Recoveries</td>
-            </tr>
-            <tr>
-              <td>Distance Remaining</td>
-              <td>@Math.Round(SelectedRobot.NavProgress.DistanceRemaining, 4)</td>
-            </tr>
-            <tr>
-              <td>Waypoints Remaining</td>
-              <td>@SelectedRobot.NavProgress.WaypointsRemaining</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <a href="@(AppRoutes.Navigation.Robots.Index + $"/{SelectedRobot.RobotId}?ReturnUrl=" + AppRoutes.Dashboards.Map)" type="button" class="btn btn-primary">
-        Manage
-      </a>
     }
   </div>
 </div>
-
 <script>
   @if (Realm != null)
   { 

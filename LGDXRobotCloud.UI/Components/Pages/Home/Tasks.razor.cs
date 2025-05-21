@@ -4,6 +4,7 @@ using LGDXRobotCloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home;
 
@@ -33,7 +34,15 @@ public sealed partial class Tasks : ComponentBase, IDisposable
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     RealmId = settings.CurrentRealmId;
-    AutoTaskStatisticsDto = await LgdxApiClient.Automation.AutoTasks.Statistics[RealmId].GetAsync();
+    try
+    {
+      AutoTaskStatisticsDto = await LgdxApiClient.Automation.AutoTasks.Statistics[RealmId].GetAsync();
+    }
+    catch (ApiException ex)
+    {
+      // Prevent crashing the app if the API is not available
+      Console.WriteLine(ex.Message);
+    }
     await base.OnInitializedAsync();
   }
   

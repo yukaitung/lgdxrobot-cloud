@@ -121,19 +121,12 @@ public sealed partial class Map : ComponentBase, IDisposable
   {
     if (firstRender)
     {
-      try
+      RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
+      ObjectReference = DotNetObjectReference.Create(this);
+      await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
+      foreach (var (robotId, robotData) in RobotsData)
       {
-        RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
-        ObjectReference = DotNetObjectReference.Create(this);
-        await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
-        foreach (var (robotId, robotData) in RobotsData)
-        {
-          await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
-        }
-      }
-      catch (Exception)
-      {
-        throw;
+        await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
       }
     }
     await base.OnAfterRenderAsync(firstRender);
