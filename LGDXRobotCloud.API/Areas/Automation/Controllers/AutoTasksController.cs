@@ -97,10 +97,9 @@ public sealed class AutoTasksController(
 
   [HttpGet("RobotCurrentTask/{robotId}")]
   [ProducesResponseType(typeof(AutoTaskListDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status404NotFound)]
-  public async Task<ActionResult<AutoTaskListDto>> GetRobotCurrentTask(Guid robotId)
+  public async Task<ActionResult<AutoTaskListDto?>> GetRobotCurrentTask(Guid robotId)
   {
     var autoTask = await _autoTaskService.GetRobotCurrentTaskAsync(robotId);
-    return Ok(autoTask.ToDto());
+    return Ok(autoTask?.ToDto());
   }
 }

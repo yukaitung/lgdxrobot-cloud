@@ -136,9 +136,9 @@ public sealed partial class Map : ComponentBase, IDisposable
         await InvokeAsync(StateHasChanged);
       }
     }
-    catch (TaskCanceledException)
+    catch (Exception)
     {
-      Console.WriteLine("TaskCanceledException");
+      Console.WriteLine("Exception");
     }
   }
 

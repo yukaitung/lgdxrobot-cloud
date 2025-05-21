@@ -1,7 +1,5 @@
 function CloseModal(modalId) {
-  let myModalElement = document.getElementById(modalId);
-  let modal = bootstrap.Modal.getInstance(myModalElement);
-  modal.hide();
+  document.querySelector(modalId + ' .btn-close').click();
 }
 
 /*

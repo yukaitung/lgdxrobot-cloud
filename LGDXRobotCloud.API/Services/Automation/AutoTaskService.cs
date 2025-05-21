@@ -25,7 +25,7 @@ public interface IAutoTaskService
   Task AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
 
   Task<AutoTaskStatisticsBusinessModel> GetAutoTaskStatisticsAsync(int realmId);
-  Task<AutoTaskListBusinessModel> GetRobotCurrentTaskAsync(Guid robotId);
+  Task<AutoTaskListBusinessModel?> GetRobotCurrentTaskAsync(Guid robotId);
 }
 
 public class AutoTaskService(
@@ -486,7 +486,7 @@ public class AutoTaskService(
     }
 
     var abortedTaskPerHour = await _context.AutoTasksJourney.AsNoTracking()
-    .Where(t => t.CurrentProgressId == (int)ProgressState.Completed && t.CreatedAt > DateTime.UtcNow.AddHours(-23))
+    .Where(t => t.CurrentProgressId == (int)ProgressState.Aborted && t.CreatedAt > DateTime.UtcNow.AddHours(-23))
     .GroupBy(t => new
     {
       t.CreatedAt.Year,
@@ -521,15 +521,10 @@ public class AutoTaskService(
     // Now = total tasks
     statistics.WaitingTasksTrend.Add(waitingTaskCount);
     statistics.RunningTasksTrend.Add(runningTaskCount);
-    int waitingTaskCount2 = waitingTaskCount;
-    int runningTaskCount2 = runningTaskCount;
-    // Last 23 hours = total tasks - task created in this hour
     for (int i = 0; i < 23; i++)
     {
-      waitingTaskCount2 -= waitingTaskPerHourDict.TryGetValue(i, out int count) ? count : 0;
-      runningTaskCount2 -= runningTaskPerHourDict.TryGetValue(i, out count) ? count : 0;
-      statistics.WaitingTasksTrend.Add(waitingTaskCount2);
-      statistics.RunningTasksTrend.Add(runningTaskCount2);
+      statistics.WaitingTasksTrend.Add(waitingTaskPerHourDict.TryGetValue(i, out int count) ? count : 0);
+      statistics.RunningTasksTrend.Add(runningTaskPerHourDict.TryGetValue(i, out count) ? count : 0);
       statistics.CompletedTasksTrend.Add(completedTaskPerHourDict.TryGetValue(i, out count) ? count : 0);
       statistics.AbortedTasksTrend.Add(abortedTaskPerHourDict.TryGetValue(i, out count) ? count : 0);
     }
@@ -544,7 +539,7 @@ public class AutoTaskService(
     return statistics;
   }
 
-  public async Task<AutoTaskListBusinessModel> GetRobotCurrentTaskAsync(Guid robotId)
+  public async Task<AutoTaskListBusinessModel?> GetRobotCurrentTaskAsync(Guid robotId)
   {
     var autoTask = await _context.AutoTasks.AsNoTracking()
       .Where(t => !LgdxHelper.AutoTaskStaticStates.Contains(t.CurrentProgressId!) && t.AssignedRobotId == robotId)
@@ -562,8 +557,7 @@ public class AutoTaskService(
         CurrentProgressId = t.CurrentProgressId,
         CurrentProgressName = t.CurrentProgress.Name,
       })
-      .FirstOrDefaultAsync()
-      ?? throw new LgdxNotFound404Exception();
+      .FirstOrDefaultAsync();
     return autoTask;
   }
 }

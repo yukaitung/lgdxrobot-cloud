@@ -22,7 +22,7 @@ public sealed partial class PauseTaskAssigementModel
     await LgdxApiClient.Navigation.Robots[RobotCommands!.RobotId].PauseTaskAssigement.PatchAsync(new() {
       Enable = newValue
     });
-    await JSRuntime.InvokeVoidAsync("CloseModal", "pauseTaskAssigement");
+    await JSRuntime.InvokeVoidAsync("CloseModal", "#pauseTaskAssigement");
     //RobotCommands!.Commands.PauseTaskAssigement = newValue;
     //RobotCommands = null;
   }
