@@ -1,5 +1,5 @@
 @using LGDXRobotCloud.Utilities.Enums
-@using LGDXRobotCloud.UI.Components.Pages.Home.Components
+@using LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components
 @attribute [Authorize (Policy = Permissions.Navigation.Robots.Read)]
 
 <PageBody>
@@ -108,3 +108,8 @@
     }
   </div>
 </PageBody>
+
+<AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ControlModal">
+  <PauseTaskAssigementModel RobotCommands="SelectedRobotCommands" />
+  <SoftwareEmergencyStopModel RobotCommands="SelectedRobotCommands" />
+</AuthorizeView>
