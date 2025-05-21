@@ -28,7 +28,7 @@
     </div>
     <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write">
       <div class="d-none d-sm-flex col-2 justify-content-end">
-        <a href="@(AppRoutes.Automation.AutoTasks.Create + "?ReturnUrl=/")" type="button" class="btn btn-primary">
+        <a href="@(AppRoutes.Automation.AutoTasks.Create + $"?ReturnUrl=/?tab={CurrentPage}")" type="button" class="btn btn-primary">
           Create Task
         </a>
       </div>

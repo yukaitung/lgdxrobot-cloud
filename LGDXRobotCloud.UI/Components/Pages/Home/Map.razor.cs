@@ -1,6 +1,7 @@
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
+using LGDXRobotCloud.UI.Constants;
 using LGDXRobotCloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -29,6 +30,9 @@ public sealed partial class Map : ComponentBase, IDisposable
   public required ITokenService TokenService { get; set; }
 
   [Inject]
+  public required NavigationManager NavigationManager { get; set; } = default!;
+
+  [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
   private DotNetObjectReference<Map> ObjectReference = null!;
@@ -36,12 +40,13 @@ public sealed partial class Map : ComponentBase, IDisposable
   private RobotDataContract? SelectedRobot { get; set; }
   private string SelectedRobotName { get; set; } = string.Empty;
   private Guid LastSelectedRobotId { get; set; } = Guid.Empty;
+  private Guid SelectedRobotId { get; set; } = Guid.Empty;
   private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = [];
 
   [JSInvokable("HandleRobotSelect")]
   public async Task HandleRobotSelect(string robotId)
   {
-    var SelectedRobotId = Guid.Parse(robotId);
+    SelectedRobotId = Guid.Parse(robotId);
     if (LastSelectedRobotId != SelectedRobotId)
     {
       var response = await LgdxApiClient.Navigation.Robots.Search.GetAsync(x => x.QueryParameters = new() {
@@ -56,6 +61,11 @@ public sealed partial class Map : ComponentBase, IDisposable
     SelectedRobot = RobotsData.TryGetValue(SelectedRobotId, out RobotDataContract? value) ? value : null;
     StateHasChanged();
     LastSelectedRobotId = SelectedRobotId;
+  }
+
+  public void HandleRobotManageClick()
+  {
+    NavigationManager.NavigateTo(AppRoutes.Navigation.Robots.Index + $"/{SelectedRobotId}?ReturnUrl=/?tab=1");
   }
 
   private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
