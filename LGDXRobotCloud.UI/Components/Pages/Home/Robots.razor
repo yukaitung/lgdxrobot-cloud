@@ -1,5 +1,6 @@
 @using LGDXRobotCloud.Utilities.Enums
 @using LGDXRobotCloud.UI.Components.Pages.Home.Components
+@attribute [Authorize (Policy = Permissions.Navigation.Robots.Read)]
 
 <PageBody>
   @if (RobotsList != null)
