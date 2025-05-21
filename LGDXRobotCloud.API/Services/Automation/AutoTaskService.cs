@@ -9,6 +9,7 @@ using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobotCloud.API.Services.Automation;
 
@@ -22,6 +23,9 @@ public interface IAutoTaskService
 
   Task AbortAutoTaskAsync(int autoTaskId);
   Task AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
+
+  Task<AutoTaskStatisticsBusinessModel> GetAutoTaskStatisticsAsync(int realmId);
+  Task<AutoTaskListBusinessModel> GetRobotCurrentTaskAsync(Guid robotId);
 }
 
 public class AutoTaskService(
@@ -29,10 +33,12 @@ public class AutoTaskService(
     IAutoTaskSchedulerService autoTaskSchedulerService,
     IBus bus,
     IEventService eventService,
+    IMemoryCache memoryCache,
     IOnlineRobotsService onlineRobotsService
   ) : IAutoTaskService
 {
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
+  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
@@ -74,13 +80,14 @@ public class AutoTaskService(
       .ThenBy(t => t.Id)
       .Skip(pageSize * (pageNumber - 1))
       .Take(pageSize)
-      .Select(t => new AutoTaskListBusinessModel {
+      .Select(t => new AutoTaskListBusinessModel
+      {
         Id = t.Id,
         Name = t.Name,
         Priority = t.Priority,
         FlowId = t.Flow!.Id,
         FlowName = t.Flow.Name,
-        RealmId = t.Realm.Id, 
+        RealmId = t.Realm.Id,
         RealmName = t.Realm.Name,
         AssignedRobotId = t.AssignedRobotId,
         AssignedRobotName = t.AssignedRobot!.Name,
@@ -99,29 +106,44 @@ public class AutoTaskService(
       .Include(t => t.AutoTaskDetails
         .OrderBy(td => td.Order))
         .ThenInclude(td => td.Waypoint)
+      .Include(t => t.AutoTaskJourneys)
+        .ThenInclude(tj => tj.CurrentProgress)
       .Include(t => t.AssignedRobot)
       .Include(t => t.CurrentProgress)
       .Include(t => t.Flow)
       .Include(t => t.Realm)
-      .Select(t => new AutoTaskBusinessModel {
+      .AsSplitQuery()
+      .Select(t => new AutoTaskBusinessModel
+      {
         Id = t.Id,
         Name = t.Name,
         Priority = t.Priority,
         FlowId = t.Flow!.Id,
         FlowName = t.Flow.Name,
-        RealmId = t.Realm.Id, 
+        RealmId = t.Realm.Id,
         RealmName = t.Realm.Name,
         AssignedRobotId = t.AssignedRobotId,
         AssignedRobotName = t.AssignedRobot!.Name,
         CurrentProgressId = t.CurrentProgressId,
         CurrentProgressName = t.CurrentProgress.Name,
-        AutoTaskDetails = t.AutoTaskDetails.Select(td => new AutoTaskDetailBusinessModel {
+        AutoTaskJourneys = t.AutoTaskJourneys.Select(tj => new AutoTaskJourneyBusinessModel
+        {
+          Id = tj.Id,
+          CurrentProcessId = tj.CurrentProgressId,
+          CurrentProcessName = tj.CurrentProgress == null ? null : tj.CurrentProgress.Name,
+          CreatedAt = tj.CreatedAt,
+        })
+        .OrderBy(tj => tj.Id)
+        .ToList(),
+        AutoTaskDetails = t.AutoTaskDetails.Select(td => new AutoTaskDetailBusinessModel
+        {
           Id = td.Id,
           Order = td.Order,
           CustomX = td.CustomX,
           CustomY = td.CustomY,
           CustomRotation = td.CustomRotation,
-          Waypoint = td.Waypoint == null ? null : new WaypointBusinessModel {
+          Waypoint = td.Waypoint == null ? null : new WaypointBusinessModel
+          {
             Id = td.Waypoint.Id,
             Name = td.Waypoint.Name,
             RealmId = t.Realm.Id,
@@ -148,7 +170,7 @@ public class AutoTaskService(
       .Where(w => waypointIds.Contains(w.Id))
       .Where(w => w.RealmId == realmId)
       .ToDictionaryAsync(w => w.Id, w => w);
-    foreach(var waypointId in waypointIds)
+    foreach (var waypointId in waypointIds)
     {
       if (!waypointDict.ContainsKey(waypointId))
       {
@@ -168,7 +190,7 @@ public class AutoTaskService(
       throw new LgdxValidation400Expection(nameof(Realm), $"The Realm ID {realmId} is invalid.");
     }
     // Validate the Assigned Robot ID
-    if (robotId != null) 
+    if (robotId != null)
     {
       var robot = await _context
         .Robots
@@ -188,22 +210,24 @@ public class AutoTaskService(
       .Where(d => d.WaypointId != null)
       .Select(d => d.WaypointId!.Value)
       .ToHashSet();
-    
-    await ValidateAutoTask(waypointIds, 
-      autoTaskCreateBusinessModel.FlowId, 
-      autoTaskCreateBusinessModel.RealmId, 
+
+    await ValidateAutoTask(waypointIds,
+      autoTaskCreateBusinessModel.FlowId,
+      autoTaskCreateBusinessModel.RealmId,
       autoTaskCreateBusinessModel.AssignedRobotId);
 
-    var autoTask = new AutoTask {
+    var autoTask = new AutoTask
+    {
       Name = autoTaskCreateBusinessModel.Name,
       Priority = autoTaskCreateBusinessModel.Priority,
       FlowId = autoTaskCreateBusinessModel.FlowId,
       RealmId = autoTaskCreateBusinessModel.RealmId,
       AssignedRobotId = autoTaskCreateBusinessModel.AssignedRobotId,
-      CurrentProgressId = autoTaskCreateBusinessModel.IsTemplate 
+      CurrentProgressId = autoTaskCreateBusinessModel.IsTemplate
         ? (int)ProgressState.Template
         : (int)ProgressState.Waiting,
-      AutoTaskDetails = autoTaskCreateBusinessModel.AutoTaskDetails.Select(td => new AutoTaskDetail {
+      AutoTaskDetails = autoTaskCreateBusinessModel.AutoTaskDetails.Select(td => new AutoTaskDetail
+      {
         Order = td.Order,
         CustomX = td.CustomX,
         CustomY = td.CustomY,
@@ -220,25 +244,28 @@ public class AutoTaskService(
 
     var autoTaskBusinessModel = await _context.AutoTasks.AsNoTracking()
       .Where(t => t.Id == autoTask.Id)
-      .Select(t => new AutoTaskBusinessModel {
+      .Select(t => new AutoTaskBusinessModel
+      {
         Id = t.Id,
         Name = t.Name,
         Priority = t.Priority,
         FlowId = t.Flow!.Id,
         FlowName = t.Flow.Name,
-        RealmId = t.Realm.Id, 
+        RealmId = t.Realm.Id,
         RealmName = t.Realm.Name,
         AssignedRobotId = t.AssignedRobotId,
         AssignedRobotName = t.AssignedRobot!.Name,
         CurrentProgressId = t.CurrentProgressId,
         CurrentProgressName = t.CurrentProgress.Name,
-        AutoTaskDetails = t.AutoTaskDetails.Select(td => new AutoTaskDetailBusinessModel {
+        AutoTaskDetails = t.AutoTaskDetails.Select(td => new AutoTaskDetailBusinessModel
+        {
           Id = td.Id,
           Order = td.Order,
           CustomX = td.CustomX,
           CustomY = td.CustomY,
           CustomRotation = td.CustomRotation,
-          Waypoint = td.Waypoint == null ? null : new WaypointBusinessModel {
+          Waypoint = td.Waypoint == null ? null : new WaypointBusinessModel
+          {
             Id = td.Waypoint.Id,
             Name = td.Waypoint.Name,
             RealmId = t.Realm.Id,
@@ -259,6 +286,14 @@ public class AutoTaskService(
 
     if (autoTask.CurrentProgressId == (int)ProgressState.Waiting)
     {
+      var autoTaskJourney = new AutoTaskJourney
+      {
+        AutoTaskId = autoTaskBusinessModel.Id,
+        CurrentProgressId = autoTask.CurrentProgressId
+      };
+      await _context.AutoTasksJourney.AddAsync(autoTaskJourney);
+      await _context.SaveChangesAsync();
+
       await _bus.Publish(autoTaskBusinessModel.ToContract());
     }
 
@@ -280,7 +315,7 @@ public class AutoTaskService(
     }
     // Ensure the input task does not include Detail ID from other task
     HashSet<int> dbDetailIds = task.AutoTaskDetails.Select(d => d.Id).ToHashSet();
-    foreach(var bmDetailId in autoTaskUpdateBusinessModel.AutoTaskDetails.Where(d => d.Id != null).Select(d => d.Id))
+    foreach (var bmDetailId in autoTaskUpdateBusinessModel.AutoTaskDetails.Where(d => d.Id != null).Select(d => d.Id))
     {
       if (bmDetailId != null && !dbDetailIds.Contains((int)bmDetailId))
       {
@@ -291,16 +326,17 @@ public class AutoTaskService(
       .Where(d => d.WaypointId != null)
       .Select(d => d.WaypointId!.Value)
       .ToHashSet();
-    await ValidateAutoTask(waypointIds, 
-      autoTaskUpdateBusinessModel.FlowId, 
-      task.RealmId, 
+    await ValidateAutoTask(waypointIds,
+      autoTaskUpdateBusinessModel.FlowId,
+      task.RealmId,
       autoTaskUpdateBusinessModel.AssignedRobotId);
-    
+
     task.Name = autoTaskUpdateBusinessModel.Name;
     task.Priority = autoTaskUpdateBusinessModel.Priority;
     task.FlowId = autoTaskUpdateBusinessModel.FlowId;
     task.AssignedRobotId = autoTaskUpdateBusinessModel.AssignedRobotId;
-    task.AutoTaskDetails = autoTaskUpdateBusinessModel.AutoTaskDetails.Select(td => new AutoTaskDetail {
+    task.AutoTaskDetails = autoTaskUpdateBusinessModel.AutoTaskDetails.Select(td => new AutoTaskDetail
+    {
       Id = (int)td.Id!,
       Order = td.Order,
       CustomX = td.CustomX,
@@ -336,14 +372,14 @@ public class AutoTaskService(
       .FirstOrDefaultAsync()
       ?? throw new LgdxNotFound404Exception();
 
-    if (autoTask.CurrentProgressId == (int)ProgressState.Template || 
-        autoTask.CurrentProgressId == (int)ProgressState.Completed || 
+    if (autoTask.CurrentProgressId == (int)ProgressState.Template ||
+        autoTask.CurrentProgressId == (int)ProgressState.Completed ||
         autoTask.CurrentProgressId == (int)ProgressState.Aborted)
     {
       throw new LgdxValidation400Expection(nameof(autoTaskId), "Cannot abort the task not in running status.");
     }
-    if (autoTask.CurrentProgressId != (int)ProgressState.Waiting && 
-        autoTask.AssignedRobotId != null && 
+    if (autoTask.CurrentProgressId != (int)ProgressState.Waiting &&
+        autoTask.AssignedRobotId != null &&
         await _onlineRobotsService.SetAbortTaskAsync((Guid)autoTask.AssignedRobotId!, true))
     {
       // If the robot is online, abort the task from the robot
@@ -357,8 +393,177 @@ public class AutoTaskService(
 
   public async Task AutoTaskNextApiAsync(Guid robotId, int taskId, string token)
   {
-    var result = await _autoTaskSchedulerService.AutoTaskNextApiAsync(robotId, taskId, token) 
+    var result = await _autoTaskSchedulerService.AutoTaskNextApiAsync(robotId, taskId, token)
       ?? throw new LgdxValidation400Expection(nameof(token), "The next token is invalid.");
     _onlineRobotsService.SetAutoTaskNextApi(robotId, result);
+  }
+
+  public async Task<AutoTaskStatisticsBusinessModel> GetAutoTaskStatisticsAsync(int realmId)
+  {
+    _memoryCache.TryGetValue("Automation_Statistics", out AutoTaskStatisticsBusinessModel? autoTaskStatistics);
+    if (autoTaskStatistics != null)
+    {
+      return autoTaskStatistics;
+    }
+
+    /*
+     * Get queuing tasks and running tasks (total)
+     */
+    DateTime CurrentDate = DateTime.UtcNow;
+    var waitingTaskCount = await _context.AutoTasks.AsNoTracking()
+      .Where(t => t.CurrentProgressId == (int)ProgressState.Waiting)
+      .CountAsync();
+    var waitingTaskPerHour = await _context.AutoTasksJourney.AsNoTracking()
+    .Where(t => t.CurrentProgressId == (int)ProgressState.Waiting && t.CreatedAt > DateTime.UtcNow.AddHours(-23))
+    .GroupBy(t => new
+    {
+      t.CreatedAt.Year,
+      t.CreatedAt.Month,
+      t.CreatedAt.Day,
+      t.CreatedAt.Hour
+    })
+    .Select(g => new
+    {
+      Time = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day, g.Key.Hour, 0, 0),
+      TasksCompleted = g.Count()
+    })
+    .OrderBy(g => g.Time)
+    .ToListAsync();
+    Dictionary<int, int> waitingTaskPerHourDict = [];
+    foreach (var taskCount in waitingTaskPerHour)
+    {
+      waitingTaskPerHourDict.Add((int)(CurrentDate - taskCount.Time).TotalHours, taskCount.TasksCompleted);
+    }
+
+    var runningTaskCount = await _context.AutoTasks.AsNoTracking()
+      .Where(t => !LgdxHelper.AutoTaskStaticStates.Contains(t.CurrentProgressId!))
+      .CountAsync();
+    var runningTaskPerHour = await _context.AutoTasksJourney.AsNoTracking()
+    .Where(t => !LgdxHelper.AutoTaskStaticStates.Contains((int)t.CurrentProgressId!) && t.CreatedAt > DateTime.UtcNow.AddHours(-23))
+    .GroupBy(t => new
+    {
+      t.CreatedAt.Year,
+      t.CreatedAt.Month,
+      t.CreatedAt.Day,
+      t.CreatedAt.Hour
+    })
+    .Select(g => new
+    {
+      Time = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day, g.Key.Hour, 0, 0),
+      TasksCompleted = g.Count()
+    })
+    .OrderBy(g => g.Time)
+    .ToListAsync();
+    Dictionary<int, int> runningTaskPerHourDict = [];
+    foreach (var taskCount in runningTaskPerHour)
+    {
+      runningTaskPerHourDict.Add((int)(CurrentDate - taskCount.Time).TotalHours, taskCount.TasksCompleted);
+    }
+
+    /*
+     * Get task completed / aborted in the last 24 hours
+     */
+    var completedTaskPerHour = await _context.AutoTasksJourney.AsNoTracking()
+    .Where(t => t.CurrentProgressId == (int)ProgressState.Completed && t.CreatedAt > DateTime.UtcNow.AddHours(-23))
+    .GroupBy(t => new
+    {
+      t.CreatedAt.Year,
+      t.CreatedAt.Month,
+      t.CreatedAt.Day,
+      t.CreatedAt.Hour
+    })
+    .Select(g => new
+    {
+      Time = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day, g.Key.Hour, 0, 0),
+      TasksCompleted = g.Count()
+    })
+    .OrderBy(g => g.Time)
+    .ToListAsync();
+    Dictionary<int, int> completedTaskPerHourDict = [];
+    foreach (var taskCount in completedTaskPerHour)
+    {
+      completedTaskPerHourDict.Add((int)(CurrentDate - taskCount.Time).TotalHours, taskCount.TasksCompleted);
+    }
+
+    var abortedTaskPerHour = await _context.AutoTasksJourney.AsNoTracking()
+    .Where(t => t.CurrentProgressId == (int)ProgressState.Completed && t.CreatedAt > DateTime.UtcNow.AddHours(-23))
+    .GroupBy(t => new
+    {
+      t.CreatedAt.Year,
+      t.CreatedAt.Month,
+      t.CreatedAt.Day,
+      t.CreatedAt.Hour
+    })
+    .Select(g => new
+    {
+      Time = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day, g.Key.Hour, 0, 0),
+      TasksCompleted = g.Count()
+    })
+    .OrderBy(g => g.Time)
+    .ToListAsync();
+    Dictionary<int, int> abortedTaskPerHourDict = [];
+    foreach (var taskCount in abortedTaskPerHour)
+    {
+      abortedTaskPerHourDict.Add((int)(CurrentDate - taskCount.Time).TotalHours, taskCount.TasksCompleted);
+    }
+
+    AutoTaskStatisticsBusinessModel statistics = new()
+    {
+      LastUpdatedAt = DateTime.Now,
+      WaitingTasks = waitingTaskCount,
+      RunningTasks = runningTaskCount,
+    };
+
+    /*
+     * Get trends
+     * Note that the completed tasks and aborted tasks are looked up in the last 24 hours
+     */
+    // Now = total tasks
+    statistics.WaitingTasksTrend.Add(waitingTaskCount);
+    statistics.RunningTasksTrend.Add(runningTaskCount);
+    int waitingTaskCount2 = waitingTaskCount;
+    int runningTaskCount2 = runningTaskCount;
+    // Last 23 hours = total tasks - task created in this hour
+    for (int i = 0; i < 23; i++)
+    {
+      waitingTaskCount2 -= waitingTaskPerHourDict.TryGetValue(i, out int count) ? count : 0;
+      runningTaskCount2 -= runningTaskPerHourDict.TryGetValue(i, out count) ? count : 0;
+      statistics.WaitingTasksTrend.Add(waitingTaskCount2);
+      statistics.RunningTasksTrend.Add(runningTaskCount2);
+      statistics.CompletedTasksTrend.Add(completedTaskPerHourDict.TryGetValue(i, out count) ? count : 0);
+      statistics.AbortedTasksTrend.Add(abortedTaskPerHourDict.TryGetValue(i, out count) ? count : 0);
+    }
+    statistics.WaitingTasksTrend.Reverse();
+    statistics.RunningTasksTrend.Reverse();
+    statistics.CompletedTasksTrend.Reverse();
+    statistics.CompletedTasks = statistics.CompletedTasksTrend.Sum();
+    statistics.AbortedTasksTrend.Reverse();
+    statistics.AbortedTasks = statistics.AbortedTasksTrend.Sum();
+    _memoryCache.Set("Automation_Statistics", statistics, TimeSpan.FromMinutes(5));
+
+    return statistics;
+  }
+
+  public async Task<AutoTaskListBusinessModel> GetRobotCurrentTaskAsync(Guid robotId)
+  {
+    var autoTask = await _context.AutoTasks.AsNoTracking()
+      .Where(t => !LgdxHelper.AutoTaskStaticStates.Contains(t.CurrentProgressId!) && t.AssignedRobotId == robotId)
+      .Select(t => new AutoTaskListBusinessModel
+      {
+        Id = t.Id,
+        Name = t.Name,
+        Priority = t.Priority,
+        FlowId = t.Flow!.Id,
+        FlowName = t.Flow.Name,
+        RealmId = t.Realm.Id,
+        RealmName = t.Realm.Name,
+        AssignedRobotId = t.AssignedRobotId,
+        AssignedRobotName = t.AssignedRobot!.Name,
+        CurrentProgressId = t.CurrentProgressId,
+        CurrentProgressName = t.CurrentProgress.Name,
+      })
+      .FirstOrDefaultAsync()
+      ?? throw new LgdxNotFound404Exception();
+    return autoTask;
   }
 }

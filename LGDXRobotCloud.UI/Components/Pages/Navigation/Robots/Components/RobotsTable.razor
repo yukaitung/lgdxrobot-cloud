@@ -1,0 +1,79 @@
+@inherits AbstractTable
+
+<div class="card">
+  <!-- Header -->
+  <div class="card-header">
+    <h3 class="card-title">Waypoints</h3>
+  </div>
+  <!-- Filter -->
+  <div class="card-body border-bottom py-3">
+    <div class="d-flex">
+      <div class="text-secondary">
+        <div class="row g-2">
+          <div class="col">
+            Show
+          </div>
+          <div class="col-auto">
+            <TablePageSizeSelect OnChange="HandlePageSizeChange" />
+          </div>
+          <div class="col-auto">
+            entries
+          </div>
+        </div>
+      </div>
+      <div class="ms-auto text-secondary">
+        Search:
+      </div>
+      <div class="text-secondary">
+        <div class="input-group">
+          <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
+          <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
+          <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data -->
+  <div class="table-responsive">
+    <table class="table card-table table-vcenter text-nowrap datatable">
+      <thead>
+        <tr>
+          <th class="w-1">ID</th>
+          <th>Name</th>
+          <th><!-- Action --></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (RobotsList != null)
+        {
+          @foreach (var robot in RobotsList)
+          {
+            var robotId = robot.Id;
+            <tr>
+              <td>@robot.Id</td>
+              <td>@robot.Name</td>
+              <td class="text-end">
+                <a href="@(AppRoutes.Navigation.Robots.Index + $"/{robotId}")" class="page-link link-primary">View</a>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <TableLoading Columns="6" />
+        }
+      </tbody>
+    </table>
+    @if (RobotsList != null && RobotsList.Count() == 0)
+    {
+      <TableEmpty />
+    }
+  </div>
+  <!-- Footer -->
+  @if (PaginationHelper != null && RobotsList != null && RobotsList.Count() > 0)
+  {
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="RobotsList.Count()"
+      OnPageChange="HandlePageChange" />
+  }
+</div>

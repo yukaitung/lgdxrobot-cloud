@@ -7,7 +7,7 @@
 
 <PageHeader Title="Home">
   <div class="row align-items-center">
-    <div class="col">
+    <div class="d-none d-sm-block col-2">
       <h2 class="page-title">
         Home
       </h2>
@@ -16,21 +16,39 @@
         @RealmName
       </div>
     </div>
-  </div>
-</PageHeader>
-
-<PageBody>
-  <div class="row row-cards">
-    <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Read">
-      <div class="col-12">
-        <RealtimeAutoTasksTable Title="Running Tasks" RunningAutoTasks="true" />
-      </div>
-      <div class="col-12">
-        <RealtimeAutoTasksTable Title="Waiting Queue" RunningAutoTasks="false" />
+    <div class="col d-flex justify-content-center">
+      <nav class="nav nav-segmented nav-2" role="tablist">
+        @for (int i = 0; i < Pages.Count; i++)
+        {
+          var num = i;
+          <input type="radio" class="nav-link-input" name="segmented" id="@($"segmented-checkbox-{num}")" checked="@(CurrentPage == num)">
+          <label for="@($"segmented-checkbox-{num}")" class="nav-link" role="tab" @onclick="() => HandlePageChange(num)">@Pages[i]</label>
+        }
+      </nav>
+    </div>
+    <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write">
+      <div class="d-none d-sm-flex col-2 justify-content-end">
+        <a href="@(AppRoutes.Automation.AutoTasks.Create + $"?ReturnUrl=/?tab={CurrentPage}")" type="button" class="btn btn-primary">
+          Create Task
+        </a>
       </div>
     </AuthorizeView>
   </div>
-</PageBody>
+</PageHeader>
+
+@switch (CurrentPage)
+{
+  default:
+  case 0:
+    <Tasks />
+    break;
+  case 1:
+    <Map />
+    break;
+  case 2:
+    <Robots />
+    break;
+}
 
 @code {
   [Inject]
@@ -41,14 +59,28 @@
 
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
-  
+
+  [SupplyParameterFromQuery]
+  private int? Tab { get; set; }
+
   private string RealmName { get; set; } = string.Empty;
+  private List<string> Pages = ["Tasks", "Map", "Robots"];
+  private int CurrentPage = 0;
 
   protected override async Task OnInitializedAsync()
   {
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    if (Tab != null)
+    {
+      CurrentPage = (int)Tab;
+    }
     await base.OnInitializedAsync();
+  }
+
+  private void HandlePageChange(int page)
+  {
+    CurrentPage = page;
   }
 }

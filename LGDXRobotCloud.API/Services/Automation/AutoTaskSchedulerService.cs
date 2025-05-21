@@ -43,12 +43,23 @@ public class AutoTaskSchedulerService(
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private static string GetIgnoreRobotsKey(int realmId) => $"AutoTaskSchedulerService_IgnoreRobot_{realmId}";
 
+  private async Task AddAutoTaskJourney(AutoTask autoTask)
+  {
+    var autoTaskJourney = new AutoTaskJourney
+    {
+      AutoTaskId = autoTask.Id,
+      CurrentProgressId = autoTask.CurrentProgressId
+    };
+    await _context.AutoTasksJourney.AddAsync(autoTaskJourney);
+    await _context.SaveChangesAsync();
+  }
+
   private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
   {
     if (taskDetail.Waypoint != null)
     {
-      var waypoint = new RobotClientsDof 
-        { X = taskDetail.Waypoint.X, Y = taskDetail.Waypoint.Y, Rotation = taskDetail.Waypoint.Rotation };
+      var waypoint = new RobotClientsDof
+      { X = taskDetail.Waypoint.X, Y = taskDetail.Waypoint.Y, Rotation = taskDetail.Waypoint.Rotation };
       if (taskDetail.CustomX != null)
         waypoint.X = (double)taskDetail.CustomX;
       if (taskDetail.CustomY != null)
@@ -57,12 +68,14 @@ public class AutoTaskSchedulerService(
         waypoint.X = (double)taskDetail.CustomRotation;
       return waypoint;
     }
-    else 
+    else
     {
-      return new RobotClientsDof { 
-        X = taskDetail.CustomX != null ? (double)taskDetail.CustomX : 0, 
-        Y = taskDetail.CustomY != null ? (double)taskDetail.CustomY : 0, 
-        Rotation = taskDetail.CustomRotation != null ? (double)taskDetail.CustomRotation : 0 };
+      return new RobotClientsDof
+      {
+        X = taskDetail.CustomX != null ? (double)taskDetail.CustomX : 0,
+        Y = taskDetail.CustomY != null ? (double)taskDetail.CustomY : 0,
+        Rotation = taskDetail.CustomRotation != null ? (double)taskDetail.CustomRotation : 0
+      };
     }
   }
 
@@ -239,9 +252,13 @@ public class AutoTaskSchedulerService(
     bool continueAutoTask = currentTask != null;
     if (currentTask == null)
     {
-      if (!_onlineRobotsService.GetPauseAutoTaskAssignment(robotId)) 
+      if (!_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
       {
         currentTask = await AssignAutoTaskSqlAsync(robotId);
+        if (currentTask != null)
+        {
+          await AddAutoTaskJourney(currentTask);
+        }
       }
       else
       {
@@ -315,6 +332,7 @@ public class AutoTaskSchedulerService(
     {
       await DeleteTriggerRetries(taskId);
       await _emailService.SendAutoTaskAbortEmailAsync(robotId, taskId, autoTaskAbortReason);
+      await AddAutoTaskJourney(task);
     }
     return await GenerateTaskDetail(task);
   }
@@ -327,6 +345,7 @@ public class AutoTaskSchedulerService(
       
     await DeleteTriggerRetries(taskId);
     await _emailService.SendAutoTaskAbortEmailAsync((Guid)task!.AssignedRobotId!, taskId, AutoTaskAbortReason.UserApi);
+    await AddAutoTaskJourney(task);
     return true;
   }
 
@@ -381,12 +400,21 @@ public class AutoTaskSchedulerService(
   public async Task<RobotClientsAutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token)
   {
     var task = await AutoTaskNextSqlAsync(robotId, taskId, token);
+    if (task != null)
+    {
+      await AddAutoTaskJourney(task);
+    }
     return await GenerateTaskDetail(task);
   }
 
   public async Task<AutoTask?> AutoTaskNextApiAsync(Guid robotId, int taskId, string token)
   {
-    return await AutoTaskNextSqlAsync(robotId, taskId, token);
+    var task = await AutoTaskNextSqlAsync(robotId, taskId, token);
+    if (task != null)
+    {
+      await AddAutoTaskJourney(task);
+    }
+    return task;
   }
 
   public async Task<RobotClientsAutoTask?> AutoTaskNextConstructAsync(AutoTask autoTask)

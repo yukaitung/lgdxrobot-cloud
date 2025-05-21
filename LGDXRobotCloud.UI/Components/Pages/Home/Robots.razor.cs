@@ -7,7 +7,7 @@ using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
-namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Robots;
+namespace LGDXRobotCloud.UI.Components.Pages.Home;
 
 public sealed partial class Robots : ComponentBase, IDisposable
 {
@@ -18,9 +18,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
   public required IRealTimeService RealTimeService { get; set; }
 
   [Inject]
-  public required IRobotDataService RobotDataService { get; set; }
-
-  [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
@@ -28,6 +25,9 @@ public sealed partial class Robots : ComponentBase, IDisposable
 
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
+  [Inject]
+  public required IRobotDataService RobotDataService { get; set; }
 
   private int RealmId { get; set; }
   private string RealmName { get; set; } = string.Empty;
@@ -49,7 +49,7 @@ public sealed partial class Robots : ComponentBase, IDisposable
     {
       return;
     }
-    foreach(var robot in robots)
+    foreach (var robot in robots)
     {
       Guid robotId = (Guid)robot.Id!;
       var robotData = RobotDataService.GetRobotData(robotId, RealmId);
@@ -59,7 +59,8 @@ public sealed partial class Robots : ComponentBase, IDisposable
       }
       else
       {
-        RobotsData[robotId] = new RobotDataContract{
+        RobotsData[robotId] = new RobotDataContract
+        {
           RobotId = robotId,
           RealmId = RealmId
         };
@@ -72,11 +73,13 @@ public sealed partial class Robots : ComponentBase, IDisposable
       }
       else
       {
-        RobotsCommands[robotId] = new RobotCommandsContract{
+        RobotsCommands[robotId] = new RobotCommandsContract
+        {
           RobotId = robotId,
           RealmId = RealmId
         };
-      };
+      }
+      ;
     }
   }
 
@@ -86,9 +89,11 @@ public sealed partial class Robots : ComponentBase, IDisposable
       return;
 
     var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
-    var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x => {
+    var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x =>
+    {
       x.Options.Add(headersInspectionHandlerOption);
-      x.QueryParameters = new() {
+      x.QueryParameters = new()
+      {
         RealmId = RealmId,
         Name = DataSearch,
         PageNumber = 1,
@@ -119,9 +124,11 @@ public sealed partial class Robots : ComponentBase, IDisposable
       return;
 
     var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
-    var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x => {
+    var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x =>
+    {
       x.Options.Add(headersInspectionHandlerOption);
-      x.QueryParameters = new() {
+      x.QueryParameters = new()
+      {
         RealmId = RealmId,
         Name = DataSearch,
         PageNumber = pageNum,
@@ -139,9 +146,11 @@ public sealed partial class Robots : ComponentBase, IDisposable
       CurrentPage--;
 
     var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
-    var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x => {
+    var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x =>
+    {
       x.Options.Add(headersInspectionHandlerOption);
-      x.QueryParameters = new() {
+      x.QueryParameters = new()
+      {
         RealmId = RealmId,
         Name = DataSearch,
         PageNumber = CurrentPage,
@@ -163,12 +172,13 @@ public sealed partial class Robots : ComponentBase, IDisposable
     var robotId = updatEventArgs.RobotId;
     if (updatEventArgs.RealmId != RealmId && !RobotsData.ContainsKey(robotId))
       return;
-    
+
     var robotData = RobotDataService.GetRobotData(robotId, RealmId);
     if (robotData != null)
     {
       RobotsData[robotId] = robotData;
-      await InvokeAsync(() => {
+      await InvokeAsync(() =>
+      {
         StateHasChanged();
       });
     }
@@ -184,7 +194,8 @@ public sealed partial class Robots : ComponentBase, IDisposable
     if (robotCommands != null)
     {
       RobotsCommands[robotId] = robotCommands;
-      await InvokeAsync(() => {
+      await InvokeAsync(() =>
+      {
         StateHasChanged();
       });
     }

@@ -24,12 +24,6 @@
 					Home
 				</NavItem>
 
-				<AuthorizeView Policy="@Permissions.Navigation.Robots.Read" Context="Map">
-					<NavItem href="@AppRoutes.Dashboards.Map">
-						Map
-					</NavItem>
-				</AuthorizeView>
-
 				<AuthorizeView Policy="@Permissions.Navigation.Area" Context="Navigation">
 					<NavDropdown title="Navigation" href="Navigation">
 						<div class="dropdown-menu-column">

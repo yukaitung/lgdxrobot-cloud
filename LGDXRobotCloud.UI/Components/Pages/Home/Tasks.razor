@@ -1,0 +1,322 @@
+@using LGDXRobotCloud.UI.Components.Pages.Home.Components
+@using LGDXRobotCloud.UI.Components.Shared
+@using LGDXRobotCloud.UI.Services
+@using LGDXRobotCloud.Utilities.Enums
+
+<PageBody>
+  <div class="row row-cards">
+    <div class="col-sm-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="subheader">Waiting Tasks</div>
+          <div class="h1 mb-3 flex-grow-1">@(AutoTaskStatisticsDto?.WaitingTasks ?? 0)</div>
+          <div id="chart-waiting-tasks" class="position-relative rounded-bottom chart-sm"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="subheader">Running Tasks</div>
+          <div class="h1 mb-3 flex-grow-1">@(AutoTaskStatisticsDto?.RunningTasks ?? 0)</div>
+          <div id="chart-running-tasks" class="position-relative rounded-bottom chart-sm"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="subheader">Completed Tasks<br />(Last 24 Hours)</div>
+          <div class="h1 mb-3 flex-grow-1">@(AutoTaskStatisticsDto?.CompletedTasks ?? 0)</div>
+          <div id="chart-completed-tasks" class="position-relative rounded-bottom chart-sm"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="subheader">Aborted Tasks<br />(Last 24 Hours)</div>
+          <div class="h1 mb-3 flex-grow-1">@(AutoTaskStatisticsDto?.AbortedTasks ?? 0)</div>
+          <div id="chart-aborted-tasks" class="position-relative rounded-bottom chart-sm"></div>
+        </div>
+      </div>
+    </div>
+    <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Read">
+      <div class="col-12">
+        <RealtimeAutoTasksTable Title="Running Tasks" RunningAutoTasks="true" />
+      </div>
+      <div class="col-12">
+        <RealtimeAutoTasksTable Title="Waiting Queue" RunningAutoTasks="false" />
+      </div>
+    </AuthorizeView>
+  </div>
+</PageBody>
+
+<script>
+  var chartWaitingTasksObj;
+  function GenerateChartWaitingTasks()
+  {
+    var options = {
+      chart: {
+        type: "line",
+        fontFamily: "inherit",
+        height: 40,
+        sparkline: {
+          enabled: true,
+        },
+        animations: {
+          enabled: false,
+        },
+      },
+      stroke: {
+        width: 2,
+        lineCap: "round",
+        curve: "smooth",
+      },
+      series: [
+        {
+          name: "Tasks",
+          data: []
+        }
+      ],
+      tooltip: {
+        theme: "dark",
+      },
+      grid: {
+        strokeDashArray: 4,
+      },
+      xaxis: {
+        labels: {
+          padding: 0,
+        },
+        tooltip: {
+          enabled: false,
+        },
+        type: "category",
+      },
+      yaxis: {
+        labels: {
+          padding: 4,
+        },
+      },
+      labels: [
+        @for (int i = 23; i >= 0; i--)
+        {
+          <text>"</text>@($"{i.ToString()} hours")<text>",</text>
+        }
+      ],
+      legend: {
+        show: false,
+      },
+    };
+    chartWaitingTasksObj = new ApexCharts(document.getElementById("chart-waiting-tasks"), options);
+    chartWaitingTasksObj.render();
+  };
+  function UpdateChartWaitingTasks(data)
+  {
+    chartWaitingTasksObj.updateSeries([{
+      data: data
+    }])
+  }
+</script>
+<script>
+  var chartRunningTasksObj;
+  function GenerateChartRunningTasks()
+  {
+    var options = {
+      chart: {
+        type: "line",
+        fontFamily: "inherit",
+        height: 40,
+        sparkline: {
+          enabled: true,
+        },
+        animations: {
+          enabled: false,
+        },
+      },
+      stroke: {
+        width: 2,
+        lineCap: "round",
+        curve: "smooth",
+      },
+      series: [
+        {
+          name: "Tasks",
+          data: []
+        }
+      ],
+      tooltip: {
+        theme: "dark",
+      },
+      grid: {
+        strokeDashArray: 4,
+      },
+      xaxis: {
+        labels: {
+          padding: 0,
+        },
+        tooltip: {
+          enabled: false,
+        },
+        type: "category",
+      },
+      yaxis: {
+        labels: {
+          padding: 4,
+        },
+      },
+      labels: [
+        @for (int i = 23; i >= 0; i--)
+        {
+          <text>"</text>@($"{i.ToString()} hours")<text>",</text>
+        }
+      ],
+      legend: {
+        show: false,
+      },
+    };
+    chartRunningTasksObj = new ApexCharts(document.getElementById("chart-running-tasks"), options);
+    chartRunningTasksObj.render();
+  };
+  function UpdateChartRunningTasks(data)
+  {
+    chartRunningTasksObj.updateSeries([{
+      data: data
+    }])
+  }
+</script>
+<script>
+  var chartCompletedTasksObj;
+  function GenerateChartCompletedTasks()
+  {
+    var options = {
+      chart: {
+        type: "line",
+        fontFamily: "inherit",
+        height: 40,
+        sparkline: {
+          enabled: true,
+        },
+        animations: {
+          enabled: false,
+        },
+      },
+      stroke: {
+        width: 2,
+        lineCap: "round",
+        curve: "smooth",
+      },
+      series: [
+        {
+          name: "Tasks",
+          data: []
+        }
+      ],
+      tooltip: {
+        theme: "dark",
+      },
+      grid: {
+        strokeDashArray: 4,
+      },
+      xaxis: {
+        labels: {
+          padding: 0,
+        },
+        tooltip: {
+          enabled: false,
+        },
+        type: "category",
+      },
+      yaxis: {
+        labels: {
+          padding: 4,
+        },
+      },
+      labels: [
+        @for (int i = 23; i >= 0; i--)
+        {
+          <text>"</text>@($"{i.ToString()} hours")<text>",</text>
+        }
+      ],
+      legend: {
+        show: false,
+      },
+    };
+    chartCompletedTasksObj = new ApexCharts(document.getElementById("chart-completed-tasks"), options);
+    chartCompletedTasksObj.render();
+  };
+  function UpdateChartCompletedTasks(data)
+  {
+    chartCompletedTasksObj.updateSeries([{
+      data: data
+    }])
+  }
+</script>
+<script>
+  var chartAbortedTasksObj;
+  function GenerateChartAbortedTasks()
+  {
+    var options = {
+      chart: {
+        type: "line",
+        fontFamily: "inherit",
+        height: 40,
+        sparkline: {
+          enabled: true,
+        },
+        animations: {
+          enabled: false,
+        },
+      },
+      stroke: {
+        width: 2,
+        lineCap: "round",
+        curve: "smooth",
+      },
+      series: [
+        {
+          name: "Tasks",
+          data: []
+        }
+      ],
+      tooltip: {
+        theme: "dark",
+      },
+      grid: {
+        strokeDashArray: 4,
+      },
+      xaxis: {
+        labels: {
+          padding: 0,
+        },
+        tooltip: {
+          enabled: false,
+        },
+        type: "category",
+      },
+      yaxis: {
+        labels: {
+          padding: 4,
+        },
+      },
+      labels: [
+        @for (int i = 23; i >= 0; i--)
+        {
+          <text>"</text>@($"{i.ToString()} hours")<text>",</text>
+        }
+      ],
+      legend: {
+        show: false,
+      },
+    };
+    chartAbortedTasksObj = new ApexCharts(document.getElementById("chart-aborted-tasks"), options);
+    chartAbortedTasksObj.render();
+  };
+  function UpdateChartAbortedTasks(data)
+  {
+    chartAbortedTasksObj.updateSeries([{
+      data: data
+    }])
+  }
+</script>

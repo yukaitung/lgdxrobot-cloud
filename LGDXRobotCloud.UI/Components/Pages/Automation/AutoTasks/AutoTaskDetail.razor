@@ -16,269 +16,318 @@
 </PageHeader>
 
 <PageBody>
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">Task Detail</h3>
-    </div>
-    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
-      <DataAnnotationsValidator />
-      <div class="card-body">
-        <ApiErrorAlert Errors="AutoTaskDetailViewModel.Errors" />
-        <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
-        @if (Id != null)
-        {
-          <div class="mb-3 row">
-            <label class="col-2 col-form-label">ID</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.Id</div>
+  <div class="row row-cards">
+    <!-- Task Detail -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Task Detail</h3>
+        </div>
+        <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+          <DataAnnotationsValidator />
+          <div class="card-body">
+            <ApiErrorAlert Errors="AutoTaskDetailViewModel.Errors" />
+            <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
+            @if (Id != null)
+            {
+              <div class="mb-3 row">
+                <label class="col-2 col-form-label">ID</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@AutoTaskDetailViewModel.Id</div>
+                </div>
+              </div>
+            }
+            <div class="mb-3 row">
+              <label class="col-2 col-form-label">Realm</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@AutoTaskDetailViewModel.RealmName</div>
+              </div>
             </div>
-          </div>
-        }
-        <div class="mb-3 row">
-          <label class="col-2 col-form-label">Realm</label>
-          <div class="col">
-            <div class="col form-control-plaintext">@AutoTaskDetailViewModel.RealmName</div>
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <label class="col-2 col-form-label" for="@nameof(AutoTaskDetailViewModel.Name)">Name</label>
-          <div class="col">
-            @if (IsEditable())
-            {
-              <InputText id="@nameof(AutoTaskDetailViewModel.Name)" type="text" class="form-control" @bind-Value="AutoTaskDetailViewModel.Name" />
-              <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.Name)" />
-            }
-            else
-            {
-              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.Name</div>
-            }
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <label class="col-2 col-form-label required" for="@nameof(AutoTaskDetailViewModel.Priority)">Priority</label>
-          <div class="col">
-            @if (IsEditable())
-            {
-              <InputNumber id="@nameof(AutoTaskDetailViewModel.Priority)" class="form-control" @bind-Value="AutoTaskDetailViewModel.Priority"  />
-              <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.Priority)" />
-            }
-            else
-            {
-              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.Priority</div>
-            }
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <label class="col-2 col-form-label required" for="@nameof(AutoTaskDetailViewModel.FlowId)">Flow</label>
-          <div class="col">
-            @if (IsEditable())
-            {
-              <InputSelect id="@(AdvanceSelectElements[0] + "0")" class="form-control" @bind-Value="AutoTaskDetailViewModel.FlowId">
-                @if (AutoTaskDetailViewModel.FlowId != null)
+            <div class="mb-3 row">
+              <label class="col-2 col-form-label" for="@nameof(AutoTaskDetailViewModel.Name)">Name</label>
+              <div class="col">
+                @if (IsEditable())
                 {
-                  <option value="@AutoTaskDetailViewModel.FlowId">@AutoTaskDetailViewModel.FlowName</option>
+                  <InputText id="@nameof(AutoTaskDetailViewModel.Name)" type="text" class="form-control" @bind-Value="AutoTaskDetailViewModel.Name" />
+                  <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.Name)" />
                 }
-              </InputSelect>
-              <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.FlowId)" />
-            }
-            else
-            {
-              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.FlowName</div>
-            }
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <label class="col-2 col-form-label" for="@nameof(AutoTaskDetailViewModel.AssignedRobotId)">Assign Robot</label>
-          <div class="col">
-            @if (IsEditable())
-            {
-              <InputSelect id="@(AdvanceSelectElements[1] + "0")" class="form-control" @bind-Value="AutoTaskDetailViewModel.AssignedRobotId">
-                @if (AutoTaskDetailViewModel.AssignedRobotId != null)
+                else
                 {
-                  <option value="@AutoTaskDetailViewModel.AssignedRobotId">@AutoTaskDetailViewModel.AssignedRobotName</option>
+                  <div class="col form-control-plaintext">@AutoTaskDetailViewModel.Name</div>
                 }
-              </InputSelect>
-              <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.AssignedRobotId)" />
-            }
-            else
-            {
-              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.AssignedRobotName</div>
-            }
-          </div>
-        </div>
-        @if (Id != null && !IsEditable())
-        {
-          <div class="mb-3 row">
-            <label class="col-2 col-form-label">Current Progress</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@AutoTaskDetailViewModel.CurrentProgressName</div>
+              </div>
             </div>
-          </div>
-        }
-        @if (Id == null)
-        {
-          <div class="mb-3 row">
-            <label class="col-2 col-form-label pt-0"></label>
-            <div class="col">
-              <label class="form-check">
-                <input class="form-check-input" type="checkbox" @bind="AutoTaskDetailViewModel.IsTemplate">
-                <span class="form-check-label">Create as Template Task</span>
-              </label>
-            </div>
-          </div>
-        }
-        <div class="mb-3 row">
-          <label class="col-2 col-form-label">Waypoints</label>
-          <div class="col d-flex flex-column">
-            <table class="table table-vcenter text-nowrap datatable">
-              <thead>
-                <tr>
-                  <th class="w-1">ID</th>
-                  @if (IsEditable())
-                  {
-                    <th class="w-1"></th>
-                  }
-                  <th class="w-25">Waypoint</th>
-                  <th class="w-25">X</th>
-                  <th class="w-25">Y</th>
-                  <th class="w-25">Rotation</th>
-                  @if (IsEditable())
-                  {
-                    <th class="w-1"></th>
-                  }
-                </tr>
-              </thead>
-              <tbody>
-                @for (int i = 0; i < AutoTaskDetailViewModel.AutoTaskDetails.Count; i++)
+            <div class="mb-3 row">
+              <label class="col-2 col-form-label required" for="@nameof(AutoTaskDetailViewModel.Priority)">Priority</label>
+              <div class="col">
+                @if (IsEditable())
                 {
-                  var index = i;
-                  var taskDetail = AutoTaskDetailViewModel.AutoTaskDetails[i];
-                  <tr>
-                    <td>
-                      @if (taskDetail.Id != null)
-                      {
-                        <div class="col col-form-label col-form-label-sm">@taskDetail.Id</div>
-                      }
-                    </td>
-                    @if (IsEditable())
+                  <InputNumber id="@nameof(AutoTaskDetailViewModel.Priority)" class="form-control" @bind-Value="AutoTaskDetailViewModel.Priority"  />
+                  <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.Priority)" />
+                }
+                else
+                {
+                  <div class="col form-control-plaintext">@AutoTaskDetailViewModel.Priority</div>
+                }
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-2 col-form-label required" for="@nameof(AutoTaskDetailViewModel.FlowId)">Flow</label>
+              <div class="col">
+                @if (IsEditable())
+                {
+                  <InputSelect id="@(AdvanceSelectElements[0] + "0")" class="form-control" @bind-Value="AutoTaskDetailViewModel.FlowId">
+                    @if (AutoTaskDetailViewModel.FlowId != null)
                     {
-                      <td>
-                        <button type="button" class="btn btn-ghost-secondary btn-icon btn"
-                          @onclick="e => TaskStepMoveUp(index)" disabled="@(i < 1)">
-                          <i class="ti ti-arrow-up" style="font-size: 16px;"></i>
-                        </button>
-                        <button type="button"
-                          class="btn btn-ghost-secondary btn-icon btn"
-                          @onclick="e => TaskStepMoveDown(index)" disabled="@(i >= AutoTaskDetailViewModel.AutoTaskDetails.Count - 1)">
-                          <i class="ti ti-arrow-down" style="font-size: 16px;"></i>
-                        </button>
-                      </td>
+                      <option value="@AutoTaskDetailViewModel.FlowId">@AutoTaskDetailViewModel.FlowName</option>
                     }
-                    <td>
+                  </InputSelect>
+                  <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.FlowId)" />
+                }
+                else
+                {
+                  <div class="col form-control-plaintext">@AutoTaskDetailViewModel.FlowName</div>
+                }
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-2 col-form-label" for="@nameof(AutoTaskDetailViewModel.AssignedRobotId)">Assign Robot</label>
+              <div class="col">
+                @if (IsEditable())
+                {
+                  <InputSelect id="@(AdvanceSelectElements[1] + "0")" class="form-control" @bind-Value="AutoTaskDetailViewModel.AssignedRobotId">
+                    @if (AutoTaskDetailViewModel.AssignedRobotId != null)
+                    {
+                      <option value="@AutoTaskDetailViewModel.AssignedRobotId">@AutoTaskDetailViewModel.AssignedRobotName</option>
+                    }
+                  </InputSelect>
+                  <ValidationMessage class="invalid-feedback" For="@(() => AutoTaskDetailViewModel.AssignedRobotId)" />
+                }
+                else
+                {
+                  <div class="col form-control-plaintext">@AutoTaskDetailViewModel.AssignedRobotName</div>
+                }
+              </div>
+            </div>
+            @if (Id != null && !IsEditable())
+            {
+              <div class="mb-3 row">
+                <label class="col-2 col-form-label">Current Progress</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@AutoTaskDetailViewModel.CurrentProgressName</div>
+                </div>
+              </div>
+            }
+            @if (Id == null)
+            {
+              <div class="mb-3 row">
+                <label class="col-2 col-form-label pt-0"></label>
+                <div class="col">
+                  <label class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="AutoTaskDetailViewModel.IsTemplate">
+                    <span class="form-check-label">Create as Template Task</span>
+                  </label>
+                </div>
+              </div>
+            }
+            <div class="mb-3 row">
+              <label class="col-2 col-form-label">Waypoints</label>
+              <div class="col d-flex flex-column">
+                <table class="table table-vcenter text-nowrap datatable">
+                  <thead>
+                    <tr>
+                      <th class="w-1">ID</th>
                       @if (IsEditable())
                       {
-                        <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control"
-                          @bind-Value="taskDetail.WaypointId">
-                          @if (taskDetail.WaypointName != null)
+                        <th class="w-1"></th>
+                      }
+                      <th class="w-25">Waypoint</th>
+                      <th class="w-25">X</th>
+                      <th class="w-25">Y</th>
+                      <th class="w-25">Rotation</th>
+                      @if (IsEditable())
+                      {
+                        <th class="w-1"></th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (int i = 0; i < AutoTaskDetailViewModel.AutoTaskDetails.Count; i++)
+                    {
+                      var index = i;
+                      var taskDetail = AutoTaskDetailViewModel.AutoTaskDetails[i];
+                      <tr>
+                        <td>
+                          @if (taskDetail.Id != null)
                           {
-                            <option value="@taskDetail.WaypointId">@taskDetail.WaypointName</option>
+                            <div class="col col-form-label col-form-label-sm">@taskDetail.Id</div>
                           }
-                        </InputSelect>
-                      }
-                      else
-                      {
-                        <div class="col form-control-plaintext">@taskDetail.WaypointName</div>
-                      }
-                    </td>
-                    <td>
-                      @if (IsEditable())
-                      {
-                        <input type="text" class="form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX">
-                      }
-                      else
-                      {
-                        <div class="col form-control-plaintext">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX</div>
-                      }
-                    </td>
-                    <td>
-                      @if (IsEditable())
-                      {
-                        <input type="text" class="form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY">
-                      }
-                      else
-                      {
-                        <div class="col form-control-plaintext">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY</div>
-                      }
-                    </td>
-                    <td>
-                      @if (IsEditable())
-                      {
-                        <input type="text" class="form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation">
-                      }
-                      else
-                      {
-                        <div class="col form-control-plaintext">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation</div>
-                      }
-                    </td>
-                    @if (IsEditable())
-                    {
-                      <td>
-                        <button type="button"
-                          class="btn btn-ghost-danger btn-icon btn"
-                          @onclick="e => TaskRemoveStep(index)" disabled="@(AutoTaskDetailViewModel.AutoTaskDetails.Count <= 0)">
-                          <i class="ti ti-trash" style="font-size: 16px;"></i>
-                        </button>
-                      </td>
+                        </td>
+                        @if (IsEditable())
+                        {
+                          <td>
+                            <button type="button" class="btn btn-ghost-secondary btn-icon btn"
+                              @onclick="e => TaskStepMoveUp(index)" disabled="@(i < 1)">
+                              <i class="ti ti-arrow-up" style="font-size: 16px;"></i>
+                            </button>
+                            <button type="button"
+                              class="btn btn-ghost-secondary btn-icon btn"
+                              @onclick="e => TaskStepMoveDown(index)" disabled="@(i >= AutoTaskDetailViewModel.AutoTaskDetails.Count - 1)">
+                              <i class="ti ti-arrow-down" style="font-size: 16px;"></i>
+                            </button>
+                          </td>
+                        }
+                        <td>
+                          @if (IsEditable())
+                          {
+                            <InputSelect id="@(AdvanceSelectElements[2] + i.ToString())" class="form-control"
+                              @bind-Value="taskDetail.WaypointId">
+                              @if (taskDetail.WaypointName != null)
+                              {
+                                <option value="@taskDetail.WaypointId">@taskDetail.WaypointName</option>
+                              }
+                            </InputSelect>
+                          }
+                          else
+                          {
+                            <div class="col form-control-plaintext">@taskDetail.WaypointName</div>
+                          }
+                        </td>
+                        <td>
+                          @if (IsEditable())
+                          {
+                            <input type="text" class="form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX">
+                          }
+                          else
+                          {
+                            <div class="col form-control-plaintext">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomX</div>
+                          }
+                        </td>
+                        <td>
+                          @if (IsEditable())
+                          {
+                            <input type="text" class="form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY">
+                          }
+                          else
+                          {
+                            <div class="col form-control-plaintext">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomY</div>
+                          }
+                        </td>
+                        <td>
+                          @if (IsEditable())
+                          {
+                            <input type="text" class="form-control" @bind="AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation">
+                          }
+                          else
+                          {
+                            <div class="col form-control-plaintext">@AutoTaskDetailViewModel.AutoTaskDetails[index].CustomRotation</div>
+                          }
+                        </td>
+                        @if (IsEditable())
+                        {
+                          <td>
+                            <button type="button"
+                              class="btn btn-ghost-danger btn-icon btn"
+                              @onclick="e => TaskRemoveStep(index)" disabled="@(AutoTaskDetailViewModel.AutoTaskDetails.Count <= 0)">
+                              <i class="ti ti-trash" style="font-size: 16px;"></i>
+                            </button>
+                          </td>
+                        }
+                      </tr>
                     }
-                  </tr>
+                  </tbody>
+                </table>
+                @if (IsEditable())
+                {
+                  <button type="button" class="btn btn-secondary align-self-center" @onclick="TaskAddStep">
+                    Add Waypoint
+                  </button>
                 }
-              </tbody>
-            </table>
-            @if (IsEditable())
-            {
-              <button type="button" class="btn btn-secondary align-self-center" @onclick="TaskAddStep">
-                Add Waypoint
+              </div>
+            </div>
+          </div>
+          @if (IsEditable())
+          {
+            <div class="card-footer d-flex">
+              @if (Id != null)
+              {
+                <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Delete" Context="DeleteButton">
+                  <button type="button" class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    Delete
+                  </button>
+                </AuthorizeView>
+                <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write" Context="Write">
+                  <button type="submit" class="btn btn-primary ms-auto">
+                    Update
+                  </button>
+                </AuthorizeView>
+                
+              }
+              else
+              {
+                <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write" Context="Create">
+                  <button type="submit" class="btn btn-primary ms-auto">
+                    Create
+                  </button>
+                </AuthorizeView>
+              }
+            </div>
+          }
+          else if (AutoTaskDetailViewModel.CurrentProgressId != (int)ProgressState.Completed && AutoTaskDetailViewModel.CurrentProgressId != (int)ProgressState.Aborted)
+          {
+            <div class="card-footer d-flex">
+              <button type="button" class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#abortModal">
+                Abort
               </button>
+            </div>
+          }
+        </EditForm>
+      </div>
+    </div>
+
+    <!-- Task Journey -->
+    @if (AutoTaskDetailViewModel.IsClone == false && AutoTaskDetailViewModel.AutoTaskJourneys.Count > 0)
+    {
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Task Journey</h3>
+          </div>
+          <div class="list-group list-group-flush list-group-hoverable">
+            @foreach (var journey in AutoTaskDetailViewModel.AutoTaskJourneys)
+            {
+              <div class="list-group-item">
+                <div class="row align-items-center">
+                  <div class="col-auto">
+                    <div class="shape shape-accent shape-md">
+                      @switch(journey.CurrentProcessId)
+                      {
+                        case (int)ProgressState.Waiting:
+                          <i class="ti ti-plus" style="font-size: 20px;"></i>
+                          break;
+                        case (int)ProgressState.Completed:
+                          <i class="ti ti-check" style="font-size: 20px;"></i>
+                          break;
+                        case (int)ProgressState.Aborted:
+                          <i class="ti ti-x" style="font-size: 20px;"></i>
+                          break;
+                        default:
+                          <i class="ti ti-arrow-right" style="font-size: 20px;"></i>
+                          break;
+                      }
+                    </div>
+                  </div>
+                  <div class="col text-truncate">
+                    <p class="m-0">@journey.CurrentProcessName</p>
+                    <div class="d-block text-secondary text-truncate mt-n1">@journey.CreatedAt</div>
+                  </div>
+                </div>
+              </div>
             }
           </div>
         </div>
       </div>
-      @if (IsEditable())
-      {
-        <div class="card-footer d-flex">
-          @if (Id != null)
-          {
-            <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Delete" Context="DeleteButton">
-              <button type="button" class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                Delete
-              </button>
-            </AuthorizeView>
-            <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write" Context="Write">
-              <button type="submit" class="btn btn-primary ms-auto">
-                Update
-              </button>
-            </AuthorizeView>
-            
-          }
-          else
-          {
-            <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write" Context="Create">
-              <button type="submit" class="btn btn-primary ms-auto">
-                Create
-              </button>
-            </AuthorizeView>
-          }
-        </div>
-      }
-      else if (AutoTaskDetailViewModel.CurrentProgressId != (int)ProgressState.Completed && AutoTaskDetailViewModel.CurrentProgressId != (int)ProgressState.Aborted)
-      {
-        <div class="card-footer d-flex">
-          <button type="button" class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#abortModal">
-            Abort
-          </button>
-        </div>
-      }
-    </EditForm>
+    }
   </div>
 </PageBody>
 

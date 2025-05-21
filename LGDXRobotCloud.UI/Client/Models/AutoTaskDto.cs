@@ -30,6 +30,14 @@ namespace LGDXRobotCloud.UI.Client.Models
 #else
         public List<global::LGDXRobotCloud.UI.Client.Models.AutoTaskDetailDto> AutoTaskDetails { get; set; }
 #endif
+        /// <summary>The autoTaskJourneys property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public List<global::LGDXRobotCloud.UI.Client.Models.AutoTaskJourneyDto>? AutoTaskJourneys { get; set; }
+#nullable restore
+#else
+        public List<global::LGDXRobotCloud.UI.Client.Models.AutoTaskJourneyDto> AutoTaskJourneys { get; set; }
+#endif
         /// <summary>The currentProgress property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -93,6 +101,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             {
                 { "assignedRobot", n => { AssignedRobot = n.GetObjectValue<global::LGDXRobotCloud.UI.Client.Models.RobotSearchDto2>(global::LGDXRobotCloud.UI.Client.Models.RobotSearchDto2.CreateFromDiscriminatorValue); } },
                 { "autoTaskDetails", n => { AutoTaskDetails = n.GetCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.AutoTaskDetailDto>(global::LGDXRobotCloud.UI.Client.Models.AutoTaskDetailDto.CreateFromDiscriminatorValue)?.AsList(); } },
+                { "autoTaskJourneys", n => { AutoTaskJourneys = n.GetCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.AutoTaskJourneyDto>(global::LGDXRobotCloud.UI.Client.Models.AutoTaskJourneyDto.CreateFromDiscriminatorValue)?.AsList(); } },
                 { "currentProgress", n => { CurrentProgress = n.GetObjectValue<global::LGDXRobotCloud.UI.Client.Models.ProgressSearchDto>(global::LGDXRobotCloud.UI.Client.Models.ProgressSearchDto.CreateFromDiscriminatorValue); } },
                 { "flow", n => { Flow = n.GetObjectValue<global::LGDXRobotCloud.UI.Client.Models.FlowSearchDto>(global::LGDXRobotCloud.UI.Client.Models.FlowSearchDto.CreateFromDiscriminatorValue); } },
                 { "id", n => { Id = n.GetIntValue(); } },
@@ -110,6 +119,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.RobotSearchDto2>("assignedRobot", AssignedRobot);
             writer.WriteCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.AutoTaskDetailDto>("autoTaskDetails", AutoTaskDetails);
+            writer.WriteCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.AutoTaskJourneyDto>("autoTaskJourneys", AutoTaskJourneys);
             writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.ProgressSearchDto>("currentProgress", CurrentProgress);
             writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.FlowSearchDto>("flow", Flow);
             writer.WriteIntValue("id", Id);

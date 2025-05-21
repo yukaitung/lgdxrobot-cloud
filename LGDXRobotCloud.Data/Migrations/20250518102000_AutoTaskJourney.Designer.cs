@@ -3,6 +3,7 @@ using System;
 using LGDXRobotCloud.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LGDXRobotCloud.Data.Migrations
 {
     [DbContext(typeof(LgdxContext))]
-    partial class LgdxContextModelSnapshot : ModelSnapshot
+    [Migration("20250518102000_AutoTaskJourney")]
+    partial class AutoTaskJourney
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,7 +146,7 @@ namespace LGDXRobotCloud.Data.Migrations
                     b.Property<int>("AutoTaskId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("CreatedTime")
                         .HasPrecision(0)
                         .HasColumnType("timestamp(0) with time zone");
 
@@ -902,7 +905,7 @@ namespace LGDXRobotCloud.Data.Migrations
             modelBuilder.Entity("LGDXRobotCloud.Data.Entities.AutoTaskJourney", b =>
                 {
                     b.HasOne("LGDXRobotCloud.Data.Entities.AutoTask", "AutoTask")
-                        .WithMany("AutoTaskJourneys")
+                        .WithMany()
                         .HasForeignKey("AutoTaskId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1079,8 +1082,6 @@ namespace LGDXRobotCloud.Data.Migrations
             modelBuilder.Entity("LGDXRobotCloud.Data.Entities.AutoTask", b =>
                 {
                     b.Navigation("AutoTaskDetails");
-
-                    b.Navigation("AutoTaskJourneys");
                 });
 
             modelBuilder.Entity("LGDXRobotCloud.Data.Entities.Flow", b =>

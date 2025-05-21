@@ -9,6 +9,7 @@ using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Utilities.Enums;
 using MassTransit;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 
 namespace LGDXRobotCloud.API.UnitTests.Services.Automation;
@@ -196,6 +197,7 @@ public class AutoTaskServiceTests
   private readonly Mock<IBus> mockBus = new();
   private readonly Mock<IEventService> mockEventSercice = new();
   private readonly Mock<IOnlineRobotsService> mockOnlineRobotService = new();
+  private readonly Mock<IMemoryCache> mockMemoryCache = new();
   private readonly LgdxContext lgdxContext;
 
   public AutoTaskServiceTests()
@@ -220,7 +222,7 @@ public class AutoTaskServiceTests
   {
     // Arrange
     var expected = autoTasks.Where(t => t.Name!.Contains(autoTaskName));
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     var (actual, _) = await autoTaskService.GetAutoTasksAsync(1, autoTaskName, null);
@@ -248,7 +250,7 @@ public class AutoTaskServiceTests
   {
     // Arrange
     var expected = autoTasks.Where(t => t.CurrentProgressId == (int)expectedProgressState);
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     var (actual, _) = await autoTaskService.GetAutoTasksAsync(1, string.Empty, autoTaskCatrgory);
@@ -275,7 +277,7 @@ public class AutoTaskServiceTests
       && t.CurrentProgressId != (int)ProgressState.Waiting 
       && t.CurrentProgressId != (int)ProgressState.Completed 
       && t.CurrentProgressId != (int)ProgressState.Aborted);
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     var (actual, _) = await autoTaskService.GetAutoTasksAsync(1, string.Empty, AutoTaskCatrgory.Running);
@@ -300,7 +302,7 @@ public class AutoTaskServiceTests
     // Arrange
     int id = 1;
     var expected = autoTasks.FirstOrDefault(t => t.Id == id);
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     var actual = await autoTaskService.GetAutoTaskAsync(id);
@@ -336,7 +338,7 @@ public class AutoTaskServiceTests
   public async Task GetAutoTaskAsync_CalledWithInvalidId_ShouldThrowsNotFoundException()
   {
      // Arrange
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     Task act() => autoTaskService.GetAutoTaskAsync(autoTasks.Count + 1);
@@ -363,7 +365,7 @@ public class AutoTaskServiceTests
       RealmId = 1,
       AssignedRobotId = RobotGuid
     };
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     var actual = await autoTaskService.CreateAutoTaskAsync(expected);
@@ -407,7 +409,7 @@ public class AutoTaskServiceTests
       AssignedRobotId = RobotGuid,
       IsTemplate = true
     };
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     var actual = await autoTaskService.CreateAutoTaskAsync(expected);
@@ -447,7 +449,7 @@ public class AutoTaskServiceTests
       FlowId = 1,
       RealmId = 1,
     };
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
    Task act() => autoTaskService.CreateAutoTaskAsync(expected);
@@ -469,7 +471,7 @@ public class AutoTaskServiceTests
       FlowId = flowId,
       RealmId = 1,
     };
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
    Task act() => autoTaskService.CreateAutoTaskAsync(expected);
@@ -491,7 +493,7 @@ public class AutoTaskServiceTests
       FlowId = 1,
       RealmId = realmId,
     };
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
    Task act() => autoTaskService.CreateAutoTaskAsync(expected);
@@ -514,7 +516,7 @@ public class AutoTaskServiceTests
       RealmId = 1,
       AssignedRobotId = Guid.Empty
     };
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     Task act() => autoTaskService.CreateAutoTaskAsync(expected);
@@ -537,7 +539,7 @@ public class AutoTaskServiceTests
       FlowId = 1,
       AssignedRobotId = RobotGuid
     };
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     var actual = await autoTaskService.UpdateAutoTaskAsync(id, update);
@@ -562,7 +564,7 @@ public class AutoTaskServiceTests
       FlowId = 1,
       AssignedRobotId = RobotGuid
     };
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     Task act() => autoTaskService.UpdateAutoTaskAsync(id, update);
@@ -583,7 +585,7 @@ public class AutoTaskServiceTests
       FlowId = 1,
       AssignedRobotId = RobotGuid
     };
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     Task act() => autoTaskService.UpdateAutoTaskAsync(id, update);
@@ -609,7 +611,7 @@ public class AutoTaskServiceTests
       FlowId = 1,
       AssignedRobotId = RobotGuid
     };
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     Task act() => autoTaskService.UpdateAutoTaskAsync(id, update);
@@ -625,7 +627,7 @@ public class AutoTaskServiceTests
     // Arrange
     int id = 1;
     
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     var actual = await autoTaskService.DeleteAutoTaskAsync(id);
@@ -641,7 +643,7 @@ public class AutoTaskServiceTests
   {
     // Arrange
     int id = autoTasks.Count + 1;
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     Task act() => autoTaskService.DeleteAutoTaskAsync(id);
@@ -658,7 +660,7 @@ public class AutoTaskServiceTests
   public async Task DeleteAutoTaskAsync_CalledWithNonTemplateAutoTask_ShouldThrowsValidationExpection(int id)
   {
     // Arrange
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     Task act() => autoTaskService.DeleteAutoTaskAsync(id);
@@ -674,7 +676,7 @@ public class AutoTaskServiceTests
     // Arrange
     int id = 5;
     mockOnlineRobotService.Setup(m => m.SetAbortTaskAsync(It.IsAny<Guid>(), true)).Returns(Task.FromResult(true));
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     await autoTaskService.AbortAutoTaskAsync(id);
@@ -689,7 +691,7 @@ public class AutoTaskServiceTests
   {
     // Arrange
     int id = 2;
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     await autoTaskService.AbortAutoTaskAsync(id);
@@ -704,7 +706,7 @@ public class AutoTaskServiceTests
   {
     // Arrange
     int id = autoTasks.Count + 1;
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     Task act() => autoTaskService.AbortAutoTaskAsync(id);
@@ -719,7 +721,7 @@ public class AutoTaskServiceTests
   [InlineData(4)]
   public async Task AbortAutoTaskAsync_CalledWithStaticAutoTasks_ShouldThrowsValidationExpection(int id)
   {
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     Task act() => autoTaskService.AbortAutoTaskAsync(id);
@@ -735,7 +737,7 @@ public class AutoTaskServiceTests
     // Arrange
     AutoTask? autoTask = lgdxContext.AutoTasks.FirstOrDefault(t => t.CurrentProgressId == (int)ProgressState.Moving);
     mockAutoTaskSchedulerService.Setup(m => m.AutoTaskNextApiAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(autoTask));
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     await autoTaskService.AutoTaskNextApiAsync((Guid)autoTask!.AssignedRobotId!, autoTask.Id, autoTask.NextToken!);
@@ -750,7 +752,7 @@ public class AutoTaskServiceTests
   {
     // Arrange
     AutoTask? autoTask = lgdxContext.AutoTasks.FirstOrDefault(t => t.CurrentProgressId == (int)ProgressState.Moving);
-    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockOnlineRobotService.Object);
+    var autoTaskService = new AutoTaskService(lgdxContext, mockAutoTaskSchedulerService.Object, mockBus.Object, mockEventSercice.Object, mockMemoryCache.Object, mockOnlineRobotService.Object);
 
     // Act
     Task act() => autoTaskService.AutoTaskNextApiAsync((Guid)autoTask!.AssignedRobotId!, autoTask.Id, string.Empty);

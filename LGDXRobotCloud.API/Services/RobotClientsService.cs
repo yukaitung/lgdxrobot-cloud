@@ -194,6 +194,10 @@ public class RobotClientsService(
     _eventService.RobotCommandsUpdated -= OnRobotCommandsUpdated;
     _eventService.RobotHasNextTask -= OnRobotHasNextTask;
     _eventService.AutoTaskCreated -= OnAutoTaskCreated;
+
+    // Assume the robot going offline
+    await _onlineRobotsService.RemoveRobotAsync(robotId);
+
     _streamMessageQueue.Writer.TryComplete();
     await _streamMessageQueue.Reader.Completion;
   }

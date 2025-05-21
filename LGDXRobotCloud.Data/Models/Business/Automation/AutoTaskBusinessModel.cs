@@ -28,33 +28,41 @@ public record AutoTaskBusinessModel
   public required string CurrentProgressName { get; set; }
 
   public required IEnumerable<AutoTaskDetailBusinessModel> AutoTaskDetails { get; set; } = [];
+
+  public IEnumerable<AutoTaskJourneyBusinessModel> AutoTaskJourneys { get; set; } = [];
 }
 
 public static class AutoTaskBusinessModelExtensions
 {
   public static AutoTaskDto ToDto(this AutoTaskBusinessModel model)
   {
-    return new AutoTaskDto {
+    return new AutoTaskDto
+    {
       Id = model.Id,
       Name = model.Name,
       Priority = model.Priority,
-      Flow = new FlowSearchDto {
+      Flow = new FlowSearchDto
+      {
         Id = model.FlowId ?? 0,
         Name = model.FlowName ?? "Deleted Flow",
       },
-      Realm = new RealmSearchDto {
+      Realm = new RealmSearchDto
+      {
         Id = model.RealmId,
         Name = model.RealmName,
       },
-      AssignedRobot = model.AssignedRobotId == null ? null : new RobotSearchDto {
+      AssignedRobot = model.AssignedRobotId == null ? null : new RobotSearchDto
+      {
         Id = model.AssignedRobotId!.Value,
         Name = model.AssignedRobotName!,
       },
-      CurrentProgress = new ProgressSearchDto {
+      CurrentProgress = new ProgressSearchDto
+      {
         Id = model.CurrentProgressId,
         Name = model.CurrentProgressName,
       },
       AutoTaskDetails = model.AutoTaskDetails.Select(td => td.ToDto()),
+      AutoTaskJourneys = model.AutoTaskJourneys.Select(tj => tj.ToDto()),
     };
   }
 

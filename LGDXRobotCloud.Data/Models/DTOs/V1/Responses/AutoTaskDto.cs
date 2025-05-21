@@ -8,6 +8,8 @@ public record AutoTaskDto
 
   public required IEnumerable<AutoTaskDetailDto> AutoTaskDetails { get; set; } = [];
 
+  public IEnumerable<AutoTaskJourneyDto> AutoTaskJourneys { get; set; } = [];
+
   public required int Priority { get; set; }
 
   public required FlowSearchDto Flow { get; set; }

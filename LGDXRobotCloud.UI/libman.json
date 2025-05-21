@@ -4,7 +4,7 @@
   "libraries": [
     {
       "provider": "jsdelivr",
-      "library": "@tabler/core@1.2.0",
+      "library": "@tabler/core@1.3.2",
       "destination": "wwwroot/libs/tabler",
       "files":[
         "dist/css/tabler.min.css",
@@ -43,6 +43,14 @@
       "files": [
         "build/two.min.js",
         "extras/js/zui.js"
+      ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "apexcharts@4.7.0",
+      "destination": "wwwroot/libs/apexcharts",
+      "files": [
+        "dist/apexcharts.min.js"
       ]
     }
   ]
