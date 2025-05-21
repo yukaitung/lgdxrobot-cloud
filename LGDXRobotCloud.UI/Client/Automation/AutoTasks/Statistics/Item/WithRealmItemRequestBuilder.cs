@@ -36,7 +36,6 @@ namespace LGDXRobotCloud.UI.Client.Automation.AutoTasks.Statistics.Item
         /// <returns>A <see cref="global::LGDXRobotCloud.UI.Client.Models.AutoTaskStatisticsDto"/></returns>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
-        /// <exception cref="global::LGDXRobotCloud.UI.Client.Models.ValidationProblemDetails">When receiving a 400 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public async Task<global::LGDXRobotCloud.UI.Client.Models.AutoTaskStatisticsDto?> GetAsync(Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
@@ -47,11 +46,7 @@ namespace LGDXRobotCloud.UI.Client.Automation.AutoTasks.Statistics.Item
         {
 #endif
             var requestInfo = ToGetRequestInformation(requestConfiguration);
-            var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
-            {
-                { "400", global::LGDXRobotCloud.UI.Client.Models.ValidationProblemDetails.CreateFromDiscriminatorValue },
-            };
-            return await RequestAdapter.SendAsync<global::LGDXRobotCloud.UI.Client.Models.AutoTaskStatisticsDto>(requestInfo, global::LGDXRobotCloud.UI.Client.Models.AutoTaskStatisticsDto.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
+            return await RequestAdapter.SendAsync<global::LGDXRobotCloud.UI.Client.Models.AutoTaskStatisticsDto>(requestInfo, global::LGDXRobotCloud.UI.Client.Models.AutoTaskStatisticsDto.CreateFromDiscriminatorValue, default, cancellationToken).ConfigureAwait(false);
         }
         /// <returns>A <see cref="RequestInformation"/></returns>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
