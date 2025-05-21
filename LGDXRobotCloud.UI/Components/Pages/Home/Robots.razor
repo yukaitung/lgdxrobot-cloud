@@ -54,7 +54,7 @@
               </div>
             </div>
             <div class="d-flex">
-              <a href="@(AppRoutes.Navigation.Robots.Index + $"/{id}?ReturnUrl=/")" class="card-btn">
+              <a href="@(AppRoutes.Navigation.Robots.Index + $"/{id}?ReturnUrl=/?tab=2")" class="card-btn">
                 Manage
               </a>
               <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="Control">

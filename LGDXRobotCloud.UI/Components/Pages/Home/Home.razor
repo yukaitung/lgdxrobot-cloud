@@ -60,6 +60,9 @@
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
+  [SupplyParameterFromQuery]
+  private int? Tab { get; set; }
+
   private string RealmName { get; set; } = string.Empty;
   private List<string> Pages = ["Tasks", "Map", "Robots"];
   private int CurrentPage = 0;
@@ -69,6 +72,10 @@
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    if (Tab != null)
+    {
+      CurrentPage = (int)Tab;
+    }
     await base.OnInitializedAsync();
   }
 
