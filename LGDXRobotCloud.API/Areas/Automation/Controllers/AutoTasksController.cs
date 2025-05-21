@@ -94,4 +94,13 @@ public sealed class AutoTasksController(
     var statistics = await _autoTaskService.GetAutoTaskStatisticsAsync(realmId);
     return Ok(statistics.ToDto());
   }
+
+  [HttpGet("RobotCurrentTask/{robotId}")]
+  [ProducesResponseType(typeof(AutoTaskListDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult<AutoTaskListDto>> GetRobotCurrentTask(Guid robotId)
+  {
+    var autoTask = await _autoTaskService.GetRobotCurrentTaskAsync(robotId);
+    return Ok(autoTask.ToDto());
+  }
 }

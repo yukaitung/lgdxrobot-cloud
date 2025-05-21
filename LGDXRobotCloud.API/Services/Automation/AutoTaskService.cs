@@ -25,6 +25,7 @@ public interface IAutoTaskService
   Task AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
 
   Task<AutoTaskStatisticsBusinessModel> GetAutoTaskStatisticsAsync(int realmId);
+  Task<AutoTaskListBusinessModel> GetRobotCurrentTaskAsync(Guid robotId);
 }
 
 public class AutoTaskService(
@@ -541,5 +542,28 @@ public class AutoTaskService(
     _memoryCache.Set("Automation_Statistics", statistics, TimeSpan.FromMinutes(5));
 
     return statistics;
+  }
+
+  public async Task<AutoTaskListBusinessModel> GetRobotCurrentTaskAsync(Guid robotId)
+  {
+    var autoTask = await _context.AutoTasks.AsNoTracking()
+      .Where(t => !LgdxHelper.AutoTaskStaticStates.Contains(t.CurrentProgressId!) && t.AssignedRobotId == robotId)
+      .Select(t => new AutoTaskListBusinessModel
+      {
+        Id = t.Id,
+        Name = t.Name,
+        Priority = t.Priority,
+        FlowId = t.Flow!.Id,
+        FlowName = t.Flow.Name,
+        RealmId = t.Realm.Id,
+        RealmName = t.Realm.Name,
+        AssignedRobotId = t.AssignedRobotId,
+        AssignedRobotName = t.AssignedRobot!.Name,
+        CurrentProgressId = t.CurrentProgressId,
+        CurrentProgressName = t.CurrentProgress.Name,
+      })
+      .FirstOrDefaultAsync()
+      ?? throw new LgdxNotFound404Exception();
+    return autoTask;
   }
 }

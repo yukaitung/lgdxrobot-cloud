@@ -3,6 +3,8 @@ using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Constants;
 using LGDXRobotCloud.UI.Services;
+using LGDXRobotCloud.Utilities.Enums;
+using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
@@ -42,6 +44,7 @@ public sealed partial class Map : ComponentBase, IDisposable
   private Guid LastSelectedRobotId { get; set; } = Guid.Empty;
   private Guid SelectedRobotId { get; set; } = Guid.Empty;
   private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = [];
+  private AutoTaskListDto? CurrentTask { get; set; }
 
   [JSInvokable("HandleRobotSelect")]
   public async Task HandleRobotSelect(string robotId)
@@ -49,7 +52,8 @@ public sealed partial class Map : ComponentBase, IDisposable
     SelectedRobotId = Guid.Parse(robotId);
     if (LastSelectedRobotId != SelectedRobotId)
     {
-      var response = await LgdxApiClient.Navigation.Robots.Search.GetAsync(x => x.QueryParameters = new() {
+      var response = await LgdxApiClient.Navigation.Robots.Search.GetAsync(x => x.QueryParameters = new()
+      {
         RealmId = Realm.Id,
         RobotId = SelectedRobotId
       });
@@ -57,6 +61,7 @@ public sealed partial class Map : ComponentBase, IDisposable
       {
         SelectedRobotName = response[0].Name!;
       }
+      CurrentTask = await LgdxApiClient.Automation.AutoTasks.RobotCurrentTask[SelectedRobotId].GetAsync();
     }
     SelectedRobot = RobotsData.TryGetValue(SelectedRobotId, out RobotDataContract? value) ? value : null;
     StateHasChanged();
@@ -66,6 +71,37 @@ public sealed partial class Map : ComponentBase, IDisposable
   public void HandleRobotManageClick()
   {
     NavigationManager.NavigateTo(AppRoutes.Navigation.Robots.Index + $"/{SelectedRobotId}?ReturnUrl=/?tab=1");
+  }
+
+  public void HandleViewTaskClick(int taskId)
+  {
+    NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}?ReturnUrl=/?tab=1");
+  }
+
+  private async void OnAutoTaskUpdated(object? sender, AutoTaskUpdatEventArgs updatEventArgs)
+  {
+    if (CurrentTask == null)
+      return;
+    var autoTaskUpdateContract = updatEventArgs.AutoTaskUpdateContract;
+    if (autoTaskUpdateContract.AssignedRobotId != SelectedRobotId)
+      return;
+
+    // Update for running auto tasks
+    if (!LgdxHelper.AutoTaskStaticStates.Contains(autoTaskUpdateContract.CurrentProgressId))
+    {
+      CurrentTask.Id = autoTaskUpdateContract.Id;
+      CurrentTask.Name = autoTaskUpdateContract.Name;
+      CurrentTask.Priority = autoTaskUpdateContract.Priority;
+      CurrentTask.Flow!.Id = autoTaskUpdateContract.FlowId;
+      CurrentTask.Flow!.Name = autoTaskUpdateContract.FlowName;
+      CurrentTask.CurrentProgress!.Id = autoTaskUpdateContract.CurrentProgressId;
+      CurrentTask.CurrentProgress!.Name = autoTaskUpdateContract.CurrentProgressName;
+    }
+    else if (autoTaskUpdateContract.CurrentProgressId == (int)ProgressState.Completed || autoTaskUpdateContract.CurrentProgressId == (int)ProgressState.Aborted)
+    {
+      CurrentTask = null;
+    }
+    await InvokeAsync(StateHasChanged);
   }
 
   private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
@@ -131,6 +167,7 @@ public sealed partial class Map : ComponentBase, IDisposable
   {
     if (firstRender)
     {
+      RealTimeService.AutoTaskUpdated += OnAutoTaskUpdated;
       RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
@@ -144,6 +181,7 @@ public sealed partial class Map : ComponentBase, IDisposable
 
   public void Dispose()
   {
+    RealTimeService.AutoTaskUpdated -= OnAutoTaskUpdated;
     RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
     GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
