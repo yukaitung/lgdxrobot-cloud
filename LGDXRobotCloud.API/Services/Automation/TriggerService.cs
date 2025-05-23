@@ -43,7 +43,7 @@ public sealed class TriggerService (
     if(!string.IsNullOrWhiteSpace(name))
     {
       name = name.Trim();
-      query = query.Where(t => t.Name.Contains(name));
+      query = query.Where(t => t.Name.ToLower().Contains(name.ToLower()));
     }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);

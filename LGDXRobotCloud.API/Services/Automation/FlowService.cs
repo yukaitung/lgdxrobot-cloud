@@ -30,7 +30,7 @@ public class FlowService(LgdxContext context) : IFlowService
       if(!string.IsNullOrWhiteSpace(name))
       {
         name = name.Trim();
-        query = query.Where(f => f.Name.Contains(name));
+        query = query.Where(f => f.Name.ToLower().Contains(name.ToLower()));
       }
       var itemCount = await query.CountAsync();
       var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);

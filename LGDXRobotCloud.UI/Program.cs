@@ -60,14 +60,22 @@ builder.Services.AddHttpClient<LgdxApiClientFactory>((sp, client) =>
   client.BaseAddress = url;
 })
 	.AddHttpMessageHandler(() => new HeadersInspectionHandler())
-	.ConfigurePrimaryHttpMessageHandler(() => clientHandler)
+	.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+	{
+		AllowAutoRedirect = true,
+		UseDefaultCredentials = true
+	})
 	.AttachKiotaHandlers();
 builder.Services.AddTransient(sp => sp.GetRequiredService<LgdxApiClientFactory>().GetClient());
 builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client =>
 { 
 	client.BaseAddress = url;
 })
-	.ConfigurePrimaryHttpMessageHandler(() => clientHandler);
+	.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+	{
+		AllowAutoRedirect = true,
+		UseDefaultCredentials = true
+	});
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 builder.Services.AddSingleton<IRealTimeService, RealTimeService>();

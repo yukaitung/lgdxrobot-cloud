@@ -53,7 +53,7 @@ public class RobotService(
     if (!string.IsNullOrWhiteSpace(name))
     {
       name = name.Trim();
-      query = query.Where(r => r.Name.Contains(name));
+      query = query.Where(r => r.Name.ToLower().Contains(name.ToLower()));
     }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);

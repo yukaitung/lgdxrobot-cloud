@@ -49,7 +49,7 @@ public class AutoTaskService(
     if (!string.IsNullOrWhiteSpace(name))
     {
       name = name.Trim();
-      query = query.Where(t => t.Name != null && t.Name.Contains(name));
+      query = query.Where(t => t.Name != null && t.Name.ToLower().Contains(name.ToLower()));
     }
     if (realmId != null)
     {

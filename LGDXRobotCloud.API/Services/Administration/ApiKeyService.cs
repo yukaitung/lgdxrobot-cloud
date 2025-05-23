@@ -38,7 +38,7 @@ public class ApiKeyService(
     if(!string.IsNullOrWhiteSpace(name))
     {
       name = name.Trim();
-      query = query.Where(a => a.Name.Contains(name));
+      query = query.Where(a => a.Name.ToLower().Contains(name.ToLower()));
     }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);

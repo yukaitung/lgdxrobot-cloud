@@ -29,7 +29,7 @@ public class ProgressService(LgdxContext context) : IProgressService
     if (!string.IsNullOrWhiteSpace(name))
     {
       name = name.Trim();
-      query = query.Where(t => t.Name.Contains(name));
+      query = query.Where(t => t.Name.ToLower().Contains(name.ToLower()));
     }
     query = query.Where(t => t.System == system);
     var itemCount = await query.CountAsync();

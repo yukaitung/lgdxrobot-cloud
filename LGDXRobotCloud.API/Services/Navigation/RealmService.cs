@@ -31,7 +31,7 @@ public class RealmService(LgdxContext context) : IRealmService
     if (!string.IsNullOrWhiteSpace(name))
     {
       name = name.Trim();
-      query = query.Where(m => m.Name.Contains(name));
+      query = query.Where(m => m.Name.ToLower().Contains(name.ToLower()));
     }
     var itemCount = await query.CountAsync();
     var PaginationHelper = new PaginationHelper(itemCount, pageNumber, pageSize);
