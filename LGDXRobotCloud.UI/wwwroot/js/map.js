@@ -178,7 +178,7 @@ function _internalToMapY(y)
 
 function _internalToMapRotation(rotation)
 {
-  return (rotation + MAP_ORIGIN_ROTATION * (Math.PI / 2)) - 90;
+  return ((rotation + MAP_ORIGIN_ROTATION) * (180 / Math.PI) - 90);
 }
 
 function _internalStringToHSVColor(str) 
@@ -262,7 +262,7 @@ function AddRobot(robotId, x, y, rotation)
     x: _internalToMapX(x),
     y: _internalToMapY(y),
   });
-  robot.rotate(_internalToMapRotation(rotation));
+  robot.rotation(_internalToMapRotation(rotation));
   robot.on('click', function (e) {
     MapDotNetObject.invokeMethodAsync('HandleRobotSelect', e.target.id());
     document.getElementById("robotDataOffcanvasButton").click();
