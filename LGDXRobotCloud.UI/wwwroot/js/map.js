@@ -1,6 +1,7 @@
 var WindowHeight = window.innerHeight;
 var MapDotNetObject = {};
 var MapStage;
+var MapLayer
 
 /*
  * Dotnet Functions
@@ -29,16 +30,16 @@ function InitNavigationMap(dotNetObject)
     draggable: false,
   });
   mapBackgroundObj.onload = () => {
-    let ctx = mapLayer.getContext()._context;
+    let ctx = MapLayer.getContext()._context;
     ctx.imageSmoothingEnabled = false;
     mapBackground.fillPatternImage(mapBackgroundObj);
   };
-  var mapLayer = new Konva.Layer({
+  MapLayer = new Konva.Layer({
     offsetX: -divRect.width / 2 + mapBackgroundImage.width / 2,
     offsetY: -divRect.height / 2 + mapBackgroundImage.height / 2,
   });
-  MapStage.add(mapLayer);
-  mapLayer.add(mapBackground);
+  MapStage.add(MapLayer);
+  MapLayer.add(mapBackground);
 
   function _internalOnResize()
   {
@@ -50,7 +51,7 @@ function InitNavigationMap(dotNetObject)
     MapStage.height(divRect.height + (dy < 0 ? dy : 0));
     WindowHeight = newWindowHeight;
 
-    let ctx = mapLayer.getContext()._context;
+    let ctx = MapLayer.getContext()._context;
     ctx.imageSmoothingEnabled = false;
   }
 
@@ -90,6 +91,10 @@ function InitNavigationMap(dotNetObject)
   MapStage.position(newPos);
   window.addEventListener('resize', _internalOnResize);
 }
+
+/*
+ * Zoom Functions
+ */
 
 function _internalMapZoom(scaleDiff)
 {
@@ -134,10 +139,10 @@ function NavigationMapZoomOut()
 
 function NavigationMapZoomReset()
 {
-  console.log(MapStage.x());
-  console.log(MapStage.y());
   const div = document.getElementById('navigation-map-div');
   const divRect = div.getBoundingClientRect();
+  MapStage.x(-divRect.width);
+  MapStage.y(-divRect.height);
   const initalScale = 3;
   MapStage.scale({ x: initalScale, y: initalScale });
   const newPos = {
@@ -145,4 +150,80 @@ function NavigationMapZoomReset()
     y: -divRect.height,
   };
   MapStage.position(newPos);
+}
+
+/*
+ * Robot Functions
+ */
+function _internalToMapX(x)
+{
+  return (-MAP_ORIGIN_X + x) / MAP_RESOLUTION;
+}
+
+function _internalToMapY(y)
+{
+  const mapBackgroundImage = document.getElementById('navigation-map-image');
+  return mapBackgroundImage.height - ((-MAP_ORIGIN_Y + y) / MAP_RESOLUTION);
+}
+
+function _internalToMapRotation(rotation)
+{
+  return (rotation + MAP_ORIGIN_ROTATION * (Math.PI / 2)) - 90;
+}
+
+function AddRobot(robotId, x, y, rotation)
+{
+  const pin = new Konva.Shape({
+    id: robotId,
+    sceneFunc: function (context, shape) {
+      const radius = 5;     
+      const tailLength = 10;      
+      const controlScale = 1.05; 
+      const dotRadius = 2; 
+
+      // Draw pin body
+      context.beginPath();
+      context.arc(0, 0, radius, 0, Math.PI, true);
+      context.bezierCurveTo(
+        -radius * controlScale, radius * controlScale,
+        -3, tailLength * 0.7,
+        0, tailLength
+      );
+      context.bezierCurveTo(
+        3, tailLength * 0.7,
+        radius * controlScale, radius * controlScale,
+        radius, 0
+      );
+      context.closePath();
+      context.fillStrokeShape(shape);
+
+      // Draw inner circle
+      context.beginPath();
+      context.arc(0, 0, dotRadius, 0, Math.PI * 2, false);
+      context.fillStyle = 'white';
+      context.fill();
+      context.strokeStyle = 'black';
+      context.lineWidth = 1;
+      context.stroke();
+      },
+    fill: '#00D2FF',
+    stroke: 'black',
+    strokeWidth: 1,
+    x: _internalToMapX(x),
+    y: _internalToMapY(y),
+  });
+  pin.rotate(_internalToMapRotation(rotation));
+
+  MapLayer.add(pin);
+}
+
+function MoveRobot(robotId, x, y, rotation)
+{
+  let robot = MapLayer.findOne('#' + robotId);
+  if (robot != undefined)
+  {
+    robot.x(_internalToMapX(x));
+    robot.y(_internalToMapY(y));
+    robot.rotation(_internalToMapRotation(rotation));
+  }
 }
