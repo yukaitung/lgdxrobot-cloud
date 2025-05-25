@@ -173,7 +173,13 @@ function _internalToMapRotation(rotation)
 
 function AddRobot(robotId, x, y, rotation)
 {
-  const pin = new Konva.Shape({
+  let r = MapLayer.findOne('#' + robotId);
+  if (r != undefined)
+  {
+    return;
+  }
+
+  const robot = new Konva.Shape({
     id: robotId,
     sceneFunc: function (context, shape) {
       const radius = 5;     
@@ -212,9 +218,12 @@ function AddRobot(robotId, x, y, rotation)
     x: _internalToMapX(x),
     y: _internalToMapY(y),
   });
-  pin.rotate(_internalToMapRotation(rotation));
-
-  MapLayer.add(pin);
+  robot.rotate(_internalToMapRotation(rotation));
+  robot.on('click', function (e) {
+    MapDotNetObject.invokeMethodAsync('HandleRobotSelect', e.target.id());
+    document.getElementById("robotDataOffcanvasButton").click();
+  });
+  MapLayer.add(robot);
 }
 
 function MoveRobot(robotId, x, y, rotation)
