@@ -171,6 +171,40 @@ function _internalToMapRotation(rotation)
   return (rotation + MAP_ORIGIN_ROTATION * (Math.PI / 2)) - 90;
 }
 
+function _internalStringToHSVColor(str) 
+{
+  const lastSix = str.slice(-6);
+  let seed = 0;
+  for (let i = 0; i < lastSix.length; i++) {
+    seed += lastSix.charCodeAt(i) * (i + 1);
+  }
+  const hue = seed % 360;
+  const saturation = 0.6;
+  const value = 0.9;
+
+  const rgb = _internalHsvToRgb(hue, saturation, value);
+  // Convert RGB to Hex
+  const hex = rgb.map(c => Math.round(c * 255).toString(16).padStart(2, '0')).join('');
+  return `#${hex}`;
+}
+
+function _internalHsvToRgb(h, s, v) 
+{
+  const c = v * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = v - c;
+
+  let [r, g, b] = [0, 0, 0];
+  if (h < 60)       [r, g, b] = [c, x, 0];
+  else if (h < 120) [r, g, b] = [x, c, 0];
+  else if (h < 180) [r, g, b] = [0, c, x];
+  else if (h < 240) [r, g, b] = [0, x, c];
+  else if (h < 300) [r, g, b] = [x, 0, c];
+  else              [r, g, b] = [c, 0, x];
+
+  return [r + m, g + m, b + m];
+}
+
 function AddRobot(robotId, x, y, rotation)
 {
   let r = MapLayer.findOne('#' + robotId);
@@ -212,7 +246,7 @@ function AddRobot(robotId, x, y, rotation)
       context.lineWidth = 1;
       context.stroke();
       },
-    fill: '#00D2FF',
+    fill: _internalStringToHSVColor(robotId),
     stroke: 'black',
     strokeWidth: 1,
     x: _internalToMapX(x),
