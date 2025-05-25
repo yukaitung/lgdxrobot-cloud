@@ -1,7 +1,8 @@
 var WindowHeight = window.innerHeight;
 var MapDotNetObject = {};
 var MapStage;
-var MapLayer
+var MapLayer;
+const InitalScale = 3;
 
 /*
  * Dotnet Functions
@@ -55,40 +56,32 @@ function InitNavigationMap(dotNetObject)
     ctx.imageSmoothingEnabled = false;
   }
 
-  const scaleBy = 1.1;
   MapStage.on('wheel', (e) => {
     e.evt.preventDefault();
-
-    const oldScale = MapStage.scaleX();
-    const pointer = MapStage.getPointerPosition();
-    const mousePointTo = {
-      x: (pointer.x - MapStage.x()) / oldScale,
-      y: (pointer.y - MapStage.y()) / oldScale,
-    };
 
     let direction = e.evt.deltaY > 0 ? -1 : 1;
     if (e.evt.ctrlKey) {
       // On trackpad
       direction = -direction;
     }
-
-    const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
-    MapStage.scale({ x: newScale, y: newScale });
-    const newPos = {
-      x: pointer.x - mousePointTo.x * newScale,
-      y: pointer.y - mousePointTo.y * newScale,
-    };
-    MapStage.position(newPos);
+    if (direction > 0)
+    {
+      _internalMapZoom(1.1, true);
+    }
+    else
+    {
+      _internalMapZoom(-1.1, true);
+    }
   });
 
   // Zoom the map
-  const initalScale = 3;
-  MapStage.scale({ x: initalScale, y: initalScale });
+  MapStage.scale({ x: InitalScale, y: InitalScale });
   const newPos = {
     x: -divRect.width,
     y: -divRect.height,
   };
   MapStage.position(newPos);
+  _internalRulerUpdate();
   window.addEventListener('resize', _internalOnResize);
 }
 
@@ -96,7 +89,14 @@ function InitNavigationMap(dotNetObject)
  * Zoom Functions
  */
 
-function _internalMapZoom(scaleDiff)
+function _internalRulerUpdate()
+{
+  const ruler = document.getElementById('navigation-map-ruler');
+  var width = 1 / MAP_RESOLUTION * MapStage.scaleX();
+  ruler.style.width = width + 'px';
+}
+
+function _internalMapZoom(scaleDiff, isWheel)
 {
   if (scaleDiff == 0)
   {
@@ -104,6 +104,16 @@ function _internalMapZoom(scaleDiff)
   }
 
   const oldScale = MapStage.scaleX();
+  if (oldScale <= InitalScale && scaleDiff < 0)
+  {
+    return;
+  }
+  if (oldScale >= 10 && scaleDiff > 0)
+  {
+    return;
+  }
+
+  const pointer = MapStage.getPointerPosition();
   let newScale = 1;
   if (scaleDiff > 0)
   {
@@ -116,40 +126,40 @@ function _internalMapZoom(scaleDiff)
   MapStage.scale({ x: newScale, y: newScale });
   const div = document.getElementById('navigation-map-div');
   const divRect = div.getBoundingClientRect();
-  const pointTo = {
+  let pointTo = {
     x: (divRect.width / 2 - MapStage.x()) / oldScale,
     y: (divRect.height / 2 - MapStage.y()) / oldScale,
   };
-  const newPos = {
+  if (isWheel)
+  {
+    pointTo = {
+      x: (pointer.x - MapStage.x()) / oldScale,
+      y: (pointer.y - MapStage.y()) / oldScale,
+    };
+  }
+  let newPos = {
     x: divRect.width / 2 - pointTo.x * newScale,
     y: divRect.height / 2 - pointTo.y * newScale,
   };
+  if (isWheel)
+  {
+    newPos = {
+      x: pointer.x - pointTo.x * newScale,
+      y: pointer.y - pointTo.y * newScale,
+    };
+  }
   MapStage.position(newPos);
+  _internalRulerUpdate();
 }
 
 function NavigationMapZoomIn()
 {
-  _internalMapZoom(1.1);
+  _internalMapZoom(1.1, false);
 }
 
 function NavigationMapZoomOut()
 {
-  _internalMapZoom(-1.1);
-}
-
-function NavigationMapZoomReset()
-{
-  const div = document.getElementById('navigation-map-div');
-  const divRect = div.getBoundingClientRect();
-  MapStage.x(-divRect.width);
-  MapStage.y(-divRect.height);
-  const initalScale = 3;
-  MapStage.scale({ x: initalScale, y: initalScale });
-  const newPos = {
-    x: -divRect.width,
-    y: -divRect.height,
-  };
-  MapStage.position(newPos);
+  _internalMapZoom(-1.1, false);
 }
 
 /*
