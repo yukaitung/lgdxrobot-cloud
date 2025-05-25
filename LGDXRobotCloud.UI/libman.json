@@ -38,11 +38,10 @@
     },
     {
       "provider": "jsdelivr",
-      "library": "two.js@latest",
-      "destination": "wwwroot/libs/two.js",
+      "library": "konva@9.3.20",
+      "destination": "wwwroot/libs/konva",
       "files": [
-        "build/two.min.js",
-        "extras/js/zui.js"
+        "konva.min.js"
       ]
     },
     {

@@ -167,6 +167,9 @@ public sealed partial class Map : ComponentBase, IDisposable
   {
     if (firstRender)
     {
+      ObjectReference = DotNetObjectReference.Create(this);
+      await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
+      /*
       RealTimeService.AutoTaskUpdated += OnAutoTaskUpdated;
       RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
       ObjectReference = DotNetObjectReference.Create(this);
@@ -174,7 +177,7 @@ public sealed partial class Map : ComponentBase, IDisposable
       foreach (var (robotId, robotData) in RobotsData)
       {
         await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
-      }
+      }*/
     }
     await base.OnAfterRenderAsync(firstRender);
   }
