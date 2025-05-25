@@ -26,7 +26,8 @@
 
   public bool IsActive(string href, NavLinkMatch navLinkMatch = NavLinkMatch.Prefix)
   {
-    var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
+    var uri = new Uri(NavigationManager.Uri);
+    var relativePath = NavigationManager.ToBaseRelativePath(uri.GetLeftPart(UriPartial.Path)).ToLower();
     return navLinkMatch == NavLinkMatch.All ? relativePath == href.ToLower() : relativePath.StartsWith(href.ToLower());
   }
 

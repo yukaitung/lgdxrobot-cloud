@@ -14,7 +14,7 @@
             <ul class="alert-list">
               @foreach (var (field, error) in Errors)
               {
-                <li class="text-red">@(error ?? string.Empty)</li>
+                <li>@(error ?? string.Empty)</li>
               }
             </ul>
           }
