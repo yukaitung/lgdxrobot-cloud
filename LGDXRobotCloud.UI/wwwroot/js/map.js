@@ -47,6 +47,10 @@ function InitNavigationMap(dotNetObject)
     const newWindowHeight = window.innerHeight;
     const dy = newWindowHeight - WindowHeight;
     const div = document.getElementById('navigation-map-div');
+    if (div == null)
+    {
+      return;
+    }
     const divRect = div.getBoundingClientRect();
     MapStage.width(divRect.width);
     MapStage.height(divRect.height + (dy < 0 ? dy : 0));
