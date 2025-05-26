@@ -57,6 +57,7 @@ public class RealmService(LgdxContext context) : IRealmService
         Id = m.Id,
         Name = m.Name,
         Description = m.Description,
+        HasWaypointsTrafficControl = m.HasWaypointsTrafficControl,
         Image = Convert.ToBase64String(m.Image),
         Resolution = m.Resolution,
         OriginX = m.OriginX,
@@ -75,6 +76,7 @@ public class RealmService(LgdxContext context) : IRealmService
         Id = m.Id,
         Name = m.Name,
         Description = m.Description,
+        HasWaypointsTrafficControl = m.HasWaypointsTrafficControl,
         Image = Convert.ToBase64String(m.Image),
         Resolution = m.Resolution,
         OriginX = m.OriginX,
@@ -90,6 +92,7 @@ public class RealmService(LgdxContext context) : IRealmService
     var realm = new Realm {
       Name = createModel.Name,
       Description = createModel.Description,
+      HasWaypointsTrafficControl = createModel.HasWaypointsTrafficControl,
       Image = Convert.FromBase64String(createModel.Image),
       Resolution = createModel.Resolution,
       OriginX = createModel.OriginX,
@@ -104,6 +107,7 @@ public class RealmService(LgdxContext context) : IRealmService
       Id = realm.Id,
       Name = realm.Name,
       Description = realm.Description,
+      HasWaypointsTrafficControl = realm.HasWaypointsTrafficControl,
       Image = createModel.Image,
       Resolution = realm.Resolution,
       OriginX = realm.OriginX,
@@ -119,6 +123,7 @@ public class RealmService(LgdxContext context) : IRealmService
       .ExecuteUpdateAsync(setters => setters
         .SetProperty(m => m.Name, updateModel.Name)
         .SetProperty(m => m.Description, updateModel.Description)
+        .SetProperty(m => m.HasWaypointsTrafficControl, updateModel.HasWaypointsTrafficControl)
         .SetProperty(m => m.Image, Convert.FromBase64String(updateModel.Image))
         .SetProperty(m => m.Resolution, updateModel.Resolution)
         .SetProperty(m => m.OriginX, updateModel.OriginX)

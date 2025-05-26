@@ -16,6 +16,9 @@ public sealed class RealmDetailViewModel : FormViewModel, IValidatableObject
   [MaxLength(200)]
   public string? Description { get; set; }
 
+  [Required(ErrorMessage = "Please select a traffic control type.")]
+  public bool HasWaypointsTrafficControl { get; set; }
+
   public string Image { get; set; } = null!;
 
   public IBrowserFile SelectedImage { get; set; } = null!;
@@ -48,6 +51,7 @@ public static class RealmDetailViewModelExtensions
     realmDetailViewModel.Id = (int)realmDto.Id!;
     realmDetailViewModel.Name = realmDto.Name!;
     realmDetailViewModel.Description = realmDto.Description;
+    realmDetailViewModel.HasWaypointsTrafficControl = (bool)realmDto.HasWaypointsTrafficControl!;
     realmDetailViewModel.Image = realmDto.Image!;
     realmDetailViewModel.Resolution = realmDto.Resolution;
     realmDetailViewModel.OriginX = realmDto.OriginX;
@@ -60,6 +64,7 @@ public static class RealmDetailViewModelExtensions
     return new RealmUpdateDto {
       Name = realmDetailViewModel.Name,
       Description = realmDetailViewModel.Description,
+      HasWaypointsTrafficControl = realmDetailViewModel.HasWaypointsTrafficControl,
       Image = realmDetailViewModel.Image,
       Resolution = realmDetailViewModel.Resolution,
       OriginX = realmDetailViewModel.OriginX,
@@ -73,6 +78,7 @@ public static class RealmDetailViewModelExtensions
     return new RealmCreateDto {
       Name = realmDetailViewModel.Name,
       Description = realmDetailViewModel.Description,
+      HasWaypointsTrafficControl = realmDetailViewModel.HasWaypointsTrafficControl,
       Image = realmDetailViewModel.Image,
       Resolution = realmDetailViewModel.Resolution,
       OriginX = realmDetailViewModel.OriginX,
