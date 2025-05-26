@@ -125,6 +125,10 @@ function _internalMapZoom(scaleDiff, isWheel)
   }
   MapStage.scale({ x: newScale, y: newScale });
   const div = document.getElementById('navigation-map-div');
+  if (div == null)
+  {
+    return;
+  }
   const divRect = div.getBoundingClientRect();
   let pointTo = {
     x: (divRect.width / 2 - MapStage.x()) / oldScale,
