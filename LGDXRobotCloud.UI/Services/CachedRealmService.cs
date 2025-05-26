@@ -24,7 +24,6 @@ public sealed class CachedRealmService (
 {
   private readonly LgdxApiClient _lgdxApiClient = LgdxApiClient ?? throw new ArgumentNullException(nameof(LgdxApiClient));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-  private readonly MemoryCacheEntryOptions _memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
   private readonly NavigationManager _navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
   private static RealmDto GetEmptyRealm()
@@ -51,7 +50,7 @@ public sealed class CachedRealmService (
     try
     {
       var realm = await _lgdxApiClient.Navigation.Realms.Default.GetAsync();
-      _memoryCache.Set($"RealmService_GetDefaultRealm", realm, _memoryCacheEntryOptions);
+      _memoryCache.Set($"RealmService_GetDefaultRealm", realm);
       return realm ?? GetEmptyRealm();
     }
     catch (ApiException ex)
@@ -68,15 +67,15 @@ public sealed class CachedRealmService (
     {
       return await GetDefaultRealmAsync();
     }
+
     if (_memoryCache.TryGetValue($"RealmService_GetCurrrentRealmAsync_{realmId}", out RealmDto? cachedMap))
     {
       return cachedMap ?? GetEmptyRealm();
     }
-
     try
     {
       var realm = await _lgdxApiClient.Navigation.Realms[realmId].GetAsync();
-      _memoryCache.Set($"RealmService_GetCurrrentRealmAsync_{realmId}", realm, _memoryCacheEntryOptions);
+      _memoryCache.Set($"RealmService_GetCurrrentRealmAsync_{realmId}", realm);
       return realm ?? GetEmptyRealm();
     }
     catch (ApiException ex)
