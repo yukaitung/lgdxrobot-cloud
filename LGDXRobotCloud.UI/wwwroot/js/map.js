@@ -215,6 +215,10 @@ function _internalHsvToRgb(h, s, v)
   return [r + m, g + m, b + m];
 }
 
+function _internalGetCSSVariable(varName) {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+
 function AddRobot(robotId, x, y, rotation)
 {
   let r = MapLayer.findOne('#' + robotId);
@@ -250,14 +254,14 @@ function AddRobot(robotId, x, y, rotation)
       // Draw inner circle
       context.beginPath();
       context.arc(0, 0, dotRadius, 0, Math.PI * 2, false);
-      context.fillStyle = 'white';
+      context.fillStyle = _internalGetCSSVariable('--tblr-gray-50');
       context.fill();
-      context.strokeStyle = 'black';
+      context.strokeStyle = _internalGetCSSVariable('--tblr-gray-950');
       context.lineWidth = 1;
       context.stroke();
       },
     fill: _internalStringToHSVColor(robotId),
-    stroke: 'black',
+    stroke: _internalGetCSSVariable('--tblr-gray-950'),
     strokeWidth: 1,
     x: _internalToMapX(x),
     y: _internalToMapY(y),

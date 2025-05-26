@@ -12,12 +12,11 @@
   {
     <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Realm.Image" />
   }
-  <div class="btn-group-vertical" style="position: absolute;right: 1em;top: 10em; background-color: var(--tblr-card-bg);">
+  <div id="navigation-map-buttons" class="btn-group-vertical">
     <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
     <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
   </div>
-  <div id="navigation-map-ruler" class="border border-2 border-top-0 border-dark ps-2" 
-    style="position: absolute; width: 1px; height: 2em; right: 1em;bottom: 8em;">
+  <div id="navigation-map-ruler" class="border border-2 border-top-0 border-dark ps-2">
     1m
   </div>
 </div>
@@ -34,7 +33,7 @@
       <div class="row row-deck row-cards">
         <!-- Robot Name  -->
         <div class="col-12 d-flex">
-          <h2 style="display: table;">@SelectedRobotName</h2>
+          <h2>@SelectedRobotName</h2>
           <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@SelectedRobot.RobotStatus" /></h2>
         </div>
         <!-- Robot Data  -->
@@ -158,3 +157,11 @@
     @($"var MAP_RESOLUTION = 0;var MAP_ORIGIN_X = 0;var MAP_ORIGIN_Y = 0;var MAP_ORIGIN_ROTATION = 0;")
   }
 </script>
+<style>
+body {
+  overflow: hidden;
+}
+footer.footer.footer-transparent {
+  display: none;
+}
+</style>
