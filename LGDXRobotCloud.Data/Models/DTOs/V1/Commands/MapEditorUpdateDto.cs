@@ -2,16 +2,16 @@ using LGDXRobotCloud.Data.Models.Business.Navigation;
 
 namespace LGDXRobotCloud.Data.Models.DTOs.V1.Commands;
 
-public record MapEditUpdateDto
+public record MapEditorUpdateDto
 {
   public IEnumerable<WaypointLinkUpdateDto> WaypointLinks { get; set; } = [];
 }
 
 public static class MapEditUpdateDtoExtensions
 {
-  public static MapEditUpdateBusinessModel ToBusinessModel(this MapEditUpdateDto model)
+  public static MapEditorUpdateBusinessModel ToBusinessModel(this MapEditorUpdateDto model)
   {
-    return new MapEditUpdateBusinessModel
+    return new MapEditorUpdateBusinessModel
     {
       WaypointLinks = model.WaypointLinks.Select(w => w.ToBusinessModel()),
     };

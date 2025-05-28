@@ -16,27 +16,27 @@ namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificationScheme)]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
-public class MapEditController(
-    IMapEditService mapEditService
+public class MapEditorController(
+    IMapEditorService mapEditService
   ) : ControllerBase
 {
-  private readonly IMapEditService _mapEditService = mapEditService ?? throw new ArgumentNullException(nameof(mapEditService));
+  private readonly IMapEditorService _mapEditService = mapEditService ?? throw new ArgumentNullException(nameof(mapEditService));
 
   [HttpGet("{realmId}")]
-  [ProducesResponseType(typeof(MapEditDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(MapEditorDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
-  public async Task<ActionResult<MapEditDto>> GetMapEdit(int realmId)
+  public async Task<ActionResult<MapEditorDto>> GetMap(int realmId)
   {
-    var mapEdit = await _mapEditService.GetMapEditAsync(realmId);
+    var mapEdit = await _mapEditService.GetMapAsync(realmId);
     return Ok(mapEdit.ToDto());
   }
 
   [HttpPut("{realmId}")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
-  public async Task<ActionResult> UpdateMapEdit(int realmId, MapEditUpdateDto mapEditUpdateDto)
+  public async Task<ActionResult> UpdateMap(int realmId, MapEditorUpdateDto mapEditUpdateDto)
   {
-    if (!await _mapEditService.UpdateMapEditlAsync(realmId, mapEditUpdateDto.ToBusinessModel()))
+    if (!await _mapEditService.UpdateMapAsync(realmId, mapEditUpdateDto.ToBusinessModel()))
     {
       return NotFound();
     }

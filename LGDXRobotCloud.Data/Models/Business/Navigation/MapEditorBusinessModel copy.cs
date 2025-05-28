@@ -2,18 +2,18 @@ using LGDXRobotCloud.Data.Models.DTOs.V1.Responses;
 
 namespace LGDXRobotCloud.Data.Models.Business.Navigation;
 
-public record MapEditBusinessModel
+public record MapEditorBusinessModel
 {
   public IEnumerable<WaypointBusinessModel> Waypoints { get; set; } = [];
 
   public IEnumerable<WaypointLinkBusinessModel> WaypointLinks { get; set; } = [];
 }
 
-public static class MapEditBusinessModelExtensions
+public static class MapEditorBusinessModelExtensions
 {
-  public static MapEditDto ToDto(this MapEditBusinessModel model)
+  public static MapEditorDto ToDto(this MapEditorBusinessModel model)
   {
-    return new MapEditDto
+    return new MapEditorDto
     {
       Waypoints = model.Waypoints.Select(w => w.ToDto()),
       WaypointLinks = model.WaypointLinks.Select(w => w.ToDto()),
