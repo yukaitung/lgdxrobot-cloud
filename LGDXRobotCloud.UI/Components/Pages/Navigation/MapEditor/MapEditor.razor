@@ -1,0 +1,59 @@
+@attribute [Route(AppRoutes.Navigation.MapEditor.Index)]
+@attribute [Authorize (Policy = Permissions.Navigation.MapEditor.Read)]
+
+<PageHeader Title="Map Editor">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Map Editor
+      </h2>
+      <div class="text-secondary mt-1">
+        <i class="ti ti-map-pin-filled"></i>
+        @RealmName
+      </div>
+    </div>
+  </div>
+</PageHeader>
+
+<div id="navigation-map-div" class="flex-fill">
+  <div id="navigation-map-canvas"></div>
+  <a id="robotDataOffcanvasButton" class="btn d-none" data-bs-toggle="offcanvas" href="#robotDataOffcanvas" role="button">
+    Toggle end offcanvas
+  </a>
+  @if (Realm != null)
+  {
+    <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Realm.Image" />
+  }
+  <div id="map-editor-tools" class="btn-group">
+    <button class="btn">Add Waypoint</button>
+    <button class="btn">Single Way Traffic</button>
+    <button class="btn">Both Ways Traffic</button>
+    <button class="btn">Remove Traffic</button>
+  </div>
+  <div id="navigation-map-buttons" class="btn-group-vertical">
+    <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
+    <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
+  </div>
+  <div id="navigation-map-ruler" class="border border-2 border-top-0 border-dark ps-2">
+    1m
+  </div>
+</div>
+
+<script>
+  @if (Realm != null)
+  { 
+    @($"var MAP_RESOLUTION = {Realm.Resolution};var MAP_ORIGIN_X = {Realm.OriginX};var MAP_ORIGIN_Y = {Realm.OriginY};var MAP_ORIGIN_ROTATION = {Realm.OriginRotation};")
+  }
+  else
+  {
+    @($"var MAP_RESOLUTION = 0;var MAP_ORIGIN_X = 0;var MAP_ORIGIN_Y = 0;var MAP_ORIGIN_ROTATION = 0;")
+  }
+</script>
+<style>
+body {
+  overflow: hidden;
+}
+footer.footer.footer-transparent {
+  display: none;
+}
+</style>

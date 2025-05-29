@@ -292,3 +292,22 @@ function MoveRobot(robotId, x, y, rotation)
     robot.rotation(_internalToMapRotation(rotation));
   }
 }
+
+/*
+ * Map Editor
+ */
+
+function MapEditorAddWaypoints(waypoints) {
+  for(let i = 0; i < waypoints.length; i++) {
+    const w = new Konva.Circle({
+      id: 'w-' + waypoints[i].id,
+      x: _internalToMapX(waypoints[i].x),
+      y: _internalToMapY(waypoints[i].y),
+      radius: 4,
+      fill: _internalGetCSSVariable('--tblr-blue-lt'),
+      stroke: _internalGetCSSVariable('--tblr-blue'),
+      strokeWidth: 1,
+    });
+    MapLayer.add(w);
+  }
+}

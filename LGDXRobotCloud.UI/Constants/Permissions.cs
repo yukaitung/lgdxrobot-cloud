@@ -18,7 +18,7 @@ public static class Permissions
       public const string Action = "ValidateLgdxUserAccess/Navigation/Waypoints";
       public const string FullAccess = "ValidateLgdxUserAccess/Navigation/Waypoints/FullAccess";
       public const string Read = "ValidateLgdxUserAccess/Navigation/Waypoints/Read";
-      public const string Write = "ValidateLgdxUserAccess/Navigation/Waypoints/Write";      
+      public const string Write = "ValidateLgdxUserAccess/Navigation/Waypoints/Write";
       public const string Delete = "ValidateLgdxUserAccess/Navigation/Waypoints/Delete";
     }
     public static class Robots
@@ -28,6 +28,13 @@ public static class Permissions
       public const string Read = "ValidateLgdxUserAccess/Navigation/Robots/Read";
       public const string Write = "ValidateLgdxUserAccess/Navigation/Robots/Write";
       public const string Delete = "ValidateLgdxUserAccess/Navigation/Robots/Delete";
+    }
+    public static class MapEditor
+    {
+      public const string Action = "ValidateLgdxUserAccess/Navigation/MapEditor";
+      public const string FullAccess = "ValidateLgdxUserAccess/Navigation/MapEditor/FullAccess";
+      public const string Read = "ValidateLgdxUserAccess/Navigation/MapEditor/Read";
+      public const string Write = "ValidateLgdxUserAccess/Navigation/MapEditor/Write";
     }
   }
 
