@@ -26,7 +26,7 @@
     <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Realm.Image" />
   }
   <div id="map-editor-tools" class="btn-group">
-    <button class="btn">Add Waypoint</button>
+    <a class="btn" href="@($"{AppRoutes.Navigation.Waypoints.Create}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}")">Add Waypoint</a>
     <button class="btn">Single Way Traffic</button>
     <button class="btn">Both Ways Traffic</button>
     <button class="btn">Remove Traffic</button>

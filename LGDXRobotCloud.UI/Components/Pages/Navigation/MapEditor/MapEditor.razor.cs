@@ -24,6 +24,9 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
+  [SupplyParameterFromQuery]
+  private string? UpdateWaypointId { get; set; }
+
   private DotNetObjectReference<MapEditor> ObjectReference = null!;
   private string RealmName { get; set; } = string.Empty;
   private RealmDto Realm { get; set; } = null!;
