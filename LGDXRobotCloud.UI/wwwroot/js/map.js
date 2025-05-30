@@ -3,6 +3,10 @@ var MapDotNetObject = {};
 var MapStage;
 var MapLayer;
 const InitalScale = 3;
+var InitalCanvasX = 0;
+var InitalCanvasY = 0;
+var InitalBackgroundX = 0;
+var InitalBackgroundY = 0;
 
 /*
  * Dotnet Functions
@@ -13,6 +17,7 @@ function InitNavigationMap(dotNetObject)
   const div = document.getElementById('navigation-map-div');
   const divRect = div.getBoundingClientRect();
   MapStage = new Konva.Stage({
+    id: 'navigation-map-stage',
     container: 'navigation-map-canvas',
     width: divRect.width,
     height: divRect.height,
@@ -41,6 +46,32 @@ function InitNavigationMap(dotNetObject)
   });
   MapStage.add(MapLayer);
   MapLayer.add(mapBackground);
+
+  InitalCanvasX = divRect.width;
+  InitalCanvasY = divRect.height;
+  InitalBackgroundX = mapBackgroundImage.width;
+  InitalBackgroundY = mapBackgroundImage.height;
+
+  // Mouse event on map
+  MapStage.on('mousemove', () => {
+    const pointer = MapStage.getPointerPosition();
+    if (!pointer) return;
+    const p = document.getElementById('status');
+    if (!p) return;
+
+    // Transform stage coordinates to rect-local coordinates
+    const localPos = mapBackground.getAbsoluteTransform().copy().invert().point(pointer);
+
+    // Check if pointer is inside the rectangle bounds
+    if (
+      localPos.x >= 0 && localPos.x <= mapBackground.width() &&
+      localPos.y >= 0 && localPos.y <= mapBackground.height()
+    ) {
+      p.innerHTML = `x: ${_internalToRobotPositionX(localPos.x).toFixed(4)}, y: ${_internalToRobotPositionY(localPos.y).toFixed(4)}`;
+    } else {
+      p.innerHTML = '';
+    }
+  });
 
   function _internalOnResize()
   {
@@ -173,6 +204,16 @@ function NavigationMapZoomOut()
 /*
  * Robot Functions
  */
+function _internalToRobotPositionX(x)
+{
+  return x * MAP_RESOLUTION + MAP_ORIGIN_X;
+}
+
+function _internalToRobotPositionY(y)
+{
+  const mapBackgroundImage = document.getElementById('navigation-map-image');
+  return (mapBackgroundImage.height - y) * MAP_RESOLUTION + MAP_ORIGIN_Y;
+}
 function _internalToMapX(x)
 {
   return (-MAP_ORIGIN_X + x) / MAP_RESOLUTION;
