@@ -18,8 +18,8 @@
 <div id="navigation-map-div" class="flex-fill">
   <p id="status"></p>
   <div id="navigation-map-canvas"></div>
-  <a id="robotDataOffcanvasButton" class="btn d-none" data-bs-toggle="offcanvas" href="#robotDataOffcanvas" role="button">
-    Toggle end offcanvas
+  <a id="waypointModalButton" class="btn d-none" data-bs-toggle="modal" data-bs-target="#waypointModal">
+    Toggle modal
   </a>
   @if (Realm != null)
   {
@@ -34,6 +34,62 @@
   </div>
   <div id="navigation-map-ruler" class="border border-2 border-top-0 border-dark ps-2">
     1m
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="waypointModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-3 modal-dialog-centered" role="document">
+    <div class="modal-content">
+      @if (SelectedWaypoint != null)
+      {
+        <div class="modal-header">
+          <h5 class="modal-title">Waypoint Detail</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Id</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@SelectedWaypoint.Id</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Name</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@SelectedWaypoint.Name</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">X (m)</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@SelectedWaypoint.X</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Y (m)</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@SelectedWaypoint.Y</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Rotation (rad)</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@SelectedWaypoint.Rotation</div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <button class="btn" data-bs-dismiss="modal" @onclick="() => OnEditWaypointClick((int)SelectedWaypoint.Id!)">Edit</button>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Create Single Traffic</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Create Both Traffics</button>
+        </div>
+      }
+    </div>
   </div>
 </div>
 

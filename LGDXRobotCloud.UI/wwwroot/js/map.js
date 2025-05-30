@@ -3,10 +3,6 @@ var MapDotNetObject = {};
 var MapStage;
 var MapLayer;
 const InitalScale = 3;
-var InitalCanvasX = 0;
-var InitalCanvasY = 0;
-var InitalBackgroundX = 0;
-var InitalBackgroundY = 0;
 
 /*
  * Dotnet Functions
@@ -46,11 +42,6 @@ function InitNavigationMap(dotNetObject)
   });
   MapStage.add(MapLayer);
   MapLayer.add(mapBackground);
-
-  InitalCanvasX = divRect.width;
-  InitalCanvasY = divRect.height;
-  InitalBackgroundX = mapBackgroundImage.width;
-  InitalBackgroundY = mapBackgroundImage.height;
 
   // Mouse event on map
   MapStage.on('mousemove', () => {
@@ -348,6 +339,10 @@ function MapEditorAddWaypoints(waypoints) {
       fill: _internalGetCSSVariable('--tblr-blue-lt'),
       stroke: _internalGetCSSVariable('--tblr-blue'),
       strokeWidth: 1,
+    });
+    w.on('click', function (e) {
+      MapDotNetObject.invokeMethodAsync('HandleWaypointSelect', e.target.id());
+      document.getElementById("waypointModalButton").click();
     });
     MapLayer.add(w);
   }

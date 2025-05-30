@@ -41,15 +41,7 @@ public sealed partial class WaypointDetail : ComponentBase
 
   private void Redirect(int id)
   {
-    if (ReturnUrl != null)
-    {
-      // Tell Map Editor to update waypoint by given ID
-      NavigationManager.NavigateTo($"{ReturnUrl}?UpdateWaypointId={id}");
-    }
-    else
-    {
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
-    }
+    
   }
 
   public async Task HandleValidSubmit()
@@ -69,7 +61,17 @@ public sealed partial class WaypointDetail : ComponentBase
         var response = await LgdxApiClient.Navigation.Waypoints.PostAsync(WaypointDetailViewModel.ToCreateDto());
         id = response?.Id ?? 0;
       }
-      Redirect(id);
+
+      // Redirect
+      if (ReturnUrl != null)
+      {
+        // Tell Map Editor to update waypoint by given ID
+        NavigationManager.NavigateTo($"{ReturnUrl}?UpdateWaypointId={id}");
+      }
+      else
+      {
+        NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
+      }
     }
     catch (ApiException ex)
     {
@@ -96,7 +98,16 @@ public sealed partial class WaypointDetail : ComponentBase
     try
     {
       await LgdxApiClient.Navigation.Waypoints[(int)Id!].DeleteAsync();
-      Redirect((int)Id!);
+
+      if (ReturnUrl != null)
+      {
+        // Tell Map Editor to delete waypoint by given ID
+        NavigationManager.NavigateTo($"{ReturnUrl}?DeleteWaypointId={Id}");
+      }
+      else
+      {
+        NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
+      }
     }
     catch (ApiException ex)
     {

@@ -1,5 +1,6 @@
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
+using LGDXRobotCloud.UI.Constants;
 using LGDXRobotCloud.UI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -11,6 +12,9 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
+
+  [Inject]
+  public required NavigationManager NavigationManager { get; set; } = default!;
 
   [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
@@ -27,9 +31,28 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
   [SupplyParameterFromQuery]
   private string? UpdateWaypointId { get; set; }
 
+  [SupplyParameterFromQuery]
+  private string? DeleteWaypointId { get; set; }
+
   private DotNetObjectReference<MapEditor> ObjectReference = null!;
   private string RealmName { get; set; } = string.Empty;
   private RealmDto Realm { get; set; } = null!;
+  private MapEditorDto? MapEditorData { get; set; }
+  private WaypointListDto? SelectedWaypoint { get; set; }
+
+  [JSInvokable("HandleWaypointSelect")]
+  public void HandleWaypointSelect(string waypointId)
+  {
+    // Remove prefix w-
+    int id = int.Parse(waypointId[2..]);
+    SelectedWaypoint = MapEditorData?.Waypoints?.FirstOrDefault(w => w.Id == id);
+    StateHasChanged();
+  }
+
+  private void OnEditWaypointClick(int id)
+  {
+    NavigationManager.NavigateTo($"{AppRoutes.Navigation.Waypoints.Index}/{id}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}");
+  }
 
   protected override async Task OnInitializedAsync()
   {
@@ -38,7 +61,6 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     var settings = TokenService.GetSessionSettings(user);
     Realm = await CachedRealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
     RealmName = Realm.Name ?? string.Empty;
-    
 
     await base.OnInitializedAsync();
   }
@@ -52,10 +74,10 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
 
       // Get Map Editor
       var realmId = Realm.Id ?? 0;
-      var mapEditor = await LgdxApiClient.Navigation.MapEditor[realmId].GetAsync();
-      if (mapEditor?.Waypoints?.Count > 0)
+      MapEditorData = await LgdxApiClient.Navigation.MapEditor[realmId].GetAsync();
+      if (MapEditorData?.Waypoints?.Count > 0)
       {
-        await JSRuntime.InvokeVoidAsync("MapEditorAddWaypoints", mapEditor.Waypoints);
+        await JSRuntime.InvokeVoidAsync("MapEditorAddWaypoints", MapEditorData.Waypoints);
       }
     }
     await base.OnAfterRenderAsync(firstRender);
