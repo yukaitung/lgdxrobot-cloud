@@ -135,9 +135,6 @@ public class WaypointServiceTests
       Assert.Equal(e.Y, a.Y);
       Assert.Equal(e.Rotation, a.Rotation);
       Assert.Equal(e.RealmId, a.RealmId);
-      Assert.Equal(e.IsParking, a.IsParking);
-      Assert.Equal(e.HasCharger, a.HasCharger);
-      Assert.Equal(e.IsReserved, a.IsReserved);
     });
   }
 

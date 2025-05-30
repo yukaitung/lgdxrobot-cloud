@@ -26,7 +26,7 @@ public class MapEditorService(LgdxContext context) : IMapEditorService
 
     var waypoints = await _context.Waypoints.AsNoTracking()
       .Where(w => w.RealmId == realmId)
-      .Select(w => new WaypointBusinessModel
+      .Select(w => new WaypointListBusinessModel
       {
         Id = w.Id,
         Name = w.Name,
@@ -35,9 +35,6 @@ public class MapEditorService(LgdxContext context) : IMapEditorService
         X = w.X,
         Y = w.Y,
         Rotation = w.Rotation,
-        IsParking = w.IsParking,
-        HasCharger = w.HasCharger,
-        IsReserved = w.IsReserved,
       })
       .ToListAsync();
     var waypointLinks = await _context.WaypointLinks.AsNoTracking()

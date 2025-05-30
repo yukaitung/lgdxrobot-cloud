@@ -17,12 +17,6 @@ public record WaypointListBusinessModel
   public required double Y { get; set; }
 
   public required double Rotation { get; set; }
-
-  public required bool IsParking { get; set; }
-
-  public required bool HasCharger { get; set; }
-
-  public required bool IsReserved { get; set; }
 }
 
 public static class WaypointListBusinessModelExtensions
@@ -39,9 +33,6 @@ public static class WaypointListBusinessModelExtensions
       X = model.X,
       Y = model.Y,
       Rotation = model.Rotation,
-      IsParking = model.IsParking,
-      HasCharger = model.HasCharger,
-      IsReserved = model.IsReserved,
     };
   }
 

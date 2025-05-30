@@ -25,10 +25,10 @@ namespace LGDXRobotCloud.UI.Client.Models
         /// <summary>The waypoints property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public List<global::LGDXRobotCloud.UI.Client.Models.WaypointDto>? Waypoints { get; set; }
+        public List<global::LGDXRobotCloud.UI.Client.Models.WaypointListDto>? Waypoints { get; set; }
 #nullable restore
 #else
-        public List<global::LGDXRobotCloud.UI.Client.Models.WaypointDto> Waypoints { get; set; }
+        public List<global::LGDXRobotCloud.UI.Client.Models.WaypointListDto> Waypoints { get; set; }
 #endif
         /// <summary>
         /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.MapEditorDto"/> and sets the default values.
@@ -56,7 +56,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "waypointLinks", n => { WaypointLinks = n.GetCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto>(global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto.CreateFromDiscriminatorValue)?.AsList(); } },
-                { "waypoints", n => { Waypoints = n.GetCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointDto>(global::LGDXRobotCloud.UI.Client.Models.WaypointDto.CreateFromDiscriminatorValue)?.AsList(); } },
+                { "waypoints", n => { Waypoints = n.GetCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointListDto>(global::LGDXRobotCloud.UI.Client.Models.WaypointListDto.CreateFromDiscriminatorValue)?.AsList(); } },
             };
         }
         /// <summary>
@@ -67,7 +67,7 @@ namespace LGDXRobotCloud.UI.Client.Models
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             writer.WriteCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto>("waypointLinks", WaypointLinks);
-            writer.WriteCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointDto>("waypoints", Waypoints);
+            writer.WriteCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointListDto>("waypoints", Waypoints);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

@@ -50,9 +50,6 @@ public class WaypointService(LgdxContext context) : IWaypointService
         X = w.X,
         Y = w.Y,
         Rotation = w.Rotation,
-        IsParking = w.IsParking,
-        HasCharger = w.HasCharger,
-        IsReserved = w.IsReserved,
       })
       .AsSplitQuery()
       .ToListAsync();

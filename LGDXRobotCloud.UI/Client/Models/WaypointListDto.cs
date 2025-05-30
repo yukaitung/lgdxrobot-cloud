@@ -14,14 +14,8 @@ namespace LGDXRobotCloud.UI.Client.Models
     {
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
         public IDictionary<string, object> AdditionalData { get; set; }
-        /// <summary>The hasCharger property</summary>
-        public bool? HasCharger { get; set; }
         /// <summary>The id property</summary>
         public int? Id { get; set; }
-        /// <summary>The isParking property</summary>
-        public bool? IsParking { get; set; }
-        /// <summary>The isReserved property</summary>
-        public bool? IsReserved { get; set; }
         /// <summary>The name property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -69,10 +63,7 @@ namespace LGDXRobotCloud.UI.Client.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "hasCharger", n => { HasCharger = n.GetBoolValue(); } },
                 { "id", n => { Id = n.GetIntValue(); } },
-                { "isParking", n => { IsParking = n.GetBoolValue(); } },
-                { "isReserved", n => { IsReserved = n.GetBoolValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
                 { "realm", n => { Realm = n.GetObjectValue<global::LGDXRobotCloud.UI.Client.Models.RealmSearchDto>(global::LGDXRobotCloud.UI.Client.Models.RealmSearchDto.CreateFromDiscriminatorValue); } },
                 { "rotation", n => { Rotation = n.GetDoubleValue(); } },
@@ -87,10 +78,7 @@ namespace LGDXRobotCloud.UI.Client.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
-            writer.WriteBoolValue("hasCharger", HasCharger);
             writer.WriteIntValue("id", Id);
-            writer.WriteBoolValue("isParking", IsParking);
-            writer.WriteBoolValue("isReserved", IsReserved);
             writer.WriteStringValue("name", Name);
             writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.RealmSearchDto>("realm", Realm);
             writer.WriteDoubleValue("rotation", Rotation);
