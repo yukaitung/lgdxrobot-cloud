@@ -1,7 +1,7 @@
 @media (min-width: 992px) {
   .navbar-vertical.navbar-expand-lg {
     top: 3.5rem;
-    overflow-y: hidden;
+    scrollbar-color: color-mix(in srgb,var(--tblr-scrollbar-color,var(--tblr-body-color)) 20%,transparent) transparent;
   }
 
   .sidebar-item {
