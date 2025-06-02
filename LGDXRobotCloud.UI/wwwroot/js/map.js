@@ -45,10 +45,10 @@ function InitNavigationMap(dotNetObject)
 
   // Mouse event on map
   MapStage.on('mousemove', () => {
+    const p = document.getElementById('navigation-map-coordinate');
+    if (!p) return;
     const pointer = MapStage.getPointerPosition();
     if (!pointer) return;
-    const p = document.getElementById('status');
-    if (!p) return;
 
     // Transform stage coordinates to rect-local coordinates
     const localPos = mapBackground.getAbsoluteTransform().copy().invert().point(pointer);
@@ -58,7 +58,7 @@ function InitNavigationMap(dotNetObject)
       localPos.x >= 0 && localPos.x <= mapBackground.width() &&
       localPos.y >= 0 && localPos.y <= mapBackground.height()
     ) {
-      p.innerHTML = `x: ${_internalToRobotPositionX(localPos.x).toFixed(4)}, y: ${_internalToRobotPositionY(localPos.y).toFixed(4)}`;
+      p.innerHTML = `X: ${_internalToRobotPositionX(localPos.x).toFixed(4)}m, Y: ${_internalToRobotPositionY(localPos.y).toFixed(4)}m`;
     } else {
       p.innerHTML = '';
     }

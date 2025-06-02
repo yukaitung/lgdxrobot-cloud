@@ -15,6 +15,30 @@
   </div>
 </PageHeader>
 
+<div class="container-fluid mt-2">
+  <div class="col-12">
+    <div class="card card-sm">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col">
+            <div id="map-editor-tools" class="btn-group">
+              <a class="btn" href="@($"{AppRoutes.Navigation.Waypoints.Create}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}")">Add Waypoint</a>
+              <a class="btn dropdown-toggle" data-bs-toggle="dropdown">Links</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item">Single Way</a>
+                <a class="dropdown-item">Both Ways</a>
+                <a class="dropdown-item">Delete Link</a>
+              </div>
+            </div>
+          </div>
+          <p id="navigation-map-coordinate" class="col text-center m-0"></p>
+          <p id="navigation-map-status" class="col text-end m-0"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="navigation-map-div" class="flex-fill">
   <div id="navigation-map-canvas"></div>
   <a id="waypointModalButton" class="btn d-none" data-bs-toggle="modal" data-bs-target="#waypointModal">
@@ -24,10 +48,6 @@
   {
     <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Realm.Image" />
   }
-  <div id="map-editor-tools" class="btn-group">
-    <a class="btn" href="@($"{AppRoutes.Navigation.Waypoints.Create}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}")">Add Waypoint</a>
-    <p id="status"></p>
-  </div>
   <div id="navigation-map-buttons" class="btn-group-vertical">
     <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
     <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
@@ -78,15 +98,11 @@
               <div class="col form-control-plaintext">@SelectedWaypoint.Rotation</div>
             </div>
           </div>
-          <div class="mb-3">
-            <button class="btn" data-bs-dismiss="modal" @onclick="() => OnEditWaypointClick((int)SelectedWaypoint.Id!)">Edit</button>
-          </div>
         </div>
 
         <div class="modal-footer">
           <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Create Single Traffic</button>
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Create Both Traffics</button>
+          <button class="btn btn-primary" data-bs-dismiss="modal" @onclick="() => OnEditWaypointClick((int)SelectedWaypoint.Id!)">Edit</button>
         </div>
       }
     </div>
