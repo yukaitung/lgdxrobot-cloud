@@ -347,3 +347,59 @@ function MapEditorAddWaypoints(waypoints) {
     MapLayer.add(w);
   }
 }
+
+function _internalGetConnectorPoints(from, to, isBothWaysTraffic) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  let angle = Math.atan2(-dy, dx);
+
+  const radius = 5;
+
+  if (isBothWaysTraffic) {
+    return [
+      from.x + -radius * Math.cos(angle + Math.PI),
+      from.y + radius * Math.sin(angle + Math.PI),
+      to.x + -radius * Math.cos(angle),
+      to.y + radius * Math.sin(angle),
+    ];
+  }
+  return [
+    from.x + -radius * Math.cos(angle + Math.PI),
+    from.y + radius * Math.sin(angle + Math.PI),
+    to.x + -(radius + 1) * Math.cos(angle),
+    to.y + (radius + 1) * Math.sin(angle),
+  ];
+}
+
+function MapEditorAddLinks(links) {
+  for (var i = 0; i < links.length; i++) {
+    const fromNode = MapLayer.findOne('#w-' + links[i].waypointFromId);
+    const toNode = MapLayer.findOne('#w-' + links[i].waypointToId);
+    const points = _internalGetConnectorPoints(
+      fromNode.position(),
+      toNode.position(),
+      links[i].isBothWaysTraffic
+    );
+    if (links[i].isBothWaysTraffic) {
+      const line = new Konva.Line({
+        stroke: _internalGetCSSVariable('--tblr-blue'),
+        strokeWidth: 1,
+        id: 'l-' + links[i].waypointFromId + '-' + links[i].waypointToId,
+        points: points,
+      });
+      MapLayer.add(line);
+    }
+    else {
+      const arrow = new Konva.Arrow({
+        stroke: _internalGetCSSVariable('--tblr-blue'),
+        fill: _internalGetCSSVariable('--tblr-blue'),
+        strokeWidth: 1,
+        id: 'l-' + links[i].waypointFromId + '-' + links[i].waypointToId,
+        points: points,
+        pointerLength: 1,
+        pointerWidth: 1,
+      });
+      MapLayer.add(arrow);
+    }
+  }
+}

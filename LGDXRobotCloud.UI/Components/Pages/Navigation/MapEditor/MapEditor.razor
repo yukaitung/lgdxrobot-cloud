@@ -16,7 +16,6 @@
 </PageHeader>
 
 <div id="navigation-map-div" class="flex-fill">
-  <p id="status"></p>
   <div id="navigation-map-canvas"></div>
   <a id="waypointModalButton" class="btn d-none" data-bs-toggle="modal" data-bs-target="#waypointModal">
     Toggle modal
@@ -27,6 +26,7 @@
   }
   <div id="map-editor-tools" class="btn-group">
     <a class="btn" href="@($"{AppRoutes.Navigation.Waypoints.Create}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}")">Add Waypoint</a>
+    <p id="status"></p>
   </div>
   <div id="navigation-map-buttons" class="btn-group-vertical">
     <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>

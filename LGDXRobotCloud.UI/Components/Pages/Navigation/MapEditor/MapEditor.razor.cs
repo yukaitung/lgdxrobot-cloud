@@ -2,6 +2,7 @@ using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Constants;
 using LGDXRobotCloud.UI.Services;
+using LGDXRobotCloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
@@ -37,7 +38,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
   private DotNetObjectReference<MapEditor> ObjectReference = null!;
   private string RealmName { get; set; } = string.Empty;
   private RealmDto Realm { get; set; } = null!;
-  private MapEditorDto? MapEditorData { get; set; }
+  private MapEditorViewModel MapEditorViewModel { get; set; } = new();
   private WaypointListDto? SelectedWaypoint { get; set; }
 
   [JSInvokable("HandleWaypointSelect")]
@@ -45,7 +46,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
   {
     // Remove prefix w-
     int id = int.Parse(waypointId[2..]);
-    SelectedWaypoint = MapEditorData?.Waypoints?.FirstOrDefault(w => w.Id == id);
+    SelectedWaypoint = MapEditorViewModel.Waypoints.FirstOrDefault(w => w.Id == id);
     StateHasChanged();
   }
 
@@ -74,10 +75,18 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
 
       // Get Map Editor
       var realmId = Realm.Id ?? 0;
-      MapEditorData = await LgdxApiClient.Navigation.MapEditor[realmId].GetAsync();
-      if (MapEditorData?.Waypoints?.Count > 0)
+      var mapEditor = await LgdxApiClient.Navigation.MapEditor[realmId].GetAsync();
+      if (mapEditor != null)
       {
-        await JSRuntime.InvokeVoidAsync("MapEditorAddWaypoints", MapEditorData.Waypoints);
+        MapEditorViewModel.FromDto(mapEditor);
+        if (MapEditorViewModel.Waypoints.Count > 0)
+        {
+          await JSRuntime.InvokeVoidAsync("MapEditorAddWaypoints", MapEditorViewModel.Waypoints);
+        }
+        if (MapEditorViewModel.WaypointLinksDisplay.Count > 0)
+        {
+          await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", MapEditorViewModel.WaypointLinksDisplay);
+        }
       }
     }
     await base.OnAfterRenderAsync(firstRender);
