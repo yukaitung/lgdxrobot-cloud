@@ -2,6 +2,7 @@ var WindowHeight = window.innerHeight;
 var MapDotNetObject = {};
 var MapStage;
 var MapLayer;
+var MapEditorMode = 0;
 const InitalScale = 3;
 
 /*
@@ -329,6 +330,10 @@ function MoveRobot(robotId, x, y, rotation)
  * Map Editor
  */
 
+function MapEditorSetMode(mode) { // assume is an integer
+  MapEditorMode = mode;
+}
+
 function MapEditorAddWaypoints(waypoints) {
   for(let i = 0; i < waypoints.length; i++) {
     const w = new Konva.Circle({
@@ -341,8 +346,22 @@ function MapEditorAddWaypoints(waypoints) {
       strokeWidth: 1,
     });
     w.on('click', function (e) {
-      MapDotNetObject.invokeMethodAsync('HandleWaypointSelect', e.target.id());
-      document.getElementById("waypointModalButton").click();
+      let id = e.target.id();
+      id = id.substring(2);
+      switch (MapEditorMode) {
+        case 0: // Normal
+          // Show Waypoint Modal
+          MapDotNetObject.invokeMethodAsync('HandleWaypointSelect', id);
+          document.getElementById('waypointModalButton').click();
+          break;
+        case 1: // SingleWayTrafficFrom
+        case 2: // SingleWayTrafficTo
+        case 3: // BothWaysTrafficFrom
+        case 4: // BothWaysTrafficTo
+          // Continue traffic creation
+          MapDotNetObject.invokeMethodAsync('HandleTrafficSelect', id);
+          break;
+      }
     });
     MapLayer.add(w);
   }
@@ -363,6 +382,7 @@ function _internalGetConnectorPoints(from, to, isBothWaysTraffic) {
       to.y + radius * Math.sin(angle),
     ];
   }
+  // Make shorter line for arrow
   return [
     from.x + -radius * Math.cos(angle + Math.PI),
     from.y + radius * Math.sin(angle + Math.PI),

@@ -15,24 +15,47 @@
   </div>
 </PageHeader>
 
-<div class="container-fluid mt-2">
+<div class="container-xl mt-2">
   <div class="col-12">
     <div class="card card-sm">
-      <div class="card-body">
+      <div class="card-body p-0">
         <div class="row align-items-center">
           <div class="col">
             <div id="map-editor-tools" class="btn-group">
               <a class="btn" href="@($"{AppRoutes.Navigation.Waypoints.Create}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}")">Add Waypoint</a>
-              <a class="btn dropdown-toggle" data-bs-toggle="dropdown">Links</a>
+              <a class="btn dropdown-toggle" data-bs-toggle="dropdown">Traffic</a>
               <div class="dropdown-menu">
-                <a class="dropdown-item">Single Way</a>
-                <a class="dropdown-item">Both Ways</a>
-                <a class="dropdown-item">Delete Link</a>
+                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.SingleWayTrafficFrom)">Single Way</button>
+                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.BothWaysTrafficFrom)">Both Ways</button>
+                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.DeleteTraffic)">Delete Traffic</button>
               </div>
+              <button class="btn" disabled="@(MapEditorMode == MapEditorMode.Normal)" @onclick="() => HandleMapEditorModeChange(MapEditorMode.Normal)">Cancel</button>
             </div>
           </div>
           <p id="navigation-map-coordinate" class="col text-center m-0"></p>
-          <p id="navigation-map-status" class="col text-end m-0"></p>
+          <p id="navigation-map-status" class="col text-end m-0 me-2">
+            @switch (MapEditorMode) {
+              default:
+              case MapEditorMode.Normal:
+                <text></text>
+                break;
+              case MapEditorMode.SingleWayTrafficFrom:
+                <text>Single way: Select a starting waypoint.</text>
+                break;
+              case MapEditorMode.SingleWayTrafficTo:
+                <text>Single way: Select an ending waypoint.</text>
+                break;
+              case MapEditorMode.BothWaysTrafficFrom:
+                <text>Both ways: Select a starting waypoint.</text>
+                break;
+              case MapEditorMode.BothWaysTrafficTo:
+                <text>Both ways: Select an ending waypoint.</text>
+                break;
+              case MapEditorMode.DeleteTraffic:
+                <text>Select a traffic to delete.</text>
+                break;
+            }
+          </p>
         </div>
       </div>
     </div>

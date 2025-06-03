@@ -9,6 +9,16 @@ using Microsoft.JSInterop;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.MapEditor;
 
+public enum MapEditorMode
+{
+  Normal = 0,
+  SingleWayTrafficFrom = 1,
+  SingleWayTrafficTo = 2,
+  BothWaysTrafficFrom = 3,
+  BothWaysTrafficTo = 4,
+  DeleteTraffic = 5,
+}
+
 public sealed partial class MapEditor : ComponentBase, IDisposable
 {
   [Inject]
@@ -40,12 +50,72 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
   private RealmDto Realm { get; set; } = null!;
   private MapEditorViewModel MapEditorViewModel { get; set; } = new();
   private WaypointListDto? SelectedWaypoint { get; set; }
+  private MapEditorMode MapEditorMode { get; set; } = MapEditorMode.Normal;
+  private int SelectedFromWaypointId { get; set; } = 0;
+  private int SelectedToWaypointId { get; set; } = 0;
+
+  public async Task HandleMapEditorModeChange(MapEditorMode mode)
+  {
+    MapEditorMode = mode;
+    await JSRuntime.InvokeVoidAsync("MapEditorSetMode", (int)mode);
+    StateHasChanged();
+  }
+
+  [JSInvokable("HandleTrafficSelect")]
+  public async Task HandleTrafficSelect(string waypointId)
+  {
+    int id = int.Parse(waypointId);
+    switch (MapEditorMode)
+    {
+      case MapEditorMode.SingleWayTrafficFrom:
+        // Save WaypointFromId and ask WaypointToId
+        SelectedFromWaypointId = id;
+        await HandleMapEditorModeChange(MapEditorMode.SingleWayTrafficTo);
+        break;
+      case MapEditorMode.SingleWayTrafficTo:
+        // Save WaypointToId and update map
+        SelectedToWaypointId = id;
+        var traffic = new WaypointLinkDisplay
+        {
+          WaypointFromId = SelectedFromWaypointId,
+          WaypointToId = SelectedToWaypointId,
+          IsBothWaysTraffic = false,
+        };
+        MapEditorViewModel.WaypointLinksDisplay.Add(traffic);
+        List<WaypointLinkDisplay> t1 = [traffic];
+        await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", t1);
+        await HandleMapEditorModeChange(MapEditorMode.Normal);
+        break;
+      case MapEditorMode.BothWaysTrafficFrom:
+        // Save WaypointFromId and ask WaypointToId
+        SelectedFromWaypointId = id;
+        await HandleMapEditorModeChange(MapEditorMode.BothWaysTrafficTo);
+        break;
+      case MapEditorMode.BothWaysTrafficTo:
+        // Save WaypointToId and update map
+        SelectedToWaypointId = id;
+        var traffic2 = new WaypointLinkDisplay
+        {
+          WaypointFromId = SelectedFromWaypointId,
+          WaypointToId = SelectedToWaypointId,
+          IsBothWaysTraffic = true,
+        };
+        MapEditorViewModel.WaypointLinksDisplay.Add(traffic2);
+        List<WaypointLinkDisplay> t2 = [traffic2];
+        await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", t2);
+        await HandleMapEditorModeChange(MapEditorMode.Normal);
+        break;
+      case MapEditorMode.DeleteTraffic:
+        // Delete and update map
+        break;
+    }
+  }
 
   [JSInvokable("HandleWaypointSelect")]
   public void HandleWaypointSelect(string waypointId)
   {
     // Remove prefix w-
-    int id = int.Parse(waypointId[2..]);
+    int id = int.Parse(waypointId);
     SelectedWaypoint = MapEditorViewModel.Waypoints.FirstOrDefault(w => w.Id == id);
     StateHasChanged();
   }
@@ -65,7 +135,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
 
     await base.OnInitializedAsync();
   }
-  
+
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
     if (firstRender)
