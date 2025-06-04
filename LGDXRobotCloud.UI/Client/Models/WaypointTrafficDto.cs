@@ -9,7 +9,7 @@ namespace LGDXRobotCloud.UI.Client.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class WaypointLinkUpdateDto : IAdditionalDataHolder, IParsable
+    public partial class WaypointTrafficDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
@@ -21,21 +21,21 @@ namespace LGDXRobotCloud.UI.Client.Models
         /// <summary>The waypointToId property</summary>
         public int? WaypointToId { get; set; }
         /// <summary>
-        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.WaypointLinkUpdateDto"/> and sets the default values.
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficDto"/> and sets the default values.
         /// </summary>
-        public WaypointLinkUpdateDto()
+        public WaypointTrafficDto()
         {
             AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::LGDXRobotCloud.UI.Client.Models.WaypointLinkUpdateDto"/></returns>
+        /// <returns>A <see cref="global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficDto"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::LGDXRobotCloud.UI.Client.Models.WaypointLinkUpdateDto CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficDto CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
-            return new global::LGDXRobotCloud.UI.Client.Models.WaypointLinkUpdateDto();
+            return new global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficDto();
         }
         /// <summary>
         /// The deserialization information for the current model

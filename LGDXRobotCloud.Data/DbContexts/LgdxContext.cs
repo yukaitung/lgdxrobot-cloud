@@ -28,7 +28,7 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
   public virtual DbSet<RobotChassisInfo> RobotChassisInfos { get; set; }
   public virtual DbSet<RobotSystemInfo> RobotSystemInfos { get; set; }
   public virtual DbSet<Waypoint> Waypoints { get; set; }
-  public virtual DbSet<WaypointLink> WaypointLinks { get; set; }
+  public virtual DbSet<WaypointTraffic> WaypointTraffics { get; set; }
 
   protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
   {

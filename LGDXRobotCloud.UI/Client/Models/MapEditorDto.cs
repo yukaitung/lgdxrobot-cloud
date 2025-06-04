@@ -14,14 +14,6 @@ namespace LGDXRobotCloud.UI.Client.Models
     {
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
         public IDictionary<string, object> AdditionalData { get; set; }
-        /// <summary>The waypointLinks property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-        public List<global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto>? WaypointLinks { get; set; }
-#nullable restore
-#else
-        public List<global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto> WaypointLinks { get; set; }
-#endif
         /// <summary>The waypoints property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -29,6 +21,14 @@ namespace LGDXRobotCloud.UI.Client.Models
 #nullable restore
 #else
         public List<global::LGDXRobotCloud.UI.Client.Models.WaypointListDto> Waypoints { get; set; }
+#endif
+        /// <summary>The waypointTraffics property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public List<global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficDto>? WaypointTraffics { get; set; }
+#nullable restore
+#else
+        public List<global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficDto> WaypointTraffics { get; set; }
 #endif
         /// <summary>
         /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.MapEditorDto"/> and sets the default values.
@@ -55,7 +55,7 @@ namespace LGDXRobotCloud.UI.Client.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "waypointLinks", n => { WaypointLinks = n.GetCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto>(global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto.CreateFromDiscriminatorValue)?.AsList(); } },
+                { "waypointTraffics", n => { WaypointTraffics = n.GetCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficDto>(global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficDto.CreateFromDiscriminatorValue)?.AsList(); } },
                 { "waypoints", n => { Waypoints = n.GetCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointListDto>(global::LGDXRobotCloud.UI.Client.Models.WaypointListDto.CreateFromDiscriminatorValue)?.AsList(); } },
             };
         }
@@ -66,8 +66,8 @@ namespace LGDXRobotCloud.UI.Client.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
-            writer.WriteCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto>("waypointLinks", WaypointLinks);
             writer.WriteCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointListDto>("waypoints", Waypoints);
+            writer.WriteCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficDto>("waypointTraffics", WaypointTraffics);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

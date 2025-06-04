@@ -2,22 +2,19 @@ using LGDXRobotCloud.Data.Models.Business.Navigation;
 
 namespace LGDXRobotCloud.Data.Models.DTOs.V1.Commands;
 
-public record WaypointLinkUpdateDto
+public record WaypointTrafficUpdateDto
 {
-  public int? Id { get; set; }
-
   public required int WaypointFromId { get; set; }
 
   public required int WaypointToId { get; set; }
 }
 
-public static class WaypointLinkUpdateDtoExtensions
+public static class WaypointTrafficUpdateDtoExtensions
 {
-  public static WaypointLinkUpdateBusinessModel ToBusinessModel(this WaypointLinkUpdateDto model)
+  public static WaypointTrafficUpdateBusinessModel ToBusinessModel(this WaypointTrafficUpdateDto model)
   {
-    return new WaypointLinkUpdateBusinessModel
+    return new WaypointTrafficUpdateBusinessModel
     {
-      Id = model.Id ?? 0,
       WaypointFromId = model.WaypointFromId,
       WaypointToId = model.WaypointToId,
     };

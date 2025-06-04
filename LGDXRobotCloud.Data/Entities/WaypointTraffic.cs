@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LGDXRobotCloud.Data.Entities;
 
-[Table("Navigation.WaypointLinks")]
-public class WaypointLink
+[Table("Navigation.WaypointTraffics")]
+public class WaypointTraffic
 {
   [Key]
   [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

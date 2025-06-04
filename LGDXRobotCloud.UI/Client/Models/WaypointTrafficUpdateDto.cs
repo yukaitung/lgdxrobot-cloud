@@ -9,33 +9,31 @@ namespace LGDXRobotCloud.UI.Client.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class WaypointLinkDto : IAdditionalDataHolder, IParsable
+    public partial class WaypointTrafficUpdateDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
         public IDictionary<string, object> AdditionalData { get; set; }
-        /// <summary>The id property</summary>
-        public int? Id { get; set; }
         /// <summary>The waypointFromId property</summary>
         public int? WaypointFromId { get; set; }
         /// <summary>The waypointToId property</summary>
         public int? WaypointToId { get; set; }
         /// <summary>
-        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto"/> and sets the default values.
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficUpdateDto"/> and sets the default values.
         /// </summary>
-        public WaypointLinkDto()
+        public WaypointTrafficUpdateDto()
         {
             AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto"/></returns>
+        /// <returns>A <see cref="global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficUpdateDto"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficUpdateDto CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
-            return new global::LGDXRobotCloud.UI.Client.Models.WaypointLinkDto();
+            return new global::LGDXRobotCloud.UI.Client.Models.WaypointTrafficUpdateDto();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -45,7 +43,6 @@ namespace LGDXRobotCloud.UI.Client.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "id", n => { Id = n.GetIntValue(); } },
                 { "waypointFromId", n => { WaypointFromId = n.GetIntValue(); } },
                 { "waypointToId", n => { WaypointToId = n.GetIntValue(); } },
             };
@@ -57,7 +54,6 @@ namespace LGDXRobotCloud.UI.Client.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
-            writer.WriteIntValue("id", Id);
             writer.WriteIntValue("waypointFromId", WaypointFromId);
             writer.WriteIntValue("waypointToId", WaypointToId);
             writer.WriteAdditionalData(AdditionalData);

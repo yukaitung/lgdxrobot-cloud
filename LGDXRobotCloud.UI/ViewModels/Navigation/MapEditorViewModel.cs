@@ -14,7 +14,7 @@ public sealed class MapEditorViewModel : FormViewModel
 {
   public List<WaypointListDto> Waypoints { get; set; } = [];
 
-  public List<WaypointLinkDto> WaypointTraffics { get; set; } = [];
+  public List<WaypointTrafficDto> WaypointTraffics { get; set; } = [];
 
   public List<WaypointTrafficDisplay> WaypointTrafficsDisplay { get; set; } = [];
 }
@@ -27,24 +27,24 @@ public static class MapEditorViewModelExtensions
     mapEditorViewModel.Waypoints = mapEditorDto.Waypoints ?? [];
 
     // Waypoint Traffics
-    mapEditorViewModel.WaypointTraffics = mapEditorDto.WaypointLinks ?? [];
+    mapEditorViewModel.WaypointTraffics = mapEditorDto.WaypointTraffics ?? [];
 
     // Key: (WaypointFromId, WaypointToId), Value: IsBothWaysTraffic
     Dictionary<(int, int), bool> waypointTrafficsDisplayTemp = [];
-    foreach (var link in mapEditorDto.WaypointLinks!)
+    foreach (var Traffic in mapEditorDto.WaypointTraffics!)
     {
       // Display
       // If other way around is exists, then it is both ways traffic
-      if (waypointTrafficsDisplayTemp.ContainsKey(((int)link.WaypointToId!, (int)link.WaypointFromId!)))
+      if (waypointTrafficsDisplayTemp.ContainsKey(((int)Traffic.WaypointToId!, (int)Traffic.WaypointFromId!)))
       {
-        waypointTrafficsDisplayTemp[((int)link.WaypointToId!, (int)link.WaypointFromId!)] = true;
+        waypointTrafficsDisplayTemp[((int)Traffic.WaypointToId!, (int)Traffic.WaypointFromId!)] = true;
       }
       else
       {
-        waypointTrafficsDisplayTemp.Add(((int)link.WaypointFromId!, (int)link.WaypointToId!), false);
+        waypointTrafficsDisplayTemp.Add(((int)Traffic.WaypointFromId!, (int)Traffic.WaypointToId!), false);
       }
     }
-    // waypointLinksDisplayTemp to waypointLinksDisplay
+    // waypointTrafficsDisplayTemp to waypointTrafficsDisplay
     mapEditorViewModel.WaypointTrafficsDisplay = waypointTrafficsDisplayTemp.Select(x => new WaypointTrafficDisplay
     {
       WaypointFromId = x.Key.Item1,

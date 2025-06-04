@@ -37,9 +37,9 @@ public class MapEditorService(LgdxContext context) : IMapEditorService
         Rotation = w.Rotation,
       })
       .ToListAsync();
-    var waypointLinks = await _context.WaypointLinks.AsNoTracking()
+    var waypointTraffics = await _context.WaypointTraffics.AsNoTracking()
       .Where(w => w.RealmId == realmId)
-      .Select(w => new WaypointLinkBusinessModel
+      .Select(w => new WaypointTrafficBusinessModel
       {
         Id = w.Id,
         WaypointFromId = w.WaypointFromId,
@@ -49,42 +49,30 @@ public class MapEditorService(LgdxContext context) : IMapEditorService
     return new MapEditorBusinessModel
     {
       Waypoints = waypoints,
-      WaypointLinks = waypointLinks,
+      WaypointTraffics = waypointTraffics,
     };
   }
 
   public async Task<bool> UpdateMapAsync(int realmId, MapEditorUpdateBusinessModel mapEditorUpdateBusinessModel)
   {
-    var existingLinks = await _context.WaypointLinks
-      .Where(w => w.RealmId == realmId)
-      .Select(w => new WaypointLinkUpdateBusinessModel
+    // Delete
+    foreach (var traffic in mapEditorUpdateBusinessModel.TrafficsToDelete)
+    {
+      await _context.WaypointTraffics
+        .Where(w => w.RealmId == realmId && w.WaypointFromId == traffic.WaypointFromId && w.WaypointToId == traffic.WaypointToId)
+        .ExecuteDeleteAsync();
+    }
+    // Add
+    _context.WaypointTraffics.AddRange(mapEditorUpdateBusinessModel.TrafficsToAdd
+      .Select(l => new WaypointTraffic
       {
-        Id = w.Id,
-        WaypointFromId = w.WaypointFromId,
-        WaypointToId = w.WaypointToId,
-      })
-      .ToListAsync();
-    var linkToAdd = mapEditorUpdateBusinessModel.WaypointLinks.Except(existingLinks);
-    _context.WaypointLinks.AddRange(linkToAdd
-      .Select(l => new WaypointLink
-      {
-        Id = (int)l.Id!,
-        RealmId = realmId,
-        WaypointFromId = l.WaypointFromId,
-        WaypointToId = l.WaypointToId,
-      }
-    ));
-    var linkToRemove = existingLinks.Except(mapEditorUpdateBusinessModel.WaypointLinks);
-    _context.WaypointLinks.RemoveRange(linkToRemove
-      .Select(l => new WaypointLink
-      {
-        Id = (int)l.Id!,
         RealmId = realmId,
         WaypointFromId = l.WaypointFromId,
         WaypointToId = l.WaypointToId,
       }
     ));
     await _context.SaveChangesAsync();
+
     return true;
   }
 }

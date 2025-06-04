@@ -6,7 +6,7 @@ public record MapEditorBusinessModel
 {
   public IEnumerable<WaypointListBusinessModel> Waypoints { get; set; } = [];
 
-  public IEnumerable<WaypointLinkBusinessModel> WaypointLinks { get; set; } = [];
+  public IEnumerable<WaypointTrafficBusinessModel> WaypointTraffics { get; set; } = [];
 }
 
 public static class MapEditorBusinessModelExtensions
@@ -16,7 +16,7 @@ public static class MapEditorBusinessModelExtensions
     return new MapEditorDto
     {
       Waypoints = model.Waypoints.Select(w => w.ToDto()),
-      WaypointLinks = model.WaypointLinks.Select(w => w.ToDto()),
+      WaypointTraffics = model.WaypointTraffics.Select(w => w.ToDto()),
     };
   }
 }

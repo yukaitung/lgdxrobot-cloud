@@ -110,14 +110,14 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     if (isValid)
     {
       // Update View Model
-      MapEditorViewModel.WaypointTraffics.Add(new WaypointLinkDto
+      MapEditorViewModel.WaypointTraffics.Add(new WaypointTrafficDto
       {
         WaypointFromId = SelectedFromWaypointId,
         WaypointToId = SelectedToWaypointId,
       });
       if (isBothWaysTraffic)
       {
-        MapEditorViewModel.WaypointTraffics.Add(new WaypointLinkDto
+        MapEditorViewModel.WaypointTraffics.Add(new WaypointTrafficDto
         {
           WaypointFromId = SelectedToWaypointId,
           WaypointToId = SelectedFromWaypointId,

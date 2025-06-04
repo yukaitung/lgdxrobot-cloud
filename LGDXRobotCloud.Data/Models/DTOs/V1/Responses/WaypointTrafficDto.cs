@@ -1,6 +1,6 @@
 namespace LGDXRobotCloud.Data.Models.DTOs.V1.Responses;
 
-public record WaypointLinkDto
+public record WaypointTrafficDto
 {
   public int Id { get; set; }
 

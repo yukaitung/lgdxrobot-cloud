@@ -746,7 +746,7 @@ namespace LGDXRobotCloud.Data.Migrations
                     b.ToTable("Navigation.Waypoints");
                 });
 
-            modelBuilder.Entity("LGDXRobotCloud.Data.Entities.WaypointLink", b =>
+            modelBuilder.Entity("LGDXRobotCloud.Data.Entities.WaypointTraffic", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -771,7 +771,7 @@ namespace LGDXRobotCloud.Data.Migrations
 
                     b.HasIndex("WaypointToId");
 
-                    b.ToTable("Navigation.WaypointLinks");
+                    b.ToTable("Navigation.WaypointTraffics");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1057,7 +1057,7 @@ namespace LGDXRobotCloud.Data.Migrations
                     b.Navigation("Realm");
                 });
 
-            modelBuilder.Entity("LGDXRobotCloud.Data.Entities.WaypointLink", b =>
+            modelBuilder.Entity("LGDXRobotCloud.Data.Entities.WaypointTraffic", b =>
                 {
                     b.HasOne("LGDXRobotCloud.Data.Entities.Realm", "Realm")
                         .WithMany()

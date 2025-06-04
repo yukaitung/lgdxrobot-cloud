@@ -4,7 +4,8 @@ namespace LGDXRobotCloud.Data.Models.DTOs.V1.Commands;
 
 public record MapEditorUpdateDto
 {
-  public IEnumerable<WaypointLinkUpdateDto> WaypointLinks { get; set; } = [];
+  public IEnumerable<WaypointTrafficUpdateDto> TrafficsToAdd { get; set; } = [];
+  public IEnumerable<WaypointTrafficUpdateDto> TrafficsToDelete { get; set; } = [];
 }
 
 public static class MapEditUpdateDtoExtensions
@@ -13,7 +14,8 @@ public static class MapEditUpdateDtoExtensions
   {
     return new MapEditorUpdateBusinessModel
     {
-      WaypointLinks = model.WaypointLinks.Select(w => w.ToBusinessModel()),
+      TrafficsToAdd = model.TrafficsToAdd.Select(w => w.ToBusinessModel()),
+      TrafficsToDelete = model.TrafficsToDelete.Select(w => w.ToBusinessModel()),
     };
   }
 }
