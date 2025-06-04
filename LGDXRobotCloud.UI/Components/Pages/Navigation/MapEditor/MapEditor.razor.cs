@@ -19,6 +19,13 @@ public enum MapEditorMode
   DeleteTraffic = 5,
 }
 
+public enum MapEditorError
+{
+  None = 0,
+  SameWaypoint = 1,
+  HasTraffic = 2,
+}
+
 public sealed partial class MapEditor : ComponentBase, IDisposable
 {
   [Inject]
@@ -51,14 +58,67 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
   private MapEditorViewModel MapEditorViewModel { get; set; } = new();
   private WaypointListDto? SelectedWaypoint { get; set; }
   private MapEditorMode MapEditorMode { get; set; } = MapEditorMode.Normal;
+  private MapEditorError MapEditorError { get; set; } = MapEditorError.None;
   private int SelectedFromWaypointId { get; set; } = 0;
   private int SelectedToWaypointId { get; set; } = 0;
 
   public async Task HandleMapEditorModeChange(MapEditorMode mode)
   {
+    if (mode != MapEditorMode.Normal)
+    {
+      MapEditorError = MapEditorError.None;
+    }
     MapEditorMode = mode;
     await JSRuntime.InvokeVoidAsync("MapEditorSetMode", (int)mode);
     StateHasChanged();
+  }
+
+  public async Task CheckAndAddTraffic(bool isBothWaysTraffic)
+  {
+    bool isValid = true;
+    // The two waypoint must not be the same
+    if (SelectedFromWaypointId == SelectedToWaypointId)
+    {
+      isValid = false;
+      MapEditorError = MapEditorError.SameWaypoint;
+    }
+    // The two waypoint must not have any traffic
+    if (MapEditorViewModel.WaypointLinks.Any(x => x.WaypointFromId == SelectedFromWaypointId && x.WaypointToId == SelectedToWaypointId)
+      || MapEditorViewModel.WaypointLinks.Any(x => x.WaypointFromId == SelectedToWaypointId && x.WaypointToId == SelectedFromWaypointId))
+    {
+      isValid = false;
+      MapEditorError = MapEditorError.HasTraffic;
+    }
+
+    if (isValid)
+    {
+      // Update View Model
+      MapEditorViewModel.WaypointLinks.Add(new WaypointLinkDto
+      {
+        WaypointFromId = SelectedFromWaypointId,
+        WaypointToId = SelectedToWaypointId,
+      });
+      if (isBothWaysTraffic)
+      {
+        MapEditorViewModel.WaypointLinks.Add(new WaypointLinkDto
+        {
+          WaypointFromId = SelectedToWaypointId,
+          WaypointToId = SelectedFromWaypointId,
+        });
+      }
+      // Update Map Editor
+      var traffic = new WaypointLinkDisplay
+      {
+        WaypointFromId = SelectedFromWaypointId,
+        WaypointToId = SelectedToWaypointId,
+        IsBothWaysTraffic = isBothWaysTraffic,
+      };
+      MapEditorViewModel.WaypointLinksDisplay.Add(traffic);
+      List<WaypointLinkDisplay> t1 = [traffic];
+      await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", t1);
+    }
+
+    await HandleMapEditorModeChange(MapEditorMode.Normal);
   }
 
   [JSInvokable("HandleTrafficSelect")]
@@ -75,16 +135,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
       case MapEditorMode.SingleWayTrafficTo:
         // Save WaypointToId and update map
         SelectedToWaypointId = id;
-        var traffic = new WaypointLinkDisplay
-        {
-          WaypointFromId = SelectedFromWaypointId,
-          WaypointToId = SelectedToWaypointId,
-          IsBothWaysTraffic = false,
-        };
-        MapEditorViewModel.WaypointLinksDisplay.Add(traffic);
-        List<WaypointLinkDisplay> t1 = [traffic];
-        await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", t1);
-        await HandleMapEditorModeChange(MapEditorMode.Normal);
+        await CheckAndAddTraffic(false);
         break;
       case MapEditorMode.BothWaysTrafficFrom:
         // Save WaypointFromId and ask WaypointToId
@@ -94,16 +145,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
       case MapEditorMode.BothWaysTrafficTo:
         // Save WaypointToId and update map
         SelectedToWaypointId = id;
-        var traffic2 = new WaypointLinkDisplay
-        {
-          WaypointFromId = SelectedFromWaypointId,
-          WaypointToId = SelectedToWaypointId,
-          IsBothWaysTraffic = true,
-        };
-        MapEditorViewModel.WaypointLinksDisplay.Add(traffic2);
-        List<WaypointLinkDisplay> t2 = [traffic2];
-        await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", t2);
-        await HandleMapEditorModeChange(MapEditorMode.Normal);
+        await CheckAndAddTraffic(true);
         break;
       case MapEditorMode.DeleteTraffic:
         // Delete and update map

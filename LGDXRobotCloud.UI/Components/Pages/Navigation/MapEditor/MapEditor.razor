@@ -55,6 +55,18 @@
                 <text>Select a traffic to delete.</text>
                 break;
             }
+            @switch (MapEditorError) {
+              default:
+              case MapEditorError.None:
+                <text></text>
+                break;
+              case MapEditorError.SameWaypoint:
+                <text>Error: Cannot select same waypoint.</text>
+                break;
+              case MapEditorError.HasTraffic:
+                <text>Error: The waypoint has denined traffic.</text>
+                break;
+            }
           </p>
         </div>
       </div>
