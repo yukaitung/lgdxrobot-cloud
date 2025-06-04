@@ -404,20 +404,20 @@ function _internalHandleTrafficSelect(e) {
   MapDotNetObject.invokeMethodAsync('HandleDeleteTraffic', id);
 }
 
-function MapEditorAddLinks(links) {
-  for (var i = 0; i < links.length; i++) {
-    const fromNode = MapLayer.findOne('#w-' + links[i].waypointFromId);
-    const toNode = MapLayer.findOne('#w-' + links[i].waypointToId);
+function MapEditorAddTraffics(traffics) {
+  for (var i = 0; i < traffics.length; i++) {
+    const fromNode = MapLayer.findOne('#w-' + traffics[i].waypointFromId);
+    const toNode = MapLayer.findOne('#w-' + traffics[i].waypointToId);
     const points = _internalGetConnectorPoints(
       fromNode.position(),
       toNode.position(),
-      links[i].isBothWaysTraffic
+      traffics[i].isBothWaysTraffic
     );
-    if (links[i].isBothWaysTraffic) {
+    if (traffics[i].isBothWaysTraffic) {
       const line = new Konva.Line({
         stroke: _internalGetCSSVariable('--tblr-blue'),
         strokeWidth: 1,
-        id: 'l-' + links[i].waypointFromId + '-' + links[i].waypointToId,
+        id: 't-' + traffics[i].waypointFromId + '-' + traffics[i].waypointToId,
         points: points,
       });
       line.on('click', _internalHandleTrafficSelect);
@@ -428,7 +428,7 @@ function MapEditorAddLinks(links) {
         stroke: _internalGetCSSVariable('--tblr-blue'),
         fill: _internalGetCSSVariable('--tblr-blue'),
         strokeWidth: 1,
-        id: 'l-' + links[i].waypointFromId + '-' + links[i].waypointToId,
+        id: 't-' + traffics[i].waypointFromId + '-' + traffics[i].waypointToId,
         points: points,
         pointerLength: 1,
         pointerWidth: 1,

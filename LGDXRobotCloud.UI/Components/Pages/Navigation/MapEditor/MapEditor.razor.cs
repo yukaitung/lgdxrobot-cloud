@@ -100,8 +100,8 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
       MapEditorError = MapEditorError.SameWaypoint;
     }
     // The two waypoint must not have any traffic
-    if (MapEditorViewModel.WaypointLinks.Any(x => x.WaypointFromId == SelectedFromWaypointId && x.WaypointToId == SelectedToWaypointId)
-      || MapEditorViewModel.WaypointLinks.Any(x => x.WaypointFromId == SelectedToWaypointId && x.WaypointToId == SelectedFromWaypointId))
+    if (MapEditorViewModel.WaypointTraffics.Any(x => x.WaypointFromId == SelectedFromWaypointId && x.WaypointToId == SelectedToWaypointId)
+      || MapEditorViewModel.WaypointTraffics.Any(x => x.WaypointFromId == SelectedToWaypointId && x.WaypointToId == SelectedFromWaypointId))
     {
       isValid = false;
       MapEditorError = MapEditorError.HasTraffic;
@@ -110,29 +110,29 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     if (isValid)
     {
       // Update View Model
-      MapEditorViewModel.WaypointLinks.Add(new WaypointLinkDto
+      MapEditorViewModel.WaypointTraffics.Add(new WaypointLinkDto
       {
         WaypointFromId = SelectedFromWaypointId,
         WaypointToId = SelectedToWaypointId,
       });
       if (isBothWaysTraffic)
       {
-        MapEditorViewModel.WaypointLinks.Add(new WaypointLinkDto
+        MapEditorViewModel.WaypointTraffics.Add(new WaypointLinkDto
         {
           WaypointFromId = SelectedToWaypointId,
           WaypointToId = SelectedFromWaypointId,
         });
       }
       // Update Map Editor
-      var traffic = new WaypointLinkDisplay
+      var traffic = new WaypointTrafficDisplay
       {
         WaypointFromId = SelectedFromWaypointId,
         WaypointToId = SelectedToWaypointId,
         IsBothWaysTraffic = isBothWaysTraffic,
       };
-      MapEditorViewModel.WaypointLinksDisplay.Add(traffic);
-      List<WaypointLinkDisplay> t1 = [traffic];
-      await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", t1);
+      MapEditorViewModel.WaypointTrafficsDisplay.Add(traffic);
+      List<WaypointTrafficDisplay> t1 = [traffic];
+      await JSRuntime.InvokeVoidAsync("MapEditorAddTraffics", t1);
       SaveMapEditorViewModel();
     }
 
@@ -176,11 +176,11 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     int toWaypointId = int.Parse(ids[1]);
 
     // Delete model
-    MapEditorViewModel.WaypointLinks.RemoveAll(x => x.WaypointFromId == fromWaypointId && x.WaypointToId == toWaypointId);
-    MapEditorViewModel.WaypointLinks.RemoveAll(x => x.WaypointFromId == toWaypointId && x.WaypointToId == fromWaypointId);
+    MapEditorViewModel.WaypointTraffics.RemoveAll(x => x.WaypointFromId == fromWaypointId && x.WaypointToId == toWaypointId);
+    MapEditorViewModel.WaypointTraffics.RemoveAll(x => x.WaypointFromId == toWaypointId && x.WaypointToId == fromWaypointId);
     // Delete display
-    MapEditorViewModel.WaypointLinksDisplay.RemoveAll(x => x.WaypointFromId == fromWaypointId && x.WaypointToId == toWaypointId);
-    MapEditorViewModel.WaypointLinksDisplay.RemoveAll(x => x.WaypointFromId == toWaypointId && x.WaypointToId == fromWaypointId);
+    MapEditorViewModel.WaypointTrafficsDisplay.RemoveAll(x => x.WaypointFromId == fromWaypointId && x.WaypointToId == toWaypointId);
+    MapEditorViewModel.WaypointTrafficsDisplay.RemoveAll(x => x.WaypointFromId == toWaypointId && x.WaypointToId == fromWaypointId);
 
     await HandleMapEditorModeChange(MapEditorMode.Normal);
     SaveMapEditorViewModel();
@@ -238,9 +238,9 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
       {
         await JSRuntime.InvokeVoidAsync("MapEditorAddWaypoints", MapEditorViewModel.Waypoints);
       }
-      if (MapEditorViewModel.WaypointLinksDisplay.Count > 0)
+      if (MapEditorViewModel.WaypointTrafficsDisplay.Count > 0)
       {
-        await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", MapEditorViewModel.WaypointLinksDisplay);
+        await JSRuntime.InvokeVoidAsync("MapEditorAddTraffics", MapEditorViewModel.WaypointTrafficsDisplay);
       }
     }
     await base.OnAfterRenderAsync(firstRender);
