@@ -359,7 +359,7 @@ function MapEditorAddWaypoints(waypoints) {
         case 3: // BothWaysTrafficFrom
         case 4: // BothWaysTrafficTo
           // Continue traffic creation
-          MapDotNetObject.invokeMethodAsync('HandleTrafficSelect', id);
+          MapDotNetObject.invokeMethodAsync('HandleAddTraffic', id);
           break;
       }
     });
@@ -391,6 +391,19 @@ function _internalGetConnectorPoints(from, to, isBothWaysTraffic) {
   ];
 }
 
+function _internalHandleTrafficSelect(e) {
+  if (MapEditorMode != 5) // DeleteTraffic mode
+  {
+    return;
+  }
+
+  let id = e.target.id();
+  let obj = MapLayer.findOne('#' + id);
+  obj.destroy();
+  id = id.substring(2);
+  MapDotNetObject.invokeMethodAsync('HandleDeleteTraffic', id);
+}
+
 function MapEditorAddLinks(links) {
   for (var i = 0; i < links.length; i++) {
     const fromNode = MapLayer.findOne('#w-' + links[i].waypointFromId);
@@ -407,6 +420,7 @@ function MapEditorAddLinks(links) {
         id: 'l-' + links[i].waypointFromId + '-' + links[i].waypointToId,
         points: points,
       });
+      line.on('click', _internalHandleTrafficSelect);
       MapLayer.add(line);
     }
     else {
@@ -419,6 +433,7 @@ function MapEditorAddLinks(links) {
         pointerLength: 1,
         pointerWidth: 1,
       });
+      arrow.on('click', _internalHandleTrafficSelect);
       MapLayer.add(arrow);
     }
   }

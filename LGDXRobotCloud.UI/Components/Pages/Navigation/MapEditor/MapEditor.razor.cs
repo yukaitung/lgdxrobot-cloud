@@ -121,8 +121,8 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     await HandleMapEditorModeChange(MapEditorMode.Normal);
   }
 
-  [JSInvokable("HandleTrafficSelect")]
-  public async Task HandleTrafficSelect(string waypointId)
+  [JSInvokable("HandleAddTraffic")]
+  public async Task HandleAddTraffic(string waypointId)
   {
     int id = int.Parse(waypointId);
     switch (MapEditorMode)
@@ -147,10 +147,24 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
         SelectedToWaypointId = id;
         await CheckAndAddTraffic(true);
         break;
-      case MapEditorMode.DeleteTraffic:
-        // Delete and update map
-        break;
     }
+  }
+
+  [JSInvokable("HandleDeleteTraffic")]
+  public async Task HandleDeleteTraffic(string waypointIds)
+  {
+    var ids = waypointIds.Split('-');
+    int fromWaypointId = int.Parse(ids[0]);
+    int toWaypointId = int.Parse(ids[1]);
+
+    // Delete model
+    MapEditorViewModel.WaypointLinks.RemoveAll(x => x.WaypointFromId == fromWaypointId && x.WaypointToId == toWaypointId);
+    MapEditorViewModel.WaypointLinks.RemoveAll(x => x.WaypointFromId == toWaypointId && x.WaypointToId == fromWaypointId);
+    // Delete display
+    MapEditorViewModel.WaypointLinksDisplay.RemoveAll(x => x.WaypointFromId == fromWaypointId && x.WaypointToId == toWaypointId);
+    MapEditorViewModel.WaypointLinksDisplay.RemoveAll(x => x.WaypointFromId == toWaypointId && x.WaypointToId == fromWaypointId);
+
+    await HandleMapEditorModeChange(MapEditorMode.Normal);
   }
 
   [JSInvokable("HandleWaypointSelect")]
