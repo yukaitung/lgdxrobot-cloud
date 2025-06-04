@@ -12,6 +12,16 @@
         @RealmName
       </div>
     </div>
+    <div class="col-md-auto ms-auto">
+      <div class="btn-list">
+        <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#resetMapEditor">
+          Reset
+        </a>
+        <button class="btn btn-primary">
+          Update
+        </button>
+      </div>
+    </div>
   </div>
 </PageHeader>
 
@@ -140,6 +150,37 @@
           <button class="btn btn-primary" data-bs-dismiss="modal" @onclick="() => OnEditWaypointClick((int)SelectedWaypoint.Id!)">Edit</button>
         </div>
       }
+    </div>
+  </div>
+</div>
+
+<div class="modal fade modal-blur" id="resetMapEditor" tabindex="-1" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-danger"></div>
+      <div class="modal-body text-center py-4 d-flex flex-column">
+
+        <i class="ti ti-alert-triangle text-danger mb-2" style="font-size: 48px;"></i>
+        <h3>Reset Map Editor</h3>
+        <div class="text-secondary">
+          <div class="text-secondary">
+            Do you want to reset the map editor?
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn w-100" data-bs-dismiss="modal">Cancel</button>
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-danger w-100" @onclick="HandelResetMapEditor">Yes</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

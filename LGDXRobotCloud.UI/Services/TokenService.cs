@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using LGDXRobotCloud.UI.ViewModels.Navigation;
 
 namespace LGDXRobotCloud.UI.Services;
 
@@ -21,6 +22,7 @@ public interface ITokenService
 public record SessionSettings
 {
   public int CurrentRealmId { get; set; } = 0;
+  public MapEditorViewModel? MapEditorData { get; set; }
 }
 
 public class TokenService : ITokenService

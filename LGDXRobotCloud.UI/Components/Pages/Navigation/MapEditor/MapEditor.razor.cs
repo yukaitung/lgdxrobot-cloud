@@ -62,7 +62,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
   private int SelectedFromWaypointId { get; set; } = 0;
   private int SelectedToWaypointId { get; set; } = 0;
 
-  public async Task HandleMapEditorModeChange(MapEditorMode mode)
+  private async Task HandleMapEditorModeChange(MapEditorMode mode)
   {
     if (mode != MapEditorMode.Normal)
     {
@@ -71,6 +71,23 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     MapEditorMode = mode;
     await JSRuntime.InvokeVoidAsync("MapEditorSetMode", (int)mode);
     StateHasChanged();
+  }
+
+  private void SaveMapEditorViewModel()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    settings.MapEditorData = MapEditorViewModel;
+    TokenService.UpdateSessionSettings(user, settings);
+  }
+
+  public void HandelResetMapEditor()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    settings.MapEditorData = null;
+    TokenService.UpdateSessionSettings(user, settings);
+    NavigationManager.Refresh(true);
   }
 
   public async Task CheckAndAddTraffic(bool isBothWaysTraffic)
@@ -116,6 +133,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
       MapEditorViewModel.WaypointLinksDisplay.Add(traffic);
       List<WaypointLinkDisplay> t1 = [traffic];
       await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", t1);
+      SaveMapEditorViewModel();
     }
 
     await HandleMapEditorModeChange(MapEditorMode.Normal);
@@ -165,6 +183,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     MapEditorViewModel.WaypointLinksDisplay.RemoveAll(x => x.WaypointFromId == toWaypointId && x.WaypointToId == fromWaypointId);
 
     await HandleMapEditorModeChange(MapEditorMode.Normal);
+    SaveMapEditorViewModel();
   }
 
   [JSInvokable("HandleWaypointSelect")]
@@ -199,20 +218,29 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
 
-      // Get Map Editor
-      var realmId = Realm.Id ?? 0;
-      var mapEditor = await LgdxApiClient.Navigation.MapEditor[realmId].GetAsync();
+      // Get Map Editor data
+      var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+      var settings = TokenService.GetSessionSettings(user);
+      var mapEditor = settings.MapEditorData;
       if (mapEditor != null)
       {
-        MapEditorViewModel.FromDto(mapEditor);
-        if (MapEditorViewModel.Waypoints.Count > 0)
-        {
-          await JSRuntime.InvokeVoidAsync("MapEditorAddWaypoints", MapEditorViewModel.Waypoints);
-        }
-        if (MapEditorViewModel.WaypointLinksDisplay.Count > 0)
-        {
-          await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", MapEditorViewModel.WaypointLinksDisplay);
-        }
+        MapEditorViewModel = mapEditor;
+      }
+      else
+      {
+        var realmId = Realm.Id ?? 0;
+        var me = await LgdxApiClient.Navigation.MapEditor[realmId].GetAsync();
+        if (me != null)
+          MapEditorViewModel.FromDto(me);
+      }
+      // Update Map Editor
+      if (MapEditorViewModel.Waypoints.Count > 0)
+      {
+        await JSRuntime.InvokeVoidAsync("MapEditorAddWaypoints", MapEditorViewModel.Waypoints);
+      }
+      if (MapEditorViewModel.WaypointLinksDisplay.Count > 0)
+      {
+        await JSRuntime.InvokeVoidAsync("MapEditorAddLinks", MapEditorViewModel.WaypointLinksDisplay);
       }
     }
     await base.OnAfterRenderAsync(firstRender);
