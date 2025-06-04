@@ -23,7 +23,7 @@
           <div class="col">
             <div id="map-editor-tools" class="btn-group">
               <a class="btn" href="@($"{AppRoutes.Navigation.Waypoints.Create}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}")">Add Waypoint</a>
-              <a class="btn dropdown-toggle" data-bs-toggle="dropdown">Traffic</a>
+              <a class="btn dropdown-toggle rounded-0" data-bs-toggle="dropdown">Traffic</a>
               <div class="dropdown-menu">
                 <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.SingleWayTrafficFrom)">Single Way</button>
                 <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.BothWaysTrafficFrom)">Both Ways</button>
@@ -64,7 +64,7 @@
                 <text>Error: Cannot select same waypoint.</text>
                 break;
               case MapEditorError.HasTraffic:
-                <text>Error: The waypoint has denined traffic.</text>
+                <text>Error: The waypoints have defined traffic.</text>
                 break;
             }
           </p>
