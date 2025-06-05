@@ -128,14 +128,21 @@ public class WaypointService(LgdxContext context) : IWaypointService
 
   public async Task<bool> TestDeleteWaypointAsync(int waypointId)
   {
-    var depeendencies = await _context.AutoTasksDetail
+    var dependencies = await _context.AutoTasksDetail
       .Include(t => t.AutoTask)
       .Where(t => t.WaypointId == waypointId)
       .Where(t => t.AutoTask.CurrentProgressId != (int)ProgressState.Completed && t.AutoTask.CurrentProgressId != (int)ProgressState.Aborted)
       .CountAsync();
-    if (depeendencies > 0)
+    if (dependencies > 0)
     {
-      throw new LgdxValidation400Expection(nameof(waypointId), $"This waypoint has been used by {depeendencies} running/waiting/template tasks.");
+      throw new LgdxValidation400Expection(nameof(waypointId), $"This waypoint has been used by {dependencies} running/waiting/template tasks.");
+    }
+    dependencies = await _context.WaypointTraffics
+      .Where(t => t.WaypointFromId == waypointId || t.WaypointToId == waypointId)
+      .CountAsync();
+    if (dependencies > 0)
+    {
+      throw new LgdxValidation400Expection(nameof(waypointId), $"This waypoint has {dependencies} traffics.");
     }
     return true;
   }
