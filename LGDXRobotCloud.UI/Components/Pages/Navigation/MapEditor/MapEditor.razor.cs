@@ -1,11 +1,13 @@
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Constants;
+using LGDXRobotCloud.UI.Helpers;
 using LGDXRobotCloud.UI.Services;
 using LGDXRobotCloud.UI.ViewModels.Navigation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.MapEditor;
 
@@ -81,6 +83,11 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     TokenService.UpdateSessionSettings(user, settings);
   }
 
+  public void OnEditWaypointClick(int id)
+  {
+    NavigationManager.NavigateTo($"{AppRoutes.Navigation.Waypoints.Index}/{id}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}");
+  }
+
   public void HandelResetMapEditor()
   {
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
@@ -88,6 +95,19 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     settings.MapEditorData = null;
     TokenService.UpdateSessionSettings(user, settings);
     NavigationManager.Refresh(true);
+  }
+
+  public async Task HandelSubmit()
+  {
+    try
+    {
+      var realmId = Realm.Id ?? 0;
+      await LgdxApiClient.Navigation.MapEditor[realmId].PostAsync(MapEditorViewModel.ToUpdateDto());
+    }
+    catch (ApiException ex)
+    {
+      MapEditorViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+    }
   }
 
   public async Task CheckAndAddTraffic(bool isBothWaysTraffic)
@@ -193,11 +213,6 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     int id = int.Parse(waypointId);
     SelectedWaypoint = MapEditorViewModel.Waypoints.FirstOrDefault(w => w.Id == id);
     StateHasChanged();
-  }
-
-  private void OnEditWaypointClick(int id)
-  {
-    NavigationManager.NavigateTo($"{AppRoutes.Navigation.Waypoints.Index}/{id}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}");
   }
 
   protected override async Task OnInitializedAsync()

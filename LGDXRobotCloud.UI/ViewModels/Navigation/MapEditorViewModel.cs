@@ -52,4 +52,16 @@ public static class MapEditorViewModelExtensions
       IsBothWaysTraffic = x.Value
     }).ToList();
   }
+
+  public static MapEditorUpdateDto ToUpdateDto(this MapEditorViewModel mapEditorViewModel)
+  {
+    return new MapEditorUpdateDto
+    {
+      WaypointTraffics = mapEditorViewModel.WaypointTraffics.Select(x => new WaypointTrafficUpdateDto
+      {
+        WaypointFromId = x.WaypointFromId,
+        WaypointToId = x.WaypointToId,
+      }).ToList()
+    };
+  }
 }
