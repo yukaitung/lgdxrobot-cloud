@@ -99,10 +99,12 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
 
   public async Task HandelSubmit()
   {
+    MapEditorViewModel.ClearMessages();
     try
     {
       var realmId = Realm.Id ?? 0;
       await LgdxApiClient.Navigation.MapEditor[realmId].PostAsync(MapEditorViewModel.ToUpdateDto());
+      MapEditorViewModel.IsSuccess = true;
     }
     catch (ApiException ex)
     {
