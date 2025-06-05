@@ -240,6 +240,37 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
       if (mapEditor != null)
       {
         MapEditorViewModel = mapEditor;
+
+        // Update Waypoint
+        if (!string.IsNullOrWhiteSpace(UpdateWaypointId))
+        {
+          var waypoint = await LgdxApiClient.Navigation.Waypoints[int.Parse(UpdateWaypointId)].GetAsync();
+          if (waypoint != null)
+          {
+            var newWaypoint = new WaypointListDto
+            {
+              Id = waypoint.Id,
+              Name = waypoint.Name,
+              Realm = new RealmSearchDto
+              {
+                Id = waypoint.Realm!.Id,
+                Name = waypoint.Realm!.Name,
+              },
+              X = waypoint.X,
+              Y = waypoint.Y,
+              Rotation = waypoint.Rotation,
+            };
+            MapEditorViewModel.Waypoints.RemoveAll(w => w.Id == waypoint.Id);
+            MapEditorViewModel.Waypoints.Add(newWaypoint);
+            SaveMapEditorViewModel();
+          }
+        }
+        // Delete Waypoint
+        if (!string.IsNullOrWhiteSpace(DeleteWaypointId))
+        {
+          MapEditorViewModel.Waypoints.RemoveAll(w => w.Id == int.Parse(DeleteWaypointId));
+          SaveMapEditorViewModel();
+        }
       }
       else
       {

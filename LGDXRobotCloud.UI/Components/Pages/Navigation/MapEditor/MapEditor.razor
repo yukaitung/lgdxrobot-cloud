@@ -1,5 +1,6 @@
 @attribute [Route(AppRoutes.Navigation.MapEditor.Index)]
 @attribute [Authorize (Policy = Permissions.Navigation.MapEditor.Read)]
+@attribute [Authorize (Policy = Permissions.Navigation.Waypoints.Read)]
 
 <PageHeader Title="Map Editor">
   <div class="row align-items-center">
