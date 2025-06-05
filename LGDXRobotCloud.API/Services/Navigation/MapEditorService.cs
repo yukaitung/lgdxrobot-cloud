@@ -55,22 +55,55 @@ public class MapEditorService(LgdxContext context) : IMapEditorService
 
   public async Task<bool> UpdateMapAsync(int realmId, MapEditorUpdateBusinessModel mapEditorUpdateBusinessModel)
   {
-    // Delete
-    foreach (var traffic in mapEditorUpdateBusinessModel.TrafficsToDelete)
+    // Sort traffics
+    var inputWaypointTraffics = mapEditorUpdateBusinessModel.WaypointTraffics
+      .OrderBy(w => w.WaypointFromId)
+      .ThenBy(w => w.WaypointToId)
+      .ToList();
+
+    // Get all traffics
+    var databaseWaypointTraffics = await _context.WaypointTraffics.AsNoTracking()
+      .Where(w => w.RealmId == realmId)
+      .OrderBy(w => w.WaypointFromId)
+      .ThenBy(w => w.WaypointToId)
+      .ToListAsync();
+
+    // Get traffic to add and remove
+    List<WaypointTraffic> trafficsToAdd = [];
+    int i = 0;
+    int j = 0;
+    while (i < inputWaypointTraffics.Count && j < databaseWaypointTraffics.Count)
     {
-      await _context.WaypointTraffics
-        .Where(w => w.RealmId == realmId && w.WaypointFromId == traffic.WaypointFromId && w.WaypointToId == traffic.WaypointToId)
-        .ExecuteDeleteAsync();
-    }
-    // Add
-    _context.WaypointTraffics.AddRange(mapEditorUpdateBusinessModel.TrafficsToAdd
-      .Select(l => new WaypointTraffic
+      // Same traffic, remove from list
+      if (inputWaypointTraffics[i].WaypointFromId == databaseWaypointTraffics[j].WaypointFromId
+        && inputWaypointTraffics[i].WaypointToId == databaseWaypointTraffics[j].WaypointToId)
       {
-        RealmId = realmId,
-        WaypointFromId = l.WaypointFromId,
-        WaypointToId = l.WaypointToId,
+        inputWaypointTraffics.RemoveAt(i);
+        databaseWaypointTraffics.RemoveAt(j);
       }
-    ));
+      else
+      {
+        if (inputWaypointTraffics[i].WaypointFromId > databaseWaypointTraffics[j].WaypointFromId
+          && inputWaypointTraffics[i].WaypointToId > databaseWaypointTraffics[j].WaypointToId)
+        {
+          j++;
+        }
+        else
+        {
+          i++;
+        }
+      }
+    }
+
+    // inputWaypointTraffics contains the traffics to add
+    await _context.WaypointTraffics.AddRangeAsync(inputWaypointTraffics.Select(w => new WaypointTraffic
+    {
+      RealmId = realmId,
+      WaypointFromId = w.WaypointFromId,
+      WaypointToId = w.WaypointToId,
+    }));
+    // databaseWaypointTraffics contains the traffics to remove
+    _context.WaypointTraffics.RemoveRange(databaseWaypointTraffics);
     await _context.SaveChangesAsync();
 
     return true;

@@ -31,7 +31,7 @@ public class MapEditorController(
     return Ok(mapEdit.ToDto());
   }
 
-  [HttpPut("{realmId}")]
+  [HttpPost("{realmId}")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<ActionResult> UpdateMap(int realmId, MapEditorUpdateDto mapEditUpdateDto)
