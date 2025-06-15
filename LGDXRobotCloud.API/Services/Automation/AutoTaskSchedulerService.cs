@@ -56,31 +56,6 @@ public class AutoTaskSchedulerService(
     await _context.SaveChangesAsync();
   }
 
-  private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
-  {
-    if (taskDetail.Waypoint != null)
-    {
-      var waypoint = new RobotClientsDof
-      { X = taskDetail.Waypoint.X, Y = taskDetail.Waypoint.Y, Rotation = taskDetail.Waypoint.Rotation };
-      if (taskDetail.CustomX != null)
-        waypoint.X = (double)taskDetail.CustomX;
-      if (taskDetail.CustomY != null)
-        waypoint.X = (double)taskDetail.CustomY;
-      if (taskDetail.CustomRotation != null)
-        waypoint.X = (double)taskDetail.CustomRotation;
-      return waypoint;
-    }
-    else
-    {
-      return new RobotClientsDof
-      {
-        X = taskDetail.CustomX != null ? (double)taskDetail.CustomX : 0,
-        Y = taskDetail.CustomY != null ? (double)taskDetail.CustomY : 0,
-        Rotation = taskDetail.CustomRotation != null ? (double)taskDetail.CustomRotation : 0
-      };
-    }
-  }
-
   private async Task<RobotClientsAutoTask?> GenerateTaskDetail(AutoTask? task, bool continueAutoTask = false)
   {
     if (task == null)
