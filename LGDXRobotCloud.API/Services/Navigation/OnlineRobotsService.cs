@@ -21,6 +21,7 @@ public interface IOnlineRobotsService
   Task RemoveRobotAsync(Guid robotId);
   Task UpdateRobotDataAsync(Guid robotId, RobotClientsExchange data, bool realtime = false);
   RobotClientsRobotCommands? GetRobotCommands(Guid robotId);
+  RobotDataContract? GetRobotData(Guid robotId);
 
   Task<bool> IsRobotOnlineAsync(Guid robotId);
   Task<bool> SetAbortTaskAsync(Guid robotId, bool enable);
@@ -121,39 +122,47 @@ public class OnlineRobotsService(
 
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var robotStatus = ConvertRobotStatus(data.RobotStatus);
-    await _bus.Publish(new RobotDataContract {
+    var robotData = new RobotDataContract
+    {
       RobotId = robotId,
       RealmId = realmId,
       RobotStatus = robotStatus,
-      CriticalStatus = new RobotCriticalStatus {
+      CriticalStatus = new RobotCriticalStatus
+      {
         HardwareEmergencyStop = data.CriticalStatus.HardwareEmergencyStop,
         SoftwareEmergencyStop = data.CriticalStatus.SoftwareEmergencyStop,
         BatteryLow = [.. data.CriticalStatus.BatteryLow],
         MotorDamaged = [.. data.CriticalStatus.MotorDamaged]
       },
       Batteries = [.. data.Batteries],
-      Position = new RobotDof {
+      Position = new RobotDof
+      {
         X = data.Position.X,
         Y = data.Position.Y,
         Rotation = data.Position.Rotation
       },
-      NavProgress = new AutoTaskNavProgress {
+      NavProgress = new AutoTaskNavProgress
+      {
         Eta = data.NavProgress.Eta,
         Recoveries = data.NavProgress.Recoveries,
         DistanceRemaining = data.NavProgress.DistanceRemaining,
         WaypointsRemaining = data.NavProgress.WaypointsRemaining
       },
       CurrentTime = realtime ? DateTime.MaxValue : DateTime.UtcNow
-    });
+    };
+    await _bus.Publish(robotData);
+    _memoryCache.Set($"OnlineRobotsService_RobotData_{robotId}", robotData, TimeSpan.FromMinutes(robotAliveMinutes));
 
-    if(_memoryCache.TryGetValue<RobotClientsRobotCommands>(GetRobotCommandsKey(robotId), out var robotCommands))
+    if (_memoryCache.TryGetValue<RobotClientsRobotCommands>(GetRobotCommandsKey(robotId), out var robotCommands))
     {
       if (robotCommands != null)
       {
-        await _bus.Publish(new RobotCommandsContract {
+        await _bus.Publish(new RobotCommandsContract
+        {
           RobotId = robotId,
           RealmId = realmId,
-          Commands = new RobotCommands {
+          Commands = new RobotCommands
+          {
             AbortTask = robotCommands.AbortTask,
             PauseTaskAssigement = robotCommands.PauseTaskAssigement,
             SoftwareEmergencyStop = robotCommands.SoftwareEmergencyStop,
@@ -201,6 +210,12 @@ public class OnlineRobotsService(
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var onlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey((int)realmId));
     return onlineRobotsIds != null && onlineRobotsIds.Contains(robotId);
+  }
+
+  public RobotDataContract? GetRobotData(Guid robotId)
+  {
+    _memoryCache.TryGetValue($"OnlineRobotsService_RobotData_{robotId}", out RobotDataContract? robotData);
+    return robotData;
   }
 
   public async Task<bool> SetAbortTaskAsync(Guid robotId, bool enable)

@@ -25,6 +25,7 @@ public interface IAutoTaskSchedulerService
 }
 
 public class AutoTaskSchedulerService(
+    IAutoTaskPathPlanner autoTaskPathPlanner,
     IBus bus,
     IEmailService emailService,
     IMemoryCache memoryCache,
@@ -34,6 +35,7 @@ public class AutoTaskSchedulerService(
     LgdxContext context
   ) : IAutoTaskSchedulerService
 {
+  private readonly IAutoTaskPathPlanner _autoTaskPathPlanner = autoTaskPathPlanner ?? throw new ArgumentNullException(nameof(autoTaskPathPlanner));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
@@ -105,7 +107,8 @@ public class AutoTaskSchedulerService(
           .Select(r => r.Name)
           .FirstOrDefaultAsync();
       }
-      await _bus.Publish(new AutoTaskUpdateContract{
+      await _bus.Publish(new AutoTaskUpdateContract
+      {
         Id = task.Id,
         Name = task.Name,
         Priority = task.Priority,
@@ -118,20 +121,21 @@ public class AutoTaskSchedulerService(
         CurrentProgressName = progress!.Name,
       });
     }
-    
+
     if (task.CurrentProgressId == (int)ProgressState.Completed || task.CurrentProgressId == (int)ProgressState.Aborted)
     {
       // Return immediately if the task is completed / aborted
-      return new RobotClientsAutoTask {
+      return new RobotClientsAutoTask
+      {
         TaskId = task.Id,
         TaskName = task.Name ?? string.Empty,
         TaskProgressId = task.CurrentProgressId,
         TaskProgressName = progress!.Name ?? string.Empty,
-        Waypoints = {},
+        Waypoints = { },
         NextToken = string.Empty,
       };
     }
-      
+
     var flowDetail = await _context.FlowDetails.AsNoTracking()
       .Where(fd => fd.FlowId == task.FlowId && fd.Order == (int)task.CurrentProgressOrder!)
       .FirstOrDefaultAsync();
@@ -141,38 +145,17 @@ public class AutoTaskSchedulerService(
       await _triggerService.InitialiseTriggerAsync(task, flowDetail);
     }
 
-    List<RobotClientsDof> waypoints = [];
-    if (task.CurrentProgressId == (int)ProgressState.PreMoving)
-    {
-      var firstTaskDetail = await _context.AutoTasksDetail.AsNoTracking()
-        .Where(t => t.AutoTaskId == task.Id)
-        .Include(t => t.Waypoint)
-        .OrderBy(t => t.Order)
-        .FirstOrDefaultAsync();
-      if (firstTaskDetail != null)
-        waypoints.Add(GenerateWaypoint(firstTaskDetail));
-    }
-    else if (task.CurrentProgressId == (int)ProgressState.Moving)
-    {
-      var taskDetails = await _context.AutoTasksDetail.AsNoTracking()
-        .Where(t => t.AutoTaskId == task.Id)
-        .Include(t => t.Waypoint)
-        .OrderBy(t => t.Order)
-        .ToListAsync();
-      foreach (var t in taskDetails)
-      {
-        waypoints.Add(GenerateWaypoint(t));
-      }
-    }
+    List<RobotClientsDof> waypoints = await _autoTaskPathPlanner.GeneratePath(task);
 
     string nextToken = task.NextToken ?? string.Empty;
-    if (flowDetail?.AutoTaskNextControllerId != (int) AutoTaskNextController.Robot)
+    if (flowDetail?.AutoTaskNextControllerId != (int)AutoTaskNextController.Robot)
     {
       // API has the control
       nextToken = string.Empty;
     }
 
-    return new RobotClientsAutoTask {
+    return new RobotClientsAutoTask
+    {
       TaskId = task.Id,
       TaskName = task.Name ?? string.Empty,
       TaskProgressId = task.CurrentProgressId,

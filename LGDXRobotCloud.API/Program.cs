@@ -196,6 +196,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAutoTaskService, AutoTaskService>();
 builder.Services.AddScoped<IFlowService, FlowService>();
 builder.Services.AddScoped<IProgressService, ProgressService>();
+builder.Services.AddScoped<IAutoTaskPathPlanner, AutoTaskPathPlanner>();
 
 // Identity
 builder.Services.AddScoped<IAuthService, AuthService>();
