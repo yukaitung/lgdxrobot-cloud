@@ -56,7 +56,7 @@ public class AutoTaskPathPlanner (
     return pathPlanningPath;
   }
 
-  private List<RobotClientsDof> PathPlanning(AutoTaskDetail start, AutoTaskDetail end, WaypointsTraffic waypointsTraffic)
+  private static List<RobotClientsDof> PathPlanning(AutoTaskDetail start, AutoTaskDetail end, WaypointsTraffic waypointsTraffic)
   {
     int startWaypointId = (int)start.WaypointId!;
     List<int> openList = [startWaypointId];
