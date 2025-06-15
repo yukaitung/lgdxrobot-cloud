@@ -57,7 +57,10 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
   private DotNetObjectReference<MapEditor> ObjectReference = null!;
   private string RealmName { get; set; } = string.Empty;
   private RealmDto Realm { get; set; } = null!;
-  private MapEditorViewModel MapEditorViewModel { get; set; } = new();
+  private MapEditorViewModel MapEditorViewModel { get; set; } = new()
+  {
+    IsSuccess = false,
+  };
   private WaypointListDto? SelectedWaypoint { get; set; }
   private MapEditorMode MapEditorMode { get; set; } = MapEditorMode.Normal;
   private MapEditorError MapEditorError { get; set; } = MapEditorError.None;
