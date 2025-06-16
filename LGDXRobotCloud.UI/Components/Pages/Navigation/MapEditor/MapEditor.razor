@@ -29,6 +29,12 @@
 <div class="container-xl mt-2">
   <ApiErrorAlert Errors="MapEditorViewModel.Errors" />
   <FormSubmissionSuccessAlert Display="MapEditorViewModel.IsSuccess" />
+  @if (!HasWaypointTrafficControl)
+  {
+    <InformationModal>
+      Waypoint Traffic Control is disabled, traffic can be created, but system does not plan path according to the traffice.
+    </InformationModal>
+  }
   <div class="col-12">
     <div class="card card-sm">
       <div class="card-body p-0">

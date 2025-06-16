@@ -66,6 +66,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
   private MapEditorError MapEditorError { get; set; } = MapEditorError.None;
   private int SelectedFromWaypointId { get; set; } = 0;
   private int SelectedToWaypointId { get; set; } = 0;
+  bool HasWaypointTrafficControl { get; set; } = false;
 
   private async Task HandleMapEditorModeChange(MapEditorMode mode)
   {
@@ -227,7 +228,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
     var settings = TokenService.GetSessionSettings(user);
     Realm = await CachedRealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
     RealmName = Realm.Name ?? string.Empty;
-
+    HasWaypointTrafficControl = await CachedRealmService.GetHasWaypointTrafficControlAsync(settings.CurrentRealmId);
     await base.OnInitializedAsync();
   }
 
