@@ -196,15 +196,17 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAutoTaskService, AutoTaskService>();
 builder.Services.AddScoped<IFlowService, FlowService>();
 builder.Services.AddScoped<IProgressService, ProgressService>();
+builder.Services.AddScoped<IAutoTaskPathPlannerService, AutoTaskPathPlannerService>();
 
 // Identity
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-// Automation
+// Navigation
 builder.Services.AddScoped<IRealmService, RealmService>();
 builder.Services.AddScoped<IWaypointService, WaypointService>();
 builder.Services.AddScoped<IRobotService, RobotService>();
+builder.Services.AddScoped<IMapEditorService, MapEditorService>();
 
 // Custom Services
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();

@@ -25,6 +25,7 @@ public interface IAutoTaskSchedulerService
 }
 
 public class AutoTaskSchedulerService(
+    IAutoTaskPathPlannerService autoTaskPathPlanner,
     IBus bus,
     IEmailService emailService,
     IMemoryCache memoryCache,
@@ -34,6 +35,7 @@ public class AutoTaskSchedulerService(
     LgdxContext context
   ) : IAutoTaskSchedulerService
 {
+  private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner ?? throw new ArgumentNullException(nameof(autoTaskPathPlanner));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
@@ -52,31 +54,6 @@ public class AutoTaskSchedulerService(
     };
     await _context.AutoTasksJourney.AddAsync(autoTaskJourney);
     await _context.SaveChangesAsync();
-  }
-
-  private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
-  {
-    if (taskDetail.Waypoint != null)
-    {
-      var waypoint = new RobotClientsDof
-      { X = taskDetail.Waypoint.X, Y = taskDetail.Waypoint.Y, Rotation = taskDetail.Waypoint.Rotation };
-      if (taskDetail.CustomX != null)
-        waypoint.X = (double)taskDetail.CustomX;
-      if (taskDetail.CustomY != null)
-        waypoint.X = (double)taskDetail.CustomY;
-      if (taskDetail.CustomRotation != null)
-        waypoint.X = (double)taskDetail.CustomRotation;
-      return waypoint;
-    }
-    else
-    {
-      return new RobotClientsDof
-      {
-        X = taskDetail.CustomX != null ? (double)taskDetail.CustomX : 0,
-        Y = taskDetail.CustomY != null ? (double)taskDetail.CustomY : 0,
-        Rotation = taskDetail.CustomRotation != null ? (double)taskDetail.CustomRotation : 0
-      };
-    }
   }
 
   private async Task<RobotClientsAutoTask?> GenerateTaskDetail(AutoTask? task, bool continueAutoTask = false)
@@ -105,7 +82,8 @@ public class AutoTaskSchedulerService(
           .Select(r => r.Name)
           .FirstOrDefaultAsync();
       }
-      await _bus.Publish(new AutoTaskUpdateContract{
+      await _bus.Publish(new AutoTaskUpdateContract
+      {
         Id = task.Id,
         Name = task.Name,
         Priority = task.Priority,
@@ -118,20 +96,21 @@ public class AutoTaskSchedulerService(
         CurrentProgressName = progress!.Name,
       });
     }
-    
+
     if (task.CurrentProgressId == (int)ProgressState.Completed || task.CurrentProgressId == (int)ProgressState.Aborted)
     {
       // Return immediately if the task is completed / aborted
-      return new RobotClientsAutoTask {
+      return new RobotClientsAutoTask
+      {
         TaskId = task.Id,
         TaskName = task.Name ?? string.Empty,
         TaskProgressId = task.CurrentProgressId,
         TaskProgressName = progress!.Name ?? string.Empty,
-        Waypoints = {},
+        Waypoints = { },
         NextToken = string.Empty,
       };
     }
-      
+
     var flowDetail = await _context.FlowDetails.AsNoTracking()
       .Where(fd => fd.FlowId == task.FlowId && fd.Order == (int)task.CurrentProgressOrder!)
       .FirstOrDefaultAsync();
@@ -142,37 +121,27 @@ public class AutoTaskSchedulerService(
     }
 
     List<RobotClientsDof> waypoints = [];
-    if (task.CurrentProgressId == (int)ProgressState.PreMoving)
+    try
     {
-      var firstTaskDetail = await _context.AutoTasksDetail.AsNoTracking()
-        .Where(t => t.AutoTaskId == task.Id)
-        .Include(t => t.Waypoint)
-        .OrderBy(t => t.Order)
-        .FirstOrDefaultAsync();
-      if (firstTaskDetail != null)
-        waypoints.Add(GenerateWaypoint(firstTaskDetail));
+      waypoints = await _autoTaskPathPlanner.GeneratePath(task);
     }
-    else if (task.CurrentProgressId == (int)ProgressState.Moving)
+    catch (Exception)
     {
-      var taskDetails = await _context.AutoTasksDetail.AsNoTracking()
-        .Where(t => t.AutoTaskId == task.Id)
-        .Include(t => t.Waypoint)
-        .OrderBy(t => t.Order)
-        .ToListAsync();
-      foreach (var t in taskDetails)
-      {
-        waypoints.Add(GenerateWaypoint(t));
-      }
+      await AutoTaskAbortSqlAsync(task.Id);
+      await _emailService.SendAutoTaskAbortEmailAsync(task.Id, AutoTaskAbortReason.PathPlanner);
+      await AddAutoTaskJourney(task);
+      return null;
     }
 
     string nextToken = task.NextToken ?? string.Empty;
-    if (flowDetail?.AutoTaskNextControllerId != (int) AutoTaskNextController.Robot)
+    if (flowDetail?.AutoTaskNextControllerId != (int)AutoTaskNextController.Robot)
     {
       // API has the control
       nextToken = string.Empty;
     }
 
-    return new RobotClientsAutoTask {
+    return new RobotClientsAutoTask
+    {
       TaskId = task.Id,
       TaskName = task.Name ?? string.Empty,
       TaskProgressId = task.CurrentProgressId,
@@ -331,7 +300,7 @@ public class AutoTaskSchedulerService(
     if (task != null)
     {
       await DeleteTriggerRetries(taskId);
-      await _emailService.SendAutoTaskAbortEmailAsync(robotId, taskId, autoTaskAbortReason);
+      await _emailService.SendAutoTaskAbortEmailAsync(taskId, autoTaskAbortReason);
       await AddAutoTaskJourney(task);
     }
     return await GenerateTaskDetail(task);
@@ -344,7 +313,7 @@ public class AutoTaskSchedulerService(
       return false;
       
     await DeleteTriggerRetries(taskId);
-    await _emailService.SendAutoTaskAbortEmailAsync((Guid)task!.AssignedRobotId!, taskId, AutoTaskAbortReason.UserApi);
+    await _emailService.SendAutoTaskAbortEmailAsync(taskId, AutoTaskAbortReason.UserApi);
     await AddAutoTaskJourney(task);
     return true;
   }

@@ -45,6 +45,8 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
+  bool HasWaypointTrafficControl { get; set; } = false;
+
   // Form helping variables
   private readonly string[] AdvanceSelectElements = [$"{nameof(AutoTaskDetailViewModel.FlowId)}-", $"{nameof(AutoTaskDetailViewModel.AssignedRobotId)}-", $"{nameof(TaskDetailBody.WaypointId)}-"];
   private readonly string[] AdvanceSelectElementsDetail = [$"{nameof(TaskDetailBody.WaypointId)}-"];
@@ -223,6 +225,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
     var settings = TokenService.GetSessionSettings(user);
     AutoTaskDetailViewModel.RealmId = settings.CurrentRealmId;
     AutoTaskDetailViewModel.RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    HasWaypointTrafficControl = await CachedRealmService.GetHasWaypointTrafficControlAsync(settings.CurrentRealmId);
     await base.OnInitializedAsync();
   }
 

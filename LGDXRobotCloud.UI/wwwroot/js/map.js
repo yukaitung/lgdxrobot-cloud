@@ -2,6 +2,7 @@ var WindowHeight = window.innerHeight;
 var MapDotNetObject = {};
 var MapStage;
 var MapLayer;
+var MapEditorMode = 0;
 const InitalScale = 3;
 
 /*
@@ -13,6 +14,7 @@ function InitNavigationMap(dotNetObject)
   const div = document.getElementById('navigation-map-div');
   const divRect = div.getBoundingClientRect();
   MapStage = new Konva.Stage({
+    id: 'navigation-map-stage',
     container: 'navigation-map-canvas',
     width: divRect.width,
     height: divRect.height,
@@ -41,6 +43,27 @@ function InitNavigationMap(dotNetObject)
   });
   MapStage.add(MapLayer);
   MapLayer.add(mapBackground);
+
+  // Mouse event on map
+  MapStage.on('mousemove', () => {
+    const p = document.getElementById('navigation-map-coordinate');
+    if (!p) return;
+    const pointer = MapStage.getPointerPosition();
+    if (!pointer) return;
+
+    // Transform stage coordinates to rect-local coordinates
+    const localPos = mapBackground.getAbsoluteTransform().copy().invert().point(pointer);
+
+    // Check if pointer is inside the rectangle bounds
+    if (
+      localPos.x >= 0 && localPos.x <= mapBackground.width() &&
+      localPos.y >= 0 && localPos.y <= mapBackground.height()
+    ) {
+      p.innerHTML = `X: ${_internalToRobotPositionX(localPos.x).toFixed(4)}m, Y: ${_internalToRobotPositionY(localPos.y).toFixed(4)}m`;
+    } else {
+      p.innerHTML = '';
+    }
+  });
 
   function _internalOnResize()
   {
@@ -173,6 +196,16 @@ function NavigationMapZoomOut()
 /*
  * Robot Functions
  */
+function _internalToRobotPositionX(x)
+{
+  return x * MAP_RESOLUTION + MAP_ORIGIN_X;
+}
+
+function _internalToRobotPositionY(y)
+{
+  const mapBackgroundImage = document.getElementById('navigation-map-image');
+  return (mapBackgroundImage.height - y) * MAP_RESOLUTION + MAP_ORIGIN_Y;
+}
 function _internalToMapX(x)
 {
   return (-MAP_ORIGIN_X + x) / MAP_RESOLUTION;
@@ -290,5 +323,118 @@ function MoveRobot(robotId, x, y, rotation)
     robot.x(_internalToMapX(x));
     robot.y(_internalToMapY(y));
     robot.rotation(_internalToMapRotation(rotation));
+  }
+}
+
+/*
+ * Map Editor
+ */
+
+function MapEditorSetMode(mode) { // assume is an integer
+  MapEditorMode = mode;
+}
+
+function MapEditorAddWaypoints(waypoints) {
+  for(let i = 0; i < waypoints.length; i++) {
+    const w = new Konva.Circle({
+      id: 'w-' + waypoints[i].id,
+      x: _internalToMapX(waypoints[i].x),
+      y: _internalToMapY(waypoints[i].y),
+      radius: 4,
+      fill: _internalGetCSSVariable('--tblr-blue-lt'),
+      stroke: _internalGetCSSVariable('--tblr-blue'),
+      strokeWidth: 1,
+    });
+    w.on('click', function (e) {
+      let id = e.target.id();
+      id = id.substring(2);
+      switch (MapEditorMode) {
+        case 0: // Normal
+          // Show Waypoint Modal
+          MapDotNetObject.invokeMethodAsync('HandleWaypointSelect', id);
+          document.getElementById('waypointModalButton').click();
+          break;
+        case 1: // SingleWayTrafficFrom
+        case 2: // SingleWayTrafficTo
+        case 3: // BothWaysTrafficFrom
+        case 4: // BothWaysTrafficTo
+          // Continue traffic creation
+          MapDotNetObject.invokeMethodAsync('HandleAddTraffic', id);
+          break;
+      }
+    });
+    MapLayer.add(w);
+  }
+}
+
+function _internalGetConnectorPoints(from, to, isBothWaysTraffic) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  let angle = Math.atan2(-dy, dx);
+
+  const radius = 5;
+
+  if (isBothWaysTraffic) {
+    return [
+      from.x + -radius * Math.cos(angle + Math.PI),
+      from.y + radius * Math.sin(angle + Math.PI),
+      to.x + -radius * Math.cos(angle),
+      to.y + radius * Math.sin(angle),
+    ];
+  }
+  // Make shorter line for arrow
+  return [
+    from.x + -radius * Math.cos(angle + Math.PI),
+    from.y + radius * Math.sin(angle + Math.PI),
+    to.x + -(radius + 1) * Math.cos(angle),
+    to.y + (radius + 1) * Math.sin(angle),
+  ];
+}
+
+function _internalHandleTrafficSelect(e) {
+  if (MapEditorMode != 5) // DeleteTraffic mode
+  {
+    return;
+  }
+
+  let id = e.target.id();
+  let obj = MapLayer.findOne('#' + id);
+  obj.destroy();
+  id = id.substring(2);
+  MapDotNetObject.invokeMethodAsync('HandleDeleteTraffic', id);
+}
+
+function MapEditorAddTraffics(traffics) {
+  for (var i = 0; i < traffics.length; i++) {
+    const fromNode = MapLayer.findOne('#w-' + traffics[i].waypointFromId);
+    const toNode = MapLayer.findOne('#w-' + traffics[i].waypointToId);
+    const points = _internalGetConnectorPoints(
+      fromNode.position(),
+      toNode.position(),
+      traffics[i].isBothWaysTraffic
+    );
+    if (traffics[i].isBothWaysTraffic) {
+      const line = new Konva.Line({
+        stroke: _internalGetCSSVariable('--tblr-blue'),
+        strokeWidth: 1,
+        id: 't-' + traffics[i].waypointFromId + '-' + traffics[i].waypointToId,
+        points: points,
+      });
+      line.on('click', _internalHandleTrafficSelect);
+      MapLayer.add(line);
+    }
+    else {
+      const arrow = new Konva.Arrow({
+        stroke: _internalGetCSSVariable('--tblr-blue'),
+        fill: _internalGetCSSVariable('--tblr-blue'),
+        strokeWidth: 1,
+        id: 't-' + traffics[i].waypointFromId + '-' + traffics[i].waypointToId,
+        points: points,
+        pointerLength: 1,
+        pointerWidth: 1,
+      });
+      arrow.on('click', _internalHandleTrafficSelect);
+      MapLayer.add(arrow);
+    }
   }
 }

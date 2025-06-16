@@ -22,6 +22,8 @@ namespace LGDXRobotCloud.UI.Client.Models
 #else
         public string Description { get; set; }
 #endif
+        /// <summary>The hasWaypointsTrafficControl property</summary>
+        public bool? HasWaypointsTrafficControl { get; set; }
         /// <summary>The image property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -72,6 +74,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "description", n => { Description = n.GetStringValue(); } },
+                { "hasWaypointsTrafficControl", n => { HasWaypointsTrafficControl = n.GetBoolValue(); } },
                 { "image", n => { Image = n.GetStringValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
                 { "originRotation", n => { OriginRotation = n.GetDoubleValue(); } },
@@ -88,6 +91,7 @@ namespace LGDXRobotCloud.UI.Client.Models
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             writer.WriteStringValue("description", Description);
+            writer.WriteBoolValue("hasWaypointsTrafficControl", HasWaypointsTrafficControl);
             writer.WriteStringValue("image", Image);
             writer.WriteStringValue("name", Name);
             writer.WriteDoubleValue("originRotation", OriginRotation);

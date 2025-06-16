@@ -133,6 +133,12 @@
             <div class="mb-3 row">
               <label class="col-2 col-form-label">Waypoints</label>
               <div class="col d-flex flex-column">
+                @if (HasWaypointTrafficControl)
+                {
+                  <InformationModal>
+                    Waypoints is required when Waypoint Traffic Control is enabled.
+                  </InformationModal>
+                }
                 <table class="table table-vcenter text-nowrap datatable">
                   <thead>
                     <tr>

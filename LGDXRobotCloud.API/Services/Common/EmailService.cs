@@ -17,7 +17,7 @@ public interface IEmailService
   Task SendPasswordResetEmailAsync(string recipientEmail, string recipientName, string userName, string token);
   Task SendPasswordUpdateEmailAsync(string recipientEmail, string recipientName, string userName);
   Task SendRobotStuckEmailAsync(Guid robotId, double x, double y);
-  Task SendAutoTaskAbortEmailAsync(Guid robotId, int taskId, AutoTaskAbortReason autoTaskAbortReason);
+  Task SendAutoTaskAbortEmailAsync(int taskId, AutoTaskAbortReason autoTaskAbortReason);
 }
 
 public sealed class EmailService(
@@ -148,7 +148,7 @@ public sealed class EmailService(
     }
   }
 
-  public async Task SendAutoTaskAbortEmailAsync(Guid robotId, int taskId, AutoTaskAbortReason autoTaskAbortReason)
+  public async Task SendAutoTaskAbortEmailAsync(int taskId, AutoTaskAbortReason autoTaskAbortReason)
   {
     var recipients = await GetRecipientsAsync();
     if (recipients.Count == 0)
@@ -163,10 +163,10 @@ public sealed class EmailService(
           AutoTaskId = at.Id.ToString(),
           AutoTaskName = at.Name ?? string.Empty,
           AbortReason = ((int)autoTaskAbortReason).ToString(),
-          RobotId = at.AssignedRobot!.Id.ToString(),
-          RobotName = at.AssignedRobot.Name,
-          RealmId = at.AssignedRobot.Realm.Id.ToString(),
-          RealmName = at.AssignedRobot.Realm.Name,
+          RobotId = at.AssignedRobot != null ? at.AssignedRobot.Id.ToString() : string.Empty,
+          RobotName = at.AssignedRobot != null ? at.AssignedRobot.Name : string.Empty,
+          RealmId = at.Realm.Id.ToString(),
+          RealmName = at.Realm.Name,
           Time = DateTime.Now.ToString("dd MMMM yyyy, hh:mm:ss tt")
         })
       .FirstOrDefaultAsync();

@@ -13,7 +13,10 @@ public record RealmUpdateDto
   [MaxLength(200)]
   public string? Description { get; set; }
   
-  [Required (ErrorMessage = "Please upload an image.")]
+  [Required(ErrorMessage = "Please select a traffic control type.")]
+  public bool HasWaypointsTrafficControl { get; set; }
+  
+  [Required(ErrorMessage = "Please upload an image.")]
   public required string Image { get; set; }
 
   [Required (ErrorMessage = "Please enter a resolution.")]
@@ -36,6 +39,7 @@ public static class RealmUpdateDtoExtensions
     return new RealmUpdateBusinessModel {
       Name = model.Name,
       Description = model.Description,
+      HasWaypointsTrafficControl = model.HasWaypointsTrafficControl,
       Image = model.Image,
       Resolution = model.Resolution,
       OriginX = model.OriginX,

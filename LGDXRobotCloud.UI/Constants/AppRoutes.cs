@@ -33,6 +33,10 @@ public static class AppRoutes
       public const string Create = "/Navigation/Waypoints/Create";
       public const string Detail = "/Navigation/Waypoints/{Id:int}";
     }
+    public static class MapEditor
+    {
+      public const string Index = "/Navigation/MapEditor";
+    }
   }
 
   public static class Automation
