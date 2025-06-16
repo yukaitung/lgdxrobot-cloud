@@ -7,16 +7,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobotCloud.API.Services.Automation;
 
-public interface IAutoTaskPathPlanner
+public interface IAutoTaskPathPlannerService
 {
   Task<List<RobotClientsDof>> GeneratePath(AutoTask autoTask);
 }
 
-public class AutoTaskPathPlanner (
+public class AutoTaskPathPlannerService (
     IMapEditorService mapEditorService,
     IOnlineRobotsService onlineRobotsService,
     LgdxContext context
-  ) : IAutoTaskPathPlanner
+  ) : IAutoTaskPathPlannerService
 {
   private readonly IMapEditorService _mapEditorService = mapEditorService ?? throw new ArgumentNullException(nameof(mapEditorService));
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));

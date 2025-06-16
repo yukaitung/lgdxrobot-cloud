@@ -142,9 +142,10 @@ public class MapEditorService(
     var waypointTrafficsDict = new Dictionary<int, HashSet<int>>();
     foreach (var traffic in waypointTraffics)
     {
-      if (waypointTrafficsDict.TryGetValue(traffic.WaypointToId, out HashSet<int>? value))
+      if (waypointTrafficsDict.TryGetValue(traffic.WaypointFromId, out HashSet<int>? neighbors))
       {
-        waypointTrafficsDict[traffic.WaypointFromId].Add(traffic.WaypointToId);
+        neighbors.Add(traffic.WaypointToId);
+        waypointTrafficsDict[traffic.WaypointFromId] = neighbors;
       }
       else
       {

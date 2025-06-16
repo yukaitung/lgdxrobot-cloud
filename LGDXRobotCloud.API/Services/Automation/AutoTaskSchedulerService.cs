@@ -25,7 +25,7 @@ public interface IAutoTaskSchedulerService
 }
 
 public class AutoTaskSchedulerService(
-    IAutoTaskPathPlanner autoTaskPathPlanner,
+    IAutoTaskPathPlannerService autoTaskPathPlanner,
     IBus bus,
     IEmailService emailService,
     IMemoryCache memoryCache,
@@ -35,7 +35,7 @@ public class AutoTaskSchedulerService(
     LgdxContext context
   ) : IAutoTaskSchedulerService
 {
-  private readonly IAutoTaskPathPlanner _autoTaskPathPlanner = autoTaskPathPlanner ?? throw new ArgumentNullException(nameof(autoTaskPathPlanner));
+  private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner ?? throw new ArgumentNullException(nameof(autoTaskPathPlanner));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
@@ -130,15 +130,7 @@ public class AutoTaskSchedulerService(
       await AutoTaskAbortSqlAsync(task.Id);
       await _emailService.SendAutoTaskAbortEmailAsync(task.Id, AutoTaskAbortReason.PathPlanner);
       await AddAutoTaskJourney(task);
-      return new RobotClientsAutoTask
-      {
-        TaskId = task.Id,
-        TaskName = task.Name ?? string.Empty,
-        TaskProgressId = task.CurrentProgressId,
-        TaskProgressName = progress!.Name ?? string.Empty,
-        Waypoints = { },
-        NextToken = string.Empty,
-      };
+      return null;
     }
 
     string nextToken = task.NextToken ?? string.Empty;

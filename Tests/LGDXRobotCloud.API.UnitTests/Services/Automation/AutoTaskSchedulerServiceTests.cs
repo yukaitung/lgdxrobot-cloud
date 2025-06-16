@@ -362,7 +362,7 @@ public class AutoTaskSchedulerServiceTests
   private readonly Mock<IOnlineRobotsService> mockOnlineRobotService = new();
   private readonly Mock<IRobotService> mockRobotService = new();
   private readonly Mock<ITriggerService> mockTriggerService = new();
-  private readonly Mock<IAutoTaskPathPlanner> mockAutoTaskPathPlanner = new();
+  private readonly Mock<IAutoTaskPathPlannerService> mockAutoTaskPathPlanner = new();
   private readonly LgdxContext lgdxContext;
 
   public AutoTaskSchedulerServiceTests()
