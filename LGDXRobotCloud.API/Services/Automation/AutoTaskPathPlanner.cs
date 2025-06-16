@@ -58,7 +58,12 @@ public class AutoTaskPathPlanner (
 
   private static List<RobotClientsDof> PathPlanning(AutoTaskDetail start, AutoTaskDetail end, WaypointsTraffic waypointsTraffic)
   {
-    int startWaypointId = (int)start.WaypointId!;
+    // Check waypoint
+    if (start.WaypointId == null || end.WaypointId == null)
+    {
+      throw new Exception("The task detail does not have waypoint.");
+    }
+    int startWaypointId = (int)start.WaypointId;
     List<int> openList = [startWaypointId];
     List<int> closedList = [];
 
