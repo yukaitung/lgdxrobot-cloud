@@ -22,6 +22,8 @@ namespace LGDXRobotCloud.UI.Client.Models
 #else
         public string Description { get; set; }
 #endif
+        /// <summary>The hasWaypointsTrafficControl property</summary>
+        public bool? HasWaypointsTrafficControl { get; set; }
         /// <summary>The id property</summary>
         public int? Id { get; set; }
         /// <summary>The image property</summary>
@@ -74,6 +76,7 @@ namespace LGDXRobotCloud.UI.Client.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "description", n => { Description = n.GetStringValue(); } },
+                { "hasWaypointsTrafficControl", n => { HasWaypointsTrafficControl = n.GetBoolValue(); } },
                 { "id", n => { Id = n.GetIntValue(); } },
                 { "image", n => { Image = n.GetStringValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
@@ -91,6 +94,7 @@ namespace LGDXRobotCloud.UI.Client.Models
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             writer.WriteStringValue("description", Description);
+            writer.WriteBoolValue("hasWaypointsTrafficControl", HasWaypointsTrafficControl);
             writer.WriteIntValue("id", Id);
             writer.WriteStringValue("image", Image);
             writer.WriteStringValue("name", Name);

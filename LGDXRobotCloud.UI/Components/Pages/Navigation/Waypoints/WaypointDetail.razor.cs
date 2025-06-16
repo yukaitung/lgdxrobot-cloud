@@ -31,26 +31,47 @@ public sealed partial class WaypointDetail : ComponentBase
   [Parameter]
   public int? Id { get; set; }
 
+  [SupplyParameterFromQuery]
+  private string? ReturnUrl { get; set; }
+
   private WaypointDetailViewModel WaypointDetailViewModel { get; set; } = new();
   private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
+  private void Redirect(int id)
+  {
+    
+  }
+
   public async Task HandleValidSubmit()
   {
     try
     {
+      int id = 0;
       if (Id != null)
       {
         // Update
         await LgdxApiClient.Navigation.Waypoints[(int)Id].PutAsync(WaypointDetailViewModel.ToUpdateDto());
+        id = (int)Id;
       }
       else
       {
         // Create
-        await LgdxApiClient.Navigation.Waypoints.PostAsync(WaypointDetailViewModel.ToCreateDto());
+        var response = await LgdxApiClient.Navigation.Waypoints.PostAsync(WaypointDetailViewModel.ToCreateDto());
+        id = response?.Id ?? 0;
       }
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
+
+      // Redirect
+      if (ReturnUrl != null)
+      {
+        // Tell Map Editor to update waypoint by given ID
+        NavigationManager.NavigateTo($"{ReturnUrl}?UpdateWaypointId={id}");
+      }
+      else
+      {
+        NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
+      }
     }
     catch (ApiException ex)
     {
@@ -77,7 +98,16 @@ public sealed partial class WaypointDetail : ComponentBase
     try
     {
       await LgdxApiClient.Navigation.Waypoints[(int)Id!].DeleteAsync();
-      NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
+
+      if (ReturnUrl != null)
+      {
+        // Tell Map Editor to delete waypoint by given ID
+        NavigationManager.NavigateTo($"{ReturnUrl}?DeleteWaypointId={Id}");
+      }
+      else
+      {
+        NavigationManager.NavigateTo(AppRoutes.Navigation.Waypoints.Index);
+      }
     }
     catch (ApiException ex)
     {

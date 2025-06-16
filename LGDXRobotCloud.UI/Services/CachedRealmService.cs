@@ -14,6 +14,7 @@ public interface ICachedRealmService
   void ClearCache(int realmId);
 
   Task<string> GetRealmName(int realmId);
+  Task<bool> GetHasWaypointTrafficControlAsync(int realmId);
 }
 
 public sealed class CachedRealmService (
@@ -32,6 +33,7 @@ public sealed class CachedRealmService (
       Id = 0,
       Name = "Default",
       Description = "Default Realm",
+      HasWaypointsTrafficControl = false,
       Image = "",
       Resolution = 0.0,
       OriginX = 0.0,
@@ -96,6 +98,18 @@ public sealed class CachedRealmService (
 
     var curremtRealm = await GetCurrrentRealmAsync(realmId);
     return curremtRealm?.Name ?? string.Empty;
+  }
+
+  public async Task<bool> GetHasWaypointTrafficControlAsync(int realmId)
+  {
+    if (realmId == 0)
+    {
+      var defaultRealm = await GetDefaultRealmAsync();
+      return defaultRealm?.HasWaypointsTrafficControl ?? false;
+    }
+
+    var curremtRealm = await GetCurrrentRealmAsync(realmId);
+    return curremtRealm?.HasWaypointsTrafficControl ?? false;
   }
 
   public void ClearCache(int realmId)

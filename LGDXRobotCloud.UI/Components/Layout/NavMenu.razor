@@ -37,6 +37,11 @@
 									Waypoints
 								</NavLink>
 							</AuthorizeView>
+							<AuthorizeView Policy="@Permissions.Navigation.Robots.Action" Context="NavigationMapEditor">
+								<NavLink class="dropdown-item" href="@AppRoutes.Navigation.MapEditor.Index">
+									Map Editor
+								</NavLink>
+							</AuthorizeView>
 							<AuthorizeView Policy="@Permissions.Navigation.Robots.Action" Context="NavigationRobots">
 								<NavLink class="dropdown-item" href="@AppRoutes.Navigation.Robots.Index">
 									Robots

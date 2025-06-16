@@ -206,6 +206,22 @@ public class AutoTaskService(
 
   public async Task<AutoTaskBusinessModel> CreateAutoTaskAsync(AutoTaskCreateBusinessModel autoTaskCreateBusinessModel)
   {
+    // Waypoint is needed when Waypoins Traffic Control is enabled
+    bool hasWaypointsTrafficControl = await _context.Realms.AsNoTracking()
+      .Where(r => r.Id == autoTaskCreateBusinessModel.RealmId)
+      .Select(r => r.HasWaypointsTrafficControl)
+      .FirstOrDefaultAsync();
+    if (hasWaypointsTrafficControl)
+    {
+      foreach (var detail in autoTaskCreateBusinessModel.AutoTaskDetails)
+      {
+        if (detail.WaypointId == null)
+        {
+          throw new LgdxValidation400Expection(nameof(detail.WaypointId), "Waypoint is required when Waypoints Traffic Control is enabled.");
+        }
+      }
+    }
+
     HashSet<int> waypointIds = autoTaskCreateBusinessModel.AutoTaskDetails
       .Where(d => d.WaypointId != null)
       .Select(d => d.WaypointId!.Value)
@@ -320,6 +336,21 @@ public class AutoTaskService(
       if (bmDetailId != null && !dbDetailIds.Contains((int)bmDetailId))
       {
         throw new LgdxValidation400Expection("AutoTaskDetailId", $"The Task Detail ID {(int)bmDetailId} is belongs to other Task.");
+      }
+    }
+    // Waypoint is needed when Waypoins Traffic Control is enabled
+    bool hasWaypointsTrafficControl = await _context.Realms.AsNoTracking()
+      .Where(r => r.Id == task.RealmId)
+      .Select(r => r.HasWaypointsTrafficControl)
+      .FirstOrDefaultAsync();
+    if (hasWaypointsTrafficControl)
+    {
+      foreach (var detail in autoTaskUpdateBusinessModel.AutoTaskDetails)
+      {
+        if (detail.WaypointId == null)
+        {
+          throw new LgdxValidation400Expection(nameof(detail.WaypointId), "Waypoint is required when Waypoints Traffic Control is enabled.");
+        }
       }
     }
     HashSet<int> waypointIds = autoTaskUpdateBusinessModel.AutoTaskDetails

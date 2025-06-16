@@ -1,0 +1,214 @@
+@attribute [Route(AppRoutes.Navigation.MapEditor.Index)]
+@attribute [Authorize (Policy = Permissions.Navigation.MapEditor.Read)]
+@attribute [Authorize (Policy = Permissions.Navigation.Waypoints.Read)]
+
+<PageHeader Title="Map Editor">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Map Editor
+      </h2>
+      <div class="text-secondary mt-1">
+        <i class="ti ti-map-pin-filled"></i>
+        @RealmName
+      </div>
+    </div>
+    <div class="col-md-auto ms-auto">
+      <div class="btn-list">
+        <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#resetMapEditor">
+          Reset
+        </a>
+        <button class="btn btn-primary" @onclick="HandelSubmit">
+          Update
+        </button>
+      </div>
+    </div>
+  </div>
+</PageHeader>
+
+<div class="container-xl mt-2">
+  <ApiErrorAlert Errors="MapEditorViewModel.Errors" />
+  <FormSubmissionSuccessAlert Display="MapEditorViewModel.IsSuccess" />
+  @if (!HasWaypointTrafficControl)
+  {
+    <InformationModal>
+      Waypoint Traffic Control is disabled, traffic can be created, but system does not plan path according to the traffice.
+    </InformationModal>
+  }
+  <div class="col-12">
+    <div class="card card-sm">
+      <div class="card-body p-0">
+        <div class="row align-items-center">
+          <div class="col">
+            <div id="map-editor-tools" class="btn-group">
+              <a class="btn" href="@($"{AppRoutes.Navigation.Waypoints.Create}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}")">Add Waypoint</a>
+              <a class="btn dropdown-toggle rounded-0" data-bs-toggle="dropdown">Traffic</a>
+              <div class="dropdown-menu">
+                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.SingleWayTrafficFrom)">Single Way</button>
+                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.BothWaysTrafficFrom)">Both Ways</button>
+                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.DeleteTraffic)">Delete Traffic</button>
+              </div>
+              <button class="btn" disabled="@(MapEditorMode == MapEditorMode.Normal)" @onclick="() => HandleMapEditorModeChange(MapEditorMode.Normal)">Cancel</button>
+            </div>
+          </div>
+          <p id="navigation-map-coordinate" class="col text-center m-0"></p>
+          <p id="navigation-map-status" class="col text-end m-0 me-2">
+            @switch (MapEditorMode) {
+              default:
+              case MapEditorMode.Normal:
+                <text></text>
+                break;
+              case MapEditorMode.SingleWayTrafficFrom:
+                <text>Single way: Select a starting waypoint.</text>
+                break;
+              case MapEditorMode.SingleWayTrafficTo:
+                <text>Single way: Select an ending waypoint.</text>
+                break;
+              case MapEditorMode.BothWaysTrafficFrom:
+                <text>Both ways: Select a starting waypoint.</text>
+                break;
+              case MapEditorMode.BothWaysTrafficTo:
+                <text>Both ways: Select an ending waypoint.</text>
+                break;
+              case MapEditorMode.DeleteTraffic:
+                <text>Select a traffic to delete.</text>
+                break;
+            }
+            @switch (MapEditorError) {
+              default:
+              case MapEditorError.None:
+                <text></text>
+                break;
+              case MapEditorError.SameWaypoint:
+                <text>Error: Cannot select same waypoint.</text>
+                break;
+              case MapEditorError.HasTraffic:
+                <text>Error: The waypoints have defined traffic.</text>
+                break;
+            }
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="navigation-map-div" class="flex-fill">
+  <div id="navigation-map-canvas"></div>
+  <a id="waypointModalButton" class="btn d-none" data-bs-toggle="modal" data-bs-target="#waypointModal">
+    Toggle modal
+  </a>
+  @if (Realm != null)
+  {
+    <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Realm.Image" />
+  }
+  <div id="navigation-map-buttons" class="btn-group-vertical">
+    <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
+    <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
+  </div>
+  <div id="navigation-map-ruler" class="border border-2 border-top-0 border-dark ps-2">
+    1m
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="waypointModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-3 modal-dialog-centered" role="document">
+    <div class="modal-content">
+      @if (SelectedWaypoint != null)
+      {
+        <div class="modal-header">
+          <h5 class="modal-title">Waypoint Detail</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Id</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@SelectedWaypoint.Id</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Name</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@SelectedWaypoint.Name</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">X (m)</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@SelectedWaypoint.X</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Y (m)</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@SelectedWaypoint.Y</div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-3 col-form-label">Rotation (rad)</label>
+            <div class="col">
+              <div class="col form-control-plaintext">@SelectedWaypoint.Rotation</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary" data-bs-dismiss="modal" @onclick="() => OnEditWaypointClick((int)SelectedWaypoint.Id!)">Edit</button>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="modal fade modal-blur" id="resetMapEditor" tabindex="-1" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-danger"></div>
+      <div class="modal-body text-center py-4 d-flex flex-column">
+
+        <i class="ti ti-alert-triangle text-danger mb-2" style="font-size: 48px;"></i>
+        <h3>Reset Map Editor</h3>
+        <div class="text-secondary">
+          <div class="text-secondary">
+            Do you want to reset the map editor?
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn w-100" data-bs-dismiss="modal">Cancel</button>
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-danger w-100" @onclick="HandelResetMapEditor">Yes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  @if (Realm != null)
+  { 
+    @($"var MAP_RESOLUTION = {Realm.Resolution};var MAP_ORIGIN_X = {Realm.OriginX};var MAP_ORIGIN_Y = {Realm.OriginY};var MAP_ORIGIN_ROTATION = {Realm.OriginRotation};")
+  }
+  else
+  {
+    @($"var MAP_RESOLUTION = 0;var MAP_ORIGIN_X = 0;var MAP_ORIGIN_Y = 0;var MAP_ORIGIN_ROTATION = 0;")
+  }
+</script>
+<style>
+body {
+  overflow: hidden;
+}
+footer.footer.footer-transparent {
+  display: none;
+}
+</style>

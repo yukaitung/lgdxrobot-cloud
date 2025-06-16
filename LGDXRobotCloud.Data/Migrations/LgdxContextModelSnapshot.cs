@@ -428,6 +428,9 @@ namespace LGDXRobotCloud.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<bool>("HasWaypointsTrafficControl")
+                        .HasColumnType("boolean");
+
                     b.Property<byte[]>("Image")
                         .IsRequired()
                         .HasColumnType("bytea");
@@ -458,6 +461,7 @@ namespace LGDXRobotCloud.Data.Migrations
                         {
                             Id = 1,
                             Description = "Please update this realm",
+                            HasWaypointsTrafficControl = false,
                             Image = new byte[0],
                             Name = "First Realm",
                             OriginRotation = 0.0,
@@ -742,6 +746,34 @@ namespace LGDXRobotCloud.Data.Migrations
                     b.ToTable("Navigation.Waypoints");
                 });
 
+            modelBuilder.Entity("LGDXRobotCloud.Data.Entities.WaypointTraffic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RealmId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WaypointFromId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WaypointToId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RealmId");
+
+                    b.HasIndex("WaypointFromId");
+
+                    b.HasIndex("WaypointToId");
+
+                    b.ToTable("Navigation.WaypointTraffics");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -1023,6 +1055,33 @@ namespace LGDXRobotCloud.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Realm");
+                });
+
+            modelBuilder.Entity("LGDXRobotCloud.Data.Entities.WaypointTraffic", b =>
+                {
+                    b.HasOne("LGDXRobotCloud.Data.Entities.Realm", "Realm")
+                        .WithMany()
+                        .HasForeignKey("RealmId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LGDXRobotCloud.Data.Entities.Waypoint", "WaypointFrom")
+                        .WithMany()
+                        .HasForeignKey("WaypointFromId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LGDXRobotCloud.Data.Entities.Waypoint", "WaypointTo")
+                        .WithMany()
+                        .HasForeignKey("WaypointToId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Realm");
+
+                    b.Navigation("WaypointFrom");
+
+                    b.Navigation("WaypointTo");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

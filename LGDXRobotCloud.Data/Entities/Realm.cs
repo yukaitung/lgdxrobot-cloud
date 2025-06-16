@@ -18,6 +18,9 @@ public class Realm
   public string? Description { get; set; }
 
   [Required]
+  public bool HasWaypointsTrafficControl { get; set; }
+
+  [Required]
   public byte[] Image { get; set; } = null!;
 
   [Required]
