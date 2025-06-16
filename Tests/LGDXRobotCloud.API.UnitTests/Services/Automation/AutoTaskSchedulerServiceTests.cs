@@ -382,7 +382,7 @@ public class AutoTaskSchedulerServiceTests
     lgdxContext.SaveChanges();
   }
 
-  private List<RobotClientsDof> GeneratePath(AutoTask autoTask)
+  private List<RobotClientsPath> GeneratePath(AutoTask autoTask)
   {
     var id = autoTask.Id;
     var details = autoTask.AutoTaskDetails
@@ -390,27 +390,19 @@ public class AutoTaskSchedulerServiceTests
       .Select(atd => atd.WaypointId)
       .ToList();
 
-    List<RobotClientsDof> result = [];
+    List<RobotClientsPath> result = [];
     foreach (var waypointId in details)
     {
       var waypoint = waypoints.FirstOrDefault(w => w.Id == waypointId);
-      if (waypoint == null)
+      result.Add(new RobotClientsPath
       {
-        result.Add(new RobotClientsDof
+        Waypoints = { new RobotClientsDof
         {
           X = 0,
           Y = 0,
           Rotation = 0
-        });
-      }
-      else
-      {
-        result.Add(new RobotClientsDof {
-          X = waypoint.X,
-          Y = waypoint.Y,
-          Rotation = waypoint.Rotation,
-        });
-      }
+        }}
+      });
     }
     return result;
   }
@@ -448,7 +440,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal(expected.Name, actual.TaskName);
     Assert.Equal((int)ProgressState.Moving, actual.TaskProgressId);
     Assert.Equal("Moving", actual.TaskProgressName);
-    Assert.Equal(expected.AutoTaskDetails.Count, actual.Waypoints.Count);
+    Assert.Equal(expected.AutoTaskDetails.Count, actual.Paths.Count);
     Assert.NotNull(actual.NextToken);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Once);
     mockTriggerService.Verify(m => m.InitialiseTriggerAsync(It.IsAny<AutoTask>(), It.IsAny<FlowDetail>()) , Times.Never);
@@ -506,7 +498,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal(expected.Name, actual.TaskName);
     Assert.Equal((int)ProgressState.Moving, actual.TaskProgressId);
     Assert.Equal("Moving", actual.TaskProgressName);
-    Assert.Equal(expected.AutoTaskDetails.Count, actual.Waypoints.Count);
+    Assert.Equal(expected.AutoTaskDetails.Count, actual.Paths.Count);
     Assert.NotNull(actual.NextToken);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Never);
     mockTriggerService.Verify(m => m.InitialiseTriggerAsync(It.IsAny<AutoTask>(), It.IsAny<FlowDetail>()) , Times.Never);
@@ -547,7 +539,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal(expected.Name, actual.TaskName);
     Assert.Equal((int)ProgressState.Moving, actual.TaskProgressId);
     Assert.Equal("Moving", actual.TaskProgressName);
-    Assert.Equal(expected.AutoTaskDetails.Count, actual.Waypoints.Count);
+    Assert.Equal(expected.AutoTaskDetails.Count, actual.Paths.Count);
     Assert.NotNull(actual.NextToken);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Once);
     mockTriggerService.Verify(m => m.InitialiseTriggerAsync(expected, It.IsAny<FlowDetail>()) , Times.Once);
@@ -570,7 +562,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal(expected.Name, actual.TaskName);
     Assert.Equal((int)ProgressState.Moving, actual.TaskProgressId);
     Assert.Equal("Moving", actual.TaskProgressName);
-    Assert.Equal(expected.AutoTaskDetails.Count, actual.Waypoints.Count);
+    Assert.Equal(expected.AutoTaskDetails.Count, actual.Paths.Count);
     Assert.Equal(expected.NextToken, actual.NextToken);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Never);
     mockTriggerService.Verify(m => m.InitialiseTriggerAsync(expected, It.IsAny<FlowDetail>()) , Times.Never);
@@ -593,7 +585,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal(expected.Name, actual.TaskName);
     Assert.Equal((int)ProgressState.Moving, actual.TaskProgressId);
     Assert.Equal("Moving", actual.TaskProgressName);
-    Assert.Equal(expected.AutoTaskDetails.Count, actual.Waypoints.Count);
+    Assert.Equal(expected.AutoTaskDetails.Count, actual.Paths.Count);
     Assert.Empty(actual.NextToken);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Never);
     mockTriggerService.Verify(m => m.InitialiseTriggerAsync(expected, It.IsAny<FlowDetail>()) , Times.Never);
@@ -617,7 +609,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal((int)ProgressState.PreMoving, actual.TaskProgressId);
     Assert.Equal("PreMoving", actual.TaskProgressName);
     Assert.NotEqual(1, expected.AutoTaskDetails.Count);
-    Assert.Single(actual.Waypoints);
+    Assert.Single(actual.Paths);
     Assert.Equal(expected.NextToken, actual.NextToken);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Never);
     mockTriggerService.Verify(m => m.InitialiseTriggerAsync(expected, It.IsAny<FlowDetail>()) , Times.Never);
@@ -640,7 +632,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal(expected.Name, actual.TaskName);
     Assert.Equal((int)ProgressState.Aborted, actual.TaskProgressId);
     Assert.Equal("Aborted", actual.TaskProgressName);
-    Assert.Empty(actual.Waypoints);
+    Assert.Empty(actual.Paths);
     Assert.Empty(actual.NextToken);
     mockEmailService.Verify(m => m.SendAutoTaskAbortEmailAsync(expected!.Id, AutoTaskAbortReason.Robot), Times.Once);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -717,7 +709,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal(expected.Name, actual.TaskName);
     Assert.Equal((int)ProgressState.Completing, actual.TaskProgressId);
     Assert.Equal("Completing", actual.TaskProgressName);
-    Assert.Empty(actual.Waypoints);
+    Assert.Empty(actual.Paths);
     Assert.NotEqual(expectedNextToken, actual.NextToken);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Once);
   }
@@ -739,7 +731,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal(expected.Name, actual.TaskName);
     Assert.Equal((int)ProgressState.Completed, actual.TaskProgressId);
     Assert.Equal("Completed", actual.TaskProgressName);
-    Assert.Empty(actual.Waypoints);
+    Assert.Empty(actual.Paths);
     Assert.Empty(actual.NextToken);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Once);
   }
@@ -811,7 +803,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal(expected.Name, actual.TaskName);
     Assert.Equal((int)ProgressState.Moving, actual.TaskProgressId);
     Assert.Equal("Moving", actual.TaskProgressName);
-    Assert.Equal(expected.AutoTaskDetails.Count, actual.Waypoints.Count);
+    Assert.Equal(expected.AutoTaskDetails.Count, actual.Paths.Count);
     Assert.Equal(expected.NextToken, actual.NextToken);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Once);
   }

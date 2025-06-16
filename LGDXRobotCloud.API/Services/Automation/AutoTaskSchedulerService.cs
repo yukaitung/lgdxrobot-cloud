@@ -106,7 +106,7 @@ public class AutoTaskSchedulerService(
         TaskName = task.Name ?? string.Empty,
         TaskProgressId = task.CurrentProgressId,
         TaskProgressName = progress!.Name ?? string.Empty,
-        Waypoints = { },
+        Paths = { },
         NextToken = string.Empty,
       };
     }
@@ -120,10 +120,10 @@ public class AutoTaskSchedulerService(
       await _triggerService.InitialiseTriggerAsync(task, flowDetail);
     }
 
-    List<RobotClientsDof> waypoints = [];
+    List<RobotClientsPath> paths = [];
     try
     {
-      waypoints = await _autoTaskPathPlanner.GeneratePath(task);
+      paths = await _autoTaskPathPlanner.GeneratePath(task);
     }
     catch (Exception)
     {
@@ -146,7 +146,7 @@ public class AutoTaskSchedulerService(
       TaskName = task.Name ?? string.Empty,
       TaskProgressId = task.CurrentProgressId,
       TaskProgressName = progress!.Name ?? string.Empty,
-      Waypoints = { waypoints },
+      Paths = { paths },
       NextToken = nextToken,
     };
   }

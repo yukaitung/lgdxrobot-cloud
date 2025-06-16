@@ -9,7 +9,7 @@ namespace LGDXRobotCloud.API.Services.Automation;
 
 public interface IAutoTaskPathPlannerService
 {
-  Task<List<RobotClientsDof>> GeneratePath(AutoTask autoTask);
+  Task<List<RobotClientsPath>> GeneratePath(AutoTask autoTask);
 }
 
 public class AutoTaskPathPlannerService (
@@ -136,7 +136,7 @@ public class AutoTaskPathPlannerService (
     }
   }
 
-  public async Task<List<RobotClientsDof>> GeneratePath(AutoTask autoTask)
+  public async Task<List<RobotClientsPath>> GeneratePath(AutoTask autoTask)
   {
     var realmId = autoTask.RealmId;
     var hasWaypointsTrafficControl = context.Realms.AsNoTracking()
@@ -144,7 +144,7 @@ public class AutoTaskPathPlannerService (
       .Select(r => r.HasWaypointsTrafficControl)
       .FirstOrDefault();
 
-    List<RobotClientsDof> waypoints = [];
+    List<RobotClientsPath> paths = [];
     List<AutoTaskDetail> taskDetails = [];
     if (autoTask.CurrentProgressId == (int)ProgressState.PreMoving)
     {
@@ -203,32 +203,35 @@ public class AutoTaskPathPlannerService (
       {
         var start = taskDetails[i - 1];
         var end = taskDetails[i];
-        var path = PathPlanning(start, end, waypointsTraffic);
+        var planningPath = PathPlanning(start, end, waypointsTraffic);
 
         // Use custom waypoint for end
-        var pathEnd = path.Last();
+        var planningPathEnd = planningPath.Last();
         if (end.CustomX != null)
         {
-          pathEnd.X = (double)end.CustomX;
+          planningPathEnd.X = (double)end.CustomX;
         }
         if (end.CustomY != null)
         {
-          pathEnd.Y = (double)end.CustomY;
+          planningPathEnd.Y = (double)end.CustomY;
         }
         if (end.CustomRotation != null)
         {
-          pathEnd.Rotation = (double)end.CustomRotation;
+          planningPathEnd.Rotation = (double)end.CustomRotation;
         }
-        path.RemoveAt(path.Count - 1);
-        path.Add(pathEnd);
+        planningPath.RemoveAt(planningPath.Count - 1);
+        planningPath.Add(planningPathEnd);
 
         // Add waypoints
         if (i != 1)
         {
           // Remove the first waypoint because it is the same as the previous waypoint
-          path.RemoveAt(0);
+          planningPath.RemoveAt(0);
         }
-        waypoints.AddRange(path);
+        paths.Add(new RobotClientsPath
+        {
+          Waypoints = { planningPath }
+        });
       }
     }
     else
@@ -236,9 +239,12 @@ public class AutoTaskPathPlannerService (
       // No waypoints traffic control, just return the waypoints
       foreach (var t in taskDetails)
       {
-        waypoints.Add(GenerateWaypoint(t));
+        paths.Add(new RobotClientsPath
+        {
+          Waypoints = { GenerateWaypoint(t) }
+        });
       }
     }
-    return waypoints;
+    return paths;
   }
 }

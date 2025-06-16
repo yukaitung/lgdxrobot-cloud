@@ -18,6 +18,10 @@ enum RobotClientsResultStatus {
   Failed = 1;
 }
 
+message RobotClientsPath {
+  repeated RobotClientsDof Waypoints = 1;
+}
+
 message RobotClientsDof {
   double X = 1;
   double Y = 2;
@@ -36,7 +40,7 @@ message RobotClientsAutoTask {
   string TaskName = 2;
   int32 TaskProgressId = 3;
   string TaskProgressName = 4;
-  repeated RobotClientsDof Waypoints = 5;
+  repeated RobotClientsPath Paths = 5;
   string NextToken = 6;
 }
 
