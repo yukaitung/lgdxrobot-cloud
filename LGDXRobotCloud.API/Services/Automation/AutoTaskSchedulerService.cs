@@ -128,7 +128,7 @@ public class AutoTaskSchedulerService(
     catch (Exception)
     {
       await AutoTaskAbortSqlAsync(task.Id);
-      await _emailService.SendAutoTaskAbortEmailAsync((Guid)task.AssignedRobotId!, task.Id, AutoTaskAbortReason.PathPlanner);
+      await _emailService.SendAutoTaskAbortEmailAsync(task.Id, AutoTaskAbortReason.PathPlanner);
       await AddAutoTaskJourney(task);
       return new RobotClientsAutoTask
       {
@@ -308,7 +308,7 @@ public class AutoTaskSchedulerService(
     if (task != null)
     {
       await DeleteTriggerRetries(taskId);
-      await _emailService.SendAutoTaskAbortEmailAsync(robotId, taskId, autoTaskAbortReason);
+      await _emailService.SendAutoTaskAbortEmailAsync(taskId, autoTaskAbortReason);
       await AddAutoTaskJourney(task);
     }
     return await GenerateTaskDetail(task);
@@ -321,7 +321,7 @@ public class AutoTaskSchedulerService(
       return false;
       
     await DeleteTriggerRetries(taskId);
-    await _emailService.SendAutoTaskAbortEmailAsync((Guid)task!.AssignedRobotId!, taskId, AutoTaskAbortReason.UserApi);
+    await _emailService.SendAutoTaskAbortEmailAsync(taskId, AutoTaskAbortReason.UserApi);
     await AddAutoTaskJourney(task);
     return true;
   }

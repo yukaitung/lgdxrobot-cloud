@@ -600,7 +600,7 @@ public class AutoTaskSchedulerServiceTests
     Assert.Equal("Aborted", actual.TaskProgressName);
     Assert.Empty(actual.Waypoints);
     Assert.Empty(actual.NextToken);
-    mockEmailService.Verify(m => m.SendAutoTaskAbortEmailAsync(robotId, expected!.Id, AutoTaskAbortReason.Robot), Times.Once);
+    mockEmailService.Verify(m => m.SendAutoTaskAbortEmailAsync(expected!.Id, AutoTaskAbortReason.Robot), Times.Once);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Once);
   }
 
@@ -618,7 +618,7 @@ public class AutoTaskSchedulerServiceTests
 
     // Assert
     Assert.Null(actual);
-    mockEmailService.Verify(m => m.SendAutoTaskAbortEmailAsync(robotId, expected!.Id, AutoTaskAbortReason.Robot), Times.Never);
+    mockEmailService.Verify(m => m.SendAutoTaskAbortEmailAsync(expected!.Id, AutoTaskAbortReason.Robot), Times.Never);
     mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdateContract>(), It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -636,7 +636,7 @@ public class AutoTaskSchedulerServiceTests
 
     // Assert
     Assert.True(actual);
-    mockEmailService.Verify(m => m.SendAutoTaskAbortEmailAsync(robotId, expected!.Id, AutoTaskAbortReason.UserApi), Times.Once);
+    mockEmailService.Verify(m => m.SendAutoTaskAbortEmailAsync(expected!.Id, AutoTaskAbortReason.UserApi), Times.Once);
   }
 
   [Fact]
