@@ -58,6 +58,8 @@
           return "Aborted by robot";
         case (int)AutoTaskAbortReason.NavStack:
           return "Task rejected by NAV stack";
+        case (int)AutoTaskAbortReason.PathPlanner:
+          return "Path planning failed";
         default:
           return string.Empty;
       }

@@ -120,7 +120,26 @@ public class AutoTaskSchedulerService(
       await _triggerService.InitialiseTriggerAsync(task, flowDetail);
     }
 
-    List<RobotClientsDof> waypoints = await _autoTaskPathPlanner.GeneratePath(task);
+    List<RobotClientsDof> waypoints = [];
+    try
+    {
+      waypoints = await _autoTaskPathPlanner.GeneratePath(task);
+    }
+    catch (Exception)
+    {
+      await AutoTaskAbortSqlAsync(task.Id);
+      await _emailService.SendAutoTaskAbortEmailAsync((Guid)task.AssignedRobotId!, task.Id, AutoTaskAbortReason.PathPlanner);
+      await AddAutoTaskJourney(task);
+      return new RobotClientsAutoTask
+      {
+        TaskId = task.Id,
+        TaskName = task.Name ?? string.Empty,
+        TaskProgressId = task.CurrentProgressId,
+        TaskProgressName = progress!.Name ?? string.Empty,
+        Waypoints = { },
+        NextToken = string.Empty,
+      };
+    }
 
     string nextToken = task.NextToken ?? string.Empty;
     if (flowDetail?.AutoTaskNextControllerId != (int)AutoTaskNextController.Robot)
