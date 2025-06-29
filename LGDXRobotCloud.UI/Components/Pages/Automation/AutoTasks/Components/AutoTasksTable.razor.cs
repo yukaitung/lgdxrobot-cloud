@@ -141,6 +141,7 @@ public sealed partial class AutoTasksTable : AbstractTable
   {
     if (args != null)
     {
+      CurrentPage = 1;
       if (int.TryParse(args.ToString()!, out int category))
       {
         AutoTaskCatrgory = (AutoTaskCatrgory)category;
