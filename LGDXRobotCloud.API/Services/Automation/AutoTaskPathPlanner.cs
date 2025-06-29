@@ -222,12 +222,6 @@ public class AutoTaskPathPlannerService (
         planningPath.RemoveAt(planningPath.Count - 1);
         planningPath.Add(planningPathEnd);
 
-        // Add waypoints
-        if (i != 1)
-        {
-          // Remove the first waypoint because it is the same as the previous waypoint
-          planningPath.RemoveAt(0);
-        }
         paths.Add(new RobotClientsPath
         {
           Waypoints = { planningPath }
