@@ -80,7 +80,7 @@ public class RobotCertificateService(
         ?? throw new LgdxNotFound404Exception();
   }
 
-  private async Task<CertificateDetail> GenerateRobotCertificateAsync(Guid robotId)
+  private CertificateDetail GenerateRobotCertificate(Guid robotId)
   {
     X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
     store.Open(OpenFlags.OpenExistingOnly);
@@ -92,13 +92,6 @@ public class RobotCertificateService(
     var rsa = RSA.Create();
     var certificateRequest = new CertificateRequest("CN=LGDXRobot Cloud Robot Certificate for " + robotId.ToString() + ",OID.0.9.2342.19200300.100.1.1=" + robotId.ToString(), rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
     var certificate = certificateRequest.Create(rootCertificate, certificateNotBefore, certificateNotAfter, RandomNumberGenerator.GetBytes(20));
-    
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
-    {
-      EntityName = nameof(Robot),
-      EntityId = robotId.ToString(),
-      Action = ActivityAction.RobotCertificateRenew
-    });
 
     return new CertificateDetail
     {
@@ -113,8 +106,17 @@ public class RobotCertificateService(
 
   public async Task<RobotCertificateIssueBusinessModel> IssueRobotCertificateAsync(Guid robotId)
   {
-    var certificate = await GenerateRobotCertificateAsync(robotId);
-    return new RobotCertificateIssueBusinessModel {
+    var certificate = GenerateRobotCertificate(robotId);
+    
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Robot),
+      EntityId = robotId.ToString(),
+      Action = ActivityAction.RobotCertificateCreate
+    });
+
+    return new RobotCertificateIssueBusinessModel
+    {
       RootCertificate = certificate.RootCertificate,
       RobotCertificatePrivateKey = certificate.RobotCertificatePrivateKey,
       RobotCertificatePublicKey = certificate.RobotCertificatePublicKey,
@@ -131,37 +133,45 @@ public class RobotCertificateService(
       .FirstOrDefault() 
         ?? throw new LgdxNotFound404Exception();
 
-      var newCertificate = await GenerateRobotCertificateAsync(certificate.RobotId);
-      if (robotCertificateRenewRequestBusinessModel.RevokeOldCertificate)
-      {
-        certificate.ThumbprintBackup = null;
-      }
-      else
-      {
-        certificate.ThumbprintBackup = certificate.Thumbprint;
-      }
-      certificate.Thumbprint = newCertificate.RobotCertificateThumbprint;
-      certificate.NotBefore = DateTime.SpecifyKind(newCertificate.RobotCertificateNotBefore, DateTimeKind.Utc);
-      certificate.NotAfter = DateTime.SpecifyKind(newCertificate.RobotCertificateNotAfter, DateTimeKind.Utc);
-      await _context.SaveChangesAsync();
-
-      var robot = await _context.Robots.AsNoTracking()
-        .Where(r => r.Id == certificate.RobotId)
-        .Select(r => new {
-          r.Id,
-          r.Name
-        })
-        .FirstOrDefaultAsync()
-          ?? throw new LgdxNotFound404Exception();
-      
-      return new RobotCertificateRenewBusinessModel {
-        RobotId = robot.Id,
-        RobotName = robot.Name,
-        RootCertificate = newCertificate.RootCertificate,
-        RobotCertificatePrivateKey = newCertificate.RobotCertificatePrivateKey,
-        RobotCertificatePublicKey = newCertificate.RobotCertificatePublicKey
-      };
+    var newCertificate = GenerateRobotCertificate(certificate.RobotId);
+    if (robotCertificateRenewRequestBusinessModel.RevokeOldCertificate)
+    {
+      certificate.ThumbprintBackup = null;
     }
+    else
+    {
+      certificate.ThumbprintBackup = certificate.Thumbprint;
+    }
+    certificate.Thumbprint = newCertificate.RobotCertificateThumbprint;
+    certificate.NotBefore = DateTime.SpecifyKind(newCertificate.RobotCertificateNotBefore, DateTimeKind.Utc);
+    certificate.NotAfter = DateTime.SpecifyKind(newCertificate.RobotCertificateNotAfter, DateTimeKind.Utc);
+    await _context.SaveChangesAsync();
+
+    var robot = await _context.Robots.AsNoTracking()
+      .Where(r => r.Id == certificate.RobotId)
+      .Select(r => new {
+        r.Id,
+        r.Name
+      })
+      .FirstOrDefaultAsync()
+        ?? throw new LgdxNotFound404Exception();
+        
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Robot),
+      EntityId = certificate.RobotId.ToString(),
+      Action = ActivityAction.RobotCertificateRenew
+    });
+    
+    return new RobotCertificateRenewBusinessModel
+    {
+      RobotId = robot.Id,
+      RobotName = robot.Name,
+      RootCertificate = newCertificate.RootCertificate,
+      RobotCertificatePrivateKey = newCertificate.RobotCertificatePrivateKey,
+      RobotCertificatePublicKey = newCertificate.RobotCertificatePublicKey
+    };
+  }
 
   public RootCertificateBusinessModel? GetRootCertificate()
   {
