@@ -3,10 +3,13 @@ using System.Security.Claims;
 using System.Text;
 using LGDXRobotCloud.API.Configurations;
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Identity;
+using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +28,7 @@ public interface IAuthService
 }
 
 public class AuthService(
+    IActivityLogService activityLogService,
     LgdxContext context,
     IEmailService emailService,
     IOptionsSnapshot<LgdxRobotCloudSecretConfiguration> lgdxRobotCloudSecretConfiguration,
@@ -32,6 +36,7 @@ public class AuthService(
     UserManager<LgdxUser> userManager
   ) : IAuthService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value ?? throw new ArgumentNullException(nameof(_lgdxRobotCloudSecretConfiguration));
@@ -136,10 +141,24 @@ public class AuthService(
     {
       if (loginResult.IsLockedOut)
       {
-        throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The account is lockedout.");
+        await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+        {
+          EntityName = nameof(LgdxUser),
+          EntityId = user.Id.ToString(),
+          Action = (int)ActivityAction.LoginFailed,
+          Note = "The account is locked out."
+        });
+        throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The account is locked out.");
       }
       else
       {
+        await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+        {
+          EntityName = nameof(LgdxUser),
+          EntityId = user.Id.ToString(),
+          Action = (int)ActivityAction.LoginFailed,
+          Note = "The username or password is invalid."
+        });
         throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The username or password is invalid.");
       }
     }
@@ -155,7 +174,14 @@ public class AuthService(
     {
       throw new LgdxIdentity400Expection(updateTokenResult.Errors);
     }
-    return new LoginResponseBusinessModel 
+    await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxUser),
+      EntityId = user.Id.ToString(),
+      Action = (int)ActivityAction.LoginSuccess,
+      UserId = Guid.Parse(user.Id)
+    });
+    return new LoginResponseBusinessModel
     {
       AccessToken = accessToken,
       RefreshToken = refreshToken,
@@ -171,21 +197,34 @@ public class AuthService(
     {
       var token = await _userManager.GeneratePasswordResetTokenAsync(user);
       await _emailService.SendPasswordResetEmailAsync(user.Email!, user.Name!, user.UserName!, token);
+      await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(LgdxUser),
+        EntityId = user.Id.ToString(),
+        Action = (int)ActivityAction.UserPasswordReset,
+      });
     }
     // For security reasons, we do not return a 404 status code.
   }
 
   public async Task ResetPasswordAsync(ResetPasswordRequestBusinessModel resetPasswordRequestBusinessModel)
   {
-    var user = await _userManager.FindByEmailAsync(resetPasswordRequestBusinessModel.Email) 
+    var user = await _userManager.FindByEmailAsync(resetPasswordRequestBusinessModel.Email)
       ?? throw new LgdxValidation400Expection(nameof(resetPasswordRequestBusinessModel.Token), "");
-       
+
     var result = await _userManager.ResetPasswordAsync(user, resetPasswordRequestBusinessModel.Token, resetPasswordRequestBusinessModel.NewPassword);
     if (!result.Succeeded)
     {
       throw new LgdxIdentity400Expection(result.Errors);
     }
     await _emailService.SendPasswordUpdateEmailAsync(user.Email!, user.Name!, user.UserName!);
+    await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxUser),
+      EntityId = user.Id.ToString(),
+      Action = (int)ActivityAction.UserPasswordUpdated,
+      UserId = Guid.Parse(user.Id)
+    });
   }
 
   public async Task<RefreshTokenResponseBusinessModel> RefreshTokenAsync(RefreshTokenRequestBusinessModel refreshTokenRequestBusinessModel)
@@ -248,6 +287,13 @@ public class AuthService(
       throw new LgdxIdentity400Expection(result.Errors);
     }
     await _emailService.SendPasswordUpdateEmailAsync(user.Email!, user.Name!, user.UserName!);
+    await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxUser),
+      EntityId = user.Id.ToString(),
+      Action = (int)ActivityAction.UserPasswordUpdated,
+      UserId = Guid.Parse(user.Id)
+    });
     return true;
   }
 }

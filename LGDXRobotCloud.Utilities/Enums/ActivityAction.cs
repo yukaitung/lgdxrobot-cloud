@@ -46,9 +46,6 @@ public enum ActivityAction
   [EnumMember(Value = "User Two-Factor Authentication Disabled")]
   UserTwoFactorAuthenticationDisabled = 55,
 
-  [EnumMember(Value = "User Two-Factor Authentication Recovery Used")]
-  UserTwoFactorAuthenticationRecoveryUsed = 56,
-
   // Robot Actions
   [EnumMember(Value = "Robot Certificate Create")]
   RobotCertificateCreate = 100,
