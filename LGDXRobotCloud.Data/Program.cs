@@ -4,28 +4,35 @@ using LGDXRobotCloud.Data.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContextPool<LgdxContext>(cfg => 
-  cfg.UseNpgsql(builder.Configuration["PGSQLConnectionString"])
+
+// Configure Database Connections
+builder.Services.AddDbContext<LgdxContext>(cfg => 
+  cfg.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
 	.LogTo(Console.WriteLine, LogLevel.Information)
 	.EnableSensitiveDataLogging()
 	.EnableDetailedErrors()
 );
 builder.Services.AddIdentity<LgdxUser, LgdxRole>()
   .AddEntityFrameworkStores<LgdxContext>();
+builder.Services.AddDbContext<ActivityContext>(cfg =>
+	cfg.UseNpgsql(builder.Configuration.GetConnectionString("Activity"))
+	.LogTo(Console.WriteLine, LogLevel.Information)
+	.EnableSensitiveDataLogging()
+	.EnableDetailedErrors()
+);
 
 var app = builder.Build();
-bool initializeData = bool.Parse(builder.Configuration["initialiseData"] ?? "false");
-if (initializeData) 
+// Initialize Data
+if (bool.Parse(builder.Configuration["initialiseData"] ?? "false"))
 {
-	// Check connfig
+	// Check configuration
 	if (string.IsNullOrEmpty(builder.Configuration["email"]) ||
 		string.IsNullOrEmpty(builder.Configuration["fullName"]) ||
 		string.IsNullOrEmpty(builder.Configuration["userName"]) ||
 		string.IsNullOrEmpty(builder.Configuration["password"]))
 	{
-		Console.WriteLine("Please provide the following configurations for the first user: Email, Full Name, userName, password");
+		Console.WriteLine("Please provide the following details for the first user: email, full name, username, and password.");
 		Environment.Exit(1);
 	}
 
