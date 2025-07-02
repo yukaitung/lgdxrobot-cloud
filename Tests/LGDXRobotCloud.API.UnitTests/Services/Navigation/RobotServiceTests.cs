@@ -99,6 +99,7 @@ public class RobotServiceTests
     },
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly LgdxContext lgdxContext;
   private readonly Mock<IMemoryCache> mockMemoryCache = new();
   private readonly Mock<IRobotCertificateService> mockRobotCertificateService = new();
@@ -125,7 +126,7 @@ public class RobotServiceTests
   {
     // Arrange
     var expected = robots.Where(r => r.Name.Contains(robotName));
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var (actual, _) = await robotService.GetRobotsAsync(1, robotName, 1, robots.Count);
@@ -150,7 +151,7 @@ public class RobotServiceTests
     var expectedRobotChassisInfo = robotChassisInfos.Where(r => r.RobotId == RobotGuid).FirstOrDefault();
     var expectedAutoTask = autoTasks.Where(r => r.AssignedRobotId == RobotGuid).FirstOrDefault();
     
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var actual = await robotService.GetRobotAsync(RobotGuid);
@@ -197,7 +198,7 @@ public class RobotServiceTests
   public async Task GetRobotAsync_CalledWithInvalidId_ShouldThrowsNotFoundException()
   {
     // Arrange
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     Task act() => robotService.GetRobotAsync(Guid.Empty);
@@ -234,7 +235,7 @@ public class RobotServiceTests
       RobotCertificateNotAfter = DateTime.Now,
       RobotCertificateNotBefore = DateTime.Now
     });
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var actual = await robotService.CreateRobotAsync(expected);
@@ -264,7 +265,7 @@ public class RobotServiceTests
         BatteryMinVoltage = 1
       }
     };
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     Task act() => robotService.CreateRobotAsync(expected);
@@ -278,7 +279,7 @@ public class RobotServiceTests
   {
     // Arrange
     var expected = robots.Where(r => r.Id == RobotGuid2).FirstOrDefault();
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var actual = await robotService.TestDeleteRobotAsync(RobotGuid2);
@@ -292,7 +293,7 @@ public class RobotServiceTests
   {
     // Arrange
     var depeendencies = 1;
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     Task act() => robotService.TestDeleteRobotAsync(RobotGuid);
@@ -307,7 +308,7 @@ public class RobotServiceTests
   {
     // Arrange
     var expected = robotSystemInfos.Where(r => r.RobotId == RobotGuid).FirstOrDefault();
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var actual = await robotService.GetRobotSystemInfoAsync(RobotGuid);
@@ -341,7 +342,7 @@ public class RobotServiceTests
       Is32Bit = true,
       McuSerialNumber = "McuSerialNumber",
     };
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var actual = await robotService.CreateRobotSystemInfoAsync(RobotGuid, expected);
@@ -360,7 +361,7 @@ public class RobotServiceTests
   {
     // Arrange
     var expected = robots.Where(r => r.Name.Contains(name));
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var actual = await robotService.SearchRobotsAsync(1, name, null);
@@ -378,7 +379,7 @@ public class RobotServiceTests
     // Arrange
     var expected = realms.FirstOrDefault(r => r.Id == 1);
     var mmc = MockMemoryCacheService.GetMemoryCache(false);
-    var robotService = new RobotService(mmc.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mmc.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var actual = await robotService.GetRobotRealmIdAsync(RobotGuid);
@@ -393,7 +394,7 @@ public class RobotServiceTests
     // Arrange
     var expected = realms.FirstOrDefault(r => r.Id == 1);
     var mmc = MockMemoryCacheService.GetMemoryCache(expected!.Id);
-    var robotService = new RobotService(mmc.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mmc.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var actual = await robotService.GetRobotRealmIdAsync(RobotGuid);
@@ -407,7 +408,7 @@ public class RobotServiceTests
   {
     // Arrange
     var mmc = MockMemoryCacheService.GetMemoryCache(false);
-    var robotService = new RobotService(mmc.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mmc.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var actual = await robotService.GetRobotRealmIdAsync(Guid.Empty);
@@ -421,7 +422,7 @@ public class RobotServiceTests
   {
     // Arrange
     var expected = robots.Where(r => r.Id == RobotGuid).FirstOrDefault();
-    var robotService = new RobotService(mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
+    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
 
     // Act
     var actual = await robotService.GetRobotIsRealtimeExchange(RobotGuid);

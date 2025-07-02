@@ -34,11 +34,13 @@ public interface IRobotService
 }
 
 public class RobotService(
+    IActivityLogService activityLogService,
     IMemoryCache memoryCache,
     IRobotCertificateService robotCertificateService,
     LgdxContext context
   ) : IRobotService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IRobotCertificateService _robotCertificateService = robotCertificateService ?? throw new ArgumentNullException(nameof(robotCertificateService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -174,8 +176,16 @@ public class RobotService(
     };
     await _context.Robots.AddAsync(robot);
     await _context.SaveChangesAsync();
+    
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Robot),
+      EntityId = robot.Id.ToString(),
+      Action = ActivityAction.Create,
+    });
 
-    return new RobotCreateResponseBusinessModel {
+    return new RobotCreateResponseBusinessModel
+    {
       RobotId = robot.Id,
       RobotName = robot.Name,
       RootCertificate = robotCertificate.RootCertificate,
@@ -186,18 +196,29 @@ public class RobotService(
 
   public async Task<bool> UpdateRobotAsync(Guid id, RobotUpdateBusinessModel robotUpdateDtoBusinessModel)
   {
-    return await _context.Robots
+    bool result = await _context.Robots
       .Where(r => r.Id == id)
       .ExecuteUpdateAsync(setters => setters
         .SetProperty(r => r.Name, robotUpdateDtoBusinessModel.Name)
         .SetProperty(r => r.IsRealtimeExchange, robotUpdateDtoBusinessModel.IsRealtimeExchange)
         .SetProperty(r => r.IsProtectingHardwareSerialNumber, robotUpdateDtoBusinessModel.IsProtectingHardwareSerialNumber)
       ) == 1;
+
+    if (result)
+    {
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Robot),
+        EntityId = id.ToString(),
+        Action = ActivityAction.Update,
+      });
+    }
+    return result;
   }
 
   public async Task<bool> UpdateRobotChassisInfoAsync(Guid id, RobotChassisInfoUpdateBusinessModel robotChassisInfoUpdateBusinessModel)
   {
-    return await _context.RobotChassisInfos
+    bool result = await _context.RobotChassisInfos
       .Where(r => r.RobotId == id)
       .ExecuteUpdateAsync(setters => setters
         .SetProperty(r => r.RobotTypeId, robotChassisInfoUpdateBusinessModel.RobotTypeId)
@@ -209,6 +230,17 @@ public class RobotService(
         .SetProperty(r => r.BatteryMaxVoltage, robotChassisInfoUpdateBusinessModel.BatteryMaxVoltage)
         .SetProperty(r => r.BatteryMinVoltage, robotChassisInfoUpdateBusinessModel.BatteryMinVoltage)
       ) == 1;
+
+    if (result)
+    {
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Robot),
+        EntityId = id.ToString(),
+        Action = ActivityAction.Update,
+      });
+    }
+    return result;
   }
 
   public async Task<RobotChassisInfoBusinessModel?> GetRobotChassisInfoAsync(Guid robotId)
@@ -230,21 +262,32 @@ public class RobotService(
 
   public async Task<bool> TestDeleteRobotAsync(Guid id)
   {
-    var depeendencies = await _context.AutoTasks
+    var dependencies = await _context.AutoTasks
       .Where(t => t.AssignedRobotId == id)
       .Where(t => t.CurrentProgressId != (int)ProgressState.Completed && t.CurrentProgressId != (int)ProgressState.Aborted)
       .CountAsync();
-    if (depeendencies > 0)
+    if (dependencies > 0)
     {
-      throw new LgdxValidation400Expection(nameof(id), $"This robot has been used by {depeendencies} running/waiting/template tasks.");
+      throw new LgdxValidation400Expection(nameof(id), $"This robot has been used by {dependencies} running/waiting/template tasks.");
     }
     return true;
   }
 
   public async Task<bool> DeleteRobotAsync(Guid id)
   {
-    return await _context.Robots.Where(r => r.Id == id)
-      .ExecuteDeleteAsync() >= 1;
+    bool result = await _context.Robots.Where(r => r.Id == id)
+      .ExecuteDeleteAsync() == 1;
+
+    if (result)
+    {
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Robot),
+        EntityId = id.ToString(),
+        Action = ActivityAction.Delete,
+      });
+    }
+    return result;
   }
 
   public async Task<RobotSystemInfoBusinessModel?> GetRobotSystemInfoAsync(Guid robotId)
