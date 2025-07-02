@@ -10,6 +10,6 @@ public class ActivityLogConsumer(IActivityLogService activityLogService) : ICons
 
   public async Task Consume(ConsumeContext<ActivityLogContract> context)
   {
-    await _activityLogService.AddActivityLog(context.Message);
+    await _activityLogService.AddActivityLogAsync(context.Message);
   }
 }

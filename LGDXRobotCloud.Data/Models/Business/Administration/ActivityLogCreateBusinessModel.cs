@@ -8,9 +8,5 @@ public class ActivityLogCreateBusinessModel
 
   public required int Action { get; set; }
 
-  public Guid? UserId { get; set; }
-
-  public int? ApiKeyId { get; set; }
-
   public string? Note { get; set; }
 }

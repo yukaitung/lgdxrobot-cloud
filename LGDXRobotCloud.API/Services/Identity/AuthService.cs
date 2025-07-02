@@ -141,7 +141,7 @@ public class AuthService(
     {
       if (loginResult.IsLockedOut)
       {
-        await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+        await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
         {
           EntityName = nameof(LgdxUser),
           EntityId = user.Id.ToString(),
@@ -152,7 +152,7 @@ public class AuthService(
       }
       else
       {
-        await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+        await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
         {
           EntityName = nameof(LgdxUser),
           EntityId = user.Id.ToString(),
@@ -174,12 +174,11 @@ public class AuthService(
     {
       throw new LgdxIdentity400Expection(updateTokenResult.Errors);
     }
-    await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id.ToString(),
       Action = (int)ActivityAction.LoginSuccess,
-      UserId = Guid.Parse(user.Id)
     });
     return new LoginResponseBusinessModel
     {
@@ -197,7 +196,7 @@ public class AuthService(
     {
       var token = await _userManager.GeneratePasswordResetTokenAsync(user);
       await _emailService.SendPasswordResetEmailAsync(user.Email!, user.Name!, user.UserName!, token);
-      await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(LgdxUser),
         EntityId = user.Id.ToString(),
@@ -218,12 +217,11 @@ public class AuthService(
       throw new LgdxIdentity400Expection(result.Errors);
     }
     await _emailService.SendPasswordUpdateEmailAsync(user.Email!, user.Name!, user.UserName!);
-    await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id.ToString(),
       Action = (int)ActivityAction.UserPasswordUpdated,
-      UserId = Guid.Parse(user.Id)
     });
   }
 
@@ -287,12 +285,11 @@ public class AuthService(
       throw new LgdxIdentity400Expection(result.Errors);
     }
     await _emailService.SendPasswordUpdateEmailAsync(user.Email!, user.Name!, user.UserName!);
-    await _activityLogService.AddActivityLog(new ActivityLogCreateBusinessModel
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id.ToString(),
       Action = (int)ActivityAction.UserPasswordUpdated,
-      UserId = Guid.Parse(user.Id)
     });
     return true;
   }

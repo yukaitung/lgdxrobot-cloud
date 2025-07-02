@@ -25,7 +25,11 @@ public enum ActivityAction
   ExecuteTrigger = 11,
 
   [EnumMember(Value = "Read ApiKey Secret")]
-  ReadApiKeySecret = 12,
+  ApiKeySecretRead = 12,
+
+  [EnumMember(Value = "Update ApiKey Secret")]
+  ApiKeySecretUpdate = 13,
+
 
   // User Actions
   [EnumMember(Value = "Login Success")]
