@@ -1,6 +1,8 @@
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
 using MassTransit;
@@ -34,6 +36,7 @@ public interface IOnlineRobotsService
 }
 
 public class OnlineRobotsService(
+    IActivityLogService activityLogService,
     IBus bus,
     IEmailService emailService,
     IEventService eventService,
@@ -41,6 +44,7 @@ public class OnlineRobotsService(
     IRobotService robotService
   ) : IOnlineRobotsService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly IEventService _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
@@ -242,6 +246,13 @@ public class OnlineRobotsService(
       robotCommands.SoftwareEmergencyStop = enable;
       await SetRobotCommandsAsync(robotId, robotCommands);
       _eventService.RobotCommandsHasUpdated(robotId);
+
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Robot),
+        EntityId = robotId.ToString(),
+        Action = enable ? ActivityAction.RobotSoftwareEmergencyStopEnabled : ActivityAction.RobotSoftwareEmergencyStopDisabled,
+      });
       return true;
     }
     else 
@@ -258,6 +269,13 @@ public class OnlineRobotsService(
       robotCommands.PauseTaskAssigement = enable;
       await SetRobotCommandsAsync(robotId, robotCommands);
       _eventService.RobotCommandsHasUpdated(robotId);
+
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Robot),
+        EntityId = robotId.ToString(),
+        Action = enable ? ActivityAction.RobotPauseTaskAssignmentEnabled : ActivityAction.RobotPauseTaskAssignmentDisabled,
+      });
       return true;
     }
     else 

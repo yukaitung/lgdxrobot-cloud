@@ -70,14 +70,14 @@ public enum ActivityAction
   RobotCertificateRenew = 101,
 
   [EnumMember(Value = "Robot Stop Task Assignment")]
-  RobotStopTaskAssignment = 102,
+  RobotPauseTaskAssignmentEnabled = 102,
 
   [EnumMember(Value = "Robot Resume Task Assignment")]
-  RobotResumeTaskAssignment = 103,
+  RobotPauseTaskAssignmentDisabled = 103,
 
   [EnumMember(Value = "Robot Emergency Stop Enabled")]
-  RobotEmergencyStopEnabled = 104,
+  RobotSoftwareEmergencyStopEnabled = 104,
 
   [EnumMember(Value = "Robot Emergency Stop Disabled")]
-  RobotEmergencyStopDisabled = 105,
+  RobotSoftwareEmergencyStopDisabled = 105,
 }
