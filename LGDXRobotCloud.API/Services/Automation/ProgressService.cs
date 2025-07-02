@@ -1,7 +1,10 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Automation;
+using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +22,12 @@ public interface IProgressService
   Task<IEnumerable<ProgressSearchBusinessModel>> SearchProgressesAsync(string? name, bool reserved = false);
 }
 
-public class ProgressService(LgdxContext context) : IProgressService
+public class ProgressService(
+    IActivityLogService activityLogService,
+    LgdxContext context
+  ) : IProgressService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   public async Task<(IEnumerable<ProgressBusinessModel>, PaginationHelper)> GetProgressesAsync(string? name, int pageNumber, int pageSize, bool system)
@@ -69,7 +76,16 @@ public class ProgressService(LgdxContext context) : IProgressService
     };
     await _context.Progresses.AddAsync(progress);
     await _context.SaveChangesAsync();
-    return new ProgressBusinessModel {
+    
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Progress),
+      EntityId = progress.Id.ToString(),
+      Action = ActivityAction.Create,
+    });
+
+    return new ProgressBusinessModel
+    {
       Id = progress.Id,
       Name = progress.Name,
       System = progress.System,
@@ -88,7 +104,18 @@ public class ProgressService(LgdxContext context) : IProgressService
       throw new LgdxValidation400Expection(nameof(progressId), "Cannot update system progress.");
     }
     progress.Name = progressUpdateBusinessModel.Name;
-    return await _context.SaveChangesAsync() >= 1;
+    bool result = await _context.SaveChangesAsync() == 1;
+
+    if (result)
+    {
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Progress),
+        EntityId = progressId.ToString(),
+        Action = ActivityAction.Update,
+      });
+    }
+    return result;
   }
 
   public async Task<bool> TestDeleteProgressAsync(int progressId)
@@ -103,10 +130,10 @@ public class ProgressService(LgdxContext context) : IProgressService
       throw new LgdxValidation400Expection(nameof(progressId), $"Cannot delete system progress.");
     }
 
-    var depeendencies = await _context.FlowDetails.Where(t => t.ProgressId == progressId).CountAsync();
-    if (depeendencies > 0)
+    var dependencies = await _context.FlowDetails.Where(t => t.ProgressId == progressId).CountAsync();
+    if (dependencies > 0)
     {
-      throw new LgdxValidation400Expection(nameof(progressId), $"This progress has been used by {depeendencies} details in flows.");
+      throw new LgdxValidation400Expection(nameof(progressId), $"This progress has been used by {dependencies} details in flows.");
     }
     // Don't check AutoTasks because it dependes on the Flow/FlowDetails
 
@@ -126,8 +153,19 @@ public class ProgressService(LgdxContext context) : IProgressService
       throw new LgdxValidation400Expection(nameof(progressId), $"Cannot delete system progress.");
     }
 
-    return await _context.Progresses.Where(p => p.Id == progressId)
-      .ExecuteDeleteAsync() >= 1;
+    bool result = await _context.Progresses.Where(p => p.Id == progressId)
+      .ExecuteDeleteAsync() == 1;
+
+    if (result)
+    {
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Progress),
+        EntityId = progressId.ToString(),
+        Action = ActivityAction.Delete,
+      });
+    }
+    return result;
   }
 
   public async Task<IEnumerable<ProgressSearchBusinessModel>> SearchProgressesAsync(string? name, bool reserved)
