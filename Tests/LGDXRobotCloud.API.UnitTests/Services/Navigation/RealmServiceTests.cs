@@ -1,10 +1,12 @@
 using EntityFrameworkCore.Testing.Moq;
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.Utilities.Enums;
+using Moq;
 
 namespace LGDXRobotCloud.API.UnitTests.Services.Navigation;
 
@@ -87,6 +89,7 @@ public class RealmServiceTests
     }
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly LgdxContext lgdxContext;
 
   public RealmServiceTests()
@@ -108,7 +111,7 @@ public class RealmServiceTests
   {
     // Arrange
     var expected = realms.Where(r => r.Name.Contains(realmName));
-    var realmService = new RealmService(lgdxContext);
+    var realmService = new RealmService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var (actual, _) = await realmService.GetRealmsAsync(realmName, 1, realms.Count);
@@ -130,7 +133,7 @@ public class RealmServiceTests
     // Arrange
     int id = 1;
     var expected = realms.Where(r => r.Id == id).FirstOrDefault();
-    var realmService = new RealmService(lgdxContext);
+    var realmService = new RealmService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await realmService.GetRealmAsync(id);
@@ -151,7 +154,7 @@ public class RealmServiceTests
   {
     // Arrange
     var id = realms.Count + 1;
-    var realmService = new RealmService(lgdxContext);
+    var realmService = new RealmService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => realmService.GetRealmAsync(id);
@@ -165,7 +168,7 @@ public class RealmServiceTests
   {
     // Arrange
     var expected = realms.FirstOrDefault();
-    var realmService = new RealmService(lgdxContext);
+    var realmService = new RealmService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await realmService.GetDefaultRealmAsync();
@@ -195,7 +198,7 @@ public class RealmServiceTests
       OriginY = 0.2,
       OriginRotation = 3.14
     };
-    var realmService = new RealmService(lgdxContext);
+    var realmService = new RealmService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await realmService.CreateRealmAsync(expected);
@@ -215,7 +218,7 @@ public class RealmServiceTests
   {
     // Arrange
     int id = 1;
-    var realmService = new RealmService(lgdxContext);
+    var realmService = new RealmService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await realmService.TestDeleteRealmAsync(id);
@@ -230,7 +233,7 @@ public class RealmServiceTests
     // Arrange
     int dependencies = 1;
     int id = 2;
-    var realmService = new RealmService(lgdxContext);
+    var realmService = new RealmService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => realmService.TestDeleteRealmAsync(id);
@@ -246,7 +249,7 @@ public class RealmServiceTests
     // Arrange
     int dependencies = 1;
     int id = 3;
-    var realmService = new RealmService(lgdxContext);
+    var realmService = new RealmService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => realmService.TestDeleteRealmAsync(id);
@@ -262,7 +265,7 @@ public class RealmServiceTests
     // Arrange
     int dependencies = 1;
     int id = 4;
-    var realmService = new RealmService(lgdxContext);
+    var realmService = new RealmService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => realmService.TestDeleteRealmAsync(id);
@@ -281,7 +284,7 @@ public class RealmServiceTests
   {
     // Arrange
     var expected = realms.Where(p => p.Name.Contains(name));
-    var realmService = new RealmService(lgdxContext);
+    var realmService = new RealmService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await realmService.SearchRealmsAsync(name);

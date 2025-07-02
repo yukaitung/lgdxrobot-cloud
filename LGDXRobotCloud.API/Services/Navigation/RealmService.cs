@@ -1,6 +1,8 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
@@ -21,8 +23,12 @@ public interface IRealmService
   Task<IEnumerable<RealmSearchBusinessModel>> SearchRealmsAsync(string? name);
 }
 
-public class RealmService(LgdxContext context) : IRealmService
+public class RealmService(
+    IActivityLogService activityLogService,
+    LgdxContext context
+  ) : IRealmService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   public async Task<(IEnumerable<RealmListBusinessModel>, PaginationHelper)> GetRealmsAsync(string? name, int pageNumber, int pageSize)
@@ -102,8 +108,16 @@ public class RealmService(LgdxContext context) : IRealmService
 
     await _context.Realms.AddAsync(realm);
     await _context.SaveChangesAsync();
+    
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Realm),
+      EntityId = realm.Id.ToString(),
+      Action = ActivityAction.Create,
+    });
 
-    return new RealmBusinessModel {
+    return new RealmBusinessModel
+    {
       Id = realm.Id,
       Name = realm.Name,
       Description = realm.Description,
@@ -118,7 +132,7 @@ public class RealmService(LgdxContext context) : IRealmService
 
   public async Task<bool> UpdateRealmAsync(int id, RealmUpdateBusinessModel updateModel)
   {
-    return await _context.Realms
+    bool result = await _context.Realms
       .Where(m => m.Id == id)
       .ExecuteUpdateAsync(setters => setters
         .SetProperty(m => m.Name, updateModel.Name)
@@ -130,35 +144,57 @@ public class RealmService(LgdxContext context) : IRealmService
         .SetProperty(m => m.OriginY, updateModel.OriginY)
         .SetProperty(m => m.OriginRotation, updateModel.OriginRotation)
       ) == 1;
+
+    if (result)
+    {
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Realm),
+        EntityId = id.ToString(),
+        Action = ActivityAction.Update,
+      });
+    }
+    return result;
   }
 
   public async Task<bool> TestDeleteRealmAsync(int id)
   {
-    var depeendencies = await _context.Robots.Where(m => m.RealmId == id).CountAsync();
-    if (depeendencies > 0)
+    var dependencies = await _context.Robots.Where(m => m.RealmId == id).CountAsync();
+    if (dependencies > 0)
     {
-      throw new LgdxValidation400Expection(nameof(id), $"This realm has been used by {depeendencies} robots.");
+      throw new LgdxValidation400Expection(nameof(id), $"This realm has been used by {dependencies} robots.");
     }
-    depeendencies = await _context.Waypoints.Where(m => m.RealmId == id).CountAsync();
-    if (depeendencies > 0)
+    dependencies = await _context.Waypoints.Where(m => m.RealmId == id).CountAsync();
+    if (dependencies > 0)
     {
-      throw new LgdxValidation400Expection(nameof(id), $"This realm has been used by {depeendencies} waypoints.");
+      throw new LgdxValidation400Expection(nameof(id), $"This realm has been used by {dependencies} waypoints.");
     }
-    depeendencies = await _context.AutoTasks
+    dependencies = await _context.AutoTasks
       .Where(m => m.RealmId == id)
       .Where(m => m.CurrentProgressId != (int)ProgressState.Completed && m.CurrentProgressId != (int)ProgressState.Aborted)
       .CountAsync();
-    if (depeendencies > 0)
+    if (dependencies > 0)
     {
-      throw new LgdxValidation400Expection(nameof(id), $"This realm has been used by {depeendencies} running/waiting/template tasks.");
+      throw new LgdxValidation400Expection(nameof(id), $"This realm has been used by {dependencies} running/waiting/template tasks.");
     }
     return true;
   }
 
   public async Task<bool> DeleteRealmAsync(int id)
   {
-    return await _context.Realms.Where(m => m.Id == id)
+    bool result = await _context.Realms.Where(m => m.Id == id)
       .ExecuteDeleteAsync() == 1;
+
+    if (result)
+    {
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Realm),
+        EntityId = id.ToString(),
+        Action = ActivityAction.Delete,
+      });
+    }
+    return result;
   }
 
   public async Task<IEnumerable<RealmSearchBusinessModel>> SearchRealmsAsync(string? name)
