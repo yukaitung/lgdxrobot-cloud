@@ -36,6 +36,9 @@ public enum ActivityAction
   [EnumMember(Value = "Manual Abort AutoTask")]
   AutoTaskManualAbort = 15,
 
+  [EnumMember(Value = "Traffic Updated")]
+  RealmTrafficUpdated = 16,
+
 
   // User Actions
   [EnumMember(Value = "Login Success")]
