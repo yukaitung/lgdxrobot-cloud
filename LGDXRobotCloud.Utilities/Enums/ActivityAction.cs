@@ -30,6 +30,9 @@ public enum ActivityAction
   [EnumMember(Value = "Update ApiKey Secret")]
   ApiKeySecretUpdate = 13,
 
+  [EnumMember(Value = "Manual Abort AutoTask")]
+  AutoTaskManualAbort = 14,
+
 
   // User Actions
   [EnumMember(Value = "Login Success")]

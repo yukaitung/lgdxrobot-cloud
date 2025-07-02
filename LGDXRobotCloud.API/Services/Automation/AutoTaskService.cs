@@ -1,8 +1,10 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.Utilities.Enums;
@@ -29,19 +31,21 @@ public interface IAutoTaskService
 }
 
 public class AutoTaskService(
-    LgdxContext context,
+    IActivityLogService activityLogService,
     IAutoTaskSchedulerService autoTaskSchedulerService,
     IBus bus,
     IEventService eventService,
     IMemoryCache memoryCache,
-    IOnlineRobotsService onlineRobotsService
+    IOnlineRobotsService onlineRobotsService,
+    LgdxContext context
   ) : IAutoTaskService
 {
-  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
-  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
+  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   public async Task<(IEnumerable<AutoTaskListBusinessModel>, PaginationHelper)> GetAutoTasksAsync(int? realmId, string? name, AutoTaskCatrgory? autoTaskCatrgory, int pageNumber = 1, int pageSize = 10)
   {
@@ -313,6 +317,13 @@ public class AutoTaskService(
       await _bus.Publish(autoTaskBusinessModel.ToContract());
     }
 
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(AutoTask),
+      EntityId = autoTaskBusinessModel.Id.ToString(),
+      Action = ActivityAction.Create,
+    });
+
     return autoTaskBusinessModel;
   }
 
@@ -376,6 +387,14 @@ public class AutoTaskService(
       WaypointId = td.WaypointId,
     }).ToList();
     await _context.SaveChangesAsync();
+
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(AutoTask),
+      EntityId = autoTaskId.ToString(),
+      Action = ActivityAction.Update,
+    });
+
     return true;
   }
 
@@ -393,6 +412,13 @@ public class AutoTaskService(
     _context.AutoTasks.Remove(autoTask);
     await _context.SaveChangesAsync();
 
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(AutoTask),
+      EntityId = autoTaskId.ToString(),
+      Action = ActivityAction.Delete,
+    });
+
     return true;
   }
 
@@ -409,6 +435,14 @@ public class AutoTaskService(
     {
       throw new LgdxValidation400Expection(nameof(autoTaskId), "Cannot abort the task not in running status.");
     }
+
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(AutoTask),
+      EntityId = autoTaskId.ToString(),
+      Action = ActivityAction.AutoTaskManualAbort,
+    });
+
     if (autoTask.CurrentProgressId != (int)ProgressState.Waiting &&
         autoTask.AssignedRobotId != null &&
         await _onlineRobotsService.SetAbortTaskAsync((Guid)autoTask.AssignedRobotId!, true))
