@@ -1,5 +1,6 @@
 using EntityFrameworkCore.Testing.Moq;
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Automation;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
@@ -63,6 +64,7 @@ public class TriggerRetryServiceTests
     }
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly Mock<ITriggerService> mockTriggerService = new();
   private readonly LgdxContext lgdxContext;
 
@@ -80,7 +82,7 @@ public class TriggerRetryServiceTests
   {
     // Arrange
     var expected = triggerRetries;
-    var triggerRetryService = new TriggerRetryService(mockTriggerService.Object, lgdxContext);
+    var triggerRetryService = new TriggerRetryService(mockActivityLogService.Object,mockTriggerService.Object, lgdxContext);
 
     // Act
     var (actual, _) = await triggerRetryService.GetTriggerRetriesAsync(1, triggerRetries.Count);
@@ -102,7 +104,7 @@ public class TriggerRetryServiceTests
     // Arrange
     int id = 1;
     var expected = triggerRetries.Where(t => t.Id == id).FirstOrDefault();
-    var triggerRetryService = new TriggerRetryService(mockTriggerService.Object, lgdxContext);
+    var triggerRetryService = new TriggerRetryService(mockActivityLogService.Object,mockTriggerService.Object, lgdxContext);
 
     // Act
     var actual = await triggerRetryService.GetTriggerRetryAsync(id);
@@ -120,7 +122,7 @@ public class TriggerRetryServiceTests
   {
     // Arrange
     int id = triggerRetries.Count + 1;
-    var triggerRetryService = new TriggerRetryService(mockTriggerService.Object, lgdxContext);
+    var triggerRetryService = new TriggerRetryService(mockActivityLogService.Object,mockTriggerService.Object, lgdxContext);
 
     // Act
     Task act() => triggerRetryService.GetTriggerRetryAsync(id);
@@ -134,7 +136,7 @@ public class TriggerRetryServiceTests
   {
     // Arrange
     int id = 1;
-    var triggerRetryService = new TriggerRetryService(mockTriggerService.Object, lgdxContext);
+    var triggerRetryService = new TriggerRetryService(mockActivityLogService.Object,mockTriggerService.Object, lgdxContext);
 
     // Act
     await triggerRetryService.RetryTriggerRetryAsync(id);
@@ -148,7 +150,7 @@ public class TriggerRetryServiceTests
   {
     // Arrange
     int id = triggerRetries.Count + 1;
-    var triggerRetryService = new TriggerRetryService(mockTriggerService.Object, lgdxContext);
+    var triggerRetryService = new TriggerRetryService(mockActivityLogService.Object,mockTriggerService.Object, lgdxContext);
 
     // Act
     Task act() => triggerRetryService.RetryTriggerRetryAsync(id);

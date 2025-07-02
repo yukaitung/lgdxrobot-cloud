@@ -22,16 +22,19 @@ public enum ActivityAction
   SendEmail = 10,
 
   [EnumMember(Value = "Execute Trigger")]
-  ExecuteTrigger = 11,
+  TriggerExecute = 11,
+
+  [EnumMember(Value = "Retry Trigger")]
+  TriggerRetry = 12,
 
   [EnumMember(Value = "Read ApiKey Secret")]
-  ApiKeySecretRead = 12,
+  ApiKeySecretRead = 13,
 
   [EnumMember(Value = "Update ApiKey Secret")]
-  ApiKeySecretUpdate = 13,
+  ApiKeySecretUpdate = 14,
 
   [EnumMember(Value = "Manual Abort AutoTask")]
-  AutoTaskManualAbort = 14,
+  AutoTaskManualAbort = 15,
 
 
   // User Actions
