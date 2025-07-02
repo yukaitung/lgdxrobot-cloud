@@ -1,9 +1,12 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobotCloud.API.Services.Automation;
@@ -20,8 +23,12 @@ public interface IFlowService
   Task<IEnumerable<FlowSearchBusinessModel>> SearchFlowsAsync(string? name);
 }
 
-public class FlowService(LgdxContext context) : IFlowService
+public class FlowService(
+    IActivityLogService activityLogService,
+    LgdxContext context
+  ) : IFlowService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   public async Task<(IEnumerable<FlowListBusinessModel>, PaginationHelper)> GetFlowsAsync(string? name, int pageNumber, int pageSize)
@@ -114,11 +121,20 @@ public class FlowService(LgdxContext context) : IFlowService
     };
     await _context.Flows.AddAsync(flow);
     await _context.SaveChangesAsync();
+    
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Flow),
+      EntityId = flow.Id.ToString(),
+      Action = ActivityAction.Create,
+    });
 
-    return new FlowBusinessModel {
+    return new FlowBusinessModel
+    {
       Id = flow.Id,
       Name = flow.Name,
-      FlowDetails = flow.FlowDetails.Select(fd => new FlowDetailBusinessModel {
+      FlowDetails = flow.FlowDetails.Select(fd => new FlowDetailBusinessModel
+      {
         Id = fd.Id,
         Order = fd.Order,
         ProgressId = fd.ProgressId,
@@ -162,26 +178,45 @@ public class FlowService(LgdxContext context) : IFlowService
         TriggerId = fd.TriggerId,
       }).ToList();
     await _context.SaveChangesAsync();
+
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Flow),
+      EntityId = flowId.ToString(),
+      Action = ActivityAction.Update,
+    });
+
     return true;
   }
 
   public async Task<bool> TestDeleteFlowAsync(int flowId)
   {
-    var depeendencies = await _context.AutoTasks
+    var dependencies = await _context.AutoTasks
       .Where(a => a.FlowId == flowId)
       .Where(a => a.CurrentProgressId != (int)ProgressState.Completed && a.CurrentProgressId != (int)ProgressState.Aborted)
       .CountAsync();
-    if (depeendencies > 0)
+    if (dependencies > 0)
     {
-      throw new LgdxValidation400Expection(nameof(flowId), $"This flow has been used by {depeendencies} running/waiting/template tasks.");
+      throw new LgdxValidation400Expection(nameof(flowId), $"This flow has been used by {dependencies} running/waiting/template tasks.");
     }
     return true;
   }
 
   public async Task<bool> DeleteFlowAsync(int flowId)
   {
-    return await _context.Flows.Where(f => f.Id == flowId)
-      .ExecuteDeleteAsync() >= 1;
+    var result = await _context.Flows.Where(f => f.Id == flowId)
+      .ExecuteDeleteAsync() == 1;
+
+    if (result)
+    {
+      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Flow),
+        EntityId = flowId.ToString(),
+        Action = ActivityAction.Delete,
+      });
+    }
+    return result;
   }
 
   public async Task<IEnumerable<FlowSearchBusinessModel>> SearchFlowsAsync(string? name)
