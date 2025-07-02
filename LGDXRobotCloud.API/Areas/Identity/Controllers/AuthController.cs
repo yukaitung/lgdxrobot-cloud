@@ -1,12 +1,9 @@
-using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Identity;
 using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Identity;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Responses;
 using LGDXRobotCloud.Utilities.Constants;
-using LGDXRobotCloud.Utilities.Enums;
-using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,11 +14,9 @@ namespace LGDXRobotCloud.API.Areas.Identity.Controllers;
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificationScheme)]
 public sealed class AuthController(
-    IActivityLogService activityLogService,
     IAuthService authService
   ) : ControllerBase
 {
-  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly IAuthService _authService = authService ?? throw new ArgumentNullException(nameof(authService));
 
   [HttpPost("Login")]

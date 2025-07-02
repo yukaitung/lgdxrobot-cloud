@@ -220,7 +220,7 @@ public class AuthServiceTests
 
     // Assert
     var exception = await Assert.ThrowsAsync<LgdxValidation400Expection>(act);
-    Assert.Equal("The account is lockedout.", exception.Message);
+    Assert.Equal("The account is locked out.", exception.Message);
     mockUserManager.Verify(m => m.FindByNameAsync(It.IsAny<string>()), Times.Once);
     mockSignInManager.Verify(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true), Times.Once);
     mockSignInManager.Verify(m => m.TwoFactorAuthenticatorSignInAsync(It.IsAny<string>(), false, false), Times.Never);
