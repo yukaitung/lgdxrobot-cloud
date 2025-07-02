@@ -226,7 +226,7 @@ public class RobotServiceTests
         BatteryMinVoltage = 1
       }
     };
-    mockRobotCertificateService.Setup(m => m.IssueRobotCertificate(It.IsAny<Guid>())).Returns(new RobotCertificateIssueBusinessModel {
+    mockRobotCertificateService.Setup(m => m.IssueRobotCertificateAsync(It.IsAny<Guid>())).ReturnsAsync(new RobotCertificateIssueBusinessModel {
       RootCertificate = "RootCertificate",
       RobotCertificatePrivateKey = "RobotCertificatePrivateKey",
       RobotCertificatePublicKey = "RobotCertificatePublicKey",

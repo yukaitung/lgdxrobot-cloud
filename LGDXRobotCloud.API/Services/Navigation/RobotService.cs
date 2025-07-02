@@ -149,7 +149,7 @@ public class RobotService(
     }
 
     var id = Guid.CreateVersion7();
-    var robotCertificate = _robotCertificateService.IssueRobotCertificate(id);
+    var robotCertificate = await _robotCertificateService.IssueRobotCertificateAsync(id);
     var robot = new Robot {
       Id = id,
       Name = robotCreateBusinessModel.Name,

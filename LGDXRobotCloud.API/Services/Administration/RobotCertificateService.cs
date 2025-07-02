@@ -5,6 +5,7 @@ using LGDXRobotCloud.API.Exceptions;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
+using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,17 +16,19 @@ public interface IRobotCertificateService
 {
   Task<(IEnumerable<RobotCertificateListBusinessModel>, PaginationHelper)> GetRobotCertificatesAsync(int pageNumber, int pageSize);
   Task<RobotCertificateBusinessModel> GetRobotCertificateAsync(Guid robotCertificateId);
-  RobotCertificateIssueBusinessModel IssueRobotCertificate(Guid robotId);
+  Task<RobotCertificateIssueBusinessModel> IssueRobotCertificateAsync(Guid robotId);
   Task<RobotCertificateRenewBusinessModel> RenewRobotCertificateAsync(RobotCertificateRenewRequestBusinessModel robotCertificateRenewRequestBusinessModel);
 
   RootCertificateBusinessModel? GetRootCertificate();
 }
 
 public class RobotCertificateService(
-    LgdxContext context,
-    IOptionsSnapshot<LgdxRobotCloudConfiguration> options
+    IActivityLogService activityLogService,
+    IOptionsSnapshot<LgdxRobotCloudConfiguration> options,
+    LgdxContext context
   ) : IRobotCertificateService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService;
   private readonly LgdxContext _context = context;
   private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = options.Value;
 
@@ -77,7 +80,7 @@ public class RobotCertificateService(
         ?? throw new LgdxNotFound404Exception();
   }
 
-  private CertificateDetail GenerateRobotCertificate(Guid robotId)
+  private async Task<CertificateDetail> GenerateRobotCertificateAsync(Guid robotId)
   {
     X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
     store.Open(OpenFlags.OpenExistingOnly);
@@ -89,8 +92,16 @@ public class RobotCertificateService(
     var rsa = RSA.Create();
     var certificateRequest = new CertificateRequest("CN=LGDXRobot Cloud Robot Certificate for " + robotId.ToString() + ",OID.0.9.2342.19200300.100.1.1=" + robotId.ToString(), rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
     var certificate = certificateRequest.Create(rootCertificate, certificateNotBefore, certificateNotAfter, RandomNumberGenerator.GetBytes(20));
+    
+    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Robot),
+      EntityId = robotId.ToString(),
+      Action = ActivityAction.RobotCertificateRenew
+    });
 
-    return new CertificateDetail {
+    return new CertificateDetail
+    {
       RootCertificate = rootCertificate.ExportCertificatePem(),
       RobotCertificatePrivateKey = new string(PemEncoding.Write("PRIVATE KEY", rsa.ExportPkcs8PrivateKey())),
       RobotCertificatePublicKey = certificate.ExportCertificatePem(),
@@ -100,9 +111,9 @@ public class RobotCertificateService(
     };
   }
 
-  public RobotCertificateIssueBusinessModel IssueRobotCertificate(Guid robotId)
+  public async Task<RobotCertificateIssueBusinessModel> IssueRobotCertificateAsync(Guid robotId)
   {
-    var certificate = GenerateRobotCertificate(robotId);
+    var certificate = await GenerateRobotCertificateAsync(robotId);
     return new RobotCertificateIssueBusinessModel {
       RootCertificate = certificate.RootCertificate,
       RobotCertificatePrivateKey = certificate.RobotCertificatePrivateKey,
@@ -120,7 +131,7 @@ public class RobotCertificateService(
       .FirstOrDefault() 
         ?? throw new LgdxNotFound404Exception();
 
-      var newCertificate = GenerateRobotCertificate(certificate.RobotId);
+      var newCertificate = await GenerateRobotCertificateAsync(certificate.RobotId);
       if (robotCertificateRenewRequestBusinessModel.RevokeOldCertificate)
       {
         certificate.ThumbprintBackup = null;

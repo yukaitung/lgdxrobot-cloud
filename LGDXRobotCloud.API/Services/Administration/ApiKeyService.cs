@@ -93,7 +93,7 @@ public class ApiKeyService(
     {
       EntityName = nameof(ApiKey),
       EntityId = apiKeyId.ToString(),
-      Action = (int)ActivityAction.ApiKeySecretRead,
+      Action = ActivityAction.ApiKeySecretRead,
     });
       
     return apiKeySecret;
@@ -120,7 +120,7 @@ public class ApiKeyService(
     {
       EntityName = nameof(ApiKey),
       EntityId = apikey.Id.ToString(),
-      Action = (int)ActivityAction.Create,
+      Action = ActivityAction.Create,
     });
 
     return new ApiKeyBusinessModel
@@ -144,7 +144,7 @@ public class ApiKeyService(
       {
         EntityName = nameof(ApiKey),
         EntityId = apiKeyId.ToString(),
-        Action = (int)ActivityAction.Update,
+        Action = ActivityAction.Update,
       });
     }
     return result;
@@ -173,7 +173,7 @@ public class ApiKeyService(
       {
         EntityName = nameof(ApiKey),
         EntityId = apiKeyId.ToString(),
-        Action = (int)ActivityAction.ApiKeySecretUpdate,
+        Action = ActivityAction.ApiKeySecretUpdate,
       });
     }
     return result;
@@ -198,7 +198,7 @@ public class ApiKeyService(
       {
         EntityName = nameof(ApiKey),
         EntityId = apiKeyId.ToString(),
-        Action = (int)ActivityAction.Delete,
+        Action = ActivityAction.Delete,
       });
     }
     return result;

@@ -59,7 +59,7 @@ public sealed class EmailService (
     {
       EntityName = "Email",
       EntityId = emailContract.EmailType.ToString(),
-      Action = (int)ActivityAction.SendEmail,
+      Action = ActivityAction.SendEmail,
       Note = $"Number of receipients: {messages.Count()}"
     });
   }

@@ -1,3 +1,5 @@
+using LGDXRobotCloud.Utilities.Enums;
+
 namespace LGDXRobotCloud.Data.Models.Business.Administration;
 
 public class ActivityLogCreateBusinessModel
@@ -6,7 +8,7 @@ public class ActivityLogCreateBusinessModel
 
   public required string EntityId { get; set; }
 
-  public required int Action { get; set; }
+  public required ActivityAction Action { get; set; }
 
   public string? Note { get; set; }
 }

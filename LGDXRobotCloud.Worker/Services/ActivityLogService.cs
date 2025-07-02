@@ -21,7 +21,7 @@ partial class ActivityLogService(
     {
       EntityName = activityLogContract.EntityName,
       EntityId = activityLogContract.EntityId,
-      Action = activityLogContract.Action,
+      Action = (int)activityLogContract.Action,
       UserId = activityLogContract.UserId,
       ApiKeyId = activityLogContract.ApiKeyId,
       Note = activityLogContract.Note,

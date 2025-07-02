@@ -1,4 +1,5 @@
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using EntityFrameworkCore.Testing.Moq;
 using LGDXRobotCloud.API.Configurations;
 using LGDXRobotCloud.API.Exceptions;
@@ -59,6 +60,7 @@ public class RobotCertificateServiceTests
     }
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly LgdxContext lgdxContext;
   private readonly Mock<IOptionsSnapshot<LgdxRobotCloudConfiguration>> mockConfiguration;
   private readonly LgdxRobotCloudConfiguration lgdxRobotCloudConfiguration;
@@ -94,7 +96,7 @@ public class RobotCertificateServiceTests
   public async Task GetRobotCertificatesAsync_ShouldReturnLgdxRobotCertificates()
   {
     // Arrange
-    var robotCertificateService = new RobotCertificateService(lgdxContext, mockConfiguration.Object);
+    var robotCertificateService = new RobotCertificateService(mockActivityLogService.Object, mockConfiguration.Object, lgdxContext);
 
     // Act
     var (robotCertificates, _) = await robotCertificateService.GetRobotCertificatesAsync(0, 10);
@@ -116,7 +118,7 @@ public class RobotCertificateServiceTests
   {
     // Arrange
     Guid guid = Guid.Parse("105cc792-9a12-41e8-9f7d-666b4639fb14");
-    var robotCertificateService = new RobotCertificateService(lgdxContext, mockConfiguration.Object);
+    var robotCertificateService = new RobotCertificateService(mockActivityLogService.Object, mockConfiguration.Object, lgdxContext);
     var expected = robotCertificatesTestData.First(x => x.Id == guid);
 
     // Act
@@ -136,7 +138,7 @@ public class RobotCertificateServiceTests
   public async Task GetRobotCertificateAsync_CalledWithInvalidId_ShouldReturnLgdxNotFound404Exception()
   {
     // Arrange
-    var robotCertificateService = new RobotCertificateService(lgdxContext, mockConfiguration.Object);
+    var robotCertificateService = new RobotCertificateService(mockActivityLogService.Object, mockConfiguration.Object, lgdxContext);
 
     // Act
     Task act() => robotCertificateService.GetRobotCertificateAsync(Guid.Empty);
@@ -146,14 +148,14 @@ public class RobotCertificateServiceTests
   }
 
   [Fact]
-  public void IssueRobotCertificate_CalledWithRobotId_ShouldReturnRobotCertificate()
+  public async Task IssueRobotCertificate_CalledWithRobotId_ShouldReturnRobotCertificate()
   {
     // Arrange
     Guid guid = Guid.Parse("8b609e85-5865-472b-8ced-6c936ee5f127");
-    var robotCertificateService = new RobotCertificateService(lgdxContext, mockConfiguration.Object);
+    var robotCertificateService = new RobotCertificateService(mockActivityLogService.Object, mockConfiguration.Object, lgdxContext);
 
     // Act
-    var robotCertificate = robotCertificateService.IssueRobotCertificate(guid);
+    var robotCertificate = await robotCertificateService.IssueRobotCertificateAsync(guid);
 
     // Assert
     Assert.NotNull(robotCertificate);
@@ -170,7 +172,7 @@ public class RobotCertificateServiceTests
   {
     // Arrange
     Guid guid = Guid.Parse("105cc792-9a12-41e8-9f7d-666b4639fb14");
-    var robotCertificateService = new RobotCertificateService(lgdxContext, mockConfiguration.Object);
+    var robotCertificateService = new RobotCertificateService(mockActivityLogService.Object, mockConfiguration.Object, lgdxContext);
     var robotCertificateRenewRequestBusinessModel = new RobotCertificateRenewRequestBusinessModel()
     {
       CertificateId = guid,
@@ -199,7 +201,7 @@ public class RobotCertificateServiceTests
   {
       // Arrange
       Guid guid = Guid.Parse("105cc792-9a12-41e8-9f7d-666b4639fb14");
-      var robotCertificateService = new RobotCertificateService(lgdxContext, mockConfiguration.Object);
+      var robotCertificateService = new RobotCertificateService(mockActivityLogService.Object, mockConfiguration.Object, lgdxContext);
       var robotCertificateRenewRequestBusinessModel = new RobotCertificateRenewRequestBusinessModel()
       {
         CertificateId = guid,
@@ -227,7 +229,7 @@ public class RobotCertificateServiceTests
   public async Task RenewRobotCertificateAsync_CalledWithInvalidId_ShouldReturnLgdxNotFound404Exception()
   {
     // Arrange
-    var robotCertificateService = new RobotCertificateService(lgdxContext, mockConfiguration.Object);
+    var robotCertificateService = new RobotCertificateService(mockActivityLogService.Object, mockConfiguration.Object, lgdxContext);
     var robotCertificateRenewRequestBusinessModel = new RobotCertificateRenewRequestBusinessModel()
     {
       CertificateId = Guid.Empty,
@@ -245,7 +247,7 @@ public class RobotCertificateServiceTests
   public void GetRootCertificate_ShouldReturnRootCertificate()
   {
     // Arrange
-    var robotCertificateService = new RobotCertificateService(lgdxContext, mockConfiguration.Object);
+    var robotCertificateService = new RobotCertificateService(mockActivityLogService.Object, mockConfiguration.Object, lgdxContext);
 
     //Act
     var rootCertificate = robotCertificateService.GetRootCertificate();

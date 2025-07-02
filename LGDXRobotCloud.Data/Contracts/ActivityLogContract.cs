@@ -1,3 +1,5 @@
+using LGDXRobotCloud.Utilities.Enums;
+
 namespace LGDXRobotCloud.Data.Contracts;
 
 public record ActivityLogContract
@@ -6,7 +8,7 @@ public record ActivityLogContract
 
   public required string EntityId { get; set; }
 
-  public required int Action { get; set; }
+  public required ActivityAction Action { get; set; }
 
   public Guid? UserId { get; set; }
 

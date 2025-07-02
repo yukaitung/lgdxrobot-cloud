@@ -145,7 +145,7 @@ public class AuthService(
         {
           EntityName = nameof(LgdxUser),
           EntityId = user.Id.ToString(),
-          Action = (int)ActivityAction.LoginFailed,
+          Action = ActivityAction.LoginFailed,
           Note = "The account is locked out."
         });
         throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The account is locked out.");
@@ -156,7 +156,7 @@ public class AuthService(
         {
           EntityName = nameof(LgdxUser),
           EntityId = user.Id.ToString(),
-          Action = (int)ActivityAction.LoginFailed,
+          Action = ActivityAction.LoginFailed,
           Note = "The username or password is invalid."
         });
         throw new LgdxValidation400Expection(nameof(loginRequestBusinessModel.Username), "The username or password is invalid.");
@@ -178,7 +178,7 @@ public class AuthService(
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id.ToString(),
-      Action = (int)ActivityAction.LoginSuccess,
+      Action = ActivityAction.LoginSuccess,
     });
     return new LoginResponseBusinessModel
     {
@@ -200,7 +200,7 @@ public class AuthService(
       {
         EntityName = nameof(LgdxUser),
         EntityId = user.Id.ToString(),
-        Action = (int)ActivityAction.UserPasswordReset,
+        Action = ActivityAction.UserPasswordReset,
       });
     }
     // For security reasons, we do not return a 404 status code.
@@ -221,7 +221,7 @@ public class AuthService(
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id.ToString(),
-      Action = (int)ActivityAction.UserPasswordUpdated,
+      Action = ActivityAction.UserPasswordUpdated,
     });
   }
 
@@ -289,7 +289,7 @@ public class AuthService(
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id.ToString(),
-      Action = (int)ActivityAction.UserPasswordUpdated,
+      Action = ActivityAction.UserPasswordUpdated,
     });
     return true;
   }
