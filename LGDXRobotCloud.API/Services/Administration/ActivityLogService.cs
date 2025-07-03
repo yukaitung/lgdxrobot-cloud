@@ -7,7 +7,7 @@ namespace LGDXRobotCloud.API.Services.Administration;
 
 public interface IActivityLogService
 {
-  Task AddActivityLogAsync(ActivityLogCreateBusinessModel activityLogCreateBusinessMode);
+  Task CreateActivityLogAsync(ActivityLogCreateBusinessModel activityLogCreateBusinessMode);
 }
 
 public class ActivityLogService(
@@ -18,7 +18,7 @@ public class ActivityLogService(
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 
-  public async Task AddActivityLogAsync(ActivityLogCreateBusinessModel activityLogCreateBusinessModel)
+  public async Task CreateActivityLogAsync(ActivityLogCreateBusinessModel activityLogCreateBusinessModel)
   {
     var httpContext = _httpContextAccessor.HttpContext;
     var userId = httpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

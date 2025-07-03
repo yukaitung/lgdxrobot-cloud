@@ -115,7 +115,7 @@ public sealed class TriggerService (
     await _context.Triggers.AddAsync(trigger);
     await _context.SaveChangesAsync();
     
-    await _activityService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(Trigger),
       EntityId = trigger.Id.ToString(),
@@ -156,7 +156,7 @@ public sealed class TriggerService (
     
     if (result)
     {
-      await _activityService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Trigger),
         EntityId = triggerId.ToString(),
@@ -183,7 +183,7 @@ public sealed class TriggerService (
 
     if (result)
     {
-      await _activityService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Trigger),
         EntityId = triggerId.ToString(),
@@ -274,7 +274,7 @@ public sealed class TriggerService (
         RealmName = GetRealmName(autoTask.RealmId),
       });
       
-      await _activityService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Trigger),
         EntityId = trigger.Id.ToString(),

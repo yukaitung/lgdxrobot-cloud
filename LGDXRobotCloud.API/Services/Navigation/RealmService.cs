@@ -109,7 +109,7 @@ public class RealmService(
     await _context.Realms.AddAsync(realm);
     await _context.SaveChangesAsync();
     
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(Realm),
       EntityId = realm.Id.ToString(),
@@ -147,7 +147,7 @@ public class RealmService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Realm),
         EntityId = id.ToString(),
@@ -187,7 +187,7 @@ public class RealmService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Realm),
         EntityId = id.ToString(),

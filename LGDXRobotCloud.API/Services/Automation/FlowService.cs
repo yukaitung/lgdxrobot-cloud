@@ -122,7 +122,7 @@ public class FlowService(
     await _context.Flows.AddAsync(flow);
     await _context.SaveChangesAsync();
     
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(Flow),
       EntityId = flow.Id.ToString(),
@@ -179,7 +179,7 @@ public class FlowService(
       }).ToList();
     await _context.SaveChangesAsync();
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(Flow),
       EntityId = flowId.ToString(),
@@ -209,7 +209,7 @@ public class FlowService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Flow),
         EntityId = flowId.ToString(),

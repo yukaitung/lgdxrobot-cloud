@@ -247,7 +247,7 @@ public class OnlineRobotsService(
       await SetRobotCommandsAsync(robotId, robotCommands);
       _eventService.RobotCommandsHasUpdated(robotId);
 
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Robot),
         EntityId = robotId.ToString(),
@@ -270,7 +270,7 @@ public class OnlineRobotsService(
       await SetRobotCommandsAsync(robotId, robotCommands);
       _eventService.RobotCommandsHasUpdated(robotId);
 
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Robot),
         EntityId = robotId.ToString(),

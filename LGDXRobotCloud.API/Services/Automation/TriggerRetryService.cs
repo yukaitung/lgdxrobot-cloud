@@ -103,7 +103,7 @@ public class TriggerRetryService (
       await DeleteTriggerRetryAsync(triggerRetryId);
     }
 
-    await _activityService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(TriggerRetry),
       EntityId = trigger.Id.ToString(),
@@ -129,7 +129,7 @@ public class TriggerRetryService (
     }
     _context.SaveChanges();
 
-    await _activityService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(TriggerRetry),
       EntityId = triggerId.ToString(),

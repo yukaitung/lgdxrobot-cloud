@@ -127,7 +127,7 @@ public class MapEditorService(
     _context.WaypointTraffics.RemoveRange(databaseWaypointTraffics);
     await _context.SaveChangesAsync();
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(Realm),
       EntityId = realmId.ToString(),

@@ -6,7 +6,7 @@ namespace LGDXRobotCloud.Worker.Services;
 
 public interface IActivityLogService
 {
-  Task AddActivityLogAsync(ActivityLogContract activityLogContract);
+  Task CreateActivityLogAsync(ActivityLogContract activityLogContract);
 }
 
 partial class ActivityLogService(
@@ -15,7 +15,7 @@ partial class ActivityLogService(
 {
   private readonly ActivityContext _activityContext = activityContext ?? throw new ArgumentNullException(nameof(activityContext));
 
-  public async Task AddActivityLogAsync(ActivityLogContract activityLogContract)
+  public async Task CreateActivityLogAsync(ActivityLogContract activityLogContract)
   {
     var activityLog = new ActivityLog
     {

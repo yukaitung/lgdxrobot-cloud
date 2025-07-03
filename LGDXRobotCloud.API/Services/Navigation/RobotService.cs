@@ -177,7 +177,7 @@ public class RobotService(
     await _context.Robots.AddAsync(robot);
     await _context.SaveChangesAsync();
     
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(Robot),
       EntityId = robot.Id.ToString(),
@@ -206,7 +206,7 @@ public class RobotService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Robot),
         EntityId = id.ToString(),
@@ -233,7 +233,7 @@ public class RobotService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Robot),
         EntityId = id.ToString(),
@@ -280,7 +280,7 @@ public class RobotService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Robot),
         EntityId = id.ToString(),

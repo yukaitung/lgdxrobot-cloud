@@ -107,7 +107,7 @@ public class RoleService(
       }      
     }
     
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxRole),
       EntityId = role.Id,
@@ -168,7 +168,7 @@ public class RoleService(
       }
     }
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxRole),
       EntityId = role.Id,
@@ -191,7 +191,7 @@ public class RoleService(
       throw new LgdxIdentity400Expection(result.Errors);
     }
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxRole),
       EntityId = role.Id,

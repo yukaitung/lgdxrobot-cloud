@@ -317,7 +317,7 @@ public class AutoTaskService(
       await _bus.Publish(autoTaskBusinessModel.ToContract());
     }
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(AutoTask),
       EntityId = autoTaskBusinessModel.Id.ToString(),
@@ -388,7 +388,7 @@ public class AutoTaskService(
     }).ToList();
     await _context.SaveChangesAsync();
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(AutoTask),
       EntityId = autoTaskId.ToString(),
@@ -412,7 +412,7 @@ public class AutoTaskService(
     _context.AutoTasks.Remove(autoTask);
     await _context.SaveChangesAsync();
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(AutoTask),
       EntityId = autoTaskId.ToString(),
@@ -436,7 +436,7 @@ public class AutoTaskService(
       throw new LgdxValidation400Expection(nameof(autoTaskId), "Cannot abort the task not in running status.");
     }
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(AutoTask),
       EntityId = autoTaskId.ToString(),

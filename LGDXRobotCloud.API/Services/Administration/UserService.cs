@@ -133,7 +133,7 @@ public class UserService(
       );
     }
     
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id,
@@ -182,7 +182,7 @@ public class UserService(
       throw new LgdxIdentity400Expection(result.Errors);
     }
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id,
@@ -205,7 +205,7 @@ public class UserService(
       throw new LgdxIdentity400Expection(result.Errors);
     }
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id,
@@ -228,7 +228,7 @@ public class UserService(
       throw new LgdxIdentity400Expection(result.Errors);
     }
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id,

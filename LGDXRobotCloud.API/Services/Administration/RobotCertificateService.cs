@@ -108,7 +108,7 @@ public class RobotCertificateService(
   {
     var certificate = GenerateRobotCertificate(robotId);
     
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(Robot),
       EntityId = robotId.ToString(),
@@ -156,7 +156,7 @@ public class RobotCertificateService(
       .FirstOrDefaultAsync()
         ?? throw new LgdxNotFound404Exception();
         
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(Robot),
       EntityId = certificate.RobotId.ToString(),

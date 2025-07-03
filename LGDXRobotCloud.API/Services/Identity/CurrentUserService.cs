@@ -56,7 +56,7 @@ public class CurrentUserService(
       throw new LgdxIdentity400Expection(result.Errors);
     }
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id.ToString(),
@@ -101,7 +101,7 @@ public class CurrentUserService(
       }
     await _userManager.SetTwoFactorEnabledAsync(user, true);
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id.ToString(),
@@ -129,7 +129,7 @@ public class CurrentUserService(
     await _userManager.ResetAuthenticatorKeyAsync(user);
     await _userManager.SetTwoFactorEnabledAsync(user, false);
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(LgdxUser),
       EntityId = user.Id.ToString(),

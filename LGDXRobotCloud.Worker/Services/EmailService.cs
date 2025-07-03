@@ -55,7 +55,7 @@ public sealed class EmailService (
       await client.SendAsync(message);
     }
     await client.DisconnectAsync(true);
-    await _activityLogService.AddActivityLogAsync(new ActivityLogContract
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogContract
     {
       EntityName = "Email",
       EntityId = emailContract.EmailType.ToString(),

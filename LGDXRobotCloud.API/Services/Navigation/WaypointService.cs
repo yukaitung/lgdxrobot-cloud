@@ -104,7 +104,7 @@ public class WaypointService(
     await _context.Waypoints.AddAsync(waypoint);
     await _context.SaveChangesAsync();
     
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(Waypoint),
       EntityId = waypoint.Id.ToString(),
@@ -142,7 +142,7 @@ public class WaypointService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Waypoint),
         EntityId = waypointId.ToString(),
@@ -180,7 +180,7 @@ public class WaypointService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Waypoint),
         EntityId = waypointId.ToString(),

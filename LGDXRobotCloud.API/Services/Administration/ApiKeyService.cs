@@ -89,7 +89,7 @@ public class ApiKeyService(
       .FirstOrDefaultAsync()
         ?? throw new LgdxNotFound404Exception();
 
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(ApiKey),
       EntityId = apiKeyId.ToString(),
@@ -116,7 +116,7 @@ public class ApiKeyService(
     await _context.ApiKeys.AddAsync(apikey);
     await _context.SaveChangesAsync();
     
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(ApiKey),
       EntityId = apikey.Id.ToString(),
@@ -140,7 +140,7 @@ public class ApiKeyService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(ApiKey),
         EntityId = apiKeyId.ToString(),
@@ -169,7 +169,7 @@ public class ApiKeyService(
       {
         RemoveApiKeyCache(oldSecret);
       }
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(ApiKey),
         EntityId = apiKeyId.ToString(),
@@ -194,7 +194,7 @@ public class ApiKeyService(
       {
         RemoveApiKeyCache(oldSecret);
       }
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(ApiKey),
         EntityId = apiKeyId.ToString(),

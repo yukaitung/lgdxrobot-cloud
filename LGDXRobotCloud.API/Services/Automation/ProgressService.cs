@@ -77,7 +77,7 @@ public class ProgressService(
     await _context.Progresses.AddAsync(progress);
     await _context.SaveChangesAsync();
     
-    await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
       EntityName = nameof(Progress),
       EntityId = progress.Id.ToString(),
@@ -108,7 +108,7 @@ public class ProgressService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Progress),
         EntityId = progressId.ToString(),
@@ -158,7 +158,7 @@ public class ProgressService(
 
     if (result)
     {
-      await _activityLogService.AddActivityLogAsync(new ActivityLogCreateBusinessModel
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Progress),
         EntityId = progressId.ToString(),
