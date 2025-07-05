@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobotCloud.Data.Entities;
 
+[Index(nameof(EntityName))]
 [Index(nameof(EntityName), nameof(EntityId))]
 public class ActivityLog
 {
