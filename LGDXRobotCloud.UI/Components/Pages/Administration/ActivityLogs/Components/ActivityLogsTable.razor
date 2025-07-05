@@ -22,23 +22,26 @@
           </div>
         </div>
       </div>
-      <select class="ms-auto form-select form-select-sm" style="width: 200px;" @onchange="@((e) => HandleEntityCategoryChange(e.Value))">
-        <option value="">Filter Entities...</option>
-        @foreach (string name in EntityNames)
-        {
-          <option value="@(name)">@(name)</option>
-        }
-      </select>
-      <div class="text-secondary ms-2">
-        ID:
-      </div>
-      <div class="text-secondary">
-        <div class="input-group">
-          <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
-          <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
-          <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
+      @if (!HideOptions)
+      {
+        <select class="ms-auto form-select form-select-sm" style="width: 200px;" @onchange="@((e) => HandleEntityCategoryChange(e.Value))">
+          <option value="">Filter Entities...</option>
+          @foreach (string name in EntityNames)
+          {
+            <option value="@(name)">@(name)</option>
+          }
+        </select>
+        <div class="text-secondary ms-2">
+          ID:
         </div>
-      </div>
+        <div class="text-secondary">
+          <div class="input-group">
+            <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
+            <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
+            <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
+          </div>
+        </div>
+      }
     </div>
   </div>
 
@@ -70,7 +73,7 @@
               <td>@(((ActivityAction)log.Action!.Value).ToEnumMember())</td>
               <td>@UiHelper.TimeToString(log.CreatedAt)</td>
               <td class="text-end">
-                <a href="@(AppRoutes.Administration.ActivityLogs.Index + $"/{logId}")" class="page-link link-primary">View</a>
+                <a href="@DisplayViewUrl(AppRoutes.Administration.ActivityLogs.Index + $"/{logId}")" class="page-link link-primary">View</a>
               </td>
             </tr>
           }

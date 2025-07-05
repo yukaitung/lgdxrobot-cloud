@@ -9,10 +9,21 @@ namespace LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Compone
 
 public sealed partial class ActivityLogsTable : AbstractTable
 {
+  [Parameter]
+  public string? DefaultEntityName { get; set; }
+
+  [Parameter]
+  public string? DefaultEntityId { get; set; }
+
+  [Parameter]
+  public string? ReturnUrl { get; set; }
+
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
 
   private List<ActivityLogListDto>? ActivityLogs { get; set; }
+
+  private bool HideOptions = false;
 
   private string? CurrentEntityName { get; set; }
 
@@ -52,7 +63,19 @@ public sealed partial class ActivityLogsTable : AbstractTable
       return user.UserName;
     return "Deleted User";
   }
-  
+
+  private string DisplayViewUrl(string url)
+  {
+    if (string.IsNullOrWhiteSpace(ReturnUrl))
+    {
+      return url;
+    }
+    else
+    {
+      return $"{url}?ReturnUrl={ReturnUrl}";
+    }
+  }
+
   public override async Task HandlePageSizeChange(int number)
   {
     PageSize = number;
@@ -82,9 +105,11 @@ public sealed partial class ActivityLogsTable : AbstractTable
       return;
 
     var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
-    ActivityLogs = await LgdxApiClient.Administration.ActivityLogs.GetAsync(x => {
+    ActivityLogs = await LgdxApiClient.Administration.ActivityLogs.GetAsync(x =>
+    {
       x.Options.Add(headersInspectionHandlerOption);
-      x.QueryParameters = new ActivityLogsRequestBuilderGetQueryParameters {
+      x.QueryParameters = new ActivityLogsRequestBuilderGetQueryParameters
+      {
         EntityName = CurrentEntityName,
         EntityId = DataSearch,
         PageNumber = 1,
@@ -113,9 +138,11 @@ public sealed partial class ActivityLogsTable : AbstractTable
       return;
 
     var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
-    ActivityLogs = await LgdxApiClient.Administration.ActivityLogs.GetAsync(x => {
+    ActivityLogs = await LgdxApiClient.Administration.ActivityLogs.GetAsync(x =>
+    {
       x.Options.Add(headersInspectionHandlerOption);
-      x.QueryParameters = new ActivityLogsRequestBuilderGetQueryParameters {
+      x.QueryParameters = new ActivityLogsRequestBuilderGetQueryParameters
+      {
         EntityName = CurrentEntityName,
         EntityId = DataSearch,
         PageNumber = pageNum,
@@ -131,9 +158,11 @@ public sealed partial class ActivityLogsTable : AbstractTable
       CurrentPage--;
 
     var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
-    ActivityLogs = await LgdxApiClient.Administration.ActivityLogs.GetAsync(x => {
+    ActivityLogs = await LgdxApiClient.Administration.ActivityLogs.GetAsync(x =>
+    {
       x.Options.Add(headersInspectionHandlerOption);
-      x.QueryParameters = new ActivityLogsRequestBuilderGetQueryParameters {
+      x.QueryParameters = new ActivityLogsRequestBuilderGetQueryParameters
+      {
         EntityName = CurrentEntityName,
         EntityId = DataSearch,
         PageNumber = CurrentPage,
@@ -141,5 +170,24 @@ public sealed partial class ActivityLogsTable : AbstractTable
       };
     });
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
+  }
+  
+  public override async Task SetParametersAsync(ParameterView parameters)
+  {
+    parameters.SetParameterProperties(this);
+    if (parameters.TryGetValue<string?>(nameof(DefaultEntityName), out var _entityName))
+    {
+      CurrentEntityName = _entityName;
+      HideOptions= true;
+    }
+    if (parameters.TryGetValue<string?>(nameof(DefaultEntityId), out var _entityId))
+    {
+      if (!string.IsNullOrWhiteSpace(_entityId))
+      {
+        DataSearch = _entityId;
+        HideOptions = true;
+      }
+    }
+    await base.SetParametersAsync(ParameterView.Empty);
   }
 }

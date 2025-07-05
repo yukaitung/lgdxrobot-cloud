@@ -16,6 +16,9 @@ public sealed partial class ActivityLogsDetail
   [Parameter]
   public int? Id { get; set; }
 
+  [SupplyParameterFromQuery]
+  private string? ReturnUrl { get; set; }
+
   ActivityLogDto? ActivityLog { get; set; } = null!;
 
   private static string DisplayUser(LgdxUserSearchDto? user)
