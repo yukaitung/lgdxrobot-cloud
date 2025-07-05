@@ -1,3 +1,4 @@
+@using LGDXRobotCloud.Utilities.Enums
 @attribute [Route(AppRoutes.Administration.ActivityLogs.Detail)]
 @attribute [Authorize (Policy = Permissions.Administration.ActivityLogs.Read)]
 
@@ -37,7 +38,7 @@
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Entity ID</label>
               <div class="col">
-                <div class="col form-control-plaintext">@ActivityLog.EntityId</div>
+                <div class="col form-control-plaintext">@DisplaEntityId(ActivityLog)</div>
               </div>
             </div>
             <div class="mb-3 row">
@@ -50,6 +51,12 @@
               <label class="col-3 col-form-label">User Name</label>
               <div class="col">
                 <div class="col form-control-plaintext">@(DisplayUser(ActivityLog.User))</div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">Action</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@(((ActivityAction)ActivityLog.Action!.Value).ToEnumMember())</div>
               </div>
             </div>
             <div class="mb-3 row">

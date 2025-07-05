@@ -58,7 +58,7 @@ public sealed class EmailService (
     await _activityLogService.CreateActivityLogAsync(new ActivityLogContract
     {
       EntityName = "Email",
-      EntityId = emailContract.EmailType.ToString(),
+      EntityId = ((int)emailContract.EmailType).ToString(),
       Action = ActivityAction.SendEmail,
       Note = $"Number of receipients: {messages.Count()}"
     });

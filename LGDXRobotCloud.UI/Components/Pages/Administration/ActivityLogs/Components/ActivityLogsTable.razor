@@ -65,10 +65,11 @@
           @foreach (var log in ActivityLogs)
           {
             var logId = log.Id;
+            var l = log;
             <tr>
               <td>@log.Id</td>
               <td>@log.EntityName</td>
-              <td>@log.EntityId</td>
+              <td>@DisplaEntityId(l)</td>
               <td>@(DisplayUser(log.User))</td>
               <td>@(((ActivityAction)log.Action!.Value).ToEnumMember())</td>
               <td>@UiHelper.TimeToString(TimeZone, log.CreatedAt)</td>

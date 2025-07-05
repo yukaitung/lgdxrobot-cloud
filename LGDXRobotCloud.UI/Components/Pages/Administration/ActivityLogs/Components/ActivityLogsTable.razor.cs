@@ -3,6 +3,7 @@ using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Components.Shared.Table;
 using LGDXRobotCloud.UI.Helpers;
 using LGDXRobotCloud.UI.Services;
+using LGDXRobotCloud.Utilities.Enums;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using static LGDXRobotCloud.UI.Client.Administration.ActivityLogs.ActivityLogsRequestBuilder;
@@ -69,6 +70,18 @@ public sealed partial class ActivityLogsTable : AbstractTable
     if (user.UserName != null)
       return user.UserName;
     return "Deleted User";
+  }
+
+  private static string DisplaEntityId(ActivityLogListDto activityLogListDto)
+  {
+    if (activityLogListDto.EntityName!.Equals("Email", StringComparison.OrdinalIgnoreCase))
+    {
+      return ((EmailType)int.Parse(activityLogListDto.EntityId!)).ToEnumMember() ?? "";
+    }
+    else
+    {
+      return activityLogListDto.EntityId ?? "";
+    }
   }
 
   private string DisplayViewUrl(string url)

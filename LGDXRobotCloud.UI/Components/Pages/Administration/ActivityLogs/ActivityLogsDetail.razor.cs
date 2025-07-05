@@ -2,6 +2,7 @@ using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Constants;
 using LGDXRobotCloud.UI.Services;
+using LGDXRobotCloud.Utilities.Enums;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -38,6 +39,19 @@ public sealed partial class ActivityLogsDetail
       return user.UserName;
     return "Deleted User";
   }
+
+  private static string DisplaEntityId(ActivityLogDto activityLogDto)
+  {
+    if (activityLogDto.EntityName!.Equals("Email", StringComparison.OrdinalIgnoreCase))
+    {
+      return ((EmailType)int.Parse(activityLogDto.EntityId!)).ToEnumMember() ?? "";
+    }
+    else
+    {
+      return activityLogDto.EntityId ?? "";
+    }
+  }
+
 
   private static string DisplayApiKey(ApiKeySearchDto? apiKey)
   {

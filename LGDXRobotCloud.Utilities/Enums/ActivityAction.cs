@@ -36,7 +36,7 @@ public enum ActivityAction
   [EnumMember(Value = "Manual Abort")]
   AutoTaskManualAbort = 15,
 
-  [EnumMember(Value = "Traffic Updated")]
+  [EnumMember(Value = "Traffic Update")]
   RealmTrafficUpdated = 16,
 
 
@@ -50,23 +50,23 @@ public enum ActivityAction
   [EnumMember(Value = "Password Reset")]
   UserPasswordReset = 52,
 
-  [EnumMember(Value = "Password Updated")]
+  [EnumMember(Value = "Password Update")]
   UserPasswordUpdated = 53,
 
-  [EnumMember(Value = "Two-Factor Authentication Enabled")]
+  [EnumMember(Value = "Two-Factor Authentication Enable")]
   UserTwoFactorAuthenticationEnabled = 54,
 
-  [EnumMember(Value = "Two-Factor Authentication Disabled")]
+  [EnumMember(Value = "Two-Factor Authentication Disable")]
   UserTwoFactorAuthenticationDisabled = 55,
 
-  [EnumMember(Value = "Accont Unlocked")]
+  [EnumMember(Value = "Accont Unlock")]
   UserUnlocked = 56,
 
   // Robot Actions
-  [EnumMember(Value = "Certificate Create")]
+  [EnumMember(Value = "Create Certificate")]
   RobotCertificateCreate = 100,
 
-  [EnumMember(Value = "Certificate Renew")]
+  [EnumMember(Value = "Renew Certificate")]
   RobotCertificateRenew = 101,
 
   [EnumMember(Value = "Stop Task Assignment")]
@@ -75,9 +75,9 @@ public enum ActivityAction
   [EnumMember(Value = "Resume Task Assignment")]
   RobotPauseTaskAssignmentDisabled = 103,
 
-  [EnumMember(Value = "Emergency Stop Enabled")]
+  [EnumMember(Value = "Emergency Stop Enable")]
   RobotSoftwareEmergencyStopEnabled = 104,
 
-  [EnumMember(Value = "Emergency Stop Disabled")]
+  [EnumMember(Value = "Emergency Stop Disable")]
   RobotSoftwareEmergencyStopDisabled = 105,
 }
