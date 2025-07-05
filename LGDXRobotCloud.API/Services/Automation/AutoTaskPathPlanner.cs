@@ -13,7 +13,7 @@ public interface IAutoTaskPathPlannerService
 }
 
 public sealed partial class AutoTaskPathPlannerService(
-    ILogger logger,
+    ILogger<AutoTaskPathPlannerService> logger,
     IMapEditorService mapEditorService,
     IOnlineRobotsService onlineRobotsService,
     LgdxContext context

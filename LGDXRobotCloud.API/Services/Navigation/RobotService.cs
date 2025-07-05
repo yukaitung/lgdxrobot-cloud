@@ -344,37 +344,6 @@ public class RobotService(
       ) == 1;
   }
 
-  public async Task UpsertRobotChassisInfoAsync(Guid robotId, RobotChassisInfoBusinessModel robotChassisInfo)
-  {
-    var robotChassisInfoEntity = await _context.RobotChassisInfos.Where(r => r.RobotId == robotId).FirstOrDefaultAsync();
-    if (robotChassisInfoEntity == null)
-    {
-      _context.RobotChassisInfos.Add(new RobotChassisInfo {
-        RobotId = robotId,
-        RobotTypeId = robotChassisInfo.RobotTypeId,
-        ChassisLengthX = robotChassisInfo.ChassisLengthX,
-        ChassisLengthY = robotChassisInfo.ChassisLengthY,
-        ChassisWheelCount = robotChassisInfo.ChassisWheelCount,
-        ChassisWheelRadius = robotChassisInfo.ChassisWheelRadius,
-        BatteryCount = robotChassisInfo.BatteryCount,
-        BatteryMaxVoltage = robotChassisInfo.BatteryMaxVoltage,
-        BatteryMinVoltage = robotChassisInfo.BatteryMinVoltage,
-      });
-    }
-    else
-    {
-      robotChassisInfoEntity.RobotTypeId = robotChassisInfo.RobotTypeId;
-      robotChassisInfoEntity.ChassisLengthX = robotChassisInfo.ChassisLengthX;      
-      robotChassisInfoEntity.ChassisLengthY = robotChassisInfo.ChassisLengthY;
-      robotChassisInfoEntity.ChassisWheelCount = robotChassisInfo.ChassisWheelCount;
-      robotChassisInfoEntity.ChassisWheelRadius = robotChassisInfo.ChassisWheelRadius;
-      robotChassisInfoEntity.BatteryCount = robotChassisInfo.BatteryCount;
-      robotChassisInfoEntity.BatteryMaxVoltage = robotChassisInfo.BatteryMaxVoltage;
-      robotChassisInfoEntity.BatteryMinVoltage = robotChassisInfo.BatteryMinVoltage;
-    }
-    await _context.SaveChangesAsync();
-  }
-
   public async Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name, Guid? robotId)
   {
     var n = name ?? string.Empty;

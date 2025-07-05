@@ -100,6 +100,8 @@ public class RobotClientsService(
       await _robotService.UpdateRobotSystemInfoAsync(robotIdGuid, incomingSystemInfo.ToUpdateBusinessModel());
     }
 
+    var chassisInfo = await _robotService.GetRobotChassisInfoAsync(robotIdGuid);
+
     // Generate Access Token
     var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_lgdxRobotCloudSecretConfiguration.RobotClientsJwtSecret));
     var credentials = new SigningCredentials(securityKey, _lgdxRobotCloudSecretConfiguration.RobotClientsJwtAlgorithm);
@@ -114,10 +116,21 @@ public class RobotClientsService(
 
     await _onlineRobotsService.AddRobotAsync(robotId);
 
-    return new RobotClientsGreetRespond {
+    return new RobotClientsGreetRespond
+    {
       Status = RobotClientsResultStatus.Success,
       AccessToken = token,
-      IsRealtimeExchange = robot.IsRealtimeExchange
+      IsRealtimeExchange = robot.IsRealtimeExchange,
+      ChassisInfo = new RobotClientsChassisInfo {
+        RobotTypeId = chassisInfo!.RobotTypeId,
+        ChassisLX = chassisInfo.ChassisLengthX,
+        ChassisLY = chassisInfo.ChassisLengthY,
+        ChassisWheelCount = chassisInfo.ChassisWheelCount,
+        ChassisWheelRadius = chassisInfo.ChassisWheelRadius,
+        BatteryCount = chassisInfo.BatteryCount,
+        BatteryMaxVoltage = chassisInfo.BatteryMaxVoltage,
+        BatteryMinVoltage = chassisInfo.BatteryMinVoltage,
+      }
     };
   }
 

@@ -49,6 +49,8 @@ builder.Services.Configure<LgdxRobotCloudSecretConfiguration>(
 /*
  * Infrastructure
  */
+builder.Services.AddLogging(builder => builder.AddConsole());
+
 builder.Services.AddMassTransit(cfg =>
 {
 	cfg.UsingRabbitMq((context, cfg) =>

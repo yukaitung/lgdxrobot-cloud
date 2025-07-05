@@ -78,13 +78,13 @@ message RobotClientsChassisInfo {
 
 message RobotClientsGreet {
   RobotClientsSystemInfo SystemInfo = 1;
-  optional RobotClientsChassisInfo ChassisInfo = 2;
 }
 
 message RobotClientsGreetRespond {
   RobotClientsResultStatus Status = 1;
   string AccessToken = 2;
   bool IsRealtimeExchange = 3;
+  RobotClientsChassisInfo ChassisInfo = 4;
 }
 
 /*
