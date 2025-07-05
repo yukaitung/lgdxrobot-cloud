@@ -1,4 +1,5 @@
 @using LGDXRobotCloud.UI.Client.Models
+@using LGDXRobotCloud.UI.Services
 @using LGDXRobotCloud.UI.ViewModels.Navigation
 
 <div class="card">
@@ -14,11 +15,11 @@
         </tr>
         <tr>
           <td>Valid Start</td>
-          <td>@(RobotCertificate != null ? UiHelper.TimeToString(RobotCertificate.NotBefore) : "-")</td>
+          <td>@(RobotCertificate != null ? UiHelper.TimeToString(TimeZone, RobotCertificate.NotBefore) : "-")</td>
         </tr>
         <tr>
           <td>Valid Till</td>
-          <td>@(RobotCertificate != null ? UiHelper.TimeToString(RobotCertificate.NotAfter) : "-")</td>
+          <td>@(RobotCertificate != null ? UiHelper.TimeToString(TimeZone, RobotCertificate.NotAfter) : "-")</td>
         </tr>
         <tr>
           <td>Backup Thumbprint</td>
@@ -44,6 +45,22 @@
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
   [Parameter]
   public RobotCertificateDto? RobotCertificate { get; set; }
+
+  TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
+
+  protected override void OnInitialized()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    TimeZone = settings.TimeZone;
+    OnInitializedAsync();
+  }
 }

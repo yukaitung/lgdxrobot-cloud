@@ -2,8 +2,10 @@ using System.Text.Json;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Constants;
 using LGDXRobotCloud.UI.Helpers;
+using LGDXRobotCloud.UI.Services;
 using LGDXRobotCloud.UI.ViewModels.Administration;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using Microsoft.Kiota.Abstractions;
@@ -21,6 +23,12 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }
 
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
   [Parameter]
   public string? Id { get; set; } = null;
 
@@ -32,6 +40,7 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
   // Form helping variables
   private readonly string[] AdvanceSelectElements = ["RoleId-"];
   private int InitaisedAdvanceSelect { get; set; } = 0;
+  TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
 
   [JSInvokable("HandlSelectSearch")]
   public async Task HandlSelectSearch(string elementId, string name)
@@ -129,6 +138,14 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
     {
       UserDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
+  }
+
+  protected override void OnInitialized()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    TimeZone = settings.TimeZone;
+    OnInitializedAsync();
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)

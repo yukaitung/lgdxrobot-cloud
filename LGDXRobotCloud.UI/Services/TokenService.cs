@@ -23,6 +23,7 @@ public record SessionSettings
 {
   public int CurrentRealmId { get; set; } = 0;
   public MapEditorViewModel? MapEditorData { get; set; }
+  public TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
 }
 
 public class TokenService : ITokenService
@@ -61,7 +62,7 @@ public class TokenService : ITokenService
       RefreshTokenExpiresAt = refreshTokenExpiresAt
     });
     Tokens.TryRemove(GenerateSessionSettingsKey(user), out _);
-    SessionSettings.TryAdd(GenerateSessionSettingsKey(user), new());
+    SessionSettings[GenerateSessionSettingsKey(user)] = new();
   }
 
   public bool IsLoggedIn(ClaimsPrincipal user)

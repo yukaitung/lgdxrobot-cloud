@@ -123,7 +123,7 @@
               <div class="mb-3 row">
                 <label class="col-3 col-form-label">Lockout End Time</label>
                 <div class="col">
-                  <div class="col form-control-plaintext">@(UserDetailViewModel.LockoutEnd?.DateTime < DateTime.UtcNow ? "-" : UiHelper.TimeToString(UserDetailViewModel.LockoutEnd))</div>
+                  <div class="col form-control-plaintext">@(UserDetailViewModel.LockoutEnd?.DateTime < DateTime.UtcNow ? "-" : UiHelper.TimeToString(TimeZone, UserDetailViewModel.LockoutEnd))</div>
                   @if (UserDetailViewModel.LockoutEnd?.DateTime > DateTime.UtcNow)
                   {
                     <button type="button" class="btn btn-primary align-self-center" @onclick="HandleUnlockUser">

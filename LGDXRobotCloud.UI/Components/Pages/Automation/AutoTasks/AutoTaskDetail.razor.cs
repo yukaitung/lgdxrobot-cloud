@@ -46,6 +46,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
   bool HasWaypointTrafficControl { get; set; } = false;
+  TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
 
   // Form helping variables
   private readonly string[] AdvanceSelectElements = [$"{nameof(AutoTaskDetailViewModel.FlowId)}-", $"{nameof(AutoTaskDetailViewModel.AssignedRobotId)}-", $"{nameof(TaskDetailBody.WaypointId)}-"];
@@ -223,6 +224,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
   {
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
+    TimeZone = settings.TimeZone;
     AutoTaskDetailViewModel.RealmId = settings.CurrentRealmId;
     AutoTaskDetailViewModel.RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     HasWaypointTrafficControl = await CachedRealmService.GetHasWaypointTrafficControlAsync(settings.CurrentRealmId);

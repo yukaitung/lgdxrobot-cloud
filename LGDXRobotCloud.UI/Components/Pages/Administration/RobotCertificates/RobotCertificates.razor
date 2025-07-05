@@ -32,13 +32,13 @@
         <div class="mb-3 row">
           <label class="col-3 col-form-label">Invalid Before</label>
           <div class="col">
-            <div class="col form-control-plaintext">@UiHelper.TimeToString(RootCertificate?.NotBefore)</div>
+            <div class="col form-control-plaintext">@UiHelper.TimeToString(TimeZone, RootCertificate?.NotBefore)</div>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-3 col-form-label">Invalid After</label>
           <div class="col">
-            <div class="col form-control-plaintext">@UiHelper.TimeToString(RootCertificate?.NotAfter)</div>
+            <div class="col form-control-plaintext">@UiHelper.TimeToString(TimeZone, RootCertificate?.NotAfter)</div>
           </div>
         </div>
         <textarea id="RootCertificateTextarea" class="form-control mb-2" rows="6" readonly>

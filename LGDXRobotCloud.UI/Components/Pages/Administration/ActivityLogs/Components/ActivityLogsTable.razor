@@ -71,7 +71,7 @@
               <td>@log.EntityId</td>
               <td>@(DisplayUser(log.User))</td>
               <td>@(((ActivityAction)log.Action!.Value).ToEnumMember())</td>
-              <td>@UiHelper.TimeToString(log.CreatedAt)</td>
+              <td>@UiHelper.TimeToString(TimeZone, log.CreatedAt)</td>
               <td class="text-end">
                 <a href="@DisplayViewUrl(AppRoutes.Administration.ActivityLogs.Index + $"/{logId}")" class="page-link link-primary">View</a>
               </td>

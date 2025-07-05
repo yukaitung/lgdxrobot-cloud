@@ -2,13 +2,21 @@ using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Components.Shared.Table;
 using LGDXRobotCloud.UI.Helpers;
+using LGDXRobotCloud.UI.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using static LGDXRobotCloud.UI.Client.Administration.ActivityLogs.ActivityLogsRequestBuilder;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components;
 
 public sealed partial class ActivityLogsTable : AbstractTable
 {
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+  
   [Parameter]
   public string? DefaultEntityName { get; set; }
 
@@ -22,10 +30,9 @@ public sealed partial class ActivityLogsTable : AbstractTable
   public required LgdxApiClient LgdxApiClient { get; set; }
 
   private List<ActivityLogListDto>? ActivityLogs { get; set; }
-
   private bool HideOptions = false;
-
   private string? CurrentEntityName { get; set; }
+  TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
 
   private static List<string> EntityNames { get; set; } = [
     "Email",
@@ -172,13 +179,21 @@ public sealed partial class ActivityLogsTable : AbstractTable
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
   
+  protected override void OnInitialized()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    TimeZone = settings.TimeZone;
+    OnInitializedAsync();
+  }
+  
   public override async Task SetParametersAsync(ParameterView parameters)
   {
     parameters.SetParameterProperties(this);
     if (parameters.TryGetValue<string?>(nameof(DefaultEntityName), out var _entityName))
     {
       CurrentEntityName = _entityName;
-      HideOptions= true;
+      HideOptions = true;
     }
     if (parameters.TryGetValue<string?>(nameof(DefaultEntityId), out var _entityId))
     {

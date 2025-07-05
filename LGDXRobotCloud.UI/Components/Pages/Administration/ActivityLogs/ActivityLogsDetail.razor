@@ -73,7 +73,7 @@
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Created At</label>
               <div class="col">
-                <div class="col form-control-plaintext">@UiHelper.TimeToString(ActivityLog.CreatedAt)</div>
+                <div class="col form-control-plaintext">@UiHelper.TimeToString(TimeZone, ActivityLog.CreatedAt)</div>
               </div>
             </div>
           </div>

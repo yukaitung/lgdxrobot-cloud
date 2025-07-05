@@ -31,6 +31,8 @@
     <div class="form-footer">
       <button type="submit" class="btn btn-primary w-100">Log In</button>
     </div>
+    <InputText id="@nameof(LoginViewModel.TimeZone)" class="form-control d-none" type="hidden"
+        @bind-Value="LoginViewModel.TimeZone" />
   </div>
 
   <!-- Login 2FA Code -->
@@ -102,6 +104,13 @@
 </EditForm>
 
 <script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const input = document.getElementById('TimeZone');
+    if (input) {
+      input.value = timeZone;
+    }
+  });
   document.addEventListener("DOMContentLoaded", function () {
     var inputs = document.querySelectorAll("[data-code-input]");
     // Attach an event listener to each input element

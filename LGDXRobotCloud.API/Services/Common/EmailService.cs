@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using LGDXRobotCloud.Data.Contracts;
@@ -100,6 +101,7 @@ public sealed class EmailService(
 
   public async Task SendPasswordUpdateEmailAsync(string recipientEmail, string recipientName, string userName)
   {
+    string currentTime = DateTime.Now.ToString(CultureInfo.CurrentCulture);
     var emailContract = new EmailContract
     {
       EmailType = EmailType.PasswordUpdate,
@@ -110,7 +112,7 @@ public sealed class EmailService(
       }],
       Metadata = JsonSerializer.Serialize(new PasswordUpdateViewModel{
         UserName = userName,
-        Time = DateTime.Now.ToString("dd MMMM yyyy, hh:mm:ss tt")
+        Time = currentTime
       })
     };
     await _bus.Publish(emailContract);
@@ -123,6 +125,7 @@ public sealed class EmailService(
     {
       return;
     }
+    string currentTime = DateTime.Now.ToString(CultureInfo.CurrentCulture);
     var viewModel = await _context.Robots.AsNoTracking()
       .Where(r => r.Id == robotId)
       .Include(r => r.Realm)
@@ -131,7 +134,7 @@ public sealed class EmailService(
           RobotName = r.Name,
           RealmId = r.Realm.Id.ToString(),
           RealmName = r.Realm.Name,
-          Time = DateTime.Now.ToString("dd MMMM yyyy, hh:mm:ss tt"),
+          Time = currentTime,
           X = @Math.Round(x, 4).ToString(),
           Y = @Math.Round(y, 4).ToString()
         })
@@ -155,6 +158,7 @@ public sealed class EmailService(
     {
       return;
     }
+    string currentTime = DateTime.Now.ToString(CultureInfo.CurrentCulture);
     var viewModel = await _context.AutoTasks.AsNoTracking()
       .Where(at => at.Id == taskId)
       .Include(at => at.AssignedRobot)
@@ -167,7 +171,7 @@ public sealed class EmailService(
           RobotName = at.AssignedRobot != null ? at.AssignedRobot.Name : string.Empty,
           RealmId = at.Realm.Id.ToString(),
           RealmName = at.Realm.Name,
-          Time = DateTime.Now.ToString("dd MMMM yyyy, hh:mm:ss tt")
+          Time = currentTime
         })
       .FirstOrDefaultAsync();
       if (viewModel != null)

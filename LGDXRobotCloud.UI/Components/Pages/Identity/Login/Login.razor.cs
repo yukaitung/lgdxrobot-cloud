@@ -97,7 +97,11 @@ public sealed partial class Login : ComponentBase
       // Setup session data
       var sessionSettings = TokenService.GetSessionSettings(user);
       var realm = await CachedRealmService.GetDefaultRealmAsync();
-      TokenService.UpdateSessionSettings(user, new SessionSettings { CurrentRealmId = realm.Id ?? 0 });
+      TokenService.UpdateSessionSettings(user, new SessionSettings
+      {
+        CurrentRealmId = realm.Id ?? 0,
+        TimeZone = TimeZoneInfo.FindSystemTimeZoneById(LoginViewModel.TimeZone ?? "UTC")
+      });
 
       NavigationManager.NavigateTo(string.IsNullOrWhiteSpace(ReturnUrl) ? "/" : ReturnUrl);
     }

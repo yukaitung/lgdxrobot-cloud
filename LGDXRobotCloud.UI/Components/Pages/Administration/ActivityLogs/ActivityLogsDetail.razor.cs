@@ -1,7 +1,9 @@
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Constants;
+using LGDXRobotCloud.UI.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs;
 
@@ -13,6 +15,12 @@ public sealed partial class ActivityLogsDetail
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
 
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
   [Parameter]
   public int? Id { get; set; }
 
@@ -20,6 +28,7 @@ public sealed partial class ActivityLogsDetail
   private string? ReturnUrl { get; set; }
 
   ActivityLogDto? ActivityLog { get; set; } = null!;
+  TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
 
   private static string DisplayUser(LgdxUserSearchDto? user)
   {
@@ -38,6 +47,15 @@ public sealed partial class ActivityLogsDetail
       return apiKey.Name;
     return "Deleted API Key";
   }
+
+  protected override void OnInitialized()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    TimeZone = settings.TimeZone;
+    OnInitializedAsync();
+  }
+
 
   public override async Task SetParametersAsync(ParameterView parameters)
   {

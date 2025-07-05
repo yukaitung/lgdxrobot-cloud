@@ -29,6 +29,8 @@ public sealed class LoginViewModel : FormViewModel, IValidatableObject
 
   public string? TwoFactorRecoveryCode { get; set; } = null!;
 
+  public string? TimeZone { get; set; }
+
   public void SetupTwoFactor()
   {
     State = LoginViewModelState.TwoFactorCode;

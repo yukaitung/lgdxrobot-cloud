@@ -327,7 +327,7 @@
                   </div>
                   <div class="col text-truncate">
                     <p class="m-0">@journey.CurrentProcessName</p>
-                    <div class="d-block text-secondary text-truncate mt-n1">@journey.CreatedAt</div>
+                    <div class="d-block text-secondary text-truncate mt-n1">@UiHelper.TimeToString(TimeZone, journey.CreatedAt)</div>
                   </div>
                 </div>
               </div>

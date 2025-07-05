@@ -2,7 +2,9 @@ using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Components.Shared.Table;
 using LGDXRobotCloud.UI.Helpers;
+using LGDXRobotCloud.UI.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using static LGDXRobotCloud.UI.Client.Administration.RobotCertificates.RobotCertificatesRequestBuilder;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.RobotCertificates.Components;
@@ -11,7 +13,14 @@ public sealed partial class RobotCertificatesTable : AbstractTable
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
 
+  [Inject]
+  public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
   private List<RobotCertificateListDto>? RobotCertificates { get; set; }
+  TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
   
   public override async Task HandlePageSizeChange(int number)
   {
@@ -20,11 +29,13 @@ public sealed partial class RobotCertificatesTable : AbstractTable
       PageSize = 100;
     else if (PageSize < 1)
       PageSize = 1;
-    
+
     var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
-    RobotCertificates = await LgdxApiClient.Administration.RobotCertificates.GetAsync(x => {
+    RobotCertificates = await LgdxApiClient.Administration.RobotCertificates.GetAsync(x =>
+    {
       x.Options.Add(headersInspectionHandlerOption);
-      x.QueryParameters = new RobotCertificatesRequestBuilderGetQueryParameters {
+      x.QueryParameters = new RobotCertificatesRequestBuilderGetQueryParameters
+      {
         PageNumber = 1,
         PageSize = PageSize
       };
@@ -76,16 +87,26 @@ public sealed partial class RobotCertificatesTable : AbstractTable
     });
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
+  
+  protected override void OnInitialized()
+  {
+    var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+    var settings = TokenService.GetSessionSettings(user);
+    TimeZone = settings.TimeZone;
+    OnInitializedAsync();
+  }
 
   public override async Task Refresh(bool deleteOpt = false)
   {
     if (deleteOpt && CurrentPage > 1 && RobotCertificates?.Count == 1)
       CurrentPage--;
-      
+
     var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
-    RobotCertificates = await LgdxApiClient.Administration.RobotCertificates.GetAsync(x => {
+    RobotCertificates = await LgdxApiClient.Administration.RobotCertificates.GetAsync(x =>
+    {
       x.Options.Add(headersInspectionHandlerOption);
-      x.QueryParameters = new RobotCertificatesRequestBuilderGetQueryParameters {
+      x.QueryParameters = new RobotCertificatesRequestBuilderGetQueryParameters
+      {
         PageNumber = CurrentPage,
         PageSize = PageSize
       };
