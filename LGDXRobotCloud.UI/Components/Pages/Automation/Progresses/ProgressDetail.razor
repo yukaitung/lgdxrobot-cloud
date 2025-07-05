@@ -1,6 +1,8 @@
 @attribute [Route(AppRoutes.Automation.Progresses.Create)]
 @attribute [Route(AppRoutes.Automation.Progresses.Detail)]
 @attribute [Authorize (Policy = Permissions.Automation.Progresses.Write)]
+@using LGDXRobotCloud.Data.Entities
+@using LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components;
 
 <PageHeader Title="@(Id != null ? "Edit Progress" : "Create Progress")">
   <div class="row align-items-center">
@@ -14,46 +16,59 @@
 </PageHeader>
 
 <PageBody>
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">Progress Detail</h3>
-    </div>
-    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
-      <DataAnnotationsValidator />
-      <div class="card-body">
-        <ApiErrorAlert Errors="ProgressDetailViewModel.Errors" />
-        <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
-        @if (Id != null)
-        {
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label">ID</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@ProgressDetailViewModel.Id</div>
+  <div class="row row-cards">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Progress Detail</h3>
+        </div>
+        <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+          <DataAnnotationsValidator />
+          <div class="card-body">
+            <ApiErrorAlert Errors="ProgressDetailViewModel.Errors" />
+            <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
+            @if (Id != null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label">ID</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@ProgressDetailViewModel.Id</div>
+                </div>
+              </div>
+            }
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="@nameof(ProgressDetailViewModel.Name)">Name</label>
+              <div class="col">
+                <InputText id="@nameof(ProgressDetailViewModel.Name)" type="text" class="form-control" @bind-Value="ProgressDetailViewModel.Name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => ProgressDetailViewModel.Name)" />
+              </div>
             </div>
           </div>
-        }
-        <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(ProgressDetailViewModel.Name)">Name</label>
-          <div class="col">
-            <InputText id="@nameof(ProgressDetailViewModel.Name)" type="text" class="form-control" @bind-Value="ProgressDetailViewModel.Name" />
-            <ValidationMessage class="invalid-feedback" For="@(() => ProgressDetailViewModel.Name)" />
+          <div class="card-footer d-flex">
+            <AuthorizeView Policy="@Permissions.Automation.Progresses.Delete" Context="DeleteButton">
+              @if (Id != null)
+              {
+                <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" @onclick="HandleTestDelete">
+                  Delete
+                </a>
+              }
+            </AuthorizeView>
+            <AuthorizeView Policy="@Permissions.Automation.Progresses.Write" Context="Write">
+              <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+            </AuthorizeView>
           </div>
+        </EditForm>
+      </div>
+    </div>
+    @if (Id != null)
+    {
+      <AuthorizeView Policy=@Permissions.Administration.ActivityLogs.Read Context="ActivityLogs">
+        <div class="col-12">
+          <ActivityLogsTable DefaultEntityName="@nameof(Progress)" DefaultEntityId="@(Id.ToString())"
+            ReturnUrl="@(AppRoutes.Automation.Progresses.Index + $"/{Id}")"/>
         </div>
-      </div>
-      <div class="card-footer d-flex">
-        <AuthorizeView Policy="@Permissions.Automation.Progresses.Delete" Context="DeleteButton">
-          @if (Id != null)
-          {
-            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" @onclick="HandleTestDelete">
-              Delete
-            </a>
-          }
-        </AuthorizeView>
-        <AuthorizeView Policy="@Permissions.Automation.Progresses.Write" Context="Write">
-          <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
-        </AuthorizeView>
-      </div>
-    </EditForm>
+      </AuthorizeView>
+    }
   </div>
 </PageBody>
 

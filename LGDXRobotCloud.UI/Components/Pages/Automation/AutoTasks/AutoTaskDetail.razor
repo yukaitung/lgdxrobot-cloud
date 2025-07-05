@@ -1,8 +1,10 @@
 @attribute [Route(AppRoutes.Automation.AutoTasks.Create)]
 @attribute [Route(AppRoutes.Automation.AutoTasks.Detail)]
 @attribute [Authorize (Policy = Permissions.Automation.AutoTasks.Read)]
-@using LGDXRobotCloud.Utilities.Enums
+@using LGDXRobotCloud.Data.Entities
+@using LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components;
 @using LGDXRobotCloud.UI.Components.Pages.Automation.AutoTasks.Components
+@using LGDXRobotCloud.Utilities.Enums
 
 <PageHeader Title="@(Id != null ? (IsEditable() ? "Update Task" : "View Task") : "Create Task")">
   <div class="row align-items-center">
@@ -333,6 +335,15 @@
           </div>
         </div>
       </div>
+    }
+    @if (AutoTaskDetailViewModel.IsClone == false && Id != null)
+    {
+      <AuthorizeView Policy=@Permissions.Administration.ActivityLogs.Read Context="ActivityLogs">
+        <div class="col-12">
+          <ActivityLogsTable DefaultEntityName="@nameof(AutoTask)" DefaultEntityId="@(Id.ToString())"
+            ReturnUrl="@(AppRoutes.Automation.AutoTasks.Index + $"/{Id}")"/>
+        </div>
+      </AuthorizeView>
     }
   </div>
 </PageBody>
