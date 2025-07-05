@@ -27,13 +27,13 @@ public enum ActivityAction
   [EnumMember(Value = "Retry Trigger")]
   TriggerRetry = 12,
 
-  [EnumMember(Value = "Read ApiKey Secret")]
+  [EnumMember(Value = "Read Secret")]
   ApiKeySecretRead = 13,
 
-  [EnumMember(Value = "Update ApiKey Secret")]
+  [EnumMember(Value = "Update Secret")]
   ApiKeySecretUpdate = 14,
 
-  [EnumMember(Value = "Manual Abort AutoTask")]
+  [EnumMember(Value = "Manual Abort")]
   AutoTaskManualAbort = 15,
 
   [EnumMember(Value = "Traffic Updated")]
@@ -47,37 +47,37 @@ public enum ActivityAction
   [EnumMember(Value = "Login Failed")]
   LoginFailed = 51,
 
-  [EnumMember(Value = "User Password Reset")]
+  [EnumMember(Value = "Password Reset")]
   UserPasswordReset = 52,
 
-  [EnumMember(Value = "User Password Updated")]
+  [EnumMember(Value = "Password Updated")]
   UserPasswordUpdated = 53,
 
-  [EnumMember(Value = "User Two-Factor Authentication Enabled")]
+  [EnumMember(Value = "Two-Factor Authentication Enabled")]
   UserTwoFactorAuthenticationEnabled = 54,
 
-  [EnumMember(Value = "User Two-Factor Authentication Disabled")]
+  [EnumMember(Value = "Two-Factor Authentication Disabled")]
   UserTwoFactorAuthenticationDisabled = 55,
 
-  [EnumMember(Value = "User Unlocked")]
+  [EnumMember(Value = "Accont Unlocked")]
   UserUnlocked = 56,
 
   // Robot Actions
-  [EnumMember(Value = "Robot Certificate Create")]
+  [EnumMember(Value = "Certificate Create")]
   RobotCertificateCreate = 100,
 
-  [EnumMember(Value = "Robot Certificate Renew")]
+  [EnumMember(Value = "Certificate Renew")]
   RobotCertificateRenew = 101,
 
-  [EnumMember(Value = "Robot Stop Task Assignment")]
+  [EnumMember(Value = "Stop Task Assignment")]
   RobotPauseTaskAssignmentEnabled = 102,
 
-  [EnumMember(Value = "Robot Resume Task Assignment")]
+  [EnumMember(Value = "Resume Task Assignment")]
   RobotPauseTaskAssignmentDisabled = 103,
 
-  [EnumMember(Value = "Robot Emergency Stop Enabled")]
+  [EnumMember(Value = "Emergency Stop Enabled")]
   RobotSoftwareEmergencyStopEnabled = 104,
 
-  [EnumMember(Value = "Robot Emergency Stop Disabled")]
+  [EnumMember(Value = "Emergency Stop Disabled")]
   RobotSoftwareEmergencyStopDisabled = 105,
 }

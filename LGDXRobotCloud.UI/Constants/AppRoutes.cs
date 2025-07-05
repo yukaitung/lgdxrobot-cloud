@@ -74,6 +74,12 @@ public static class AppRoutes
 
   public static class Administration
   {
+    public static class ActivityLogs
+    {
+      public const string Index = "/Administration/ActivityLogs";
+      public const string Detail = "/Administration/ActivityLogs/{Id:int}";
+    }
+
     public static class ApiKeys
     {
       public const string Index = "/Administration/ApiKeys";

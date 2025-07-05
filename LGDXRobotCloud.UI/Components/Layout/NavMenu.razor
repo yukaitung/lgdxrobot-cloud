@@ -84,6 +84,11 @@
 				<AuthorizeView Policy="@Permissions.Administration.Area" Context="RobotSetting">
 					<NavDropdown title="Administration" href="Administration">
 						<div class="dropdown-menu-column">
+							<AuthorizeView Policy="@Permissions.Administration.ActivityLogs.Action" Context="ActivityLogs">
+								<NavLink class="dropdown-item" href="@AppRoutes.Administration.ActivityLogs.Index">
+									Activity Logs
+								</NavLink>
+							</AuthorizeView>
 							<AuthorizeView Policy="@Permissions.Administration.Users.Action" Context="AdministrationUsers">
 								<NavLink class="dropdown-item" href="@AppRoutes.Administration.Users.Index">
 									Users

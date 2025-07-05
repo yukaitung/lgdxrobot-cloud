@@ -86,12 +86,18 @@ public static class Permissions
   public static class Administration
   {
     public const string Area = "ValidateLgdxUserAccess/Administration";
+    public static class ActivityLogs
+    {
+      public const string Action = "ValidateLgdxUserAccess/Administration/ActivityLogs";
+      public const string FullAccess = "ValidateLgdxUserAccess/Administration/ActivityLogs/FullAccess";
+      public const string Read = "ValidateLgdxUserAccess/Administration/ActivityLogs/Read";
+    }
     public static class ApiKeys
     {
       public const string Action = "ValidateLgdxUserAccess/Administration/ApiKeys";
       public const string FullAccess = "ValidateLgdxUserAccess/Administration/ApiKeys/FullAccess";
       public const string Read = "ValidateLgdxUserAccess/Administration/ApiKeys/Read";
-      public const string Write = "ValidateLgdxUserAccess/Administration/ApiKeys/Write";      
+      public const string Write = "ValidateLgdxUserAccess/Administration/ApiKeys/Write";
       public const string Delete = "ValidateLgdxUserAccess/Administration/ApiKeys/Delete";
     }
     public static class RobotCertificates

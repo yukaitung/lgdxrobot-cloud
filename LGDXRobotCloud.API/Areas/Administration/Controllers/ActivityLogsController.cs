@@ -19,7 +19,7 @@ namespace LGDXRobotCloud.API.Areas.Administration.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 
-public sealed class ActivityLogController(
+public sealed class ActivityLogsController(
     IActivityLogService activityLogService,
     IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration
   ) : ControllerBase

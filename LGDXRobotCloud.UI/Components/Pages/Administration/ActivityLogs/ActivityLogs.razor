@@ -1,0 +1,17 @@
+@attribute [Route(AppRoutes.Administration.ActivityLogs.Index)]
+@attribute [Authorize (Policy = Permissions.Administration.ActivityLogs.Read)]
+@using LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components
+
+<PageHeader Title="Activity Logs">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">
+        Activity Logs
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <ActivityLogsTable />
+</PageBody>
