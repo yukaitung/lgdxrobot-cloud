@@ -29,9 +29,9 @@ build:
   script:
     - 'dotnet build --no-restore'
 
-unit-tests:
+tests:
   image: mcr.microsoft.com/dotnet/sdk:9.0
-  stage: tests
+  stage: test
   dependencies:
     - build
   before_script:
@@ -56,7 +56,7 @@ unit-tests:
         coverage_format: cobertura
         path: coveragereport/Cobertura.xml
 
-unit-tests-pages:
+pages1:
   image: alpine:latest
   stage: deploy
   dependencies:
