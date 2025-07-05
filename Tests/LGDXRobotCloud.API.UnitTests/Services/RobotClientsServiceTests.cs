@@ -135,12 +135,24 @@ public class RobotClientsServiceTests
     }
   };
 
+  private static readonly RobotChassisInfoBusinessModel robotClientsChassisInfo = new() {
+    RobotTypeId = 1,
+    ChassisLengthX = 1,
+    ChassisLengthY = 2,
+    ChassisWheelCount = 3,
+    ChassisWheelRadius = 4,
+    BatteryCount = 5,
+    BatteryMaxVoltage = 6,
+    BatteryMinVoltage = 7,
+  };
+
   [Fact]
   public async Task Greet_Called_ShouldReturnRobotClientsGreetRespond()
   {
     // Arrange
     var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
     mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robot);
+    mockRobotService.Setup(m => m.GetRobotChassisInfoAsync(RobotGuid)).ReturnsAsync(robotClientsChassisInfo);
     var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
 
     // Act
@@ -225,6 +237,7 @@ public class RobotClientsServiceTests
     // Arrange
     var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
     mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robotWithSystemInfo);
+    mockRobotService.Setup(m => m.GetRobotChassisInfoAsync(RobotGuid)).ReturnsAsync(robotClientsChassisInfo);
     var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object,mockRobotService.Object);
 
     // Act

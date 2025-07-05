@@ -5,7 +5,7 @@
 namespace LGDXRobotCloud.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class createdat : Migration
+    public partial class CreatedAt : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

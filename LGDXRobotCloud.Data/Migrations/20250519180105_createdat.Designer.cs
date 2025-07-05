@@ -13,7 +13,7 @@ namespace LGDXRobotCloud.Data.Migrations
 {
     [DbContext(typeof(LgdxContext))]
     [Migration("20250519180105_createdat")]
-    partial class createdat
+    partial class CreatedAt
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
