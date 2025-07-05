@@ -32,8 +32,6 @@ build:
 unit-test:
   image: mcr.microsoft.com/dotnet/sdk:9.0
   stage: test
-  dependencies:
-    - build
   before_script:
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
@@ -59,8 +57,6 @@ unit-test:
 unit-test-page:
   image: alpine:latest
   stage: deploy
-  dependencies:
-    - unit-test
   script:
     - 'rm coveragereport/Cobertura.xml'
     - 'rm coveragereport/Summary.txt'
