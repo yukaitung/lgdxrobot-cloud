@@ -14,6 +14,36 @@ public sealed partial class ActivityLogsTable : AbstractTable
 
   private List<ActivityLogListDto>? ActivityLogs { get; set; }
 
+  private string? CurrentEntityName { get; set; }
+
+  private static List<string> EntityNames { get; set; } = [
+    "Email",
+    nameof(Data.Entities.ApiKey),
+    nameof(Data.Entities.AutoTask),
+    nameof(Data.Entities.Flow),
+    nameof(Data.Entities.LgdxRole),
+    nameof(Data.Entities.LgdxUser),
+    nameof(Data.Entities.Progress),
+    nameof(Data.Entities.Realm),
+    nameof(Data.Entities.Robot),
+    nameof(Data.Entities.Trigger),
+    nameof(Data.Entities.Waypoint)
+  ];
+
+  private async Task HandleEntityCategoryChange(object? args)
+  {
+    CurrentPage = 1;
+    if (args != null)
+    {
+      CurrentEntityName = args.ToString();
+    }
+    else
+    {
+      CurrentEntityName = null;
+    }
+    await Refresh();
+  }
+
   private static string DisplayUser(LgdxUserSearchDto? user)
   {
     if (user == null)
@@ -37,7 +67,8 @@ public sealed partial class ActivityLogsTable : AbstractTable
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new ActivityLogsRequestBuilderGetQueryParameters
       {
-        EntityName = DataSearch,
+        EntityName = CurrentEntityName,
+        EntityId = DataSearch,
         PageNumber = 1,
         PageSize = PageSize
       };
@@ -54,7 +85,8 @@ public sealed partial class ActivityLogsTable : AbstractTable
     ActivityLogs = await LgdxApiClient.Administration.ActivityLogs.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new ActivityLogsRequestBuilderGetQueryParameters {
-        EntityName = DataSearch,
+        EntityName = CurrentEntityName,
+        EntityId = DataSearch,
         PageNumber = 1,
         PageSize = PageSize
       };
@@ -84,7 +116,8 @@ public sealed partial class ActivityLogsTable : AbstractTable
     ActivityLogs = await LgdxApiClient.Administration.ActivityLogs.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new ActivityLogsRequestBuilderGetQueryParameters {
-        EntityName = DataSearch,
+        EntityName = CurrentEntityName,
+        EntityId = DataSearch,
         PageNumber = pageNum,
         PageSize = PageSize
       };
@@ -101,7 +134,8 @@ public sealed partial class ActivityLogsTable : AbstractTable
     ActivityLogs = await LgdxApiClient.Administration.ActivityLogs.GetAsync(x => {
       x.Options.Add(headersInspectionHandlerOption);
       x.QueryParameters = new ActivityLogsRequestBuilderGetQueryParameters {
-        EntityName = DataSearch,
+        EntityName = CurrentEntityName,
+        EntityId = DataSearch,
         PageNumber = CurrentPage,
         PageSize = PageSize
       };

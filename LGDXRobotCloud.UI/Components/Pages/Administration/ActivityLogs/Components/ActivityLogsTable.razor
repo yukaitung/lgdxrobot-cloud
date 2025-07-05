@@ -22,8 +22,15 @@
           </div>
         </div>
       </div>
-      <div class="ms-auto text-secondary">
-        Search:
+      <select class="ms-auto form-select form-select-sm" style="width: 200px;" @onchange="@((e) => HandleEntityCategoryChange(e.Value))">
+        <option value="">Filter Entities...</option>
+        @foreach (string name in EntityNames)
+        {
+          <option value="@(name)">@(name)</option>
+        }
+      </select>
+      <div class="text-secondary ms-2">
+        ID:
       </div>
       <div class="text-secondary">
         <div class="input-group">

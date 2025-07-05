@@ -105,7 +105,7 @@ public class TriggerRetryService (
 
     await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
-      EntityName = nameof(TriggerRetry),
+      EntityName = nameof(Trigger),
       EntityId = trigger.Id.ToString(),
       Action = ActivityAction.TriggerRetry,
     });
@@ -131,7 +131,7 @@ public class TriggerRetryService (
 
     await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
     {
-      EntityName = nameof(TriggerRetry),
+      EntityName = nameof(Trigger),
       EntityId = triggerId.ToString(),
       Action = ActivityAction.TriggerRetry,
       Note = $"Batch retry for {triggerRetries.Count} requests."
