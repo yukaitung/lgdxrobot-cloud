@@ -16,11 +16,13 @@ public interface IEmailService
 }
 
 public sealed class EmailService (
+    IActivityLogService activityLogService,
     IOptionsSnapshot<EmailConfiguration> emailConfiguration,
     IOptionsSnapshot<EmailLinksConfiguration> emailLinksConfiguration,
     HtmlRenderer htmlRenderer
   ) : IEmailService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly EmailConfiguration _emailConfiguration = emailConfiguration.Value ?? throw new ArgumentNullException(nameof(emailConfiguration));
   private readonly EmailLinksConfiguration _emailLinksConfiguration = emailLinksConfiguration.Value ?? throw new ArgumentNullException(nameof(_emailLinksConfiguration));
   private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
@@ -53,5 +55,12 @@ public sealed class EmailService (
       await client.SendAsync(message);
     }
     await client.DisconnectAsync(true);
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogContract
+    {
+      EntityName = "Email",
+      EntityId = emailContract.EmailType.ToString(),
+      Action = ActivityAction.SendEmail,
+      Note = $"Number of receipients: {messages.Count()}"
+    });
   }
 }

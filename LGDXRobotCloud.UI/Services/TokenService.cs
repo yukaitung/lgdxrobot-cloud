@@ -130,12 +130,12 @@ public class TokenService : ITokenService
     {
       if (token != null)
       {
-        Tokens.TryUpdate(GenerateAccessKey(user), new Token {
+        Tokens[GenerateAccessKey(user)] = new Token {
           AccessToken = accessToken,
           RefreshToken = refreshToken,
           AccessTokenExpiresAt = token.AccessTokenExpiresAt, 
           RefreshTokenExpiresAt = token.RefreshTokenExpiresAt
-        }, token);
+        };
       }
     }
   }

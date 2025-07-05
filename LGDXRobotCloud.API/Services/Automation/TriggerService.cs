@@ -4,6 +4,7 @@ using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
@@ -28,14 +29,16 @@ public interface ITriggerService
 }
 
 public sealed class TriggerService (
+  IActivityLogService activityService,
+  IApiKeyService apiKeyService,
   IBus bus,
-  LgdxContext context,
-  IApiKeyService apiKeyService
+  LgdxContext context
 ) : ITriggerService
 {
+  private readonly IActivityLogService _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
+  private readonly IApiKeyService _apiKeyService = apiKeyService ?? throw new ArgumentNullException(nameof(apiKeyService));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
-  private readonly IApiKeyService _apiKeyService = apiKeyService ?? throw new ArgumentNullException(nameof(apiKeyService));
 
   public async Task<(IEnumerable<TriggerListBusinessModel>, PaginationHelper)> GetTriggersAsync(string? name, int pageNumber, int pageSize)
   {
@@ -111,7 +114,16 @@ public sealed class TriggerService (
     };
     await _context.Triggers.AddAsync(trigger);
     await _context.SaveChangesAsync();
-    return new TriggerBusinessModel {
+    
+    await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Trigger),
+      EntityId = trigger.Id.ToString(),
+      Action = ActivityAction.Create,
+    });
+
+    return new TriggerBusinessModel
+    {
       Id = trigger.Id,
       Name = trigger.Name,
       Url = trigger.Url,
@@ -131,7 +143,7 @@ public sealed class TriggerService (
       await ValidateApiKey((int)triggerUpdateBusinessModel.ApiKeyId);
     }
 
-    return await _context.Triggers
+    bool result = await _context.Triggers
       .Where(t => t.Id == triggerId)
       .ExecuteUpdateAsync(setters => setters
         .SetProperty(t => t.Name, triggerUpdateBusinessModel.Name)
@@ -141,6 +153,17 @@ public sealed class TriggerService (
         .SetProperty(t => t.ApiKeyInsertLocationId, triggerUpdateBusinessModel.ApiKeyInsertLocationId)
         .SetProperty(t => t.ApiKeyFieldName, triggerUpdateBusinessModel.ApiKeyFieldName)
         .SetProperty(t => t.ApiKeyId, triggerUpdateBusinessModel.ApiKeyId)) == 1;
+    
+    if (result)
+    {
+      await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Trigger),
+        EntityId = triggerId.ToString(),
+        Action = ActivityAction.Update,
+      });
+    }
+    return result;
   }
 
   public async Task<bool> TestDeleteTriggerAsync(int triggerId)
@@ -155,8 +178,19 @@ public sealed class TriggerService (
 
   public async Task<bool> DeleteTriggerAsync(int triggerId)
   {
-    return await _context.Triggers.Where(t => t.Id == triggerId)
+    bool result = await _context.Triggers.Where(t => t.Id == triggerId)
       .ExecuteDeleteAsync() == 1;
+
+    if (result)
+    {
+      await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Trigger),
+        EntityId = triggerId.ToString(),
+        Action = ActivityAction.Delete,
+      });
+    }
+    return result;
   }
 
   public async Task<IEnumerable<TriggerSearchBusinessModel>> SearchTriggersAsync(string? name)
@@ -223,12 +257,13 @@ public sealed class TriggerService (
         }
       }
       // Add Next Token
-      if (flowDetail.AutoTaskNextControllerId != (int) AutoTaskNextController.Robot && autoTask.NextToken != null)
+      if (flowDetail.AutoTaskNextControllerId != (int)AutoTaskNextController.Robot && autoTask.NextToken != null)
       {
         bodyDictionary.Add("NextToken", autoTask.NextToken);
       }
 
-      await _bus.Publish(new AutoTaskTriggerContract {
+      await _bus.Publish(new AutoTaskTriggerContract
+      {
         Trigger = trigger,
         Body = bodyDictionary,
         AutoTaskId = autoTask.Id,
@@ -237,6 +272,13 @@ public sealed class TriggerService (
         RobotName = GetRobotName((Guid)autoTask.AssignedRobotId!),
         RealmId = autoTask.RealmId,
         RealmName = GetRealmName(autoTask.RealmId),
+      });
+      
+      await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Trigger),
+        EntityId = trigger.Id.ToString(),
+        Action = ActivityAction.TriggerExecute,
       });
     }
   }
@@ -256,6 +298,7 @@ public sealed class TriggerService (
         RealmId = autoTask.RealmId,
         RealmName = GetRealmName(autoTask.RealmId),
       });
+      // Don't add activity log
       return true;
     }
     return false;

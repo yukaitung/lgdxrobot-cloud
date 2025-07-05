@@ -1,6 +1,8 @@
 @attribute [Route(AppRoutes.Administration.ApiKeys.Detail)]
 @attribute [Route(AppRoutes.Administration.ApiKeys.Create)]
 @attribute [Authorize (Policy = Permissions.Administration.ApiKeys.Read)]
+@using LGDXRobotCloud.Data.Entities
+@using LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components;
 
 <PageHeader Title="@(Id != null ? "Edit API Key" : "Create API Key")">
   <div class="row align-items-center">
@@ -93,7 +95,6 @@
       </div>
     </div>
     
-
     @if (Id != null)
     {
       <div class="col-12">
@@ -128,7 +129,7 @@
                       <span>@UpdateApiKeySecretViewModel.Secret</span>
                     }
                     <small class="form-hint">
-                      By pressing the button, an audit log will be created.
+                      By pressing the button, an activity log will be created.
                     </small>
                   </div>
                 </div>
@@ -155,6 +156,13 @@
           </EditForm>
         </div>
       </div>
+
+      <AuthorizeView Policy=@Permissions.Administration.ActivityLogs.Read Context="ActivityLogs">
+        <div class="col-12">
+          <ActivityLogsTable DefaultEntityName="@nameof(ApiKey)" DefaultEntityId="@(Id.ToString())"
+            ReturnUrl="@(AppRoutes.Administration.ApiKeys.Index + $"/{Id}")"/>
+        </div>
+      </AuthorizeView>
     }
   </div>
 </PageBody>

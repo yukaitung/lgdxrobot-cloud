@@ -1,10 +1,12 @@
 using EntityFrameworkCore.Testing.Moq;
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Automation;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Utilities.Enums;
+using Moq;
 
 namespace LGDXRobotCloud.API.UnitTests.Services.Automation;
 
@@ -118,6 +120,7 @@ public class FlowServiceTests
     }
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly LgdxContext lgdxContext;
 
   public FlowServiceTests()
@@ -140,7 +143,7 @@ public class FlowServiceTests
   {
     // Arrange
     var expected = flows.Where(t => t.Name!.Contains(flowName));
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var (actual, _) = await flowService.GetFlowsAsync(flowName, 1, 10);
@@ -160,7 +163,7 @@ public class FlowServiceTests
   {
     // Arrange
     var expected = flows.FirstOrDefault(t => t.Id == flowId);
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await flowService.GetFlowAsync(flowId);
@@ -182,7 +185,7 @@ public class FlowServiceTests
   public async Task GetAutoTaskAsync_CalledWithInvalidId_ShouldThrowsNotFoundException()
   {
     // Arrange
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => flowService.GetFlowAsync(flows.Count + 1);
@@ -204,7 +207,7 @@ public class FlowServiceTests
         TriggerId = 1
       }]
     };
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await flowService.CreateFlowAsync(expected);
@@ -237,7 +240,7 @@ public class FlowServiceTests
         TriggerId = 1
       }]
     };
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => flowService.CreateFlowAsync(expected);
@@ -261,7 +264,7 @@ public class FlowServiceTests
         TriggerId = 1
       }]
     };
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => flowService.CreateFlowAsync(expected);
@@ -285,7 +288,7 @@ public class FlowServiceTests
         TriggerId = triggerId
       }]
     };
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => flowService.CreateFlowAsync(expected);
@@ -305,7 +308,7 @@ public class FlowServiceTests
       Name = "Test Flow Edited",
       FlowDetails = [],
     };
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await flowService.UpdateFlowAsync(id, update);
@@ -324,7 +327,7 @@ public class FlowServiceTests
       Name = "Test Flow Edited",
       FlowDetails = [],
     };
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => flowService.UpdateFlowAsync(id, update);
@@ -338,7 +341,7 @@ public class FlowServiceTests
   {
     // Arrange
     int id = 1;
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await flowService.TestDeleteFlowAsync(id);
@@ -353,7 +356,7 @@ public class FlowServiceTests
     // Arrange
     int id = 2;
     int depeendencies = 1;
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => flowService.TestDeleteFlowAsync(id);
@@ -373,7 +376,7 @@ public class FlowServiceTests
   {
     // Arrange
     var expected = flows.Where(t => t.Name!.Contains(name));
-    var flowService = new FlowService(lgdxContext);
+    var flowService = new FlowService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await flowService.SearchFlowsAsync(name);

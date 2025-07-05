@@ -1,0 +1,98 @@
+@using LGDXRobotCloud.Utilities.Enums
+@inherits AbstractTable
+
+<div class="card">
+  <!-- Header -->
+  <div class="card-header">
+    <h3 class="card-title">Activity Logs</h3>
+  </div>
+  <!-- Filter -->
+  <div class="card-body border-bottom py-3">
+    <div class="d-flex">
+      <div class="text-secondary">
+        <div class="row g-2">
+          <div class="col">
+            Show
+          </div>
+          <div class="col-auto">
+            <TablePageSizeSelect OnChange="HandlePageSizeChange" />
+          </div>
+          <div class="col-auto">
+            entries
+          </div>
+        </div>
+      </div>
+      @if (!HideOptions)
+      {
+        <select class="ms-auto form-select form-select-sm" style="width: 200px;" @onchange="@((e) => HandleEntityCategoryChange(e.Value))">
+          <option value="">Filter Entities...</option>
+          @foreach (string name in EntityNames)
+          {
+            <option value="@(name)">@(name)</option>
+          }
+        </select>
+        <div class="text-secondary ms-2">
+          ID:
+        </div>
+        <div class="text-secondary">
+          <div class="input-group">
+            <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
+            <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
+            <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Data -->
+  <div class="table-responsive">
+    <table class="table card-table table-vcenter text-nowrap datatable">
+      <thead>
+        <tr>
+          <th class="w-1">ID</th>
+          <th>Entity Name</th>
+          <th>Entity Id</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Created At</th>
+          <th class="w-1"><!-- Action --></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (ActivityLogs != null)
+        {
+          @foreach (var log in ActivityLogs)
+          {
+            var logId = log.Id;
+            <tr>
+              <td>@log.Id</td>
+              <td>@log.EntityName</td>
+              <td>@log.EntityId</td>
+              <td>@(DisplayUser(log.User))</td>
+              <td>@(((ActivityAction)log.Action!.Value).ToEnumMember())</td>
+              <td>@UiHelper.TimeToString(log.CreatedAt)</td>
+              <td class="text-end">
+                <a href="@DisplayViewUrl(AppRoutes.Administration.ActivityLogs.Index + $"/{logId}")" class="page-link link-primary">View</a>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <TableLoading Columns="7" />
+        }
+      </tbody>
+    </table>
+    @if (ActivityLogs != null && ActivityLogs.Count() == 0)
+    {
+      <TableEmpty />
+    }
+  </div>
+  <!-- Footer -->
+  @if (PaginationHelper != null && ActivityLogs != null && ActivityLogs.Count() > 0)
+  {
+    <TablePagination PaginationHelper="PaginationHelper" ItemCount="ActivityLogs.Count()"
+      OnPageChange="HandlePageChange" />
+  }
+</div>

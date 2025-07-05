@@ -3,6 +3,7 @@ using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
+using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,14 +21,16 @@ public interface IUserService
 }
 
 public class UserService(
+    IActivityLogService activityLogService,
     IEmailService emailService,
-    UserManager<LgdxUser> userManager,
-    LgdxContext context
+    LgdxContext context,
+    UserManager<LgdxUser> userManager
   ) : IUserService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-  private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
   public async Task<(IEnumerable<LgdxUserListBusinessModel>, PaginationHelper)> GetUsersAsync(string? name, int pageNumber, int pageSize)
   {
@@ -129,8 +132,16 @@ public class UserService(
         lgdxUserCreateAdminBusinessModel.UserName
       );
     }
+    
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxUser),
+      EntityId = user.Id,
+      Action = ActivityAction.Create,
+    });
 
-    return new LgdxUserBusinessModel {
+    return new LgdxUserBusinessModel
+    {
       Id = Guid.Parse(user.Id),
       Name = user.Name!,
       UserName = user.UserName!,
@@ -170,6 +181,14 @@ public class UserService(
     {
       throw new LgdxIdentity400Expection(result.Errors);
     }
+
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxUser),
+      EntityId = user.Id,
+      Action = ActivityAction.Update,
+    });
+
     return true;
   }
 
@@ -185,6 +204,14 @@ public class UserService(
     {
       throw new LgdxIdentity400Expection(result.Errors);
     }
+
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxUser),
+      EntityId = user.Id,
+      Action = ActivityAction.UserUnlocked,
+    });
+
     return true;
   }
 
@@ -200,6 +227,14 @@ public class UserService(
     {
       throw new LgdxIdentity400Expection(result.Errors);
     }
+
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxUser),
+      EntityId = user.Id,
+      Action = ActivityAction.Delete,
+    });
+    
     return true;
   }
 }

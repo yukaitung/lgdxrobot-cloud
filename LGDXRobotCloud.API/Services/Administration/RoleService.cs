@@ -3,6 +3,7 @@ using LGDXRobotCloud.API.Exceptions;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
+using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -21,10 +22,12 @@ public interface IRoleService
 }
 
 public class RoleService(
+    IActivityLogService activityLogService,
     LgdxContext context,
     RoleManager<LgdxRole> roleManager
   ) : IRoleService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   private readonly RoleManager<LgdxRole> _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
 
@@ -103,8 +106,16 @@ public class RoleService(
         }
       }      
     }
+    
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxRole),
+      EntityId = role.Id,
+      Action = ActivityAction.Create,
+    });
 
-    return new LgdxRoleBusinessModel {
+    return new LgdxRoleBusinessModel
+    {
       Id = Guid.Parse(role.Id),
       Name = role.Name!,
       Description = role.Description,
@@ -156,6 +167,14 @@ public class RoleService(
         throw new LgdxIdentity400Expection(removeScopeResult.Errors);
       }
     }
+
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxRole),
+      EntityId = role.Id,
+      Action = ActivityAction.Update,
+    });
+
     return true; // Error is handled in the Identity service
   }
 
@@ -171,6 +190,14 @@ public class RoleService(
     {
       throw new LgdxIdentity400Expection(result.Errors);
     }
+
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxRole),
+      EntityId = role.Id,
+      Action = ActivityAction.Delete,
+    });
+    
     return true; // Error is handled in the Identity service
   }
 

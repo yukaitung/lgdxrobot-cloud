@@ -67,12 +67,30 @@ builder.Services.AddOpenApi(options =>
 	options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
 });
 builder.Services.AddGrpc(cfg => cfg.EnableDetailedErrors = true);
-builder.Services.AddDbContextPool<LgdxContext>(cfg =>
-	cfg.UseNpgsql(builder.Configuration["PGSQLConnectionString"])
-	.LogTo(Console.WriteLine, LogLevel.Information)
-	.EnableSensitiveDataLogging()
-	.EnableDetailedErrors()
-);
+if (builder.Environment.IsDevelopment())
+{
+	builder.Services.AddDbContext<LgdxContext>(cfg =>
+		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
+		.LogTo(Console.WriteLine, LogLevel.Information)
+		.EnableSensitiveDataLogging()
+		.EnableDetailedErrors()
+	);
+	builder.Services.AddDbContext<ActivityContext>(cfg =>
+		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Activity"))
+		.LogTo(Console.WriteLine, LogLevel.Information)
+		.EnableSensitiveDataLogging()
+		.EnableDetailedErrors()
+	);
+}
+else
+{
+	builder.Services.AddDbContext<LgdxContext>(cfg =>
+		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
+	);
+	builder.Services.AddDbContext<ActivityContext>(cfg =>
+		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Activity"))
+	);
+}
 builder.Services.AddHttpContextAccessor();
 
 /*
@@ -187,6 +205,7 @@ builder.Services.AddAuthorizationBuilder()
  * LGDX Depency Injection
  */
 // Administrator
+builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 builder.Services.AddScoped<IApiKeyService, ApiKeyService>();
 builder.Services.AddScoped<IRobotCertificateService, RobotCertificateService>();
 builder.Services.AddScoped<IRoleService, RoleService>();

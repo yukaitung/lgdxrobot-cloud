@@ -1,10 +1,12 @@
 using EntityFrameworkCore.Testing.Moq;
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Automation;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Utilities.Enums;
+using Moq;
 
 namespace LGDXRobotCloud.API.UnitTests.Services.Automation;
 
@@ -67,6 +69,7 @@ public class ProgressServiceTests
     },
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly LgdxContext lgdxContext;
 
   public ProgressServiceTests()
@@ -89,7 +92,7 @@ public class ProgressServiceTests
   {
     // Arrange
     var expected = progresses.Where(p => p.Name!.Contains(progressName)).Where(p => p.System);
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var (actual, _) = await progressService.GetProgressesAsync(progressName, 1, 10, true);
@@ -116,7 +119,7 @@ public class ProgressServiceTests
   {
     // Arrange
     var expected = progresses.Where(p => p.Name!.Contains(progressName)).Where(p => p.System == false);
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var (actual, _) = await progressService.GetProgressesAsync(progressName, 1, 10, false);
@@ -138,7 +141,7 @@ public class ProgressServiceTests
     // Arrange
     int id = (int)ProgressState.Template;
     var expected = progresses.FirstOrDefault(p => p.Id == id);
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await progressService.GetProgressAsync(id);
@@ -156,7 +159,7 @@ public class ProgressServiceTests
   {
     // Arrange
     int id = 999;
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => progressService.GetProgressAsync(id);
@@ -172,7 +175,7 @@ public class ProgressServiceTests
     var expected = new ProgressCreateBusinessModel {
       Name = "Test Progress"
     };
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await progressService.CreateProgressAsync(expected);
@@ -193,7 +196,7 @@ public class ProgressServiceTests
     var update = new ProgressUpdateBusinessModel {
       Name = "Progress 1 Updated"
     };
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await progressService.UpdateProgressAsync(id, update);
@@ -211,7 +214,7 @@ public class ProgressServiceTests
     var update = new ProgressUpdateBusinessModel {
       Name = "Progress 1 Updated"
     };
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => progressService.UpdateProgressAsync(id, update);
@@ -228,7 +231,7 @@ public class ProgressServiceTests
     var update = new ProgressUpdateBusinessModel {
       Name = "Progress 1 Updated"
     };
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => progressService.UpdateProgressAsync(id, update);
@@ -243,7 +246,7 @@ public class ProgressServiceTests
   {
     // Arrange
     int id = (int)ProgressState.Reserved + 1;
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await progressService.TestDeleteProgressAsync(id);
@@ -257,7 +260,7 @@ public class ProgressServiceTests
   {
     // Arrange
     int id = 999;
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => progressService.TestDeleteProgressAsync(id);
@@ -271,7 +274,7 @@ public class ProgressServiceTests
   {
     // Arrange
     int id = (int)ProgressState.Template;
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => progressService.TestDeleteProgressAsync(id);
@@ -286,7 +289,7 @@ public class ProgressServiceTests
     // Arrange
     int dependencies = 1;
     int id = (int)ProgressState.Reserved + 2;
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     Task act() => progressService.TestDeleteProgressAsync(id);
@@ -307,7 +310,7 @@ public class ProgressServiceTests
   {
     // Arrange
     var expected = progresses.Where(p => p.Name!.Contains(name)).Where(p => p.Reserved == false);
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await progressService.SearchProgressesAsync(name, false);
@@ -330,7 +333,7 @@ public class ProgressServiceTests
   {
     // Arrange
     var expected = progresses.Where(p => p.Name!.Contains(name)).Where(p => p.Reserved == true);
-    var progressService = new ProgressService(lgdxContext);
+    var progressService = new ProgressService(mockActivityLogService.Object, lgdxContext);
 
     // Act
     var actual = await progressService.SearchProgressesAsync(name, true);

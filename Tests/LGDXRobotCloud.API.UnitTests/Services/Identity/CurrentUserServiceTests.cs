@@ -1,4 +1,5 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Identity;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Identity;
@@ -23,6 +24,7 @@ public class CurrentUserServiceTests
     "role1"
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly Mock<UserManager<LgdxUser>> mockUserManager;
 
   public CurrentUserServiceTests()
@@ -39,7 +41,7 @@ public class CurrentUserServiceTests
     mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(roles);
 
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     var actual = await currentUserService.GetUserAsync(user.Id);
@@ -61,7 +63,7 @@ public class CurrentUserServiceTests
   public async Task GetUserAsync_CalledWithInvalidUserId_ShouldThrowsLgdxNotFound404Exception()
   {
     // Arrange
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     Task act() => currentUserService.GetUserAsync("invalid");
@@ -82,7 +84,7 @@ public class CurrentUserServiceTests
       Name = "test",
       Email = "test@example.com"
     };
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     var actual = await currentUserService.UpdateUserAsync(user.Id, lgdxUserUpdateBusinessModel);
@@ -101,7 +103,7 @@ public class CurrentUserServiceTests
       Name = "test",
       Email = "test@example.com"
     };
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     Task act() => currentUserService.UpdateUserAsync(Guid.Empty.ToString(), lgdxUserUpdateBusinessModel);
@@ -122,7 +124,7 @@ public class CurrentUserServiceTests
       Name = "test",
       Email = "test@example.com"
     };
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     Task act() => currentUserService.UpdateUserAsync(user.Id.ToString(), lgdxUserUpdateBusinessModel);
@@ -139,7 +141,7 @@ public class CurrentUserServiceTests
     // Arrange
     mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockUserManager.Setup(m => m.GetAuthenticatorKeyAsync(It.IsAny<LgdxUser>())).ReturnsAsync("123456");
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     var actual = await currentUserService.InitiateTwoFactorAsync(user.Id.ToString());
@@ -158,7 +160,7 @@ public class CurrentUserServiceTests
     mockUserManager.Setup(m => m.VerifyTwoFactorTokenAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
     mockUserManager.Setup(m => m.SetTwoFactorEnabledAsync(It.IsAny<LgdxUser>(), It.IsAny<bool>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.GenerateNewTwoFactorRecoveryCodesAsync(It.IsAny<LgdxUser>(), It.IsAny<int>())).ReturnsAsync(["123456"]);
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     var actual = await currentUserService.EnableTwoFactorAsync(user.Id.ToString(), "123456");
@@ -175,7 +177,7 @@ public class CurrentUserServiceTests
   public async Task EnableTwoFactorAsync_CalledWithInvalidUserId_ShouldThrowsLgdxNotFound404Exception()
   {
     // Arrange
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     Task act() => currentUserService.EnableTwoFactorAsync(Guid.Empty.ToString(), "123456");
@@ -193,7 +195,7 @@ public class CurrentUserServiceTests
   {
     // Arrange
     mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     Task act() => currentUserService.EnableTwoFactorAsync(user.Id.ToString(), string.Empty);
@@ -213,7 +215,7 @@ public class CurrentUserServiceTests
     // Arrange  
     mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockUserManager.Setup(m => m.VerifyTwoFactorTokenAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     Task act() => currentUserService.EnableTwoFactorAsync(user.Id.ToString(), "123456");
@@ -233,7 +235,7 @@ public class CurrentUserServiceTests
     // Arrange
     mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockUserManager.Setup(m => m.GenerateNewTwoFactorRecoveryCodesAsync(It.IsAny<LgdxUser>(), It.IsAny<int>())).ReturnsAsync(["123456"]);
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     var actual = await currentUserService.ResetRecoveryCodesAsync(user.Id.ToString());
@@ -248,7 +250,7 @@ public class CurrentUserServiceTests
   public async Task ResetRecoveryCodesAsync_CalledWithInvalidUserId_ShouldThrowsLgdxNotFound404Exception()
   {
     // Arrange
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     Task act() => currentUserService.ResetRecoveryCodesAsync(Guid.Empty.ToString());
@@ -266,7 +268,7 @@ public class CurrentUserServiceTests
     mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockUserManager.Setup(m => m.ResetAuthenticatorKeyAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.SetTwoFactorEnabledAsync(It.IsAny<LgdxUser>(), It.IsAny<bool>())).ReturnsAsync(IdentityResult.Success);
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     var actual = await currentUserService.DisableTwoFactorAsync(user.Id.ToString());
@@ -282,7 +284,7 @@ public class CurrentUserServiceTests
   public async Task DisableTwoFactorAsync_CalledWithInvalidUserId_ShouldThrowsLgdxNotFound404Exception()
   {
     // Arrange
-    var currentUserService = new CurrentUserService(mockUserManager.Object);
+    var currentUserService = new CurrentUserService(mockActivityLogService.Object, mockUserManager.Object);
 
     // Act
     Task act() => currentUserService.DisableTwoFactorAsync(Guid.Empty.ToString());

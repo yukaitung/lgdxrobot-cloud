@@ -1,6 +1,8 @@
 @attribute [Route(AppRoutes.Administration.Users.Detail)]
 @attribute [Route(AppRoutes.Administration.Users.Create)]
 @attribute [Authorize (Policy = Permissions.Administration.Users.Read)]
+@using LGDXRobotCloud.Data.Entities
+@using LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components;
 
 <PageHeader Title="@(Id != null ? "Edit User" : "Create User")">
   <div class="row align-items-center">
@@ -14,142 +16,155 @@
 </PageHeader>
 
 <PageBody>
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">User Detail</h3>
-    </div>
-    <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
-      <DataAnnotationsValidator />
-      <div class="card-body">
-        <ApiErrorAlert Errors="@UserDetailViewModel.Errors" />
-        <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
-        @if (Id != null)
-        {
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label">ID</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@UserDetailViewModel.Id</div>
+  <div class="row row-cards">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">User Detail</h3>
+        </div>
+        <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+          <DataAnnotationsValidator />
+          <div class="card-body">
+            <ApiErrorAlert Errors="@UserDetailViewModel.Errors" />
+            <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
+            @if (Id != null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label">ID</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@UserDetailViewModel.Id</div>
+                </div>
+              </div>
+            }
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.UserName)">Username</label>
+              <div class="col">
+                <InputText id="@nameof(UserDetailViewModel.UserName)" type="text" class="form-control" @bind-Value="UserDetailViewModel.UserName"/>
+                <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.UserName)" />
+              </div>
             </div>
-          </div>
-        }
-        <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.UserName)">Username</label>
-          <div class="col">
-            <InputText id="@nameof(UserDetailViewModel.UserName)" type="text" class="form-control" @bind-Value="UserDetailViewModel.UserName"/>
-            <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.UserName)" />
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Name)">Full Name</label>
-          <div class="col">
-            <InputText id="@nameof(UserDetailViewModel.Name)" type="text" class="form-control" @bind-Value="UserDetailViewModel.Name" />
-            <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Name)" />
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Email)">Email</label>
-          <div class="col">
-            <InputText id="@nameof(UserDetailViewModel.Email)" type="text" class="form-control" @bind-Value="UserDetailViewModel.Email" />
-            <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Email)" />
-          </div>
-        </div>
-        @if (Id == null)
-        {
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label" for="@nameof(UserDetailViewModel.Password)">Password</label>
-            <div class="col">
-              <InputText id="@nameof(UserDetailViewModel.Password)" type="password" class="form-control" @bind-Value="UserDetailViewModel.Password" />
-              <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Password)" />
-              <small class="form-hint">
-                The user receives a welcome email to set a password if none is specified.
-              </small>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Name)">Full Name</label>
+              <div class="col">
+                <InputText id="@nameof(UserDetailViewModel.Name)" type="text" class="form-control" @bind-Value="UserDetailViewModel.Name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Name)" />
+              </div>
             </div>
-          </div>
-        }
-        <div class="mb-3 row">
-          <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Roles)">Roles</label>
-          <div class="col d-flex flex-column">
-            <table class="table table-vcenter text-nowrap datatable">
-              <thead>
-                <tr>
-                  <th class="w-1">Sequence</th>
-                  <th>Roles</th>
-                  <th class="w-1"><!-- Action --></th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (int i = 0; i < UserDetailViewModel.Roles.Count; i++)
-                {
-                  var index = i;
-                  var roleName = UserDetailViewModel.Roles[i];
-                  <tr>
-                    <td>
-                        @(index + 1)
-                    </td>
-                    <td>
-                      <InputSelect id="@(AdvanceSelectElements[0] + i.ToString())" class="form-control"
-                        @bind-Value="roleName">
-                          <option value="@roleName">@roleName</option>
-                      </InputSelect>
-                    </td>
-                    <td>
-                      <button type="button"
-                        class="btn btn-ghost-danger btn-icon"
-                        @onclick="e => ListRemoveRole(index)" disabled="@(UserDetailViewModel.Roles.Count <= 1)">
-                          <i class="ti ti-trash" style="font-size: 16px;"></i>
-                      </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-            <button type="button" class="btn btn-secondary align-self-center" @onclick="ListAddRole">
-              Add Role
-            </button>
-          </div>
-        </div>
-        @if (Id != null)
-        {
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label">Access Failed Count</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@UserDetailViewModel.AccessFailedCount</div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Email)">Email</label>
+              <div class="col">
+                <InputText id="@nameof(UserDetailViewModel.Email)" type="text" class="form-control" @bind-Value="UserDetailViewModel.Email" />
+                <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Email)" />
+              </div>
             </div>
-          </div>
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label">Lockout End Time</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@(UserDetailViewModel.LockoutEnd?.DateTime < DateTime.UtcNow ? "-" : UiHelper.TimeToString(UserDetailViewModel.LockoutEnd))</div>
-              @if (UserDetailViewModel.LockoutEnd?.DateTime > DateTime.UtcNow)
-              {
-                <button type="button" class="btn btn-primary align-self-center" @onclick="HandleUnlockUser">
-                  Unlock User
+            @if (Id == null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label" for="@nameof(UserDetailViewModel.Password)">Password</label>
+                <div class="col">
+                  <InputText id="@nameof(UserDetailViewModel.Password)" type="password" class="form-control" @bind-Value="UserDetailViewModel.Password" />
+                  <ValidationMessage class="invalid-feedback" For="@(() => UserDetailViewModel.Password)" />
+                  <small class="form-hint">
+                    The user receives a welcome email to set a password if none is specified.
+                  </small>
+                </div>
+              </div>
+            }
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="@nameof(UserDetailViewModel.Roles)">Roles</label>
+              <div class="col d-flex flex-column">
+                <table class="table table-vcenter text-nowrap datatable">
+                  <thead>
+                    <tr>
+                      <th class="w-1">Sequence</th>
+                      <th>Roles</th>
+                      <th class="w-1"><!-- Action --></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (int i = 0; i < UserDetailViewModel.Roles.Count; i++)
+                    {
+                      var index = i;
+                      var roleName = UserDetailViewModel.Roles[i];
+                      <tr>
+                        <td>
+                            @(index + 1)
+                        </td>
+                        <td>
+                          <InputSelect id="@(AdvanceSelectElements[0] + i.ToString())" class="form-control"
+                            @bind-Value="roleName">
+                              <option value="@roleName">@roleName</option>
+                          </InputSelect>
+                        </td>
+                        <td>
+                          <button type="button"
+                            class="btn btn-ghost-danger btn-icon"
+                            @onclick="e => ListRemoveRole(index)" disabled="@(UserDetailViewModel.Roles.Count <= 1)">
+                              <i class="ti ti-trash" style="font-size: 16px;"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+                <button type="button" class="btn btn-secondary align-self-center" @onclick="ListAddRole">
+                  Add Role
                 </button>
+              </div>
+            </div>
+            @if (Id != null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label">Access Failed Count</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@UserDetailViewModel.AccessFailedCount</div>
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label">Lockout End Time</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@(UserDetailViewModel.LockoutEnd?.DateTime < DateTime.UtcNow ? "-" : UiHelper.TimeToString(UserDetailViewModel.LockoutEnd))</div>
+                  @if (UserDetailViewModel.LockoutEnd?.DateTime > DateTime.UtcNow)
+                  {
+                    <button type="button" class="btn btn-primary align-self-center" @onclick="HandleUnlockUser">
+                      Unlock User
+                    </button>
+                  }
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label">Two-Factor Authentication</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@(UserDetailViewModel.TwoFactorEnabled ? "Enable" : "Disable")</div>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="card-footer d-flex">
+            <AuthorizeView Policy=@Permissions.Administration.Users.Delete Context="DeleteButton">
+              @if (Id != null)
+              {
+                <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  Delete
+                </a>
               }
-            </div>
+            </AuthorizeView>
+            <AuthorizeView Policy=@Permissions.Administration.Users.Write Context="Write">
+              <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+            </AuthorizeView>
           </div>
-          <div class="mb-3 row">
-            <label class="col-3 col-form-label">Two-Factor Authentication</label>
-            <div class="col">
-              <div class="col form-control-plaintext">@(UserDetailViewModel.TwoFactorEnabled ? "Enable" : "Disable")</div>
-            </div>
-          </div>
-        }
+        </EditForm>
       </div>
-      <div class="card-footer d-flex">
-        <AuthorizeView Policy=@Permissions.Administration.Users.Delete Context="DeleteButton">
-          @if (Id != null)
-          {
-            <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-              Delete
-            </a>
-          }
-        </AuthorizeView>
-        <AuthorizeView Policy=@Permissions.Administration.Users.Write Context="Write">
-          <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
-        </AuthorizeView>
-      </div>
-    </EditForm>
+    </div>
+    @if (Id != null)
+    {
+      <AuthorizeView Policy=@Permissions.Administration.ActivityLogs.Read Context="ActivityLogs">
+        <div class="col-12">
+          <ActivityLogsTable DefaultEntityName="@nameof(LgdxUser)" DefaultEntityId="@(Id.ToString())"
+            ReturnUrl="@(AppRoutes.Administration.Users.Index + $"/{Id}")"/>
+        </div>
+      </AuthorizeView>
+    }
   </div>
 </PageBody>
 

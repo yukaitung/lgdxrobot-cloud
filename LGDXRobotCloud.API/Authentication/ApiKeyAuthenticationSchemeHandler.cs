@@ -7,11 +7,11 @@ using Microsoft.Extensions.Options;
 namespace LGDXRobotCloud.API.Authentication;
 
 public class ApiKeyAuthenticationSchemeHandler(
-    IOptionsMonitor<ApiKeyAuthenticationSchemeOptions> options,
-    ILoggerFactory logger,
-    UrlEncoder encoder,
     IApiKeyService apiKeyService,
-    IWebHostEnvironment webHostEnvironment
+    ILoggerFactory logger,
+    IOptionsMonitor<ApiKeyAuthenticationSchemeOptions> options,
+    IWebHostEnvironment webHostEnvironment,
+    UrlEncoder encoder
   ) : AuthenticationHandler<ApiKeyAuthenticationSchemeOptions>(options, logger, encoder)
 {
   private readonly IApiKeyService _apiKeyService = apiKeyService ?? throw new ArgumentNullException(nameof(apiKeyService));
@@ -20,15 +20,14 @@ public class ApiKeyAuthenticationSchemeHandler(
 
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync() 
   {
-    if (!_webHostEnvironment.IsDevelopment())
+    string? apiKey = Context.Request.Headers["X-API-KEY"];
+    var apiKeyId = await _apiKeyService.ValidateApiKeyAsync(apiKey);
+    if (!_webHostEnvironment.IsDevelopment() && apiKeyId == null)
     {
-      var apiKey = Context.Request.Headers["X-API-KEY"];
-      if (string.IsNullOrWhiteSpace(apiKey) || await _apiKeyService.ValidateApiKeyAsync(apiKey!) == false) 
-      {
-        return AuthenticateResult.Fail("X-API-KEY is invalid");
-      }
+      return AuthenticateResult.Fail("X-API-KEY is invalid");
     }
     
+    Context.Items["ApiKeyId"] = apiKeyId;
     var identity = new ClaimsIdentity([], Scheme.Name);
     var principal = new ClaimsPrincipal(identity);
     var ticket = new AuthenticationTicket(principal, Scheme.Name);

@@ -55,6 +55,7 @@ public class RoleServiceTests
     }
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly Mock<RoleManager<LgdxRole>> mockRoleManager;
   private readonly LgdxContext lgdxContext;
 
@@ -77,7 +78,7 @@ public class RoleServiceTests
   public async Task GetRolesAsync_CalledWithLgdxRole_ShouldReturnLgdxRoles(string roleName)
   {
     // Arrange
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
     var expected = roles.Where(r => r.NormalizedName!.Contains(roleName)).ToList();
 
     // Act
@@ -97,7 +98,7 @@ public class RoleServiceTests
   public async Task GetRoleAsync_CalledWithRoleId_ShouldReturnLgdxRole()
   {
     // Arrange
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
     var expected = roles.FirstOrDefault(r => r.Id == Role1Id.ToString());
     var expectedClaims = roleClaims.Where(c => c.RoleId == Role1Id.ToString()).FirstOrDefault();
 
@@ -116,7 +117,7 @@ public class RoleServiceTests
   public async Task GetRoleAsync_CalledWithInvalidRoleId_ShouldReturnLgdxNotFound404Exception()
   {
     // Arrange
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.GetRoleAsync(Guid.NewGuid());
@@ -136,7 +137,7 @@ public class RoleServiceTests
       Description = "Test Description",
       Scopes = ["scope1"]
     };
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     var actual = await roleService.CreateRoleAsync(role);
@@ -160,7 +161,7 @@ public class RoleServiceTests
       Description = "Test Description",
       Scopes = ["scope1"]
     };
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.CreateRoleAsync(role);
@@ -182,7 +183,7 @@ public class RoleServiceTests
       Description = "Test Description",
       Scopes = ["scope1"]
     };
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.CreateRoleAsync(role);
@@ -207,7 +208,7 @@ public class RoleServiceTests
       Description = "Test Description",
       Scopes = ["scope2"]
     };
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     var actual = await roleService.UpdateRoleAsync(Role1Id, role);
@@ -230,7 +231,7 @@ public class RoleServiceTests
       Description = "Test Description",
       Scopes = ["scope2"]
     };
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.UpdateRoleAsync(id, role);
@@ -254,7 +255,7 @@ public class RoleServiceTests
       Description = "Test Description",
       Scopes = ["scope2"]
     };
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.UpdateRoleAsync(id, role);
@@ -279,7 +280,7 @@ public class RoleServiceTests
       Description = "Test Description",
       Scopes = ["scope2"]
     };
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.UpdateRoleAsync(id, role);
@@ -305,7 +306,7 @@ public class RoleServiceTests
       Description = "Test Description",
       Scopes = ["scope2"]
     };
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.UpdateRoleAsync(id, role);
@@ -332,7 +333,7 @@ public class RoleServiceTests
       Description = "Test Description",
       Scopes = ["scope2"]
     };
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.UpdateRoleAsync(id, role);
@@ -352,7 +353,7 @@ public class RoleServiceTests
     var id = Role1Id;
     mockRoleManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(roles.Where(r => r.Id == id.ToString()).FirstOrDefault());
     mockRoleManager.Setup(m => m.DeleteAsync(It.IsAny<LgdxRole>())).ReturnsAsync(IdentityResult.Success);
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     var actual = await roleService.DeleteRoleAsync(id);
@@ -368,7 +369,7 @@ public class RoleServiceTests
   {
     // Arrange
     var id = Role3Id;
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.DeleteRoleAsync(id);
@@ -385,7 +386,7 @@ public class RoleServiceTests
   {
     // Arrange
     var id = Guid.Empty;
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.DeleteRoleAsync(id);
@@ -403,7 +404,7 @@ public class RoleServiceTests
     var id = Role1Id;
     mockRoleManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(roles.Where(r => r.Id == id.ToString()).FirstOrDefault());
     mockRoleManager.Setup(m => m.DeleteAsync(It.IsAny<LgdxRole>())).ReturnsAsync(IdentityResult.Failed());
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
 
     // Act
     Task act() => roleService.DeleteRoleAsync(id);
@@ -422,7 +423,7 @@ public class RoleServiceTests
   public async Task SearchRoleAsync_CalledWithName_ShouldReturnRolesWithName(string name)
   {
     // Arrange
-    var roleService = new RoleService(lgdxContext, mockRoleManager.Object);
+    var roleService = new RoleService(mockActivityLogService.Object, lgdxContext, mockRoleManager.Object);
     var expected = roles.Where(r => r.NormalizedName!.Contains(name)).ToList();
 
     // Act

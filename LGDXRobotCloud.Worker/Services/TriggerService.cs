@@ -25,6 +25,7 @@ public class TriggerService(
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly HttpClient _httpClient = httpClient;
 
+  // Do not add to activity log, this will generate a lot of logs
   public async Task TriggerAsync(AutoTaskTriggerContract autoTaskTriggerContract)
   {
     var trigger = autoTaskTriggerContract.Trigger;
@@ -36,10 +37,10 @@ public class TriggerService(
       var apiKey = await _context.ApiKeys.Where(a => a.Id == trigger.ApiKeyId).FirstOrDefaultAsync();
       switch (trigger.ApiKeyInsertLocationId)
       {
-        case (int) ApiKeyInsertLocation.Header:
+        case (int)ApiKeyInsertLocation.Header:
           _httpClient.DefaultRequestHeaders.Add(apiKeyFieldName, apiKey?.Secret);
           break;
-        case (int) ApiKeyInsertLocation.Body:
+        case (int)ApiKeyInsertLocation.Body:
           body.Add(apiKeyFieldName, apiKey?.Secret ?? string.Empty);
           break;
       }
@@ -53,19 +54,19 @@ public class TriggerService(
     {
       switch (trigger.HttpMethodId)
       {
-        case (int) TriggerHttpMethod.Get:
+        case (int)TriggerHttpMethod.Get:
           httpResult = await _httpClient.GetAsync(trigger.Url);
           break;
-        case (int) TriggerHttpMethod.Post:
+        case (int)TriggerHttpMethod.Post:
           httpResult = await _httpClient.PostAsync(trigger.Url, requestBody);
           break;
-        case (int) TriggerHttpMethod.Put:
+        case (int)TriggerHttpMethod.Put:
           httpResult = await _httpClient.PutAsync(trigger.Url, requestBody);
           break;
-        case (int) TriggerHttpMethod.Patch:
+        case (int)TriggerHttpMethod.Patch:
           httpResult = await _httpClient.PatchAsync(trigger.Url, requestBody);
           break;
-        case (int) TriggerHttpMethod.Delete:
+        case (int)TriggerHttpMethod.Delete:
           httpResult = await _httpClient.DeleteAsync(trigger.Url);
           break;
         default:
@@ -76,12 +77,13 @@ public class TriggerService(
     {
       exceptionMessage = ex.Message;
     }
-    
-    if (!string.IsNullOrWhiteSpace(exceptionMessage) || (httpResult != null && !httpResult.IsSuccessStatusCode)) 
+
+    if (!string.IsNullOrWhiteSpace(exceptionMessage) || (httpResult != null && !httpResult.IsSuccessStatusCode))
     {
       // Add to trigger retry
       body.Remove(apiKeyFieldName);
-      await _context.TriggerRetries.AddAsync(new TriggerRetry{
+      await _context.TriggerRetries.AddAsync(new TriggerRetry
+      {
         TriggerId = trigger.Id,
         AutoTaskId = autoTaskTriggerContract.AutoTaskId,
         Body = JsonSerializer.Serialize(body)
@@ -91,7 +93,7 @@ public class TriggerService(
       // Convert message
       string errorStatusCode = httpResult != null ? ((int)httpResult.StatusCode).ToString() : string.Empty;
       string errorReasonPhrase = httpResult != null ? httpResult.ReasonPhrase ?? string.Empty : exceptionMessage;
-      
+
       // Send email
       List<string> recipientIds = await _context.UserRoles.AsNoTracking()
         .Where(ur => ur.RoleId == LgdxRolesHelper.GetSystemRoleId(LgdxRoleType.EmailRecipient).ToString())
@@ -106,10 +108,12 @@ public class TriggerService(
         .ToListAsync();
       if (recipients != null && recipients.Count >= 0)
       {
-        await _emailService.SendEmailAsync(new EmailContract {
+        await _emailService.SendEmailAsync(new EmailContract
+        {
           EmailType = EmailType.TriggerFailed,
           Recipients = recipients,
-          Metadata = JsonSerializer.Serialize(new TriggerFailedViewModel {
+          Metadata = JsonSerializer.Serialize(new TriggerFailedViewModel
+          {
             TriggerId = trigger.Id.ToString(),
             TriggerName = trigger.Name,
             TriggerUrl = trigger.Url,

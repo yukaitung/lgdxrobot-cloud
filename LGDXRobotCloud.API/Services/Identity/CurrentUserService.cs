@@ -1,7 +1,9 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Identity;
+using LGDXRobotCloud.Utilities.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace LGDXRobotCloud.API.Services.Identity;
@@ -17,9 +19,11 @@ public interface ICurrentUserService
 }
 
 public class CurrentUserService(
+    IActivityLogService activityLogService,
     UserManager<LgdxUser> userManager
   ) : ICurrentUserService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly UserManager<LgdxUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
   public async Task<LgdxUserBusinessModel> GetUserAsync(string userId)
@@ -51,6 +55,13 @@ public class CurrentUserService(
     {
       throw new LgdxIdentity400Expection(result.Errors);
     }
+
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxUser),
+      EntityId = user.Id.ToString(),
+      Action = ActivityAction.Update,
+    });
 
     return true;
   }
@@ -90,6 +101,13 @@ public class CurrentUserService(
       }
     await _userManager.SetTwoFactorEnabledAsync(user, true);
 
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxUser),
+      EntityId = user.Id.ToString(),
+      Action = ActivityAction.UserTwoFactorAuthenticationEnabled,
+    });
+
     var recoveryCodesEnumerable = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
     return recoveryCodesEnumerable?.ToList() ?? [];
   }
@@ -109,7 +127,14 @@ public class CurrentUserService(
       ?? throw new LgdxNotFound404Exception();
 
     await _userManager.ResetAuthenticatorKeyAsync(user);
-    await _userManager.SetTwoFactorEnabledAsync(user, false);   
+    await _userManager.SetTwoFactorEnabledAsync(user, false);
+
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(LgdxUser),
+      EntityId = user.Id.ToString(),
+      Action = ActivityAction.UserTwoFactorAuthenticationDisabled,
+    });
     return true;
   }
 }

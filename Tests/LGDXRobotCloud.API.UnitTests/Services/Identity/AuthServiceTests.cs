@@ -1,6 +1,7 @@
 using EntityFrameworkCore.Testing.Moq;
 using LGDXRobotCloud.API.Configurations;
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Identity;
 using LGDXRobotCloud.Data.DbContexts;
@@ -31,6 +32,7 @@ public class AuthServiceTests
     "role2"
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly Mock<IEmailService> mockEmailService = new();
   private readonly Mock<IOptionsSnapshot<LgdxRobotCloudSecretConfiguration>> mockSecretConfiguration = new();
   private readonly Mock<SignInManager<LgdxUser>> mockSignInManager;
@@ -61,7 +63,7 @@ public class AuthServiceTests
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.Success);
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(roles);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     var actual = await authService.LoginAsync(loginRequestBusinessModel);
@@ -90,7 +92,7 @@ public class AuthServiceTests
     };
     mockUserManager.Setup(m => m.FindByNameAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.TwoFactorRequired);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     var actual = await authService.LoginAsync(loginRequestBusinessModel);
@@ -123,7 +125,7 @@ public class AuthServiceTests
     mockSignInManager.Setup(m => m.TwoFactorAuthenticatorSignInAsync(It.IsAny<string>(), false, false)).ReturnsAsync(SignInResult.Success);
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(roles);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     var actual = await authService.LoginAsync(loginRequestBusinessModel);
@@ -156,7 +158,7 @@ public class AuthServiceTests
     mockSignInManager.Setup(m => m.TwoFactorRecoveryCodeSignInAsync(It.IsAny<string>())).ReturnsAsync(SignInResult.Success);
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(roles);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     var actual = await authService.LoginAsync(loginRequestBusinessModel);
@@ -185,7 +187,7 @@ public class AuthServiceTests
     };
     mockUserManager.Setup(m => m.FindByNameAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.Failed);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     Task act() => authService.LoginAsync(loginRequestBusinessModel);
@@ -211,14 +213,14 @@ public class AuthServiceTests
     };
     mockUserManager.Setup(m => m.FindByNameAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.LockedOut);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     Task act() => authService.LoginAsync(loginRequestBusinessModel);
 
     // Assert
     var exception = await Assert.ThrowsAsync<LgdxValidation400Expection>(act);
-    Assert.Equal("The account is lockedout.", exception.Message);
+    Assert.Equal("The account is locked out.", exception.Message);
     mockUserManager.Verify(m => m.FindByNameAsync(It.IsAny<string>()), Times.Once);
     mockSignInManager.Verify(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true), Times.Once);
     mockSignInManager.Verify(m => m.TwoFactorAuthenticatorSignInAsync(It.IsAny<string>(), false, false), Times.Never);
@@ -239,7 +241,7 @@ public class AuthServiceTests
     mockUserManager.Setup(m => m.FindByNameAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.TwoFactorRequired);
     mockSignInManager.Setup(m => m.TwoFactorAuthenticatorSignInAsync(It.IsAny<string>(), false, false)).ReturnsAsync(SignInResult.Failed);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     Task act() => authService.LoginAsync(loginRequestBusinessModel);
@@ -267,7 +269,7 @@ public class AuthServiceTests
     mockUserManager.Setup(m => m.FindByNameAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.TwoFactorRequired);
     mockSignInManager.Setup(m => m.TwoFactorRecoveryCodeSignInAsync(It.IsAny<string>())).ReturnsAsync(SignInResult.Failed);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     Task act() => authService.LoginAsync(loginRequestBusinessModel);
@@ -291,7 +293,7 @@ public class AuthServiceTests
       Username = "test",
       Password = "test"
     };
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     Task act() => authService.LoginAsync(loginRequestBusinessModel);
@@ -317,7 +319,7 @@ public class AuthServiceTests
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.Success);
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Failed());
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(roles);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     Task act() => authService.LoginAsync(loginRequestBusinessModel);
@@ -341,7 +343,7 @@ public class AuthServiceTests
     };
     mockUserManager.Setup(m => m.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockUserManager.Setup(m => m.GeneratePasswordResetTokenAsync(It.IsAny<LgdxUser>())).ReturnsAsync("123456");
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     await authService.ForgotPasswordAsync(forgotPasswordRequestBusinessModel);
@@ -359,7 +361,7 @@ public class AuthServiceTests
     var forgotPasswordRequestBusinessModel = new ForgotPasswordRequestBusinessModel {
       Email = "test@example.com"
     };
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     await authService.ForgotPasswordAsync(forgotPasswordRequestBusinessModel);
@@ -381,7 +383,7 @@ public class AuthServiceTests
     };
     mockUserManager.Setup(m => m.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockUserManager.Setup(m => m.ResetPasswordAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     await authService.ResetPasswordAsync(resetPasswordRequestBusinessModel);
@@ -401,7 +403,7 @@ public class AuthServiceTests
       NewPassword = "test",
       Email = "test@example.com"
     };
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     Task act() => authService.ResetPasswordAsync(resetPasswordRequestBusinessModel);
@@ -424,7 +426,7 @@ public class AuthServiceTests
     };
     mockUserManager.Setup(m => m.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
     mockUserManager.Setup(m => m.ResetPasswordAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Failed());
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     Task act() => authService.ResetPasswordAsync(resetPasswordRequestBusinessModel);
@@ -448,7 +450,7 @@ public class AuthServiceTests
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.Success);
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(roles);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
     var token = await authService.LoginAsync(loginRequestBusinessModel);
     mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(new LgdxUser{
       Id = user.Id.ToString(),
@@ -487,7 +489,7 @@ public class AuthServiceTests
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.Success);
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(roles);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
     var token = await authService.LoginAsync(loginRequestBusinessModel);
     var refreshTokenRequestBusinessModel = new RefreshTokenRequestBusinessModel {
       RefreshToken = token.RefreshToken
@@ -515,7 +517,7 @@ public class AuthServiceTests
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.Success);
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(roles);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
     var token = await authService.LoginAsync(loginRequestBusinessModel);
     mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(new LgdxUser{
       Id = user.Id.ToString(),
@@ -553,7 +555,7 @@ public class AuthServiceTests
     mockSignInManager.Setup(m => m.PasswordSignInAsync(It.IsAny<LgdxUser>(), It.IsAny<string>(), false, true)).ReturnsAsync(SignInResult.Success);
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(roles);
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
     var token = await authService.LoginAsync(loginRequestBusinessModel);
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Failed());
     mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(new LgdxUser{
@@ -589,7 +591,7 @@ public class AuthServiceTests
       CurrentPassword = "test",
       NewPassword = "test"
     };
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     var actual = await authService.UpdatePasswordAsync(user.Id, updatePasswordRequestBusinessModel);
@@ -609,7 +611,7 @@ public class AuthServiceTests
       CurrentPassword = "test",
       NewPassword = "test"
     };
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     Task act() => authService.UpdatePasswordAsync(user.Id, updatePasswordRequestBusinessModel);
@@ -631,7 +633,7 @@ public class AuthServiceTests
       CurrentPassword = "test",
       NewPassword = "test"
     };
-    var authService = new AuthService(lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
+    var authService = new AuthService(mockActivityLogService.Object, lgdxContext, mockEmailService.Object, mockSecretConfiguration.Object, mockSignInManager.Object, mockUserManager.Object);
 
     // Act
     Task act() => authService.UpdatePasswordAsync(user.Id, updatePasswordRequestBusinessModel);

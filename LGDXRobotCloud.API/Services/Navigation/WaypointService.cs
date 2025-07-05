@@ -1,6 +1,8 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
@@ -20,8 +22,12 @@ public interface IWaypointService
   Task<IEnumerable<WaypointSearchBusinessModel>> SearchWaypointsAsync(int realmId, string? name);
 }
 
-public class WaypointService(LgdxContext context) : IWaypointService
+public class WaypointService(
+    IActivityLogService activityLogService,
+    LgdxContext context
+  ) : IWaypointService
 {
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   public async Task<(IEnumerable<WaypointListBusinessModel>, PaginationHelper)> GetWaypointsAsync(int? realmId, string? name, int pageNumber, int pageSize)
@@ -97,7 +103,16 @@ public class WaypointService(LgdxContext context) : IWaypointService
 
     await _context.Waypoints.AddAsync(waypoint);
     await _context.SaveChangesAsync();
-    return new WaypointBusinessModel {
+    
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Waypoint),
+      EntityId = waypoint.Id.ToString(),
+      Action = ActivityAction.Create,
+    });
+
+    return new WaypointBusinessModel
+    {
       Id = waypoint.Id,
       Name = waypoint.Name,
       RealmId = waypoint.RealmId,
@@ -113,7 +128,7 @@ public class WaypointService(LgdxContext context) : IWaypointService
 
   public async Task<bool> UpdateWaypointAsync(int waypointId, WaypointUpdateBusinessModel waypointUpdateBusinessModel)
   {
-    return await _context.Waypoints
+    bool result = await _context.Waypoints
       .Where(w => w.Id == waypointId)
       .ExecuteUpdateAsync(setters => setters
         .SetProperty(w => w.Name, waypointUpdateBusinessModel.Name)
@@ -124,6 +139,17 @@ public class WaypointService(LgdxContext context) : IWaypointService
         .SetProperty(w => w.HasCharger, waypointUpdateBusinessModel.HasCharger)
         .SetProperty(w => w.IsReserved, waypointUpdateBusinessModel.IsReserved)
       ) == 1;
+
+    if (result)
+    {
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Waypoint),
+        EntityId = waypointId.ToString(),
+        Action = ActivityAction.Update,
+      });
+    }
+    return result;
   }
 
   public async Task<bool> TestDeleteWaypointAsync(int waypointId)
@@ -149,8 +175,19 @@ public class WaypointService(LgdxContext context) : IWaypointService
 
   public async Task<bool> DeleteWaypointAsync(int waypointId)
   {
-    return await _context.Waypoints.Where(w => w.Id == waypointId)
+    bool result = await _context.Waypoints.Where(w => w.Id == waypointId)
       .ExecuteDeleteAsync() == 1;
+
+    if (result)
+    {
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Waypoint),
+        EntityId = waypointId.ToString(),
+        Action = ActivityAction.Delete,
+      });
+    }
+    return result;
   }
 
   public async Task<IEnumerable<WaypointSearchBusinessModel>> SearchWaypointsAsync(int realmId, string? name)

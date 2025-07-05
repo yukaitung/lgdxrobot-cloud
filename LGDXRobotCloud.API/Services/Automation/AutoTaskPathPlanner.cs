@@ -12,7 +12,8 @@ public interface IAutoTaskPathPlannerService
   Task<List<RobotClientsPath>> GeneratePath(AutoTask autoTask);
 }
 
-public class AutoTaskPathPlannerService (
+public sealed partial class AutoTaskPathPlannerService(
+    ILogger logger,
     IMapEditorService mapEditorService,
     IOnlineRobotsService onlineRobotsService,
     LgdxContext context
@@ -22,11 +23,20 @@ public class AutoTaskPathPlannerService (
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
+  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Path planning: The task detail does not have waypoint.")]
+  public partial void TheTaskDetailDoesNotHaveWaypoint();
+
+  [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "Path planning: Unable to find the path. Start waypoint ID: {StartWaypointId}, End waypoint ID: {EndWaypointId}.")]
+  public partial void TheTaskDetailDoesNotHaveWaypoint(int startWaypointId, int endWaypointId);
+
+  [LoggerMessage(EventId = 2, Level = LogLevel.Error, Message = "Path planning: Robot data not found for robot ID: {RobotId}.")]
+  public partial void RobotDataNotFoundForRobotId(Guid robotId);
+
   private static double EuclideanDistance(double x1, double y1, double x2, double y2)
   {
     return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
   }
-  
+
   private static double ManhattanDistance(double x1, double y1, double x2, double y2)
   {
     return Math.Abs(x2 - x1) + Math.Abs(y2 - y1);
@@ -56,12 +66,13 @@ public class AutoTaskPathPlannerService (
     return pathPlanningPath;
   }
 
-  private static List<RobotClientsDof> PathPlanning(AutoTaskDetail start, AutoTaskDetail end, WaypointsTraffic waypointsTraffic)
+  private List<RobotClientsDof> PathPlanning(AutoTaskDetail start, AutoTaskDetail end, WaypointsTraffic waypointsTraffic)
   {
     // Check waypoint
     if (start.WaypointId == null || end.WaypointId == null)
     {
-      throw new Exception("The task detail does not have waypoint.");
+      TheTaskDetailDoesNotHaveWaypoint();
+      throw new Exception();
     }
     int startWaypointId = (int)start.WaypointId;
     List<int> openList = [startWaypointId];
@@ -108,7 +119,8 @@ public class AutoTaskPathPlannerService (
       }
     }
 
-    throw new Exception("Path planning failed.");
+    TheTaskDetailDoesNotHaveWaypoint(start.WaypointId.Value, end.WaypointId.Value);
+    throw new Exception("");
   }
 
   private static RobotClientsDof GenerateWaypoint(AutoTaskDetail taskDetail)
@@ -176,7 +188,12 @@ public class AutoTaskPathPlannerService (
       var waypointsTraffic = await _mapEditorService.GetWaypointTrafficAsync(realmId);
 
       // Find the nearest waypoint
-      var robotData = _onlineRobotsService.GetRobotData((Guid)autoTask.AssignedRobotId!) ?? throw new Exception("Robot data not found.");
+      var robotData = _onlineRobotsService.GetRobotData((Guid)autoTask.AssignedRobotId!);
+      if (robotData == null)
+      {
+        RobotDataNotFoundForRobotId((Guid)autoTask.AssignedRobotId!);
+        throw new Exception();
+      }
       int selectedWaypointId = 0;
       double selectedWaypointDistance = double.MaxValue;
       foreach (var waypoint in waypointsTraffic.Waypoints)

@@ -139,6 +139,7 @@ public class TriggerServiceTests
     }
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly Mock<IBus> mockBus = new();
   private readonly Mock<IApiKeyService> mockApiKeyService = new();
   private readonly LgdxContext lgdxContext;
@@ -165,7 +166,7 @@ public class TriggerServiceTests
   {
     // Arrange
     var expected = triggers.Where(t => t.Name.Contains(triggerName));
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
 
     // Act
     var (actual, _) = await triggerService.GetTriggersAsync(triggerName, 1, triggers.Count);
@@ -187,7 +188,7 @@ public class TriggerServiceTests
     // Arrange
     int id = 1;
     var expected = triggers.Where(t => t.Id == id).FirstOrDefault();
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
 
     // Act
     var actual = await triggerService.GetTriggerAsync(id);
@@ -210,7 +211,7 @@ public class TriggerServiceTests
   {
     // Arrange
     int id = triggers.Count + 1;
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
 
     // Act
     Task act() => triggerService.GetTriggerAsync(id);
@@ -234,7 +235,7 @@ public class TriggerServiceTests
       ApiKeyId = apiKeyId,
     };
     var apiKey = apiKeys.Where(a => a.Id == apiKeyId).FirstOrDefault();
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
     mockApiKeyService.Setup(s => s.GetApiKeyAsync(It.IsAny<int>())).Returns(Task.FromResult(new ApiKeyBusinessModel {
         Id = apiKey!.Id,
         IsThirdParty = apiKey.IsThirdParty,
@@ -270,7 +271,7 @@ public class TriggerServiceTests
       ApiKeyFieldName = "x-api-key",
       ApiKeyId = apiKeyId,
     };
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
 
     // Act
     Task act() => triggerService.CreateTriggerAsync(expected);
@@ -295,7 +296,7 @@ public class TriggerServiceTests
       ApiKeyId = apiKeyId,
     };
     var apiKey = apiKeys.Where(a => a.Id == apiKeyId).FirstOrDefault();
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
     mockApiKeyService.Setup(s => s.GetApiKeyAsync(It.IsAny<int>())).Returns(Task.FromResult(new ApiKeyBusinessModel {
         Id = apiKey!.Id,
         IsThirdParty = apiKey.IsThirdParty,
@@ -315,7 +316,7 @@ public class TriggerServiceTests
   {
     // Arrange
     int id = 1;
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
 
     // Act
     var actual = await triggerService.TestDeleteTriggerAsync(id);
@@ -330,7 +331,7 @@ public class TriggerServiceTests
     // Arrange
     int dependencies = 1;
     int id = 2;
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
 
     // Act
     Task act() => triggerService.TestDeleteTriggerAsync(id);
@@ -349,7 +350,7 @@ public class TriggerServiceTests
   {
     // Arrange
     var expected = triggers.Where(p => p.Name.Contains(name));
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
 
     // Act
     var actual = await triggerService.SearchTriggersAsync(name);
@@ -372,7 +373,7 @@ public class TriggerServiceTests
       System = true
     };
     var flowDetail = flowDetails.Where(t => t.Id == 1).FirstOrDefault();
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
     var busParam = new List<AutoTaskTriggerContract>();
     mockBus.Setup(m => m.Publish(Capture.In(busParam), It.IsAny<CancellationToken>()));
     Dictionary<string, string> expected = new() {
@@ -416,7 +417,7 @@ public class TriggerServiceTests
       System = true
     };
     var flowDetail = flowDetails.Where(t => t.Id == 2).FirstOrDefault();
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
 
     // Act
     await triggerService.InitialiseTriggerAsync(task!, flowDetail!);
@@ -436,7 +437,7 @@ public class TriggerServiceTests
       System = true
     };
     var trigger = triggers.Where(t => t.Id == 2).FirstOrDefault();
-    var triggerService = new TriggerService(mockBus.Object, lgdxContext, mockApiKeyService.Object);
+    var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
 
     // Act
     await triggerService.RetryTriggerAsync(task!, trigger!, "{}");

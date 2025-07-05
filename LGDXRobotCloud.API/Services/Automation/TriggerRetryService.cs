@@ -1,7 +1,10 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Automation;
+using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,10 +20,12 @@ public interface ITriggerRetryService
 }
 
 public class TriggerRetryService (
+  IActivityLogService activityService,
   ITriggerService triggerService,
   LgdxContext context
 ) : ITriggerRetryService
 {
+  private readonly IActivityLogService _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
   private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
@@ -97,6 +102,13 @@ public class TriggerRetryService (
     {
       await DeleteTriggerRetryAsync(triggerRetryId);
     }
+
+    await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Trigger),
+      EntityId = trigger.Id.ToString(),
+      Action = ActivityAction.TriggerRetry,
+    });
   }
 
   public async Task RetryAllFailedTriggerAsync(int triggerId)
@@ -116,5 +128,13 @@ public class TriggerRetryService (
       }
     }
     _context.SaveChanges();
+
+    await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Trigger),
+      EntityId = triggerId.ToString(),
+      Action = ActivityAction.TriggerRetry,
+      Note = $"Batch retry for {triggerRetries.Count} requests."
+    });
   }
 }

@@ -22,12 +22,30 @@ builder.Services.Configure<EmailLinksConfiguration>(
 /*
  * Infrastructure
  */
-builder.Services.AddDbContextPool<LgdxContext>(cfg => 
-  cfg.UseNpgsql(builder.Configuration["PGSQLConnectionString"])
-	.LogTo(Console.WriteLine, LogLevel.Information)
-	.EnableSensitiveDataLogging()
-	.EnableDetailedErrors()
-);
+if (builder.Environment.IsDevelopment())
+{
+	builder.Services.AddDbContext<LgdxContext>(cfg =>
+		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
+		.LogTo(Console.WriteLine, LogLevel.Information)
+		.EnableSensitiveDataLogging()
+		.EnableDetailedErrors()
+	);
+	builder.Services.AddDbContext<ActivityContext>(cfg =>
+		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Activity"))
+		.LogTo(Console.WriteLine, LogLevel.Information)
+		.EnableSensitiveDataLogging()
+		.EnableDetailedErrors()
+	);
+}
+else
+{
+	builder.Services.AddDbContext<LgdxContext>(cfg =>
+		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
+	);
+	builder.Services.AddDbContext<ActivityContext>(cfg =>
+		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Activity"))
+	);
+}
 builder.Services.AddMassTransit(cfg =>
 {
   var entryAssembly = Assembly.GetEntryAssembly();
@@ -47,6 +65,7 @@ builder.Services.AddMassTransit(cfg =>
 /*
  * LGDX Depency Injection
  */
+builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 builder.Services.AddTransient<HtmlRenderer>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddHttpClient<ITriggerService, TriggerService>();

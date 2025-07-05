@@ -55,7 +55,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
 
   private string RealmName { get; set; } = string.Empty;
   private int CurrentTab { get; set; } = 0;
-  private readonly List<string> Tabs = ["Robot", "System", "Chassis", "Certificate", "Delete Robot"];
+  private readonly List<string> Tabs = ["Robot", "System", "Chassis", "Certificate", "Activity Logs", "Delete Robot"];
 
   public void HandleTabChange(int index)
   {

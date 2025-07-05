@@ -43,6 +43,7 @@ public class UserServiceTests
     }
   ];
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly Mock<IEmailService> mockEmailService = new();
   private readonly Mock<UserManager<LgdxUser>> mockUserManager;
   private readonly LgdxContext lgdxContext;
@@ -65,7 +66,7 @@ public class UserServiceTests
   public async Task GetUsersAsync_CalledWithName_ShouldReturnsUsersWithName(string name)
   {
     // Arrange
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
     var expected = users.Where(u => u.NormalizedUserName!.Contains(name)).ToList();
 
     // Act
@@ -89,7 +90,7 @@ public class UserServiceTests
     // Arrange
     var userId = User1Id;
     mockUserManager.Setup(m => m.FindByIdAsync(userId.ToString())).ReturnsAsync(users.Where(u => u.Id == userId.ToString()).FirstOrDefault());
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
     var expected = users.FirstOrDefault(u => u.Id == User1Id.ToString());
 
     // Act
@@ -109,7 +110,7 @@ public class UserServiceTests
   {
     // Arrange
     var userId = Guid.Empty;
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.GetUserAsync(userId);
@@ -130,7 +131,7 @@ public class UserServiceTests
     };
     mockUserManager.Setup(m => m.CreateAsync(It.IsAny<LgdxUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.AddToRolesAsync(It.IsAny<LgdxUser>(), It.IsAny<IEnumerable<string>>())).ReturnsAsync(IdentityResult.Success);
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     var actual = await userService.CreateUserAsync(user);
@@ -157,7 +158,7 @@ public class UserServiceTests
     };
     mockUserManager.Setup(m => m.CreateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.AddToRolesAsync(It.IsAny<LgdxUser>(), It.IsAny<IEnumerable<string>>())).ReturnsAsync(IdentityResult.Success);
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     var actual = await userService.CreateUserAsync(user);
@@ -184,7 +185,7 @@ public class UserServiceTests
       Roles = ["role1"]
     };
     mockUserManager.Setup(m => m.CreateAsync(It.IsAny<LgdxUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Failed());
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.CreateUserAsync(user);
@@ -207,7 +208,7 @@ public class UserServiceTests
       Roles = ["role1"]
     };
     mockUserManager.Setup(m => m.CreateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Failed());
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.CreateUserAsync(user);
@@ -232,7 +233,7 @@ public class UserServiceTests
     };
     mockUserManager.Setup(m => m.CreateAsync(It.IsAny<LgdxUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.AddToRolesAsync(It.IsAny<LgdxUser>(), It.IsAny<IEnumerable<string>>())).ReturnsAsync(IdentityResult.Failed());
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.CreateUserAsync(user);
@@ -261,7 +262,7 @@ public class UserServiceTests
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(["role1"]);
     mockUserManager.Setup(m => m.AddToRolesAsync(It.IsAny<LgdxUser>(), It.IsAny<IEnumerable<string>>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.RemoveFromRolesAsync(It.IsAny<LgdxUser>(), It.IsAny<IEnumerable<string>>())).ReturnsAsync(IdentityResult.Success);
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     var actual = await userService.UpdateUserAsync(User1Id, user);
@@ -286,7 +287,7 @@ public class UserServiceTests
       Email = "test@example.com",
       Roles = ["role2"]
     };
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.UpdateUserAsync(id, user);
@@ -313,7 +314,7 @@ public class UserServiceTests
     };
     mockUserManager.Setup(m => m.FindByIdAsync(id.ToString())).ReturnsAsync(users.Where(u => u.Id == id.ToString()).FirstOrDefault());
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Failed());
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.UpdateUserAsync(id, user);
@@ -342,7 +343,7 @@ public class UserServiceTests
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(["role1"]);
     mockUserManager.Setup(m => m.AddToRolesAsync(It.IsAny<LgdxUser>(), It.IsAny<IEnumerable<string>>())).ReturnsAsync(IdentityResult.Failed());
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.UpdateUserAsync(id, user);
@@ -372,7 +373,7 @@ public class UserServiceTests
     mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<LgdxUser>())).ReturnsAsync(["role1"]);
     mockUserManager.Setup(m => m.AddToRolesAsync(It.IsAny<LgdxUser>(), It.IsAny<IEnumerable<string>>())).ReturnsAsync(IdentityResult.Success);
     mockUserManager.Setup(m => m.RemoveFromRolesAsync(It.IsAny<LgdxUser>(), It.IsAny<IEnumerable<string>>())).ReturnsAsync(IdentityResult.Failed());
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.UpdateUserAsync(id, user);
@@ -393,7 +394,7 @@ public class UserServiceTests
     var id = User1Id;
     mockUserManager.Setup(m => m.FindByIdAsync(id.ToString())).ReturnsAsync(users.Where(u => u.Id == id.ToString()).FirstOrDefault());
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     var actual = await userService.UnlockUserAsync(User1Id);
@@ -409,7 +410,7 @@ public class UserServiceTests
   {
     // Arrange
     var id = Guid.Empty;
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.UnlockUserAsync(id);
@@ -427,7 +428,7 @@ public class UserServiceTests
     var id = User1Id;
     mockUserManager.Setup(m => m.FindByIdAsync(id.ToString())).ReturnsAsync(users.Where(u => u.Id == id.ToString()).FirstOrDefault());
     mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Failed());
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.UnlockUserAsync(id);
@@ -445,7 +446,7 @@ public class UserServiceTests
     var id = User1Id;
     mockUserManager.Setup(m => m.FindByIdAsync(id.ToString())).ReturnsAsync(users.Where(u => u.Id == id.ToString()).FirstOrDefault());
     mockUserManager.Setup(m => m.DeleteAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Success);
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     var actual = await userService.DeleteUserAsync(User1Id, Guid.Empty.ToString());
@@ -461,7 +462,7 @@ public class UserServiceTests
   {
     // Arrange
     var id = Guid.Empty;
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.DeleteUserAsync(id, Guid.Empty.ToString());
@@ -478,7 +479,7 @@ public class UserServiceTests
     // Arrange
     var id = User1Id;
     mockUserManager.Setup(m => m.FindByIdAsync(id.ToString())).ReturnsAsync(users.Where(u => u.Id == id.ToString()).FirstOrDefault());
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.DeleteUserAsync(id, id.ToString());
@@ -497,7 +498,7 @@ public class UserServiceTests
     var id = User1Id;
     mockUserManager.Setup(m => m.FindByIdAsync(id.ToString())).ReturnsAsync(users.Where(u => u.Id == id.ToString()).FirstOrDefault());
     mockUserManager.Setup(m => m.DeleteAsync(It.IsAny<LgdxUser>())).ReturnsAsync(IdentityResult.Failed());
-    var userService = new UserService(mockEmailService.Object, mockUserManager.Object, lgdxContext);
+    var userService = new UserService(mockActivityLogService.Object, mockEmailService.Object, lgdxContext, mockUserManager.Object);
 
     // Act
     Task act() => userService.DeleteUserAsync(id, Guid.Empty.ToString());

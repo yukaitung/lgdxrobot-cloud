@@ -1,7 +1,9 @@
 @attribute [Route(AppRoutes.Navigation.Robots.Detail)]
 @attribute [Authorize (Policy = Permissions.Navigation.Robots.Read)]
-@using LGDXRobotCloud.Utilities.Enums
+@using LGDXRobotCloud.Data.Entities
+@using LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components;
 @using LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components
+@using LGDXRobotCloud.Utilities.Enums
 
 <PageHeader Title="Robots">
   <div class="row align-items-center">
@@ -85,6 +87,22 @@
         <DetailRobotCertificateCard RobotCertificate="RobotCertificate" />
       }
       else if (CurrentTab == 4)
+      {
+        <AuthorizeView Policy=@Permissions.Administration.ActivityLogs.Read Context="ActivityLogs">
+          <Authorized>
+            <div class="col-12">
+              <ActivityLogsTable DefaultEntityName="@nameof(Robot)" DefaultEntityId="@(Id.ToString())"
+                ReturnUrl="@(AppRoutes.Navigation.Robots.Index + $"/{Id}")"/>
+            </div>
+          </Authorized>
+          <NotAuthorized>
+            <InformationModal>
+              You don't have permission to access Activity Logs
+            </InformationModal>
+          </NotAuthorized>
+        </AuthorizeView>
+      }
+      else if (CurrentTab == 5)
       {
         <div class="card">
           <div class="card-header">

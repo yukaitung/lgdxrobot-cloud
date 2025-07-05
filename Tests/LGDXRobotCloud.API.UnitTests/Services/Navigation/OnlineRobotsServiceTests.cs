@@ -1,3 +1,4 @@
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.API.UnitTests.Utilities;
@@ -17,6 +18,7 @@ public class OnlineRobotsServiceTests
   private static string GetOnlineRobotsKey(int realmId) => $"OnlineRobotsService_OnlineRobots_{realmId}";
   private static string GetRobotCommandsKey(Guid robotId) => $"OnlineRobotsService_RobotCommands_{robotId}";
 
+  private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly Mock<IBus> mockBus = new();
   private readonly Mock<IEmailService> mockEmailService = new();
   private readonly Mock<IEventService> mockEventService = new();
@@ -33,7 +35,7 @@ public class OnlineRobotsServiceTests
   public async Task AddRobotAsync_Called_ShouldRegisterTheRobot()
   {
     // Arrange
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
 
     // Act
     await service.AddRobotAsync(RobotGuid);
@@ -47,7 +49,7 @@ public class OnlineRobotsServiceTests
   {
     // Arrange
     var mmc = MockMemoryCacheService.GetMemoryCache(new HashSet<Guid> {RobotGuid});
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
 
     // Act
     await service.RemoveRobotAsync(RobotGuid);
@@ -62,7 +64,7 @@ public class OnlineRobotsServiceTests
   {
     // Arrange
     var mmc = MockMemoryCacheService.GetMemoryCache(new RobotClientsRobotCommands {});
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
     var data = new RobotClientsExchange{
       RobotStatus = RobotClientsRobotStatus.Running,
       CriticalStatus = new() {
@@ -97,7 +99,7 @@ public class OnlineRobotsServiceTests
   {
     // Arrange
     var mmc = MockMemoryCacheService.GetMemoryCache(true);
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
 
     // Act
     await service.UpdateRobotDataAsync(RobotGuid, new RobotClientsExchange {});
@@ -113,7 +115,7 @@ public class OnlineRobotsServiceTests
   public async Task UpdateRobotDataAsync_CalledWithStuckRobot_ShouldSendEmail()
   {
     // Arrange
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object,mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
     var data = new RobotClientsExchange{
       RobotStatus = RobotClientsRobotStatus.Stuck,
       CriticalStatus = new() {
@@ -146,7 +148,7 @@ public class OnlineRobotsServiceTests
   {
     // Arrange
     var mmc = MockMemoryCacheService.GetMemoryCache(true, $"OnlineRobotsService_RobotStuck_{RobotGuid}");
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
     var data = new RobotClientsExchange{
       RobotStatus = RobotClientsRobotStatus.Stuck,
       CriticalStatus = new() {
@@ -180,7 +182,7 @@ public class OnlineRobotsServiceTests
     // Arrange
     var expected = new RobotClientsRobotCommands {};
     var mmc = MockMemoryCacheService.GetMemoryCache(expected);
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
 
     // Act
     var result = service.GetRobotCommands(RobotGuid);
@@ -193,7 +195,7 @@ public class OnlineRobotsServiceTests
   public void GetRobotCommands_CalledWithOfflineRobot_ShouldReturnsNull()
   {
     // Arrange
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object,mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
 
     // Act
     var result = service.GetRobotCommands(RobotGuid);
@@ -207,7 +209,7 @@ public class OnlineRobotsServiceTests
   {
     // Arrange
     var mmc = MockMemoryCacheService.GetMemoryCache(new HashSet<Guid> {RobotGuid});
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
 
     // Act
     var result = await service.IsRobotOnlineAsync(RobotGuid);
@@ -220,7 +222,7 @@ public class OnlineRobotsServiceTests
   public async Task IsRobotOnlineAsync_CalledWithOfflineRobot_ShouldReturnsFalse()
   {
     // Arrange
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object,mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
 
     // Act
     var result = await service.IsRobotOnlineAsync(RobotGuid);
@@ -234,7 +236,7 @@ public class OnlineRobotsServiceTests
   {
     // Arrange
     var mmc = MockMemoryCacheService.GetMemoryCache(new RobotClientsRobotCommands {});
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
 
     // Act
     var result = await service.SetAbortTaskAsync(RobotGuid, true);
@@ -248,7 +250,7 @@ public class OnlineRobotsServiceTests
   public async Task SetAbortTaskAsync_CalledWithOfflineRobot_ShouldReturnsFalse()
   {
     // Arrange
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object,mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
 
     // Act
     var result = await service.SetAbortTaskAsync(RobotGuid, true);
@@ -263,7 +265,7 @@ public class OnlineRobotsServiceTests
   {
     // Arrange
     var mmc = MockMemoryCacheService.GetMemoryCache(new RobotClientsRobotCommands {});
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
 
     // Act
     var result = await service.SetSoftwareEmergencyStopAsync(RobotGuid, true);
@@ -277,7 +279,7 @@ public class OnlineRobotsServiceTests
   public async Task SetSoftwareEmergencyStopAsync_CalledWithOfflineRobot_ShouldReturnsFalse()
   {
     // Arrange
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object,mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
 
     // Act
     var result = await service.SetSoftwareEmergencyStopAsync(RobotGuid, true);
@@ -292,7 +294,7 @@ public class OnlineRobotsServiceTests
   {
     // Arrange
     var mmc = MockMemoryCacheService.GetMemoryCache(new RobotClientsRobotCommands {});
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
 
     // Act
     var result = await service.SetPauseTaskAssigementAsync(RobotGuid, true);
@@ -306,7 +308,7 @@ public class OnlineRobotsServiceTests
   public async Task SetPauseTaskAssigementAsync_CalledWithOfflineRobot_ShouldReturnsFalse()
   {
     // Arrange
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object,mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
 
     // Act
     var result = await service.SetPauseTaskAssigementAsync(RobotGuid, true);
@@ -320,7 +322,7 @@ public class OnlineRobotsServiceTests
   public void GetPauseAutoTaskAssignment_CalledWithOnlineRobot_ShouldReturnsValue()
   {
     var mmc = MockMemoryCacheService.GetMemoryCache(new RobotClientsRobotCommands {PauseTaskAssigement = true});
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
 
     // Act
     var result = service.GetPauseAutoTaskAssignment(RobotGuid);
@@ -332,7 +334,7 @@ public class OnlineRobotsServiceTests
   [Fact]
   public void GetPauseAutoTaskAssignment_CalledWithOfflineRobot_ShouldReturnsFalse()
   {
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object,mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
 
     // Act
     var result = service.GetPauseAutoTaskAssignment(RobotGuid);
@@ -345,7 +347,7 @@ public class OnlineRobotsServiceTests
   public void SetAutoTaskNextApi_Called_ShouldCalled()
   {
     // Arrange
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object,mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
 
     // Act
     service.SetAutoTaskNextApi(RobotGuid, new AutoTask{});
@@ -359,7 +361,7 @@ public class OnlineRobotsServiceTests
   {
     // Arrange
     var mmc = MockMemoryCacheService.GetMemoryCache(new AutoTask{});
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object, mockBus.Object, mockEmailService.Object, mockEventService.Object, mmc.Object, mockRobotService.Object);
 
     // Act
     var result = service.GetAutoTaskNextApi(RobotGuid);
@@ -372,7 +374,7 @@ public class OnlineRobotsServiceTests
   public void GetAutoTaskNextApi_CalledWithNull_ShouldReturnsNull()
   {
     // Arrange
-    var service = new OnlineRobotsService(mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
+    var service = new OnlineRobotsService(mockActivityLogService.Object,mockBus.Object, mockEmailService.Object, mockEventService.Object, mockMemoryCache.Object, mockRobotService.Object);
     
     // Act
     var result = service.GetAutoTaskNextApi(RobotGuid);

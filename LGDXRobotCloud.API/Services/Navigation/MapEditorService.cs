@@ -1,7 +1,10 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
+using LGDXRobotCloud.Utilities.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -22,12 +25,15 @@ public interface IMapEditorService
 }
 
 public class MapEditorService(
-    LgdxContext context,
-    IMemoryCache memoryCache
+    IActivityLogService activityLogService,
+    IMemoryCache memoryCache,
+    LgdxContext context
   ) : IMapEditorService
 {
-  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+
 
   public async Task<MapEditorBusinessModel> GetMapAsync(int realmId)
   {
@@ -120,6 +126,13 @@ public class MapEditorService(
     // databaseWaypointTraffics contains the traffics to remove
     _context.WaypointTraffics.RemoveRange(databaseWaypointTraffics);
     await _context.SaveChangesAsync();
+
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+    {
+      EntityName = nameof(Realm),
+      EntityId = realmId.ToString(),
+      Action = ActivityAction.RealmTrafficUpdated,
+    });
 
     return true;
   }
