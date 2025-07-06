@@ -103,6 +103,7 @@ release_job:
     - docker:24.0.5-dind
   script:
     - apk add glab
+    - apk add gitlab-release-cli
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest --amend $DOCKER_API_AMD64 --amend $DOCKER_API_ARM64
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$APP_VERSION --amend $DOCKER_API_AMD64 --amend $DOCKER_API_ARM64
