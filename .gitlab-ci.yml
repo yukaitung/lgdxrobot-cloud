@@ -117,12 +117,6 @@ release_job:
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
-    - docker image rm $DOCKER_API_AMD64
-    - docker image rm $DOCKER_API_ARM64
-    - docker image rm $DOCKER_UI_AMD64
-    - docker image rm $DOCKER_UI_ARM64
-    - docker image rm $DOCKER_WORKER_AMD64
-    - docker image rm $DOCKER_WORKER_ARM64
   release:
     tag_name: '$TEMP_TAG'
     name : 'Release $TEMP_TAG'
