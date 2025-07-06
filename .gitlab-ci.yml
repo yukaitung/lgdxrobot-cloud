@@ -41,15 +41,9 @@ build:
   tags:
     - lgdx-amd64
   before_script:
-    - 'apt-get install -y libxml2'
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
-    # Setup APP_VERSION
-    - echo "APP_VERSION=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)" >> variables.env
     - 'dotnet build --no-restore'
-  artifacts:
-    reports:
-      dotenv: variables.env
 
 unit-test:
   stage: test
@@ -85,7 +79,10 @@ unit-test-page:
   image: alpine:latest
   tags:
     - lgdx-amd64
+  before_script:
+    - 'apk add libxml2-utils'
   script:
+    - echo "APP_VERSION=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)" >> variables.env
     - 'rm coveragereport/Cobertura.xml'
     - 'rm coveragereport/Summary.txt'
     - 'mv coveragereport/ public/'
@@ -93,6 +90,9 @@ unit-test-page:
     paths:
       - public
     expire_in: 1 days
+    reports:
+      dotenv: variables.env
+
 
 build-amd64:
   stage: build-2
