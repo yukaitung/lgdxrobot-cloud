@@ -74,6 +74,9 @@ release-docker-arm64:
 release-docker-push:
   image: docker:24.0.5-git
   stage: release
+  dependencies: []
+  services:
+    - docker:24.0.5-dind
   script:
     # Get version
     - apk add libxml2-utils
