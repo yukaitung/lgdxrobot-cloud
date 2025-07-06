@@ -80,20 +80,7 @@ unit-test-page:
   only:
     - main
 
-.release-docker-script: &release-docker-script
-  - apk add libxml2-utils
-  - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
-  - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG -f Dockerfile.api .
-  - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG -f Dockerfile.ui .
-  - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG -f Dockerfile.worker .
-  - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-  - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
-  - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG
-  - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest
-  - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG
-  - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
-  - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
-
+# Build Docker Images for AMD64
 release-docker-amd64:
   image: docker:24.0.5-git
   stage: release
@@ -101,10 +88,17 @@ release-docker-amd64:
   services:
     - docker:24.0.5-dind
   script:
-    - *release-docker-script
+    - docker build -t lgdxrobotcloud.api-amd64 -f Dockerfile.api .
+    - docker build -t lgdxrobotcloud.ui-amd64 -f Dockerfile.ui .
+    - docker build -t lgdxrobotcloud.worker-amd64 -f Dockerfile.worker .
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker push lgdxrobotcloud.api-amd64
+    - docker push lgdxrobotcloud.ui-amd64
+    - docker push lgdxrobotcloud.worker-amd64
   only:
     - main
 
+# Build Docker Images for ARM64
 release-docker-arm64:
   image: docker:24.0.5-git
   stage: release
@@ -114,6 +108,61 @@ release-docker-arm64:
   services:
     - docker:24.0.5-dind
   script:
-    - *release-docker-script
+    - docker build -t lgdxrobotcloud.api-arm64 -f Dockerfile.api .
+    - docker build -t lgdxrobotcloud.ui-arm64 -f Dockerfile.ui .
+    - docker build -t lgdxrobotcloud.worker-arm64 -f Dockerfile.worker .
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker push lgdxrobotcloud.api-arm64
+    - docker push lgdxrobotcloud.ui-arm64
+    - docker push lgdxrobotcloud.worker-arm64
+  only:
+    - main
+
+# Combine Docker Images and Push to Registry
+release-docker-push:
+  image: docker:24.0.5-git
+  stage: release
+  dependencies:
+    - release-docker-amd64
+    - release-docker-arm64
+  script:
+    # Get version
+    - apk add libxml2-utils
+    - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    # Combine images
+    - docker pull lgdxrobotcloud.api-amd64
+    - docker pull lgdxrobotcloud.api-arm64
+    - docker manifest create lgdxrobotcloud.api:latest \
+        lgdxrobotcloud.api-amd64 \
+        lgdxrobotcloud.api-arm64
+    - docker manifest create lgdxrobotcloud.api:$TEMP_TAG \
+        lgdxrobotcloud.api-amd64 \
+        lgdxrobotcloud.api-arm64
+    - docker pull lgdxrobotcloud.ui-amd64
+    - docker pull lgdxrobotcloud.ui-arm64
+    - docker manifest create lgdxrobotcloud.ui:latest \
+        lgdxrobotcloud.ui-amd64 \
+        lgdxrobotcloud.ui-arm64
+    - docker manifest create lgdxrobotcloud.ui:$TEMP_TAG \
+        lgdxrobotcloud.ui-amd64 \
+        lgdxrobotcloud.ui-arm64
+    - docker pull lgdxrobotcloud.worker-amd64
+    - docker pull lgdxrobotcloud.worker-arm64
+    - docker manifest create lgdxrobotcloud.worker:latest \
+        lgdxrobotcloud.worker-amd64 \
+        lgdxrobotcloud.worker-arm64
+    - docker manifest create lgdxrobotcloud.worker:$TEMP_TAG \
+        lgdxrobotcloud.worker-amd64 \
+        lgdxrobotcloud.worker-arm64
+    # Push images
+    - docker logout $CI_REGISTRY
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
   only:
     - main
