@@ -101,9 +101,9 @@ release-docker-push:
     - apk add libxml2-utils
     - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest --amend DOCKER_API_AMD64 --amend DOCKER_API_ARM64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest --amend DOCKER_UI_AMD64 --amend DOCKER_UI_ARM64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest --amend DOCKER_WORKER_AMD64 --amend DOCKER_WORKER_ARM64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest --amend $DOCKER_API_AMD64 --amend $DOCKER_API_ARM64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest --amend $DOCKER_UI_AMD64 --amend $DOCKER_UI_ARM64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest --amend $DOCKER_WORKER_AMD64 --amend $DOCKER_WORKER_ARM64
     - docker manifest push EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
     - docker manifest push EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest
     - docker manifest push EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
