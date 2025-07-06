@@ -1,3 +1,9 @@
+# LGDXRobot Cloud GitLab CI/CD
+# Variables
+# $EXT_REGISTRY: Registry URL (e.g. docker.io)
+# $EXT_USER: Username for the registry
+# $EXT_PAT: PAT for the registry (https://docs.docker.com/security/for-developers/access-tokens/)
+
 variables:
   # 1) Name of directory where restore and build objects are stored.
   OBJECTS_DIRECTORY: 'obj'
@@ -86,7 +92,7 @@ release-docker:
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG -f Dockerfile.api .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG -f Dockerfile.ui .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:worker -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG -f Dockerfile.worker .
-    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest
