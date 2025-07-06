@@ -22,3 +22,7 @@ docker build -t lgdxrobotcloud.api -f Dockerfile.api .
 docker build -t lgdxrobotcloud.ui -f Dockerfile.ui .
 docker build -t lgdxrobotcloud.worker -f Dockerfile.worker .
 ```
+
+```bash
+docker buildx build --platform linux/amd64,linux/arm64 -t lgdxrobotcloud.api -f Dockerfile.api .
+```

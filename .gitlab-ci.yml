@@ -11,7 +11,6 @@ variables:
   NUGET_PACKAGES_DIRECTORY: '.nuget'
   # 3) A relative path to the source code from project repository root.
   SOURCE_CODE_PATH: '*/'
-  GITLAB_REG_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
 
 # To configure cache to pass over restored dependencies for re-use.
 cache:
@@ -29,71 +28,29 @@ cache:
   policy: pull-push
 
 stages:
-  - build-2
   - release
-
 
 build-amd64:
   image: docker:24.0.5-git
-  stage: build-2
-  dependencies: []
-  tags:
-    - lgdx-amd64
-  services:
-    - docker:24.0.5-dind
-  script:
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-amd64 -f Dockerfile.api .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-amd64 -f Dockerfile.ui .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-amd64 -f Dockerfile.worker .
-    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-amd64
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-amd64
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-amd64
-  only:
-    - main
-
-build-arm64:
-  image: docker:24.0.5-git
-  stage: build-2
-  dependencies: []
-  tags:
-    - saas-linux-small-arm64 
-  services:
-    - docker:24.0.5-dind
-  script:
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-arm64 -f Dockerfile.api .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-arm64 -f Dockerfile.ui .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-arm64 -f Dockerfile.worker .
-    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-arm64
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-arm64
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-arm64
-  only:
-    - main
-
-release-docker-push:
-  image: docker:24.0.5-git
   stage: release
+  dependencies: []
   tags:
     - lgdx-amd64
-  dependencies: []
   services:
     - docker:24.0.5-dind
   script:
     - apk add libxml2-utils
     - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-amd64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-arm64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-amd64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-arm64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-amd64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-arm64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-amd64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-arm64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-amd64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-arm64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-amd64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-arm64
-    - docker manifest push --purge $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
-    - docker manifest push --purge $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG
-    - docker manifest push --purge $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest
-    - docker manifest push --purge $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
-    - docker manifest push --purge $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
-    - docker manifest push --purge $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
+    - docker buildx build --platform linux/amd64, linux/arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG -f Dockerfile.api .
+    - docker buildx build --platform linux/amd64, linux/arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG -f Dockerfile.ui .
+    - docker buildx build --platform linux/amd64, linux/arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG -f Dockerfile.worker .
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
   only:
     - main
