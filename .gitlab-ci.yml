@@ -41,7 +41,7 @@ build:
   tags:
     - lgdx-amd64
   before_script:
-    - 'apt-get install -y libxml2-utils'
+    - 'apt-get install -y libxml2'
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
     # Setup APP_VERSION
