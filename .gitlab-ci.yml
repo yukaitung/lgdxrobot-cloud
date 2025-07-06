@@ -42,16 +42,16 @@ build-amd64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api -f Dockerfile.api .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui -f Dockerfile.ui .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker -f Dockerfile.worker .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-amd64 -f Dockerfile.api .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-amd64 -f Dockerfile.ui .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-amd64 -f Dockerfile.worker .
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker
-    - echo "API_AMD64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ap)" >> amd64.env
-    - echo "UI_AMD64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui)" >> amd64.env 
-    - echo "WORKER_AMD64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker)" >> amd64.env 
+    - echo "DOCKER_API_AMD64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api)" >> amd64.env
+    - echo "DOCKER_UI_AMD64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui)" >> amd64.env 
+    - echo "DOCKER_WORKER_AMD64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker)" >> amd64.env 
   artifacts:
     paths:
       - amd64.env
@@ -68,15 +68,15 @@ build-arm64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api -f Dockerfile.api .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui -f Dockerfile.ui .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker -f Dockerfile.worker .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-arm64 -f Dockerfile.api .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-arm64 -f Dockerfile.ui .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-arm64 -f Dockerfile.worker .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker
-    - echo "API_ARM64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api)" >> arm64.env
-    - echo "UI_ARM64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui)" >> arm64.env
-    - echo "WORKER_ARM64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker)" >> arm64.env
+    - echo "DOCKER_API_ARM64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api)" >> arm64.env
+    - echo "DOCKER_UI_ARM64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui)" >> arm64.env
+    - echo "DOCKER_WORKER_ARM64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker)" >> arm64.env
   artifacts:
     paths:
       - arm64.env
@@ -99,7 +99,11 @@ release-docker-push:
     - apk add libxml2-utils
     - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$API_AMD64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$API_ARM64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest --amend DOCKER_API_AMD64 --amend DOCKER_API_ARM64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest --amend DOCKER_UI_AMD64 --amend DOCKER_UI_ARM64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest --amend DOCKER_WORKER_AMD64 --amend DOCKER_WORKER_ARM64
     - docker manifest push EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
+    - docker manifest push EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest
+    - docker manifest push EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
   only:
     - main
