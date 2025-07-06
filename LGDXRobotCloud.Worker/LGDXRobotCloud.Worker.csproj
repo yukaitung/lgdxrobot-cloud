@@ -7,6 +7,8 @@
     <UserSecretsId>6c08366b-11f5-456d-a836-d089b7d40280</UserSecretsId>
   </PropertyGroup>
 
+  <Import Project="..\version.xml" />
+
   <ItemGroup>
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.0" />
     <PackageReference Include="MailKit" Version="4.12.0" />

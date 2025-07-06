@@ -7,6 +7,8 @@
     <UserSecretsId>dceb32c6-a53a-45bc-ab71-38bf29c39084</UserSecretsId>
   </PropertyGroup>
 
+  <Import Project="..\version.xml" />
+
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.0" />

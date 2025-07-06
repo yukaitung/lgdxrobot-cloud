@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Reflection
+@inherits LayoutComponentBase
 
 <div class="page">
 	<header class="navbar navbar-expand-lg navbar-light sticky-top d-none d-lg-flex">
@@ -27,6 +28,9 @@
 					<div class="col-12 col-lg-auto mt-3 mt-lg-0">
 						<ul class="list-inline list-inline-dots mb-0">
 							<li class="list-inline-item">
+								Version @DisplayVersion()
+							</li>
+							<li class="list-inline-item">
 								Theme by 
 								<a href="https://tabler.io" target="_blank" class="link-secondary" rel="noopener">
 									Tabler
@@ -54,3 +58,11 @@
 	<a href="" class="reload">Reload</a>
 	<a class="dismiss">dismiss</a>
 </div>
+
+@code {
+	private string? DisplayVersion()
+	{
+		var assembly = Assembly.GetExecutingAssembly();
+		return assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+	}
+}
