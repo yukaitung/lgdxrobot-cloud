@@ -40,13 +40,13 @@ release-docker-amd64:
   services:
     - docker:24.0.5-dind
   script:
-    - docker build -t $CI_REGISTRY_IMAGE/api:amd64 -f Dockerfile.api .
-    - docker build -t $CI_REGISTRY_IMAGE/ui:amd64 -f Dockerfile.ui .
-    - docker build -t $CI_REGISTRY_IMAGE/worker:amd64 -f Dockerfile.worker .
+    - docker build -t $CI_REGISTRY_IMAGE/api-amd64:latest -f Dockerfile.api .
+    - docker build -t $CI_REGISTRY_IMAGE/ui-amd64:latest -f Dockerfile.ui .
+    - docker build -t $CI_REGISTRY_IMAGE/worker-amd64:latest -f Dockerfile.worker .
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker push $CI_REGISTRY_IMAGE/api:amd64
-    - docker push $CI_REGISTRY_IMAGE/ui:amd64
-    - docker push $CI_REGISTRY_IMAGE/worker:amd64
+    - docker push $CI_REGISTRY_IMAGE/api-amd64:latest
+    - docker push $CI_REGISTRY_IMAGE/ui-amd64:latest
+    - docker push $CI_REGISTRY_IMAGE/worker-amd64:latest
   only:
     - main
 
@@ -60,13 +60,13 @@ release-docker-arm64:
   services:
     - docker:24.0.5-dind
   script:
-    - docker build -t $CI_REGISTRY_IMAGE/api:arm64 -f Dockerfile.api .
-    - docker build -t $CI_REGISTRY_IMAGE/ui:arm64 -f Dockerfile.ui .
-    - docker build -t $CI_REGISTRY_IMAGE/worker:arm64 -f Dockerfile.worker .
+    - docker build -t $CI_REGISTRY_IMAGE/api-arm64:latest -f Dockerfile.api .
+    - docker build -t $CI_REGISTRY_IMAGE/ui-arm64:latest -f Dockerfile.ui .
+    - docker build -t $CI_REGISTRY_IMAGE/worker-arm64:latest -f Dockerfile.worker .
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker push $CI_REGISTRY_IMAGE/api:arm64
-    - docker push $CI_REGISTRY_IMAGE/ui:arm64
-    - docker push $CI_REGISTRY_IMAGE/worker:arm64
+    - docker push $CI_REGISTRY_IMAGE/api-arm64:latest
+    - docker push $CI_REGISTRY_IMAGE/ui-arm64:latest
+    - docker push $CI_REGISTRY_IMAGE/worker-arm64:latest
   only:
     - main
 
@@ -83,30 +83,30 @@ release-docker-push:
     - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     # Combine images
-    - docker pull $CI_REGISTRY_IMAGE/api:amd64
-    - docker pull $CI_REGISTRY_IMAGE/api:arm64
+    - docker pull $CI_REGISTRY_IMAGE/api-amd64:latest
+    - docker pull $CI_REGISTRY_IMAGE/api-arm64:latest
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest \
-        $CI_REGISTRY_IMAGE/api:amd64 \
-        $CI_REGISTRY_IMAGE/api:arm64
+        $CI_REGISTRY_IMAGE/api-amd64:latest \
+        $CI_REGISTRY_IMAGE/api-arm64:latest
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG \
-        $CI_REGISTRY_IMAGE/api:amd64 \
-        $CI_REGISTRY_IMAGE/api:arm64
-    - docker pull $CI_REGISTRY_IMAGE/ui:amd64
-    - docker pull $CI_REGISTRY_IMAGE/ui:arm64
+        $CI_REGISTRY_IMAGE/api-amd64:latest \
+        $CI_REGISTRY_IMAGE/api-arm64:latest
+    - docker pull $CI_REGISTRY_IMAGE/ui-amd64:latest
+    - docker pull $CI_REGISTRY_IMAGE/ui-arm64:latest
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest \
-        $CI_REGISTRY_IMAGE/ui:amd64 \
-        $CI_REGISTRY_IMAGE/ui:arm64
+        $CI_REGISTRY_IMAGE/ui-amd64:latest \
+        $CI_REGISTRY_IMAGE/ui-arm64:latest
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG \
-        $CI_REGISTRY_IMAGE/ui:amd64 \
-        $CI_REGISTRY_IMAGE/ui:arm64
-    - docker pull $CI_REGISTRY_IMAGE/worker:amd64
-    - docker pull $CI_REGISTRY_IMAGE/worker:arm64
+        $CI_REGISTRY_IMAGE/ui-amd64:latest \
+        $CI_REGISTRY_IMAGE/ui-arm64:latest
+    - docker pull $CI_REGISTRY_IMAGE/worker-amd64:latest
+    - docker pull $CI_REGISTRY_IMAGE/worker-arm64:latest
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest \
-        $CI_REGISTRY_IMAGE/worker:amd64 \
-        $CI_REGISTRY_IMAGE/worker:arm64
+        $CI_REGISTRY_IMAGE/worker-amd64:latest \
+        $CI_REGISTRY_IMAGE/worker-arm64:latest
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG \
-        $CI_REGISTRY_IMAGE/worker:amd64 \
-        $CI_REGISTRY_IMAGE/worker:arm64
+        $CI_REGISTRY_IMAGE/worker-amd64:latest \
+        $CI_REGISTRY_IMAGE/worker-arm64:latest
     # Push images
     - docker logout $CI_REGISTRY
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
