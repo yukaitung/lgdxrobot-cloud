@@ -103,6 +103,7 @@ release_job:
     - source amd64.env
     - source arm64.env
     - apk add libxml2-utils
+    - apk add gitlab-release-cli
     - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest --amend $DOCKER_API_AMD64 --amend $DOCKER_API_ARM64
