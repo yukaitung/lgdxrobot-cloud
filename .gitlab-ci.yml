@@ -45,7 +45,7 @@ build-amd64:
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-amd64 -f Dockerfile.api .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-amd64 -f Dockerfile.ui .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-amd64 -f Dockerfile.worker .
-    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-amd64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-amd64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-amd64
@@ -64,7 +64,7 @@ build-arm64:
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-arm64 -f Dockerfile.api .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-arm64 -f Dockerfile.ui .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-arm64 -f Dockerfile.worker .
-    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:temp-arm64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:temp-arm64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:temp-arm64
