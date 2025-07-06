@@ -42,10 +42,19 @@ build-amd64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker buildx build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$CI_COMMIT_SHORT_SHA-amd64 -f Dockerfile.api --platform linux/amd64 --provenance false --output push-by-digest=true,type=image,push=true .
-    - docker buildx build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$CI_COMMIT_SHORT_SHA-amd64 -f Dockerfile.ui --platform linux/amd64 --provenance false --output push-by-digest=true,type=image,push=true .
-    - docker buildx build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$CI_COMMIT_SHORT_SHA-amd64 -f Dockerfile.worker --platform linux/amd64 --provenance false --output push-by-digest=true,type=image,push=true .
-
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api -f Dockerfile.api .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui -f Dockerfile.ui .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker -f Dockerfile.worker .
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker
+    - echo "API_AMD64=$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.api)" > amd64.env
+    - echo "UI_AMD64=aa$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.ui)" > amd64.env 
+    - echo "WORKER_AMD64=aa$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.worker)" > amd64.env 
+  artifacts:
+    paths:
+      - amd64.env
   only:
     - main
 
@@ -59,25 +68,17 @@ build-arm64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker buildx build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$CI_COMMIT_SHORT_SHA-arm64 -f Dockerfile.api --platform linux/arm64 --provenance false --output push-by-digest=true,type=image,push=true .
-    - docker buildx build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$CI_COMMIT_SHORT_SHA-arm64 -f Dockerfile.ui --platform linux/arm64 --provenance false --output push-by-digest=true,type=image,push=true .
-    - docker buildx build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$CI_COMMIT_SHORT_SHA-arm64 -f Dockerfile.worker --platform linux/arm64 --provenance false --output push-by-digest=true,type=image,push=true .
-  only:
-    - main
-
-release-docker-push:
-  image: docker:24.0.5-git
-  stage: release
-  tags:
-    - lgdx-amd64
-  dependencies: []
-  services:
-    - docker:24.0.5-dind
-  script:
-    - apk add libxml2-utils
-    - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
-    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$CI_COMMIT_SHORT_SHA-amd64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$CI_COMMIT_SHORT_SHA-arm64
-    - docker manifest push EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api -f Dockerfile.api .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui -f Dockerfile.ui .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker -f Dockerfile.worker .
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker
+    - echo "API_ARM64=$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.api)" > arm64.env
+    - echo "UI_ARM64=aa$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.ui)" > arm64.env
+    - echo "WORKER_ARM64=aa$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.worker)" > arm64.env
+  artifacts:
+    paths:
+      - arm64.env
   only:
     - main
