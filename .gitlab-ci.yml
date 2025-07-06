@@ -37,7 +37,7 @@ stages:
 
 build:
   stage: build-1
-  image: mcr.microsoft.com/dotnet/sdk:9.0
+  image: mcr.microsoft.com/dotnet/sdk:9.0-alpine
   tags:
     - lgdx-amd64
   before_script:
@@ -53,7 +53,7 @@ build:
 
 unit-test:
   stage: test
-  image: mcr.microsoft.com/dotnet/sdk:9.0
+  image: mcr.microsoft.com/dotnet/sdk:9.0-alpine
   tags:
     - lgdx-amd64
   before_script:
