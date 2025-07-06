@@ -14,15 +14,3 @@ Use the following command to generate the client in LGDXRobotCloud.UI:
 ```bash
 kiota generate -l CSharp -c LgdxApiClient -n LGDXRobotCloud.UI.Client -o ./Client -d https://localhost:5163/openapi/v1.json --clean-output
 ```
-
-Use the following command to build the Docker image:
-
-```bash
-docker build -t lgdxrobotcloud.api -f Dockerfile.api .
-docker build -t lgdxrobotcloud.ui -f Dockerfile.ui .
-docker build -t lgdxrobotcloud.worker -f Dockerfile.worker .
-```
-
-```bash
-docker buildx build --platform linux/amd64,linux/arm64 -t lgdxrobotcloud.api -f Dockerfile.api .
-```
