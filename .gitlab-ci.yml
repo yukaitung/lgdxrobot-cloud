@@ -32,26 +32,23 @@ stages:
   - build-2
   - release
 
-# Build Docker Images for AMD64
-release-docker-amd64:
+
+build-api-amd64:
   image: docker:24.0.5-git
   stage: build-2
   dependencies: []
+  tags:
+    - lgdx-amd64
   services:
     - docker:24.0.5-dind
   script:
     - docker build -t $CI_REGISTRY_IMAGE/api-amd64:latest -f Dockerfile.api .
-    - docker build -t $CI_REGISTRY_IMAGE/ui-amd64:latest -f Dockerfile.ui .
-    - docker build -t $CI_REGISTRY_IMAGE/worker-amd64:latest -f Dockerfile.worker .
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - docker push $CI_REGISTRY_IMAGE/api-amd64:latest
-    - docker push $CI_REGISTRY_IMAGE/ui-amd64:latest
-    - docker push $CI_REGISTRY_IMAGE/worker-amd64:latest
   only:
     - main
 
-# Build Docker Images for ARM64
-release-docker-arm64:
+build-api-arm64:
   image: docker:24.0.5-git
   stage: build-2
   dependencies: []
@@ -61,19 +58,76 @@ release-docker-arm64:
     - docker:24.0.5-dind
   script:
     - docker build -t $CI_REGISTRY_IMAGE/api-arm64:latest -f Dockerfile.api .
-    - docker build -t $CI_REGISTRY_IMAGE/ui-arm64:latest -f Dockerfile.ui .
-    - docker build -t $CI_REGISTRY_IMAGE/worker-arm64:latest -f Dockerfile.worker .
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - docker push $CI_REGISTRY_IMAGE/api-arm64:latest
+  only:
+    - main
+
+build-ui-amd64:
+  image: docker:24.0.5-git
+  stage: build-2
+  dependencies: []
+  tags:
+    - lgdx-amd64
+  services:
+    - docker:24.0.5-dind
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE/ui-amd64:latest -f Dockerfile.ui .
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE/ui-amd64:latest
+  only:
+    - main
+
+build-ui-arm64:
+  image: docker:24.0.5-git
+  stage: build-2
+  dependencies: []
+  tags:
+    - saas-linux-small-arm64 
+  services:
+    - docker:24.0.5-dind
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE/ui-arm64:latest -f Dockerfile.ui .
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - docker push $CI_REGISTRY_IMAGE/ui-arm64:latest
+  only:
+    - main
+
+build-worker-amd64:
+  image: docker:24.0.5-git
+  stage: build-2
+  dependencies: []
+  tags:
+    - lgdx-amd64
+  services:
+    - docker:24.0.5-dind
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE/worker-amd64:latest -f Dockerfile.worker .
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE/worker-amd64:latest
+  only:
+    - main
+
+build-worker-arm64:
+  image: docker:24.0.5-git
+  stage: build-2
+  dependencies: []
+  tags:
+    - saas-linux-small-arm64 
+  services:
+    - docker:24.0.5-dind
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE/worker-arm64:latest -f Dockerfile.worker .
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - docker push $CI_REGISTRY_IMAGE/worker-arm64:latest
   only:
     - main
 
-# Combine Docker Images and Push to Registry
 release-docker-push:
   image: docker:24.0.5-git
   stage: release
+  tags:
+    - lgdx-amd64
   dependencies: []
   services:
     - docker:24.0.5-dind
@@ -82,14 +136,6 @@ release-docker-push:
     - apk add libxml2-utils
     - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE/api-amd64:latest
-    - docker pull $CI_REGISTRY_IMAGE/api-arm64:latest
-    - docker pull $CI_REGISTRY_IMAGE/ui-amd64:latest
-    - docker pull $CI_REGISTRY_IMAGE/ui-arm64:latest
-    - docker pull $CI_REGISTRY_IMAGE/worker-amd64:latest
-    - docker pull $CI_REGISTRY_IMAGE/worker-arm64:latest
-    # Push images
-    - docker logout $CI_REGISTRY
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest $CI_REGISTRY_IMAGE/api-amd64:latest $CI_REGISTRY_IMAGE/api-arm64:latest
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG $CI_REGISTRY_IMAGE/api-amd64:latest $CI_REGISTRY_IMAGE/api-arm64:latest
