@@ -85,13 +85,13 @@ unit-test-page:
   - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
   - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG -f Dockerfile.api .
   - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG -f Dockerfile.ui .
-  - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:worker -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG -f Dockerfile.worker .
+  - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG -f Dockerfile.worker .
   - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
   - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
   - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG
   - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest
   - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG
-  - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:worker
+  - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
   - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
 
 release-docker-amd64:
