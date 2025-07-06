@@ -1,5 +1,5 @@
 # LGDXRobot Cloud GitLab CI/CD
-# Variables
+# Variables Needed
 # $EXT_REGISTRY: Registry URL (e.g. docker.io)
 # $EXT_USER: Username for the registry
 # $EXT_PAT: PAT for the registry (https://docs.docker.com/security/for-developers/access-tokens/)
@@ -29,20 +29,84 @@ cache:
   policy: pull-push
 
 stages:
+  - build-1
+  - test
+  - deploy
   - build-2
   - release
 
+build:
+  stage: build-1
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  tags:
+    - lgdx-amd64
+  before_script:
+    - 'apk add libxml2-utils'
+    - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
+  script:
+    # Setup APP_VERSION
+    - echo "APP_VERSION=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)" >> variables.env
+    - 'dotnet build --no-restore'
+  artifacts:
+    reports:
+      dotenv: variables.env
+
+unit-test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  tags:
+    - lgdx-amd64
+  before_script:
+    - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
+  script:
+    # Run tests
+    - 'dotnet test --settings:"Tests/.runsettings" --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
+    # Generate coverage report
+    - 'dotnet tool restore'
+    - 'dotnet tool run reportgenerator -reports:"Tests/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:"HtmlInline;Cobertura;TextSummary"'
+    - 'sed -n "/Summary/,/^$/p" coveragereport/Summary.txt'
+  coverage: '/Line coverage: (\d+\.\d+%)/'
+  artifacts:
+    when: always
+    paths:
+      - coveragereport/*.*
+    reports:
+      junit:
+        - Tests/**/test-result.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coveragereport/Cobertura.xml
+    expire_in: 1 days
+
+unit-test-page:
+  stage: deploy
+  only:
+    - main
+  image: alpine:latest
+  tags:
+    - lgdx-amd64
+  script:
+    - 'rm coveragereport/Cobertura.xml'
+    - 'rm coveragereport/Summary.txt'
+    - 'mv coveragereport/ public/'
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 days
+
 build-amd64:
-  image: docker:24.0.5-git
   stage: build-2
+  rules:
+  - if: $CI_COMMIT_TAG
+    when: never 
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: docker:24.0.5-git
   dependencies: []
   tags:
     - lgdx-amd64
   services:
     - docker:24.0.5-dind
   script:
-    - apk add libxml2-utils
-    - echo "APP_VERSION=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)" >> variables.env
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-amd64 -f Dockerfile.api .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-amd64 -f Dockerfile.ui .
@@ -57,12 +121,14 @@ build-amd64:
   artifacts:
     reports:
       dotenv: variables.env
-  only:
-    - main
 
 build-arm64:
-  image: docker:24.0.5-git
   stage: build-2
+  image: docker:24.0.5-git
+  rules:
+  - if: $CI_COMMIT_TAG
+    when: never 
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   dependencies: []
   tags:
     - saas-linux-small-arm64 
@@ -82,16 +148,14 @@ build-arm64:
   artifacts:
     reports:
       dotenv: variables.env
-  only:
-    - main
 
 release_job:
-  image: docker:24.0.5-git
   stage: release
-  #rules:
-    #- if: $CI_COMMIT_TAG
-    #  when: never 
-    #- if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: docker:24.0.5-git
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags:
     - lgdx-amd64
   needs:
@@ -101,9 +165,10 @@ release_job:
       artifacts: true
   services:
     - docker:24.0.5-dind
-  script:
+  before_script:
     - apk add glab
     - apk add gitlab-release-cli
+  script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest --amend $DOCKER_API_AMD64 --amend $DOCKER_API_ARM64
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$APP_VERSION --amend $DOCKER_API_AMD64 --amend $DOCKER_API_ARM64
@@ -130,5 +195,3 @@ release_job:
           url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobotcloud.api/tags/$APP_VERSION'
         - name: 'Docker Images for LGDXRobotCloud.Worker'
           url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobotcloud.worker/tags/$APP_VERSION'
-  only:
-    - main
