@@ -67,3 +67,15 @@ unit-test-page:
     expire_in: 30 days
   only:
     - main
+
+release-docker:
+  image: docker:24.0.5-git
+  stage: release
+  services:
+    - docker:24.0.5-dind
+  script:
+    - TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
+    - docker build -t yukaitung/lgdxrobotcloud.api:latest -t yukaitung/lgdxrobotcloud.api:$(TAG) -f Dockerfile.api .
+    - docker login -u $EXT_USER -p $EXT_PAT $EXT_REGISTRY
+    - docker push yukaitung/lgdxrobotcloud.api:latest
+    - docker push yukaitung/lgdxrobotcloud.api:$(TAG)
