@@ -80,6 +80,7 @@ release-docker:
   services:
     - docker:24.0.5-dind
   script:
+    - apk add libxml2-utils
     - TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
     - docker build -t yukaitung/lgdxrobotcloud.api:latest -t yukaitung/lgdxrobotcloud.api:$(TAG) -f Dockerfile.api .
     - docker login -u $EXT_USER -p $EXT_PAT $EXT_REGISTRY
