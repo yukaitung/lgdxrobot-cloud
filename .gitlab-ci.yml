@@ -85,36 +85,36 @@ release-docker-push:
     # Combine images
     - docker pull $CI_REGISTRY_IMAGE/api-amd64:latest
     - docker pull $CI_REGISTRY_IMAGE/api-arm64:latest
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest \
+    - docker manifest create $EXT_USER/lgdxrobotcloud.api:latest \
         $CI_REGISTRY_IMAGE/api-amd64:latest \
         $CI_REGISTRY_IMAGE/api-arm64:latest
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG \
+    - docker manifest create $EXT_USER/lgdxrobotcloud.api:$TEMP_TAG \
         $CI_REGISTRY_IMAGE/api-amd64:latest \
         $CI_REGISTRY_IMAGE/api-arm64:latest
     - docker pull $CI_REGISTRY_IMAGE/ui-amd64:latest
     - docker pull $CI_REGISTRY_IMAGE/ui-arm64:latest
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest \
+    - docker manifest create $EXT_USER/lgdxrobotcloud.ui:latest \
         $CI_REGISTRY_IMAGE/ui-amd64:latest \
         $CI_REGISTRY_IMAGE/ui-arm64:latest
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG \
+    - docker manifest create $EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG \
         $CI_REGISTRY_IMAGE/ui-amd64:latest \
         $CI_REGISTRY_IMAGE/ui-arm64:latest
     - docker pull $CI_REGISTRY_IMAGE/worker-amd64:latest
     - docker pull $CI_REGISTRY_IMAGE/worker-arm64:latest
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest \
+    - docker manifest create $EXT_USER/lgdxrobotcloud.worker:latest \
         $CI_REGISTRY_IMAGE/worker-amd64:latest \
         $CI_REGISTRY_IMAGE/worker-arm64:latest
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG \
+    - docker manifest create $EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG \
         $CI_REGISTRY_IMAGE/worker-amd64:latest \
         $CI_REGISTRY_IMAGE/worker-arm64:latest
     # Push images
     - docker logout $CI_REGISTRY
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
+    - docker manifest push $EXT_USER/lgdxrobotcloud.api:latest
+    - docker manifest push $EXT_USER/lgdxrobotcloud.api:$TEMP_TAG
+    - docker manifest push $EXT_USER/lgdxrobotcloud.ui:latest
+    - docker manifest push $EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG
+    - docker manifest push $EXT_USER/lgdxrobotcloud.worker:latest
+    - docker manifest push $EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
   only:
     - main
