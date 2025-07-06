@@ -42,9 +42,12 @@ build-amd64:
     - apk add libxml2-utils
     - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker buildx build --platform linux/amd64, linux/arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG -f Dockerfile.api .
-    - docker buildx build --platform linux/amd64, linux/arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG -f Dockerfile.ui .
-    - docker buildx build --platform linux/amd64, linux/arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG -f Dockerfile.worker .
+    - docker buildx build --platform linux/amd64, linux/arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest -f Dockerfile.api .
+    - docker buildx build --platform linux/amd64, linux/arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest -f Dockerfile.ui .
+    - docker buildx build --platform linux/amd64, linux/arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest -f Dockerfile.worker .
+    - docker tag $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG
+    - docker tag $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG
+    - docker tag $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest
