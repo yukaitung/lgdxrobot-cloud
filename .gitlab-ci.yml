@@ -37,11 +37,11 @@ stages:
 
 build:
   stage: build-1
-  image: mcr.microsoft.com/dotnet/sdk:9.0-alpine
+  image: mcr.microsoft.com/dotnet/sdk:9.0
   tags:
     - lgdx-amd64
   before_script:
-    - 'apk add libxml2-utils'
+    - 'apt-get install -y libxml2-utils'
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
     # Setup APP_VERSION
@@ -53,7 +53,7 @@ build:
 
 unit-test:
   stage: test
-  image: mcr.microsoft.com/dotnet/sdk:9.0-alpine
+  image: mcr.microsoft.com/dotnet/sdk:9.0
   tags:
     - lgdx-amd64
   before_script:
