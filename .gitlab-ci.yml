@@ -84,6 +84,9 @@ release-docker:
   image: docker:24.0.5-git
   stage: release
   dependencies: []
+  tags:
+    - lgdx-arm64
+    - saas-linux-small-amd64
   services:
     - docker:24.0.5-dind
   script:
