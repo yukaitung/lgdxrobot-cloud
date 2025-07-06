@@ -21,6 +21,12 @@ cache:
   # 'pull-push' policy means that latest cache will be downloaded (if it exists)
   policy: pull-push
 
+stages:
+  - build
+  - test
+  - deploy
+  - release
+
 build:
   image: mcr.microsoft.com/dotnet/sdk:9.0
   stage: build
