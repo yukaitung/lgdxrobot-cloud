@@ -1,0 +1,12 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0.301@sha256:b768b444028d3c531de90a356836047e48658cd1e26ba07a539a6f1a052a35d9 AS build
+WORKDIR /App
+COPY . ./
+WORKDIR /App/LGDXRobotCloud.Worker
+RUN dotnet restore
+RUN dotnet publish --property:PublishDir=./out
+
+# Build
+FROM mcr.microsoft.com/dotnet/aspnet:9.0@sha256:d02562e8e42f3ddfec764b05447dfe56eff84df95fbfd8b4f884054b21760df6
+WORKDIR /App
+COPY --from=build /App/LGDXRobotCloud.Worker/out .
+ENTRYPOINT ["dotnet", "LGDXRobotCloud.Worker.dll"]
