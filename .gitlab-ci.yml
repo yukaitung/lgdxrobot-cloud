@@ -49,9 +49,9 @@ build-amd64:
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker
-    - echo "API_AMD64=$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.api)" > amd64.env
-    - echo "UI_AMD64=aa$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.ui)" > amd64.env 
-    - echo "WORKER_AMD64=aa$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.worker)" > amd64.env 
+    - echo "API_AMD64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ap)" >> amd64.env
+    - echo "UI_AMD64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui)" >> amd64.env 
+    - echo "WORKER_AMD64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker)" >> amd64.env 
   artifacts:
     paths:
       - amd64.env
@@ -74,11 +74,32 @@ build-arm64:
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker
-    - echo "API_ARM64=$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.api)" > arm64.env
-    - echo "UI_ARM64=aa$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.ui)" > arm64.env
-    - echo "WORKER_ARM64=aa$(docker inspect --format='{{index .RepoDigests 0}}' lgdxrobotcloud.worker)" > arm64.env
+    - echo "API_ARM64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api)" >> arm64.env
+    - echo "UI_ARM64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui)" >> arm64.env
+    - echo "WORKER_ARM64=$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker)" >> arm64.env
   artifacts:
     paths:
       - arm64.env
+  only:
+    - main
+
+release-docker-push:
+  image: docker:24.0.5-git
+  stage: release
+  tags:
+    - lgdx-amd64
+  dependencies:
+    - build-amd64
+    - build-arm64
+  services:
+    - docker:24.0.5-dind
+  script:
+    - source amd64.env
+    - source arm64.env
+    - apk add libxml2-utils
+    - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$API_AMD64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$API_ARM64
+    - docker manifest push EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
   only:
     - main
