@@ -28,58 +28,10 @@ cache:
   policy: pull-push
 
 stages:
-  - build-1
-  - test
-  - deploy
   - build-2
   - release
 
-build:
-  image: mcr.microsoft.com/dotnet/sdk:9.0
-  stage: build-1
-  before_script:
-    - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
-  script:
-    - 'dotnet build --no-restore'
 
-unit-test:
-  image: mcr.microsoft.com/dotnet/sdk:9.0
-  stage: test
-  before_script:
-    - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
-  script:
-    # Run tests
-    - 'dotnet test --settings:"Tests/.runsettings" --collect:"XPlat Code Coverage" --test-adapter-path:. --logger:"junit;LogFilePath=TestResults\test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose" --no-restore'
-    # Generate coverage report
-    - 'dotnet tool restore'
-    - 'dotnet tool run reportgenerator -reports:"Tests/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:"HtmlInline;Cobertura;TextSummary"'
-    - 'sed -n "/Summary/,/^$/p" coveragereport/Summary.txt'
-  coverage: '/Line coverage: (\d+\.\d+%)/'
-  artifacts:
-    when: always
-    paths:
-      - coveragereport/*.*
-      #- Tests/**/test-result.xml
-    reports:
-      junit:
-        - Tests/**/test-result.xml
-      coverage_report:
-        coverage_format: cobertura
-        path: coveragereport/Cobertura.xml
-
-unit-test-page:
-  image: alpine:latest
-  stage: deploy
-  script:
-    - 'rm coveragereport/Cobertura.xml'
-    - 'rm coveragereport/Summary.txt'
-    - 'mv coveragereport/ public/'
-  artifacts:
-    paths:
-      - public
-    expire_in: 30 days
-  only:
-    - main
 
 # Build Docker Images for AMD64
 release-docker-amd64:
