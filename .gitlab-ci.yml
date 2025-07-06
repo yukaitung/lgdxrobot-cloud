@@ -85,9 +85,13 @@ build-arm64:
   only:
     - main
 
-release-docker-push:
+release_job:
   image: docker:24.0.5-git
   stage: release
+  #rules:
+    #- if: $CI_COMMIT_TAG
+    #  when: never 
+    #- if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags:
     - lgdx-amd64
   dependencies:
@@ -113,5 +117,24 @@ release-docker-push:
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG
+    - docker image rm $DOCKER_API_AMD64
+    - docker image rm $DOCKER_API_ARM64
+    - docker image rm $DOCKER_UI_AMD64
+    - docker image rm $DOCKER_UI_ARM64
+    - docker image rm $DOCKER_WORKER_AMD64
+    - docker image rm $DOCKER_WORKER_ARM64
+  release:
+    tag_name: '$TEMP_TAG'
+    name : 'Release $TEMP_TAG'
+    description: '$TEMP_TAG'
+    ref: '$CI_COMMIT_SHA'
+    assets:
+      links:
+        - name: 'Docker for LGDXRobotCloud.API'
+          url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobotcloud.ui/tags/$TEMP_TAG'
+        - name: 'Docker for LGDXRobotCloud.UI'
+          url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobotcloud.api/tags/$TEMP_TAG'
+        - name: 'Docker for LGDXRobotCloud.Worker'
+          url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobotcloud.worker/tags/$TEMP_TAG'
   only:
     - main
