@@ -11,6 +11,7 @@ variables:
   NUGET_PACKAGES_DIRECTORY: '.nuget'
   # 3) A relative path to the source code from project repository root.
   SOURCE_CODE_PATH: '*/'
+  GITLAB_REG_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
 
 # To configure cache to pass over restored dependencies for re-use.
 cache:
@@ -31,8 +32,6 @@ stages:
   - build-2
   - release
 
-
-
 # Build Docker Images for AMD64
 release-docker-amd64:
   image: docker:24.0.5-git
@@ -41,13 +40,13 @@ release-docker-amd64:
   services:
     - docker:24.0.5-dind
   script:
-    - docker build -t $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.api-amd64 -f Dockerfile.api .
-    - docker build -t $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.ui-amd64 -f Dockerfile.ui .
-    - docker build -t $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.worker-amd64 -f Dockerfile.worker .
+    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.api-amd64 -f Dockerfile.api .
+    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.ui-amd64 -f Dockerfile.ui .
+    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.worker-amd64 -f Dockerfile.worker .
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker push $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.api-amd64
-    - docker push $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.ui-amd64
-    - docker push $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.worker-amd64
+    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.api-amd64
+    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.ui-amd64
+    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.worker-amd64
   only:
     - main
 
@@ -61,13 +60,13 @@ release-docker-arm64:
   services:
     - docker:24.0.5-dind
   script:
-    - docker build -t $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.api-arm64 -f Dockerfile.api .
-    - docker build -t $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.ui-arm64 -f Dockerfile.ui .
-    - docker build -t $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.worker-arm64 -f Dockerfile.worker .
+    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.api-arm64 -f Dockerfile.api .
+    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.ui-arm64 -f Dockerfile.ui .
+    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.worker-arm64 -f Dockerfile.worker .
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker push $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.api-arm64
-    - docker push $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.ui-arm64
-    - docker push $CI_REGISTRY/$CI_REGISTRY_USER/lgdxrobotcloud.worker-arm64
+    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.api-arm64
+    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.ui-arm64
+    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.worker-arm64
   only:
     - main
 
