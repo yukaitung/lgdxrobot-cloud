@@ -40,13 +40,13 @@ release-docker-amd64:
   services:
     - docker:24.0.5-dind
   script:
-    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.api-amd64 -f Dockerfile.api .
-    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.ui-amd64 -f Dockerfile.ui .
-    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.worker-amd64 -f Dockerfile.worker .
+    - docker build -t $CI_REGISTRY_IMAGE-api-amd64:$CI_COMMIT_REF_SLUG -f Dockerfile.api .
+    - docker build -t $CI_REGISTRY_IMAGE-ui-amd64:$CI_COMMIT_REF_SLUG -f Dockerfile.ui .
+    - docker build -t $CI_REGISTRY_IMAGE-worker-amd64:$CI_COMMIT_REF_SLUG -f Dockerfile.worker .
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.api-amd64
-    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.ui-amd64
-    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.worker-amd64
+    - docker push $CI_REGISTRY_IMAGE-api-amd64:$CI_COMMIT_REF_SLUG
+    - docker push $CI_REGISTRY_IMAGE-ui-amd64:$CI_COMMIT_REF_SLUG
+    - docker push $CI_REGISTRY_IMAGE-worker-amd64:$CI_COMMIT_REF_SLUG
   only:
     - main
 
@@ -60,13 +60,13 @@ release-docker-arm64:
   services:
     - docker:24.0.5-dind
   script:
-    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.api-arm64 -f Dockerfile.api .
-    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.ui-arm64 -f Dockerfile.ui .
-    - docker build -t $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.worker-arm64 -f Dockerfile.worker .
+    - docker build -t $CI_REGISTRY_IMAGE-api-arm64:$CI_COMMIT_REF_SLUG -f Dockerfile.api .
+    - docker build -t $CI_REGISTRY_IMAGE-ui-arm64:$CI_COMMIT_REF_SLUG -f Dockerfile.ui .
+    - docker build -t $CI_REGISTRY_IMAGE-worker-arm64:$CI_COMMIT_REF_SLUG -f Dockerfile.worker .
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.api-arm64
-    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.ui-arm64
-    - docker push $GITLAB_REG_IMAGE_NAME/lgdxrobotcloud.worker-arm64
+    - docker push $CI_REGISTRY_IMAGE-api-arm64:$CI_COMMIT_REF_SLUG
+    - docker push $CI_REGISTRY_IMAGE-ui-arm64:$CI_COMMIT_REF_SLUG
+    - docker push $CI_REGISTRY_IMAGE-worker-arm64:$CI_COMMIT_REF_SLUG
   only:
     - main
 
@@ -83,30 +83,30 @@ release-docker-push:
     - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     # Combine images
-    - docker pull lgdxrobotcloud.api-amd64
-    - docker pull lgdxrobotcloud.api-arm64
+    - docker pull $CI_REGISTRY_IMAGE-api-amd64:$CI_COMMIT_REF_SLUG
+    - docker pull $CI_REGISTRY_IMAGE-api-arm64:$CI_COMMIT_REF_SLUG
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest \
-        lgdxrobotcloud.api-amd64 \
-        lgdxrobotcloud.api-arm64
+        $CI_REGISTRY_IMAGE-api-amd64:$CI_COMMIT_REF_SLUG \
+        $CI_REGISTRY_IMAGE-api-arm64:$CI_COMMIT_REF_SLUG
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG \
-        lgdxrobotcloud.api-amd64 \
-        lgdxrobotcloud.api-arm64
-    - docker pull lgdxrobotcloud.ui-amd64
-    - docker pull lgdxrobotcloud.ui-arm64
+        $CI_REGISTRY_IMAGE-api-amd64:$CI_COMMIT_REF_SLUG \
+        $CI_REGISTRY_IMAGE-api-arm64:$CI_COMMIT_REF_SLUG
+    - docker pull $CI_REGISTRY_IMAGE-ui-amd64:$CI_COMMIT_REF_SLUG
+    - docker pull $CI_REGISTRY_IMAGE-ui-arm64:$CI_COMMIT_REF_SLUG
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:latest \
-        lgdxrobotcloud.ui-amd64 \
-        lgdxrobotcloud.ui-arm64
+        $CI_REGISTRY_IMAGE-ui-amd64:$CI_COMMIT_REF_SLUG \
+        $CI_REGISTRY_IMAGE-ui-arm64:$CI_COMMIT_REF_SLUG
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$TEMP_TAG \
-        lgdxrobotcloud.ui-amd64 \
-        lgdxrobotcloud.ui-arm64
-    - docker pull lgdxrobotcloud.worker-amd64
-    - docker pull lgdxrobotcloud.worker-arm64
+        $CI_REGISTRY_IMAGE-ui-amd64:$CI_COMMIT_REF_SLUG \
+        $CI_REGISTRY_IMAGE-ui-arm64:$CI_COMMIT_REF_SLUG
+    - docker pull $CI_REGISTRY_IMAGE-worker-amd64:$CI_COMMIT_REF_SLUG
+    - docker pull $CI_REGISTRY_IMAGE-worker-arm64:$CI_COMMIT_REF_SLUG
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest \
-        lgdxrobotcloud.worker-amd64 \
-        lgdxrobotcloud.worker-arm64
+        $CI_REGISTRY_IMAGE-worker-amd64:$CI_COMMIT_REF_SLUG \
+        $CI_REGISTRY_IMAGE-worker-arm64:$CI_COMMIT_REF_SLUG
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$TEMP_TAG \
-        lgdxrobotcloud.worker-amd64 \
-        lgdxrobotcloud.worker-arm64
+        $CI_REGISTRY_IMAGE-worker-amd64:$CI_COMMIT_REF_SLUG \
+        $CI_REGISTRY_IMAGE-worker-arm64:$CI_COMMIT_REF_SLUG
     # Push images
     - docker logout $CI_REGISTRY
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
