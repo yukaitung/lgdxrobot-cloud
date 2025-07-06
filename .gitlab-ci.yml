@@ -82,9 +82,9 @@ release-docker:
   script:
     - apk add libxml2-utils
     - TEMP_TAG=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)
-    - docker build -t yukaitung/lgdxrobotcloud.api:latest -t yukaitung/lgdxrobotcloud.api:$TEMP_TAG -f Dockerfile.api .
-    - docker login -u $EXT_USER -p $EXT_PAT --password-stdin $EXT_REGISTRY
-    - docker push yukaitung/lgdxrobotcloud.api:latest
-    - docker push yukaitung/lgdxrobotcloud.api:$TEMP_TAG
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG -f Dockerfile.api .
+    - docker login -u $EXT_USER -p $EXT_PAT $EXT_REGISTRY
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$TEMP_TAG
   only:
     - main
