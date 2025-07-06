@@ -22,11 +22,3 @@ docker build -t lgdxrobotcloud.api -f Dockerfile.api .
 docker build -t lgdxrobotcloud.ui -f Dockerfile.ui .
 docker build -t lgdxrobotcloud.worker -f Dockerfile.worker .
 ```
-
-Use the following command to build the Docker image (CI/CD):
-
-```bash
-docker build -t yukaitung/lgdxrobotcloud.api:latest -t yukaitung/lgdxrobotcloud.api:$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml) -f Dockerfile.api .
-docker build -t lgdxrobotcloud.ui -t yukaitung/lgdxrobotcloud.ui:$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml) -f Dockerfile.ui .
-docker build -t lgdxrobotcloud.worker -t yukaitung/lgdxrobotcloud.worker:$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml) -f Dockerfile.worker .
-```
