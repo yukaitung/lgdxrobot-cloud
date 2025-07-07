@@ -77,7 +77,7 @@ if (builder.Environment.IsDevelopment())
 		.EnableSensitiveDataLogging()
 		.EnableDetailedErrors()
 	);
-	builder.Services.AddDbContext<ActivityContext>(cfg =>
+	builder.Services.AddDbContext<LgdxLogsContext>(cfg =>
 		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Activity"))
 		.LogTo(Console.WriteLine, LogLevel.Information)
 		.EnableSensitiveDataLogging()
@@ -89,7 +89,7 @@ else
 	builder.Services.AddDbContext<LgdxContext>(cfg =>
 		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
 	);
-	builder.Services.AddDbContext<ActivityContext>(cfg =>
+	builder.Services.AddDbContext<LgdxLogsContext>(cfg =>
 		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Activity"))
 	);
 }

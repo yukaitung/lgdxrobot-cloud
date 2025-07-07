@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LGDXRobotCloud.Data.Migrations
 {
     [DbContext(typeof(LgdxContext))]
-    [Migration("20250505172651_SkipOnFailure")]
-    partial class SkipOnFailure
+    [Migration("20250707182734_Version1")]
+    partial class Version1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -133,6 +133,33 @@ namespace LGDXRobotCloud.Data.Migrations
                     b.HasIndex("WaypointId");
 
                     b.ToTable("Automation.AutoTaskDetails");
+                });
+
+            modelBuilder.Entity("LGDXRobotCloud.Data.Entities.AutoTaskJourney", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AutoTaskId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasPrecision(0)
+                        .HasColumnType("timestamp(0) with time zone");
+
+                    b.Property<int?>("CurrentProgressId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AutoTaskId");
+
+                    b.HasIndex("CurrentProgressId");
+
+                    b.ToTable("Automation.AutoTaskJourney");
                 });
 
             modelBuilder.Entity("LGDXRobotCloud.Data.Entities.Flow", b =>
@@ -404,6 +431,9 @@ namespace LGDXRobotCloud.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<bool>("HasWaypointsTrafficControl")
+                        .HasColumnType("boolean");
+
                     b.Property<byte[]>("Image")
                         .IsRequired()
                         .HasColumnType("bytea");
@@ -434,6 +464,7 @@ namespace LGDXRobotCloud.Data.Migrations
                         {
                             Id = 1,
                             Description = "Please update this realm",
+                            HasWaypointsTrafficControl = false,
                             Image = new byte[0],
                             Name = "First Realm",
                             OriginRotation = 0.0,
@@ -718,6 +749,34 @@ namespace LGDXRobotCloud.Data.Migrations
                     b.ToTable("Navigation.Waypoints");
                 });
 
+            modelBuilder.Entity("LGDXRobotCloud.Data.Entities.WaypointTraffic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RealmId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WaypointFromId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WaypointToId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RealmId");
+
+                    b.HasIndex("WaypointFromId");
+
+                    b.HasIndex("WaypointToId");
+
+                    b.ToTable("Navigation.WaypointTraffics");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -875,6 +934,24 @@ namespace LGDXRobotCloud.Data.Migrations
                     b.Navigation("Waypoint");
                 });
 
+            modelBuilder.Entity("LGDXRobotCloud.Data.Entities.AutoTaskJourney", b =>
+                {
+                    b.HasOne("LGDXRobotCloud.Data.Entities.AutoTask", "AutoTask")
+                        .WithMany("AutoTaskJourneys")
+                        .HasForeignKey("AutoTaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LGDXRobotCloud.Data.Entities.Progress", "CurrentProgress")
+                        .WithMany()
+                        .HasForeignKey("CurrentProgressId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AutoTask");
+
+                    b.Navigation("CurrentProgress");
+                });
+
             modelBuilder.Entity("LGDXRobotCloud.Data.Entities.FlowDetail", b =>
                 {
                     b.HasOne("LGDXRobotCloud.Data.Entities.Flow", "Flow")
@@ -983,6 +1060,33 @@ namespace LGDXRobotCloud.Data.Migrations
                     b.Navigation("Realm");
                 });
 
+            modelBuilder.Entity("LGDXRobotCloud.Data.Entities.WaypointTraffic", b =>
+                {
+                    b.HasOne("LGDXRobotCloud.Data.Entities.Realm", "Realm")
+                        .WithMany()
+                        .HasForeignKey("RealmId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LGDXRobotCloud.Data.Entities.Waypoint", "WaypointFrom")
+                        .WithMany()
+                        .HasForeignKey("WaypointFromId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LGDXRobotCloud.Data.Entities.Waypoint", "WaypointTo")
+                        .WithMany()
+                        .HasForeignKey("WaypointToId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Realm");
+
+                    b.Navigation("WaypointFrom");
+
+                    b.Navigation("WaypointTo");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("LGDXRobotCloud.Data.Entities.LgdxRole", null)
@@ -1037,6 +1141,8 @@ namespace LGDXRobotCloud.Data.Migrations
             modelBuilder.Entity("LGDXRobotCloud.Data.Entities.AutoTask", b =>
                 {
                     b.Navigation("AutoTaskDetails");
+
+                    b.Navigation("AutoTaskJourneys");
                 });
 
             modelBuilder.Entity("LGDXRobotCloud.Data.Entities.Flow", b =>

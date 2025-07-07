@@ -1,0 +1,72 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: LGDXRobotCloud
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    restart: always
+
+  api:
+    image: lgdxrobotcloud.api
+    ports:
+      - 5162:5162
+      - 5163:5163
+    restart: always
+    environment:
+      ASPNETCORE_URLS: https://+
+      ASPNETCORE_HTTPS_PORTS: 5162;5163
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ""
+      ASPNETCORE_Kestrel__Certificates__Default__Path: ""
+    volumes:
+      - ./appsettings.api.json:/App/appsettings.json
+      - /Users/sam/Develop/test/grpc.pfx:/App/grpc.pfx
+      - /Users/sam/Develop/test/app.pfx:/App/app.pfx
+      - /Users/sam/Develop/test/rootCA.crt:/etc/ssl/certs/rootCA.crt
+      - /Users/sam/Develop/test/rootCA.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/rootCA.pfx
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  ui:
+    image: lgdxrobotcloud.ui
+    ports:
+      - 5103:5103
+    restart: always
+    environment:
+      ASPNETCORE_URLS: https://+
+      ASPNETCORE_HTTPS_PORTS: 5103
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ""
+      ASPNETCORE_Kestrel__Certificates__Default__Path: ""
+    volumes:
+      - ./appsettings.ui.json:/App/appsettings.json
+      - /Users/sam/Develop/test/ui.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/ui.pfx
+      - /Users/sam/Develop/test/app.pfx:/App/app.pfx
+      - /Users/sam/Develop/test/rootCA.crt:/etc/ssl/certs/rootCA.crt
+    depends_on:
+      - api
+
+  worker:
+    image: lgdxrobotcloud.worker
+    restart: always
+    volumes:
+      - ./appsettings.worker.json:/App/appsettings.json
+    depends_on:
+      - api
+      - postgres
+      - rabbitmq
+
+volumes:
+  pgdata:

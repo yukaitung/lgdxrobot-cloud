@@ -4,10 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace LGDXRobotCloud.Data.Migrations.Activity
+namespace LGDXRobotCloud.Data.Migrations.LgdxLogs
 {
     /// <inheritdoc />
-    public partial class Activity : Migration
+    public partial class Version1log : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,6 +30,11 @@ namespace LGDXRobotCloud.Data.Migrations.Activity
                 {
                     table.PrimaryKey("PK_ActivityLogs", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActivityLogs_EntityName",
+                table: "ActivityLogs",
+                column: "EntityName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ActivityLogs_EntityName_EntityId",

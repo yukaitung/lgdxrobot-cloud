@@ -8,10 +8,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace LGDXRobotCloud.Data.Migrations.Activity
+namespace LGDXRobotCloud.Data.Migrations.LgdxLogs
 {
-    [DbContext(typeof(ActivityContext))]
-    partial class ActivityContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(LgdxLogsContext))]
+    partial class LgdxLogsContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -54,6 +54,8 @@ namespace LGDXRobotCloud.Data.Migrations.Activity
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EntityName");
 
                     b.HasIndex("EntityName", "EntityId");
 
