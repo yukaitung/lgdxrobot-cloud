@@ -88,6 +88,8 @@ unit-test-page:
     - 'rm coveragereport/Cobertura.xml'
     - 'rm coveragereport/Summary.txt'
     - 'mv coveragereport/ public/'
+  pages:
+    publish: public
   artifacts:
     paths:
       - public
