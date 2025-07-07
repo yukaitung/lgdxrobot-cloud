@@ -102,8 +102,8 @@ builder.Services.AddIdentity<LgdxUser, LgdxRole>()
 	.AddEntityFrameworkStores<LgdxContext>()
 	.AddTokenProvider<AuthenticatorTokenProvider<LgdxUser>>(TokenOptions.DefaultAuthenticatorProvider)
 	.AddTokenProvider<DataProtectorTokenProvider<LgdxUser>>(TokenOptions.DefaultProvider);
-builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.CertificationScheme)
-	.AddCertificate(LgdxRobotCloudAuthenticationSchemes.CertificationScheme, cfg =>
+builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificationScheme)
+	.AddCertificate(LgdxRobotCloudAuthenticationSchemes.CertificateScheme, cfg =>
 		{
 			cfg.AllowedCertificateTypes = CertificateTypes.All;
 			cfg.RevocationMode = X509RevocationMode.NoCheck;
@@ -121,8 +121,7 @@ builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.Certifica
 				}
 			};
 		}
-	);
-builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.ApiKeyScheme)
+	)
 	.AddScheme<ApiKeyAuthenticationSchemeOptions, ApiKeyAuthenticationSchemeHandler>(
 		LgdxRobotCloudAuthenticationSchemes.ApiKeyScheme,
 		options => {}
@@ -152,8 +151,7 @@ builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.RobotClie
 		{
 			OnCertificateValidated = async ctx =>
 			{
-				string subject = ctx.ClientCertificate.Subject;
-				string guid = subject.Substring(subject.IndexOf("OID.0.9.2342.19200300.100.1.1=") + 30, 36);
+				string guid = ctx.ClientCertificate.Subject.Substring(3, 36);
 				if (guid == string.Empty)
 				{
 					ctx.Fail("Robot ID not found.");
