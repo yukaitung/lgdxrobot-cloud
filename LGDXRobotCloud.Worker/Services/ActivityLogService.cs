@@ -10,10 +10,10 @@ public interface IActivityLogService
 }
 
 partial class ActivityLogService(
-    ActivityContext activityContext
+    LgdxLogsContext LgdxLogsContext
   ) : IActivityLogService
 {
-  private readonly ActivityContext _activityContext = activityContext ?? throw new ArgumentNullException(nameof(activityContext));
+  private readonly LgdxLogsContext _lgdxLogsContext = LgdxLogsContext ?? throw new ArgumentNullException(nameof(LgdxLogsContext));
 
   public async Task CreateActivityLogAsync(ActivityLogContract activityLogContract)
   {
@@ -28,7 +28,7 @@ partial class ActivityLogService(
       CreatedAt = DateTime.UtcNow,
     };
 
-    await _activityContext.ActivityLogs.AddAsync(activityLog);
-    await _activityContext.SaveChangesAsync();
+    await _lgdxLogsContext.ActivityLogs.AddAsync(activityLog);
+    await _lgdxLogsContext.SaveChangesAsync();
   }
 }

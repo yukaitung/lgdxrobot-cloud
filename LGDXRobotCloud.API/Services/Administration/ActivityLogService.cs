@@ -18,20 +18,20 @@ public interface IActivityLogService
 }
 
 public class ActivityLogService(
-    ActivityContext activityContext,
+    LgdxLogsContext LgdxLogsContext,
     IBus bus,
     IHttpContextAccessor httpContextAccessor,
     LgdxContext lgdxContext
   ) : IActivityLogService
 {
-  private readonly ActivityContext _activityContext = activityContext ?? throw new ArgumentNullException(nameof(activityContext));
+  private readonly LgdxLogsContext _lgdxLogsContext = LgdxLogsContext ?? throw new ArgumentNullException(nameof(LgdxLogsContext));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
   private readonly LgdxContext _lgdxContext = lgdxContext ?? throw new ArgumentNullException(nameof(lgdxContext));
 
   public async Task<(IEnumerable<ActivityLogListBusinessModel>, PaginationHelper)> GetActivityLogsAsync(string? entityName, string? entityId, int pageNumber, int pageSize)
   {
-    var query = _activityContext.ActivityLogs as IQueryable<ActivityLog>;
+    var query = _lgdxLogsContext.ActivityLogs as IQueryable<ActivityLog>;
     if (!string.IsNullOrWhiteSpace(entityName))
     {
       entityName = entityName.Trim();
@@ -82,7 +82,7 @@ public class ActivityLogService(
 
   public async Task<ActivityLogBusinessModel> GetActivityLogAsync(int id)
   {
-    var activityLog = await _activityContext.ActivityLogs.AsNoTracking()
+    var activityLog = await _lgdxLogsContext.ActivityLogs.AsNoTracking()
       .Where(t => t.Id == id)
       .Select(t => new ActivityLogBusinessModel
       {

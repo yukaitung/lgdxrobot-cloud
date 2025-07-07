@@ -47,12 +47,15 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Add API
-var store = new X509Store(StoreLocation.CurrentUser);
+var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
 store.Open(OpenFlags.ReadOnly);
-var certificate = store.Certificates.First(cert => cert.SerialNumber == builder.Configuration["LGDXRobotCloudAPICertificateSN"]);
-var clientHandler = new HttpClientHandler();
+var certificate = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["LGDXRobotCloudAPI:CertificateSN"]!));
+var clientHandler = new HttpClientHandler{
+	AllowAutoRedirect = true,
+	UseDefaultCredentials = true
+};
 clientHandler.ClientCertificates.Add(certificate);
-var url = new Uri(builder.Configuration["LGDXRobotCloudAPIUrl"] ?? string.Empty);
+var url = new Uri(builder.Configuration["LGDXRobotCloudAPI:Url"] ?? string.Empty);
 
 builder.Services.AddKiotaHandlers();
 builder.Services.AddHttpClient<LgdxApiClientFactory>((sp, client) => 
@@ -60,22 +63,14 @@ builder.Services.AddHttpClient<LgdxApiClientFactory>((sp, client) =>
   client.BaseAddress = url;
 })
 	.AddHttpMessageHandler(() => new HeadersInspectionHandler())
-	.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-	{
-		AllowAutoRedirect = true,
-		UseDefaultCredentials = true
-	})
+	.ConfigurePrimaryHttpMessageHandler(() => clientHandler)
 	.AttachKiotaHandlers();
 builder.Services.AddTransient(sp => sp.GetRequiredService<LgdxApiClientFactory>().GetClient());
 builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client =>
 { 
 	client.BaseAddress = url;
 })
-	.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-	{
-		AllowAutoRedirect = true,
-		UseDefaultCredentials = true
-	});
+	.ConfigurePrimaryHttpMessageHandler(() => clientHandler);
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 builder.Services.AddSingleton<IRealTimeService, RealTimeService>();

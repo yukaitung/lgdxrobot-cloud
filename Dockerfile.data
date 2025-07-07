@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0.301@sha256:b768b444028d3c531de90a356836047e48658cd1e26ba07a539a6f1a052a35d9 AS build
+WORKDIR /App
+COPY . ./
+
+WORKDIR /App/LGDXRobotCloud.Data
+RUN dotnet build
+RUN dotnet tool install --global dotnet-ef
+RUN chmod +x initaliseData.sh
+ENTRYPOINT ["./initaliseData.sh"]

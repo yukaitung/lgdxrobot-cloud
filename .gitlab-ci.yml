@@ -113,14 +113,17 @@ build-amd64:
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-amd64 -f Dockerfile.api .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-amd64 -f Dockerfile.ui .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-amd64 -f Dockerfile.worker .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:dev-amd64 -f Dockerfile.data .
     # Push Docker images
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-amd64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-amd64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-amd64
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:dev-amd64
     # Export Images Sha256
     - echo "DOCKER_API_AMD64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-amd64)" >> variables.env
     - echo "DOCKER_UI_AMD64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-amd64)" >> variables.env 
     - echo "DOCKER_WORKER_AMD64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-amd64)" >> variables.env 
+    - echo "DOCKER_DATA_AMD64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:dev-amd64)" >> variables.env 
   artifacts:
     reports:
       dotenv: variables.env
@@ -143,14 +146,17 @@ build-arm64:
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-arm64 -f Dockerfile.api .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-arm64 -f Dockerfile.ui .
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-arm64 -f Dockerfile.worker .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:dev-arm64 -f Dockerfile.data .
     # Push Docker images
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-arm64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-arm64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-arm64
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:dev-arm64
     # Export Images Sha256
     - echo "DOCKER_API_ARM64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-arm64)" >> variables.env
     - echo "DOCKER_UI_ARM64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-arm64)" >> variables.env
     - echo "DOCKER_WORKER_ARM64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-arm64)" >> variables.env
+    - echo "DOCKER_DATA_ARM64=$EXT_REGISTRY/$(docker inspect --format='{{index .RepoDigests 0}}' $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:dev-arm64)" >> variables.env
   artifacts:
     reports:
       dotenv: variables.env
@@ -185,6 +191,8 @@ release_job:
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$APP_VERSION --amend $DOCKER_UI_AMD64 --amend $DOCKER_UI_ARM64
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest --amend $DOCKER_WORKER_AMD64 --amend $DOCKER_WORKER_ARM64
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$APP_VERSION --amend $DOCKER_WORKER_AMD64 --amend $DOCKER_WORKER_ARM64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:latest --amend $DOCKER_DATA_AMD64 --amend $DOCKER_DATA_ARM64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:$APP_VERSION --amend $DOCKER_DATA_AMD64 --amend $DOCKER_DATA_ARM64
     # Push Manifest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:latest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:$APP_VERSION
@@ -192,6 +200,8 @@ release_job:
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:$APP_VERSION
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:latest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:$APP_VERSION
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:latest
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:$APP_VERSION
   release:
     name : 'Release $APP_VERSION'
     tag_name: '$APP_VERSION'
@@ -205,3 +215,5 @@ release_job:
           url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobotcloud.api/tags/$APP_VERSION'
         - name: 'Docker Images for LGDXRobotCloud.Worker'
           url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobotcloud.worker/tags/$APP_VERSION'
+        - name: 'Docker Images for LGDXRobotCloud.Data'
+          url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobotcloud.data/tags/$APP_VERSION'

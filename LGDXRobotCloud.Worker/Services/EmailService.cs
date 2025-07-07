@@ -45,7 +45,7 @@ public sealed class EmailService (
   public async Task SendEmailAsync(EmailContract emailContract)
   {
     using var client = new SmtpClient();
-    await client.ConnectAsync(_emailConfiguration.Host, _emailConfiguration.Port, SecureSocketOptions.StartTls);
+    await client.ConnectAsync(_emailConfiguration.Host, _emailConfiguration.Port, _emailConfiguration.SecureSocketOptions);
     await client.AuthenticateAsync(_emailConfiguration.Username, _emailConfiguration.Password);
     var emailStrategy = CreateEmailStrategy(emailContract);
     var messages = await emailStrategy.BuildEmailAsync();
