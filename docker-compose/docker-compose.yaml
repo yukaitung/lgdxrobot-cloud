@@ -20,7 +20,7 @@ services:
     restart: always
 
   api:
-    image: lgdxrobotcloud.api
+    image: yukaitung/lgdxrobotcloud.api
     ports:
       - 5162:5162
       - 5163:5163
@@ -29,19 +29,19 @@ services:
       ASPNETCORE_URLS: https://+
       ASPNETCORE_HTTPS_PORTS: 5162;5163
       ASPNETCORE_Kestrel__Certificates__Default__Password: ""
-      ASPNETCORE_Kestrel__Certificates__Default__Path: ""
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/App/app.pfx"
     volumes:
       - ./appsettings.api.json:/App/appsettings.json
-      - /Users/sam/Develop/test/grpc.pfx:/App/grpc.pfx
-      - /Users/sam/Develop/test/app.pfx:/App/app.pfx
-      - /Users/sam/Develop/test/rootCA.crt:/etc/ssl/certs/rootCA.crt
-      - /Users/sam/Develop/test/rootCA.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/rootCA.pfx
+      - ./certs/grpc.pfx:/App/grpc.pfx
+      - ./certs/app.pfx:/App/app.pfx
+      - ./certs/rootCA.crt:/etc/ssl/certs/rootCA.crt
+      - ./certs/rootCA.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/rootCA.pfx
     depends_on:
       - postgres
       - rabbitmq
 
   ui:
-    image: lgdxrobotcloud.ui
+    image: yukaitung/lgdxrobotcloud.ui
     ports:
       - 5103:5103
     restart: always
@@ -49,17 +49,18 @@ services:
       ASPNETCORE_URLS: https://+
       ASPNETCORE_HTTPS_PORTS: 5103
       ASPNETCORE_Kestrel__Certificates__Default__Password: ""
-      ASPNETCORE_Kestrel__Certificates__Default__Path: ""
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/App/app.pfx"
     volumes:
       - ./appsettings.ui.json:/App/appsettings.json
-      - /Users/sam/Develop/test/ui.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/ui.pfx
-      - /Users/sam/Develop/test/app.pfx:/App/app.pfx
-      - /Users/sam/Develop/test/rootCA.crt:/etc/ssl/certs/rootCA.crt
+      - ./certs/ui.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/ui.pfx
+      - ./certs/app.pfx:/App/app.pfx
+      - ./certs/rootCA.crt:/etc/ssl/certs/rootCA.crt
     depends_on:
       - api
+      - rabbitmq
 
   worker:
-    image: lgdxrobotcloud.worker
+    image: yukaitung/lgdxrobotcloud.worker
     restart: always
     volumes:
       - ./appsettings.worker.json:/App/appsettings.json
@@ -67,6 +68,14 @@ services:
       - api
       - postgres
       - rabbitmq
+
+  data:
+    image: yukaitung/lgdxrobotcloud.data
+    restart: "no"
+    volumes:
+      - ./appsettings.data.json:/App/LGDXRobotCloud.Data/appsettings.json
+    depends_on:
+      - postgres
 
 volumes:
   pgdata:

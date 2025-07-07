@@ -19,6 +19,10 @@ public class InitialiseDataRunner(
 
   public async Task StartAsync(CancellationToken cancellationToken)
   {
+    if (_context.Users.Any())
+    {
+      return;
+    }
     /*
      * Identity
      */
