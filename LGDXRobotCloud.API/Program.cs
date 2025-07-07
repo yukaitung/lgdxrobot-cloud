@@ -102,7 +102,7 @@ builder.Services.AddIdentity<LgdxUser, LgdxRole>()
 	.AddEntityFrameworkStores<LgdxContext>()
 	.AddTokenProvider<AuthenticatorTokenProvider<LgdxUser>>(TokenOptions.DefaultAuthenticatorProvider)
 	.AddTokenProvider<DataProtectorTokenProvider<LgdxUser>>(TokenOptions.DefaultProvider);
-builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificationScheme)
+builder.Services.AddAuthentication(LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificateScheme)
 	.AddCertificate(LgdxRobotCloudAuthenticationSchemes.CertificateScheme, cfg =>
 		{
 			cfg.AllowedCertificateTypes = CertificateTypes.All;

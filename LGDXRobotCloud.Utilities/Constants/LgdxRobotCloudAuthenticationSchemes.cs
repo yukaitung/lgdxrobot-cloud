@@ -6,5 +6,5 @@ public static class LgdxRobotCloudAuthenticationSchemes
   public const string RobotClientsJwtScheme = "RobotClientsJwtScheme";
   public const string ApiKeyScheme = "ApiKeyScheme";
   public const string CertificateScheme = "UICertificate";
-  public const string ApiKeyOrCertificationScheme = ApiKeyScheme + "," + CertificateScheme;
+  public const string ApiKeyOrCertificateScheme = ApiKeyScheme + "," + CertificateScheme;
 }
