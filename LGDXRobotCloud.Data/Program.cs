@@ -15,7 +15,7 @@ builder.Services.AddDbContext<LgdxContext>(cfg =>
 );
 builder.Services.AddIdentity<LgdxUser, LgdxRole>()
   .AddEntityFrameworkStores<LgdxContext>();
-builder.Services.AddDbContext<ActivityContext>(cfg =>
+builder.Services.AddDbContext<LgdxLogsContext>(cfg =>
 	cfg.UseNpgsql(builder.Configuration.GetConnectionString("Activity"))
 	.LogTo(Console.WriteLine, LogLevel.Information)
 	.EnableSensitiveDataLogging()

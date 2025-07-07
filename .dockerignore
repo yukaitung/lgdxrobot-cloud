@@ -6,3 +6,6 @@
 # files
 Dockerfile*
 **/*.md
+
+**/appsettings.json
+**/appsettings.*.json

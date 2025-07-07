@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobotCloud.Data.DbContexts;
 
-public class ActivityContext(DbContextOptions<ActivityContext> options) : DbContext(options)
+public class LgdxLogsContext(DbContextOptions<LgdxLogsContext> options) : DbContext(options)
 {
   public DbSet<ActivityLog> ActivityLogs { get; set; }
 

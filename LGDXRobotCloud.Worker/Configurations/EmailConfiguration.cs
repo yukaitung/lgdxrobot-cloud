@@ -1,3 +1,5 @@
+using MailKit.Security;
+
 namespace LGDXRobotCloud.Worker.Configurations;
 
 public class EmailConfiguration
@@ -5,7 +7,7 @@ public class EmailConfiguration
   // SMTP Settings
   public required string FromName { get; set; }
 
-  public required string FromAddress { get; set; } 
+  public required string FromAddress { get; set; }
 
   public required string Host { get; set; }
 
@@ -14,4 +16,6 @@ public class EmailConfiguration
   public required string Username { get; set; }
 
   public required string Password { get; set; } 
+  
+  public SecureSocketOptions SecureSocketOptions { get; set; }
 }

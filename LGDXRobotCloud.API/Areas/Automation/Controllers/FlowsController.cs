@@ -16,7 +16,7 @@ namespace LGDXRobotCloud.API.Areas.Automation.Controllers;
 [ApiController]
 [Area("Automation")]
 [Route("[area]/[controller]")]
-[Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificationScheme)]
+[Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificateScheme)]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public sealed class FlowsController(

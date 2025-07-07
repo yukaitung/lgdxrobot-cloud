@@ -84,13 +84,13 @@ public class RobotCertificateService(
   {
     X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
     store.Open(OpenFlags.OpenExistingOnly);
-    X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobotCloudConfiguration.RootCertificateSN);
+    X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber.Contains(_lgdxRobotCloudConfiguration.RootCertificateSN!));
 
     var certificateNotBefore = DateTime.UtcNow;
     var certificateNotAfter = DateTimeOffset.UtcNow.AddDays(_lgdxRobotCloudConfiguration.RobotCertificateValidDay);
 
     var rsa = RSA.Create();
-    var certificateRequest = new CertificateRequest("CN=LGDXRobot Cloud Robot Certificate for " + robotId.ToString() + ",OID.0.9.2342.19200300.100.1.1=" + robotId.ToString(), rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+    var certificateRequest = new CertificateRequest("CN=" + robotId.ToString(), rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
     var certificate = certificateRequest.Create(rootCertificate, certificateNotBefore, certificateNotAfter, RandomNumberGenerator.GetBytes(20));
 
     return new CertificateDetail
@@ -177,7 +177,7 @@ public class RobotCertificateService(
   {
     X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
     store.Open(OpenFlags.OpenExistingOnly);
-    X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber == _lgdxRobotCloudConfiguration.RootCertificateSN);
+    X509Certificate2 rootCertificate = store.Certificates.First(c => c.SerialNumber.Contains(_lgdxRobotCloudConfiguration.RootCertificateSN!));
     return new RootCertificateBusinessModel {
       NotBefore = rootCertificate.NotBefore.ToUniversalTime(),
       NotAfter = rootCertificate.NotAfter.ToUniversalTime(),

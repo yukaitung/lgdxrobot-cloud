@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LGDXRobotCloud.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Version1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -107,6 +107,7 @@ namespace LGDXRobotCloud.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    HasWaypointsTrafficControl = table.Column<bool>(type: "boolean", nullable: false),
                     Image = table.Column<byte[]>(type: "bytea", nullable: false),
                     Resolution = table.Column<double>(type: "double precision", nullable: false),
                     OriginX = table.Column<double>(type: "double precision", nullable: false),
@@ -128,7 +129,6 @@ namespace LGDXRobotCloud.Data.Migrations
                     Url = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     HttpMethodId = table.Column<int>(type: "integer", nullable: false),
                     Body = table.Column<string>(type: "text", nullable: true),
-                    SkipOnFailure = table.Column<bool>(type: "boolean", nullable: false),
                     ApiKeyInsertLocationId = table.Column<int>(type: "integer", nullable: true),
                     ApiKeyFieldName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     ApiKeyId = table.Column<int>(type: "integer", nullable: true)
@@ -454,6 +454,39 @@ namespace LGDXRobotCloud.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Navigation.WaypointTraffics",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RealmId = table.Column<int>(type: "integer", nullable: false),
+                    WaypointFromId = table.Column<int>(type: "integer", nullable: false),
+                    WaypointToId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Navigation.WaypointTraffics", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Navigation.WaypointTraffics_Navigation.Realms_RealmId",
+                        column: x => x.RealmId,
+                        principalTable: "Navigation.Realms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Navigation.WaypointTraffics_Navigation.Waypoints_WaypointFr~",
+                        column: x => x.WaypointFromId,
+                        principalTable: "Navigation.Waypoints",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Navigation.WaypointTraffics_Navigation.Waypoints_WaypointTo~",
+                        column: x => x.WaypointToId,
+                        principalTable: "Navigation.Waypoints",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Automation.AutoTaskDetails",
                 columns: table => new
                 {
@@ -479,6 +512,33 @@ namespace LGDXRobotCloud.Data.Migrations
                         name: "FK_Automation.AutoTaskDetails_Navigation.Waypoints_WaypointId",
                         column: x => x.WaypointId,
                         principalTable: "Navigation.Waypoints",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Automation.AutoTaskJourney",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CurrentProgressId = table.Column<int>(type: "integer", nullable: true),
+                    AutoTaskId = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp(0) with time zone", precision: 0, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Automation.AutoTaskJourney", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Automation.AutoTaskJourney_Automation.AutoTasks_AutoTaskId",
+                        column: x => x.AutoTaskId,
+                        principalTable: "Automation.AutoTasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Automation.AutoTaskJourney_Automation.Progresses_CurrentPro~",
+                        column: x => x.CurrentProgressId,
+                        principalTable: "Automation.Progresses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                 });
@@ -531,8 +591,8 @@ namespace LGDXRobotCloud.Data.Migrations
 
             migrationBuilder.InsertData(
                 table: "Navigation.Realms",
-                columns: new[] { "Id", "Description", "Image", "Name", "OriginRotation", "OriginX", "OriginY", "Resolution" },
-                values: new object[] { 1, "Please update this realm", new byte[0], "First Realm", 0.0, 0.0, 0.0, 0.0 });
+                columns: new[] { "Id", "Description", "HasWaypointsTrafficControl", "Image", "Name", "OriginRotation", "OriginX", "OriginY", "Resolution" },
+                values: new object[] { 1, "Please update this realm", false, new byte[0], "First Realm", 0.0, 0.0, 0.0, 0.0 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -585,6 +645,16 @@ namespace LGDXRobotCloud.Data.Migrations
                 name: "IX_Automation.AutoTaskDetails_WaypointId",
                 table: "Automation.AutoTaskDetails",
                 column: "WaypointId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Automation.AutoTaskJourney_AutoTaskId",
+                table: "Automation.AutoTaskJourney",
+                column: "AutoTaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Automation.AutoTaskJourney_CurrentProgressId",
+                table: "Automation.AutoTaskJourney",
+                column: "CurrentProgressId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Automation.AutoTasks_AssignedRobotId",
@@ -673,6 +743,21 @@ namespace LGDXRobotCloud.Data.Migrations
                 name: "IX_Navigation.Waypoints_RealmId",
                 table: "Navigation.Waypoints",
                 column: "RealmId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Navigation.WaypointTraffics_RealmId",
+                table: "Navigation.WaypointTraffics",
+                column: "RealmId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Navigation.WaypointTraffics_WaypointFromId",
+                table: "Navigation.WaypointTraffics",
+                column: "WaypointFromId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Navigation.WaypointTraffics_WaypointToId",
+                table: "Navigation.WaypointTraffics",
+                column: "WaypointToId");
         }
 
         /// <inheritdoc />
@@ -697,6 +782,9 @@ namespace LGDXRobotCloud.Data.Migrations
                 name: "Automation.AutoTaskDetails");
 
             migrationBuilder.DropTable(
+                name: "Automation.AutoTaskJourney");
+
+            migrationBuilder.DropTable(
                 name: "Automation.FlowDetails");
 
             migrationBuilder.DropTable(
@@ -712,19 +800,22 @@ namespace LGDXRobotCloud.Data.Migrations
                 name: "Navigation.RobotSystemInfos");
 
             migrationBuilder.DropTable(
+                name: "Navigation.WaypointTraffics");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Navigation.Waypoints");
-
-            migrationBuilder.DropTable(
                 name: "Automation.AutoTasks");
 
             migrationBuilder.DropTable(
                 name: "Automation.Triggers");
+
+            migrationBuilder.DropTable(
+                name: "Navigation.Waypoints");
 
             migrationBuilder.DropTable(
                 name: "Automation.Flows");
