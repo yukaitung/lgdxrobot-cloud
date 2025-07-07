@@ -49,7 +49,7 @@ builder.Services.AddRazorComponents()
 // Add API
 var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
 store.Open(OpenFlags.ReadOnly);
-var certificate = store.Certificates.First(cert => cert.SerialNumber == builder.Configuration["LGDXRobotCloudAPI:CertificateSN"]);
+var certificate = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["LGDXRobotCloudAPI:CertificateSN"]!));
 var clientHandler = new HttpClientHandler{
 	AllowAutoRedirect = true,
 	UseDefaultCredentials = true
