@@ -4,21 +4,26 @@ using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobotCloud.Data.Services;
 
 public class InitialiseDataRunner(
     LgdxContext context,
+    LgdxLogsContext logsContext,
     UserManager<LgdxUser> userManager,
     IConfiguration configuration
   ) : IHostedService
 {
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private readonly LgdxLogsContext _logsContext = logsContext ?? throw new ArgumentNullException(nameof(logsContext));
   private readonly UserManager<LgdxUser> _userManager = userManager;
   private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
   public async Task StartAsync(CancellationToken cancellationToken)
   {
+    _context.Database.Migrate();
+    _logsContext.Database.Migrate();
     if (_context.Users.Any())
     {
       return;

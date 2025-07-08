@@ -37,6 +37,6 @@ if (bool.Parse(builder.Configuration["initialiseData"] ?? "false"))
 	}
 
 	using var scope = app.Services.CreateScope();
-	InitialiseDataRunner initialiseDataRunner = new(scope.ServiceProvider.GetRequiredService<LgdxContext>()!, scope.ServiceProvider.GetRequiredService<UserManager<LgdxUser>>()!, builder.Configuration);
+	InitialiseDataRunner initialiseDataRunner = new(scope.ServiceProvider.GetRequiredService<LgdxContext>()!, scope.ServiceProvider.GetRequiredService<LgdxLogsContext>()!, scope.ServiceProvider.GetRequiredService<UserManager<LgdxUser>>()!, builder.Configuration);
 	await initialiseDataRunner.StartAsync(CancellationToken.None);
 }

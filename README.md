@@ -57,9 +57,7 @@ cd ..
 docker-compose up
 ```
 
-Wait for the console to display the message:
-`data-1 exited with code 0`
-This indicates the database has been initialised and the API is ready.
+Wait for the console to display the message: `data-1 exited with code 0`. This indicates that the database has been initialised and the API is ready. Alternatively, you can check whether the `docker-compose-data-1` container has terminated.
 
 To access the frontend, open: [https://localhost:5103/](https://localhost:5103/)
 
