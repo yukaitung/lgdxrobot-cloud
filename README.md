@@ -1,4 +1,4 @@
-# LGDXRobot Cloud Robot
+# LGDXRobot Cloud
 
 ![IMG](img.png)
 
