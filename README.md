@@ -78,6 +78,10 @@ To authenticate the robot:
 
 If successful, the robot will appear as online in the frontend.
 
+## Notes About Docker
+
+To pull the image from Docker Hub, you can either use the latest tag or specify a particular version number, such as 1.0.0. Please refer to the [releases](https://gitlab.com/yukaitung/lgdxrobot2-cloud/-/releases) page for the version history. All images support both amd64 and arm64 architectures.
+
 ## License
 
 This project is licensed under the MIT Licence.
