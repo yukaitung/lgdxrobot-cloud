@@ -6,7 +6,7 @@ RUN dotnet restore
 RUN dotnet publish --property:PublishDir=./out
 
 # Build
-FROM mcr.microsoft.com/dotnet/aspnet:9.0@sha256:d02562e8e42f3ddfec764b05447dfe56eff84df95fbfd8b4f884054b21760df6
+FROM mcr.microsoft.com/dotnet/aspnet:9.0.7
 WORKDIR /App
 COPY --from=build /App/LGDXRobotCloud.API/out .
 EXPOSE 5162
