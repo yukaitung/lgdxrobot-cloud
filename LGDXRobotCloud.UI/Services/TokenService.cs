@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.ViewModels.Navigation;
 
 namespace LGDXRobotCloud.UI.Services;
@@ -13,7 +14,7 @@ public interface ITokenService
   DateTime GetAccessTokenExpiresAt(ClaimsPrincipal user);
   string GetRefreshToken(ClaimsPrincipal user);
   DateTime GetRefreshTokenExpiresAt(ClaimsPrincipal user);
-  void RefreshAccessToken(ClaimsPrincipal user, string accessToken, string refreshToken);
+  void RefreshAccessToken(ClaimsPrincipal user, RefreshTokenResponseDto refreshTokenResponseDto);
   SessionSettings GetSessionSettings(ClaimsPrincipal user);
   void UpdateSessionSettings(ClaimsPrincipal user, SessionSettings sessionSettings);
   void Logout(ClaimsPrincipal user);
@@ -125,19 +126,19 @@ public class TokenService : ITokenService
     }
   }
 
-  public void RefreshAccessToken(ClaimsPrincipal user, string accessToken, string refreshToken)
+  public void RefreshAccessToken(ClaimsPrincipal user, RefreshTokenResponseDto refreshTokenResponseDto)
   {
-    if (Tokens.TryGetValue(GenerateAccessKey(user), out Token? token))
+    if (Tokens.ContainsKey(GenerateAccessKey(user)))
     {
-      if (token != null)
+      var accessToken = new JwtSecurityTokenHandler().ReadJwtToken(refreshTokenResponseDto.AccessToken);
+      var refreshToken = new JwtSecurityTokenHandler().ReadJwtToken(refreshTokenResponseDto.RefreshToken);
+      Tokens[GenerateAccessKey(user)] = new Token
       {
-        Tokens[GenerateAccessKey(user)] = new Token {
-          AccessToken = accessToken,
-          RefreshToken = refreshToken,
-          AccessTokenExpiresAt = token.AccessTokenExpiresAt, 
-          RefreshTokenExpiresAt = token.RefreshTokenExpiresAt
-        };
-      }
+        AccessToken = refreshTokenResponseDto.AccessToken!,
+        RefreshToken = refreshTokenResponseDto.RefreshToken!,
+        AccessTokenExpiresAt = accessToken.ValidTo,
+        RefreshTokenExpiresAt = refreshToken.ValidTo
+      };
     }
   }
 
