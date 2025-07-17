@@ -89,8 +89,7 @@ public sealed partial class Login : ComponentBase
       await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
         user, 
         new AuthenticationProperties{
-          IsPersistent = false,
-          ExpiresUtc = refreshToken.ValidTo
+          IsPersistent = false
         });
       TokenService.Login(user, loginResponse!.AccessToken!, loginResponse!.RefreshToken!, accessToken.ValidTo, refreshToken.ValidTo);
 
