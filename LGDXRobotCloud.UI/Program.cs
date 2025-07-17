@@ -80,6 +80,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 	.AddCookie(cfg =>
 	{
 		cfg.LoginPath = AppRoutes.Identity.Login;
+		cfg.ExpireTimeSpan = TimeSpan.FromMinutes(int.Parse(builder.Configuration["LGDXRobotCloudUI:SessionTimeoutMinutes"] ?? "15"));
+		cfg.SlidingExpiration = true;
 	});
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();

@@ -18,25 +18,19 @@ public sealed class RefreshTokenService(HttpClient httpClient) : IRefreshTokenSe
 
   public async Task<RefreshTokenResponseDto?> RefreshTokenAsync(ClaimsPrincipal user, string refreshToken)
   {
-    try
+    RefreshTokenRequestDto refreshTokenRequestDto = new() {
+      RefreshToken = refreshToken
+    };
+    var content = new StringContent(JsonSerializer.Serialize(refreshTokenRequestDto), Encoding.UTF8, "application/json");
+    var response = await _httpClient.PostAsync("Identity/Auth/Refresh", content);
+    if (response.IsSuccessStatusCode)
     {
-      RefreshTokenRequestDto refreshTokenRequestDto = new() {
-        RefreshToken = refreshToken
-      };
-      var content = new StringContent(JsonSerializer.Serialize(refreshTokenRequestDto), Encoding.UTF8, "application/json");
-      var response = await _httpClient.PostAsync("Identity/Auth/Refresh", content);
-      if (response.IsSuccessStatusCode)
-      {
-        return await JsonSerializer.DeserializeAsync<RefreshTokenResponseDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
-      }
-      else
-      {
-        throw new Exception($"{ApiHelper.UnexpectedResponseStatusCodeMessage}{response.StatusCode}");
-      }
+      return await JsonSerializer.DeserializeAsync<RefreshTokenResponseDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
     }
-    catch (Exception ex)
+    else
     {
-      throw new Exception(ApiHelper.ApiErrorMessage, ex);
+      // No expection
+      return null;
     }
   }
 }
