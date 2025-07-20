@@ -104,13 +104,13 @@ public class DataSeeder(LgdxContext context)
 
     var robotCertificate = new List<RobotCertificate> {
       new() {
-        Thumbprint = "4B323EAA8D853F00F03768E5F5208DE397EA6775",
+        Thumbprint = "DD53D5856E815B10B9B04B0D85B3BA5A622C184A",
         ThumbprintBackup = string.Empty,
         NotBefore = DateTime.UtcNow,
         NotAfter = DateTime.UtcNow.AddYears(100),
       },
       new() {
-        Thumbprint = "4F750BA308C8C220436C147E4D0D08B90A352893",
+        Thumbprint = "08970F71CED907B1064FA3AD43F82992900FA905",
         ThumbprintBackup = string.Empty,
         NotBefore = DateTime.UtcNow,
         NotAfter = DateTime.UtcNow.AddYears(100),
