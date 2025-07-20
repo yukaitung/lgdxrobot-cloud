@@ -106,10 +106,6 @@ public sealed partial class Login : ComponentBase
 
       NavigationManager.NavigateTo(string.IsNullOrWhiteSpace(ReturnUrl) ? "/" : ReturnUrl);
     }
-    catch (ObjectDisposedException ex)
-    {
-      Console.WriteLine(ex.Message + " " + ex.ObjectName);
-    }
     catch (ApiException ex)
     {
       LoginViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);

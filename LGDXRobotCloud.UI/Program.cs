@@ -50,27 +50,39 @@ builder.Services.AddRazorComponents()
 var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
 store.Open(OpenFlags.ReadOnly);
 var certificate = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["LGDXRobotCloudAPI:CertificateSN"]!));
-var clientHandler = new HttpClientHandler{
-	AllowAutoRedirect = true,
-	UseDefaultCredentials = true
-};
-clientHandler.ClientCertificates.Add(certificate);
 var url = new Uri(builder.Configuration["LGDXRobotCloudAPI:Url"] ?? string.Empty);
 
 builder.Services.AddKiotaHandlers();
+builder.Services.AddScoped<LgdxApiClientFactory>();
 builder.Services.AddHttpClient<LgdxApiClientFactory>((sp, client) => 
 {
   client.BaseAddress = url;
 })
 	.AddHttpMessageHandler<HeadersInspectionHandler>()
-	.ConfigurePrimaryHttpMessageHandler(() => clientHandler)
+	.ConfigurePrimaryHttpMessageHandler(() => {
+			var handler = new HttpClientHandler
+			{
+				AllowAutoRedirect = true,
+				UseDefaultCredentials = true
+			};
+			handler.ClientCertificates.Add(certificate);
+			return handler;
+	})
 	.AttachKiotaHandlers();
-builder.Services.AddTransient(sp => sp.GetRequiredService<LgdxApiClientFactory>().GetClient());
+builder.Services.AddScoped(sp => sp.GetRequiredService<LgdxApiClientFactory>().GetClient());
 builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client =>
 { 
 	client.BaseAddress = url;
 })
-	.ConfigurePrimaryHttpMessageHandler(() => clientHandler);
+	.ConfigurePrimaryHttpMessageHandler(() => {
+			var handler = new HttpClientHandler
+			{
+				AllowAutoRedirect = true,
+				UseDefaultCredentials = true
+			};
+			handler.ClientCertificates.Add(certificate);
+			return handler;
+	});
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 builder.Services.AddSingleton<IRealTimeService, RealTimeService>();
