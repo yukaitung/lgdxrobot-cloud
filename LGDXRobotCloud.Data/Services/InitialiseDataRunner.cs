@@ -81,6 +81,14 @@ public class InitialiseDataRunner(
     var result = await _userManager.AddToRolesAsync(user!, ["Global Administrator"]);
     await _context.SaveChangesAsync(cancellationToken);
 
+    // Seed Data
+    var isSeedData = _configuration["seedData"];
+    if (!string.IsNullOrEmpty(isSeedData) && bool.Parse(isSeedData) == true)
+    {
+      var seeder = new DataSeeder(_context);
+      await seeder.Seed();
+    }
+
     Environment.Exit(0);
   }
 
