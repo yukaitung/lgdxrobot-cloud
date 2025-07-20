@@ -52,7 +52,8 @@ public class DataSeeder(LgdxContext context)
       Name = "Flow 1",
       FlowDetails = [new FlowDetail
       {
-        ProgressId = (int)ProgressState.Waiting,
+        ProgressId = (int)ProgressState.Moving,
+        AutoTaskNextControllerId = (int)AutoTaskNextController.Robot,
       }]
     };
     await _context.Flows.AddAsync(flow);
