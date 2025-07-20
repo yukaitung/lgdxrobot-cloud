@@ -62,7 +62,7 @@ builder.Services.AddHttpClient<LgdxApiClientFactory>((sp, client) =>
 {
   client.BaseAddress = url;
 })
-	.AddHttpMessageHandler(() => new HeadersInspectionHandler())
+	.AddHttpMessageHandler<HeadersInspectionHandler>()
 	.ConfigurePrimaryHttpMessageHandler(() => clientHandler)
 	.AttachKiotaHandlers();
 builder.Services.AddTransient(sp => sp.GetRequiredService<LgdxApiClientFactory>().GetClient());

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Kiota.Abstractions;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -86,9 +87,10 @@ public sealed partial class Login : ComponentBase
       var refreshToken = new JwtSecurityTokenHandler().ReadJwtToken(loginResponse!.RefreshToken);
       var identity = new ClaimsIdentity(accessToken.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
       var user = new ClaimsPrincipal(identity);
-      await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
-        user, 
-        new AuthenticationProperties{
+      await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+        user,
+        new AuthenticationProperties
+        {
           IsPersistent = false
         });
       TokenService.Login(user, loginResponse!.AccessToken!, loginResponse!.RefreshToken!, accessToken.ValidTo, refreshToken.ValidTo);
@@ -103,6 +105,10 @@ public sealed partial class Login : ComponentBase
       });
 
       NavigationManager.NavigateTo(string.IsNullOrWhiteSpace(ReturnUrl) ? "/" : ReturnUrl);
+    }
+    catch (ObjectDisposedException ex)
+    {
+      Console.WriteLine(ex.Message + " " + ex.ObjectName);
     }
     catch (ApiException ex)
     {
