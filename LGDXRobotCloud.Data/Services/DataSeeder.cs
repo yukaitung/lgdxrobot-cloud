@@ -61,14 +61,14 @@ public class DataSeeder(LgdxContext context)
     var robots = new List<Robot>
     {
       new() {
-        Id = Guid.Parse("0196dae7-7f07-7b08-94ba-713ba80d6497"),
+        Id = Guid.Parse("0198276e-97f7-7dd1-982e-56ea02c6d921"),
         Name = "Robot1",
         RealmId = realm.Id,
         IsProtectingHardwareSerialNumber = false,
         IsRealtimeExchange = false,
       },
       new (){
-        Id = Guid.Parse("0196e06c-6afb-7130-8e1d-1cfbe3272142"),
+        Id = Guid.Parse("0198276e-e868-733b-b9e7-d67c0ab84afd"),
         Name = "Robot2",
         RealmId = realm.Id,
         IsProtectingHardwareSerialNumber = false,
