@@ -12,5 +12,6 @@ RUN dotnet publish --property:PublishDir=./out
 FROM mcr.microsoft.com/dotnet/aspnet:9.0.7
 WORKDIR /App
 COPY --from=build /App/LGDXRobotCloud.UI/out .
+EXPOSE 5102
 EXPOSE 5103
 ENTRYPOINT ["dotnet", "LGDXRobotCloud.UI.dll"]

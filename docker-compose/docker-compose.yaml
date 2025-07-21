@@ -26,8 +26,6 @@ services:
       - 5163:5163
     restart: always
     environment:
-      ASPNETCORE_URLS: https://+
-      ASPNETCORE_HTTPS_PORTS: 5162;5163
       ASPNETCORE_Kestrel__Certificates__Default__Password: ""
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/App/app.pfx"
     volumes:
@@ -43,11 +41,10 @@ services:
   ui:
     image: yukaitung/lgdxrobotcloud.ui
     ports:
+      - 5102:5102
       - 5103:5103
     restart: always
     environment:
-      ASPNETCORE_URLS: https://+
-      ASPNETCORE_HTTPS_PORTS: 5103
       ASPNETCORE_Kestrel__Certificates__Default__Password: ""
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/App/app.pfx"
     volumes:
