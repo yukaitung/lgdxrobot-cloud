@@ -63,47 +63,9 @@ To access the frontend, open: [https://localhost:5103/](https://localhost:5103/)
 
 The default username and password is `admin` / `123456`.
 
-### Example Post Installation
+### Full Integration with LGDXRobot2 on Simulation
 
-Start at "Below is an example of a map file and its configuration file:"
-
-[Instructions](https://docs.lgdxrobot.bristolgram.uk/cloud/tutorials/creating-your-first-map/)
-
-### Robot Integration (LGDXRobot2 Simulation)
-
-Create 2 robots named **Robot1** and **Robot2**. Save their certificates to a folder. The contents should look like this:
-
-```
-root.crt
-Robot1.crt
-Robot1.key
-Robot2.crt 
-Robot2.key
-```
-
-Then, run the following command, replacing `/path/to/keys` with the path to the folder containing the certificates:
-
-```bash
-docker run -it --name lgdxrobot2 -v /path/to/keys:/home/user/keys yukaitung/lgdxrobot2
-```
-
-The image will be downloaded, and you will enter the Bash shell in the container. Then, run the following commands to configure the environment. If any errors appear, simply press **Enter** to continue.
-
-```bash
-export USER=user
-export DEBIAN_FRONTEND=noninteractive
-export DISPLAY=:99
-export LIBGL_ALWAYS_SOFTWARE=true
-Xvfb :99 -screen 0 1024x768x16 &
-```
-
-Next, start the simulation by running:
-
-```bash
-ros2 launch lgdxrobot2_bringup simulation_two_robots.launch.py cloud_address:='host.docker.internal:5162'
-```
-
-You can view the robots in the frontend at [http://localhost:5103/](http://localhost:5103/).
+[https://lgdxrobot.bristolgram.uk/get-started/](https://lgdxrobot.bristolgram.uk/get-started/)
 
 ### Robot Integration (Testing with Postman)
 
