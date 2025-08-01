@@ -36,19 +36,19 @@ The solution consists of the following projects:
 
 ## Getting Started
 
-LGDXRobot Cloud includes a `Doceker/docker-compose` setup for easy deployment in development and testing environments. You will need Docker with Docker Compose, Git, and OpenSSL installed.
+LGDXRobot Cloud includes a `Docker/docker-compose` setup for easy deployment in development and testing environments. You will need Docker with Docker Compose, Git, and OpenSSL installed.
 
 To get started:
 
 ```bash
-cd Doceker/docker-compose/certs
+cd Docker/docker-compose/certs
 # Option 1: Run the script to generate the certificates
 # Option 2: Run the commands manually in the script
 chmod -x ./generate-certs.sh
 ./generate-certs.sh
 ```
 
-After running the script, the console will display the serial number/thumbprint of the certificate. Copy the value (after the `=` symbol) and paste it into the relevant `appsettings.json` files in the `Doceker/docker-compose` folder.
+After running the script, the console will display the serial number/thumbprint of the certificate. Copy the value (after the `=` symbol) and paste it into the relevant `appsettings.json` files in the `Docker/docker-compose` folder.
 
 Then, start the environment:
 
