@@ -29,11 +29,28 @@ cache:
   policy: pull-push
 
 stages:
+  - prepare
   - build-1
   - test
   - deploy
   - build-2
   - release
+
+prepare:
+  stage: prepare
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: alpine:latest
+  tags:
+    - lgdx-amd64
+  script:
+    - apk add libxml2-utils
+    - echo "APP_VERSION=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)" >> variables.env
+  artifacts:
+    reports:
+      dotenv: variables.env
 
 build:
   stage: build-1
@@ -79,11 +96,7 @@ unit-test-page:
   image: alpine:latest
   tags:
     - lgdx-amd64
-  before_script:
-    - 'apk add libxml2-utils'
   script:
-    ### APP_VERSION Defined in here
-    - echo "APP_VERSION=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)" >> variables.env
     # Copy coverage report
     - 'rm coveragereport/Cobertura.xml'
     - 'rm coveragereport/Summary.txt'
@@ -94,8 +107,6 @@ unit-test-page:
     paths:
       - public
     expire_in: 1 days
-    reports:
-      dotenv: variables.env
 
 build-amd64:
   stage: build-2
@@ -112,10 +123,10 @@ build-amd64:
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     # Build Docker images
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-amd64 -f Dockerfile.api .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-amd64 -f Dockerfile.ui .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-amd64 -f Dockerfile.worker .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:dev-amd64 -f Dockerfile.data .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-amd64 -f Docker/Dockerfile.api .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-amd64 -f Docker/Dockerfile.ui .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-amd64 -f Docker/Dockerfile.worker .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:dev-amd64 -f Docker/Dockerfile.data .
     # Push Docker images
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-amd64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-amd64
@@ -139,17 +150,17 @@ build-arm64:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   dependencies: []
   tags:
-    #- saas-linux-small-arm64 
-    - lgdx-arm64
+    - saas-linux-small-arm64 
+    #- lgdx-arm64
   services:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     # Build Docker images
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-arm64 -f Dockerfile.api .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-arm64 -f Dockerfile.ui .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-arm64 -f Dockerfile.worker .
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:dev-arm64 -f Dockerfile.data .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-arm64 -f Docker/Dockerfile.api .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-arm64 -f Docker/Dockerfile.ui .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.worker:dev-arm64 -f Docker/Dockerfile.worker .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.data:dev-arm64 -f Docker/Dockerfile.data .
     # Push Docker images
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.api:dev-arm64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobotcloud.ui:dev-arm64
@@ -174,7 +185,7 @@ release_job:
   tags:
     - lgdx-amd64
   needs:
-    - job: unit-test-page
+    - job: prepare
       artifacts: true
     - job: build-amd64
       artifacts: true

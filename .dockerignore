@@ -9,3 +9,14 @@ Dockerfile*
 
 **/appsettings.json
 **/appsettings.*.json
+
+.config/*
+.vscode/*
+Docker/*
+Tests/*
+.git/*
+.gitignore
+.gitlab-ci.yml
+img.png
+LICENSE
+README.md
