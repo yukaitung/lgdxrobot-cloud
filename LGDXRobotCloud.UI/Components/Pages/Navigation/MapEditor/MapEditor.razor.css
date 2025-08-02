@@ -5,6 +5,17 @@
   background-color: var(--tblr-card-bg);
 }
 
+#navigation-map-container {
+  position: relative;
+}
+
+#navigation-map-buttons {
+  position: absolute;
+  right: 1em;
+  top: 1em;
+  background-color: var(--tblr-card-bg);
+}
+
 #navigation-map-ruler {
   position: absolute; 
   width: 1px; 

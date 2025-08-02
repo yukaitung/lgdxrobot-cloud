@@ -11,7 +11,7 @@ const InitalScale = 3;
 function InitNavigationMap(dotNetObject) 
 {
   MapDotNetObject = dotNetObject;
-  const div = document.getElementById('navigation-map-div');
+  const div = document.getElementById('navigation-map-container');
   const divRect = div.getBoundingClientRect();
   MapStage = new Konva.Stage({
     id: 'navigation-map-stage',
@@ -67,17 +67,15 @@ function InitNavigationMap(dotNetObject)
 
   function _internalOnResize()
   {
-    const newWindowHeight = window.innerHeight;
-    const dy = newWindowHeight - WindowHeight;
-    const div = document.getElementById('navigation-map-div');
+    console.log('resize');
+    const div = document.getElementById('navigation-map');
     if (div == null)
     {
       return;
     }
     const divRect = div.getBoundingClientRect();
     MapStage.width(divRect.width);
-    MapStage.height(divRect.height + (dy < 0 ? dy : 0));
-    WindowHeight = newWindowHeight;
+    MapStage.height(window.innerHeight - divRect.top);
 
     let ctx = MapLayer.getContext()._context;
     ctx.imageSmoothingEnabled = false;
@@ -110,6 +108,21 @@ function InitNavigationMap(dotNetObject)
   MapStage.position(newPos);
   _internalRulerUpdate();
   window.addEventListener('resize', _internalOnResize);
+  // Resize when some events:
+  const sidebarButton = document.getElementById('sidebar-button');
+  if (sidebarButton != null)
+  {
+    sidebarButton.addEventListener("click", () => {
+      intervalId = setInterval(() => {
+        _internalOnResize();
+      }, 300);
+    });
+    sidebarButton.addEventListener("touchstart", () => {
+      intervalId = setInterval(() => {
+        _internalOnResize();
+      }, 300);
+    });
+  }
 }
 
 /*
@@ -151,7 +164,7 @@ function _internalMapZoom(scaleDiff, isWheel)
     newScale = oldScale / -scaleDiff;
   }
   MapStage.scale({ x: newScale, y: newScale });
-  const div = document.getElementById('navigation-map-div');
+  const div = document.getElementById('navigation-map-container');
   if (div == null)
   {
     return;
