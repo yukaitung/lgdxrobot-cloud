@@ -16,3 +16,12 @@
   right: 1em;
   bottom: 1em;
 }
+
+#navigation-map-sidebar {
+  max-width: 400px;
+  display: none;
+}
+
+#navigation-map-sidebar-info {
+  overflow: auto;
+}

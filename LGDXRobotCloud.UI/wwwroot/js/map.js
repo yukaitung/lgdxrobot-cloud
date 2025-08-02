@@ -65,22 +65,6 @@ function InitNavigationMap(dotNetObject)
     }
   });
 
-  function _internalOnResize()
-  {
-    console.log('resize');
-    const div = document.getElementById('navigation-map');
-    if (div == null)
-    {
-      return;
-    }
-    const divRect = div.getBoundingClientRect();
-    MapStage.width(divRect.width);
-    MapStage.height(window.innerHeight - divRect.top);
-
-    let ctx = MapLayer.getContext()._context;
-    ctx.imageSmoothingEnabled = false;
-  }
-
   MapStage.on('wheel', (e) => {
     e.evt.preventDefault();
 
@@ -123,11 +107,36 @@ function InitNavigationMap(dotNetObject)
       }, 300);
     });
   }
+  
+  _internalOnResize();
 }
 
 /*
  * Zoom Functions
  */
+function _internalOnResize()
+{
+  console.log('resize');
+  const div = document.getElementById('navigation-map');
+  const container = document.getElementById('navigation-map-container');
+  if (div == null || container == null)
+  {
+    return;
+  }
+  const divRect = div.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  MapStage.width(containerRect.width);
+  MapStage.height(window.innerHeight - divRect.top);
+
+  let ctx = MapLayer.getContext()._context;
+  ctx.imageSmoothingEnabled = false;
+
+  const sidebar = document.getElementById('navigation-map-sidebar');
+  if (sidebar != null)
+  {
+    sidebar.style.maxHeight = window.innerHeight - divRect.top + 'px';
+  }
+}
 
 function _internalRulerUpdate()
 {
@@ -323,7 +332,11 @@ function AddRobot(robotId, x, y, rotation)
   robot.rotation(_internalToMapRotation(rotation));
   robot.on('click', function (e) {
     MapDotNetObject.invokeMethodAsync('HandleRobotSelect', e.target.id());
-    document.getElementById("robotDataOffcanvasButton").click();
+    ShowSidebar();
+  });
+  robot.on('touchstart', function (e) {
+    MapDotNetObject.invokeMethodAsync('HandleRobotSelect', e.target.id());
+    ShowSidebar();
   });
   MapLayer.add(robot);
 }
@@ -337,6 +350,26 @@ function MoveRobot(robotId, x, y, rotation)
     robot.y(_internalToMapY(y));
     robot.rotation(_internalToMapRotation(rotation));
   }
+}
+
+function ShowSidebar()
+{
+ const sidebar = document.getElementById('navigation-map-sidebar');
+ if (sidebar != null)
+ {
+    sidebar.style.display = 'block';
+    _internalOnResize();
+ }
+}
+
+function HideSidebar()
+{
+ const sidebar = document.getElementById('navigation-map-sidebar');
+ if (sidebar != null)
+ {
+    sidebar.style.display = 'none';
+    _internalOnResize();
+ }
 }
 
 /*

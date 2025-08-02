@@ -3,12 +3,10 @@
 @using LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components
 
 <!-- Map -->
-<div id="navigation-map" class="flex-fill d-flex">
-  <div id="navigation-map-container" class="flex-fill">
+<div id="navigation-map" class="flex-fill row m-0 g-0">
+  <!-- Map -->
+  <div id="navigation-map-container" class="col">
     <div id="navigation-map-canvas"></div>
-    <a id="robotDataOffcanvasButton" class="btn d-none" data-bs-toggle="offcanvas" href="#robotDataOffcanvas" role="button">
-      Toggle end offcanvas
-    </a>
     @if (Realm != null)
     {
       <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Realm.Image" />
@@ -21,134 +19,135 @@
       1m
     </div>
   </div>
+  <!-- Sidebar -->
+  <div id="navigation-map-sidebar" class="co-xs-12 px-2 pb-2">
+    <div id="navigation-map-sidebar-info" class="card h-100">
+      <div class="card-header">
+        <button type="button" class="btn-close text-reset ms-auto" onclick="HideSidebar()"></button>
+      </div>
+      <div class="card-body">
+        @if (SelectedRobot != null)
+        {
+          <div class="row row-deck row-cards">
+            <!-- Robot Name  -->
+            <div class="col-12 d-flex">
+              <h2>@SelectedRobotName</h2>
+              <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@SelectedRobot.RobotStatus" /></h2>
+            </div>
+            <!-- Robot Data  -->
+            <div class="col-12">
+              <div class="card">
+                <div class="card-body">
+                  <div class="datagrid">
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">ID</div>
+                      <div class="datagrid-content">@SelectedRobot.RobotId</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Position</div>
+                      <div class="datagrid-content">
+                        X: @Math.Round(SelectedRobot.Position.X, 4) m<br />
+                        Y: @Math.Round(SelectedRobot.Position.Y, 4) m<br />
+                        Rotation: @Math.Round((SelectedRobot.Position.Rotation * 180 / Math.PI), 4) degree
+                      </div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Batteries</div>
+                      <div class="datagrid-content">
+                        @if (SelectedRobot.Batteries.Count() > 0)
+                        {
+                          @for (int i = 0; i < SelectedRobot.Batteries.Count(); i++)
+                          {
+                            @(' ')
+                            <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
+                              @(SelectedRobot.Batteries.ElementAt(i) + " V")
+                            </span>
+                          }
+                        }
+                        else
+                        {
+                          <span class="badge badge-outline">Unavailable</span>
+                        }
+                      </div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Emergency Stops</div>
+                      <div class="datagrid-content">Software: @SelectedRobot.CriticalStatus.SoftwareEmergencyStop<br />Hardware: @SelectedRobot.CriticalStatus.HardwareEmergencyStop</div>
+                    </div>
+                    <button class="btn btn-primary" data-bs-dismiss="offcanvas" @onclick="HandleRobotManageClick">
+                      Manage
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Task Data  -->
+            <div class="col-12">
+              <div class="card">
+                <div class="card-body">
+                  <div class="datagrid">
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Task Id</div>
+                      <div class="datagrid-content">@(CurrentTask?.Id != null ? CurrentTask.Id : "-")</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Name</div>
+                      <div class="datagrid-content">@(CurrentTask?.Name != null ? CurrentTask.Name : "-")</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Priority</div>
+                      <div class="datagrid-content">@(CurrentTask?.Priority != null ? CurrentTask.Priority : "-")</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Current Progress</div>
+                      <div class="datagrid-content">@(CurrentTask?.CurrentProgress?.Name != null ? CurrentTask.CurrentProgress.Name : "-")</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Flow</div>
+                      <div class="datagrid-content">@(CurrentTask?.Flow?.Name != null ? CurrentTask.Flow.Name : "-")</div>
+                    </div>
+                    @if (CurrentTask != null)
+                    {
+                      <button class="btn btn-primary" data-bs-dismiss="offcanvas" @onclick="() => HandleViewTaskClick((int)CurrentTask.Id!)">
+                        View Task
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Task Progress  -->
+            <div class="col-12">
+              <div class="card">
+                <div class="card-body">
+                  <div class="datagrid">
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">ETA</div>
+                      <div class="datagrid-content">@Math.Round(SelectedRobot.NavProgress.Eta, 4) seconds</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Recoveries</div>
+                      <div class="datagrid-content">@SelectedRobot.NavProgress.Recoveries</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Distance Remaining</div>
+                      <div class="datagrid-content">@Math.Round(SelectedRobot.NavProgress.DistanceRemaining, 4) m</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Waypoints Remaining</div>
+                      <div class="datagrid-content">@SelectedRobot.NavProgress.WaypointsRemaining</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Robot Data -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="robotDataOffcanvas">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasEndLabel">Robot Data</h2>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
-  </div>
-  <div class="offcanvas-body">
-    @if (SelectedRobot != null)
-    {
-      <div class="row row-deck row-cards">
-        <!-- Robot Name  -->
-        <div class="col-12 d-flex">
-          <h2>@SelectedRobotName</h2>
-          <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@SelectedRobot.RobotStatus" /></h2>
-        </div>
-        <!-- Robot Data  -->
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body">
-              <div class="datagrid">
-                <div class="datagrid-item">
-                  <div class="datagrid-title">ID</div>
-                  <div class="datagrid-content">@SelectedRobot.RobotId</div>
-                </div>
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Position</div>
-                  <div class="datagrid-content">
-                    X: @Math.Round(SelectedRobot.Position.X, 4) m<br />
-                    Y: @Math.Round(SelectedRobot.Position.Y, 4) m<br />
-                    Rotation: @Math.Round((SelectedRobot.Position.Rotation * 180 / Math.PI), 4) degree
-                  </div>
-                </div>
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Batteries</div>
-                  <div class="datagrid-content">
-                    @if (SelectedRobot.Batteries.Count() > 0)
-                    {
-                      @for (int i = 0; i < SelectedRobot.Batteries.Count(); i++)
-                      {
-                        @(' ')
-                        <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
-                          @(SelectedRobot.Batteries.ElementAt(i) + " V")
-                        </span>
-                      }
-                    }
-                    else
-                    {
-                      <span class="badge badge-outline">Unavailable</span>
-                    }
-                  </div>
-                </div>
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Emergency Stops</div>
-                  <div class="datagrid-content">Software: @SelectedRobot.CriticalStatus.SoftwareEmergencyStop<br />Hardware: @SelectedRobot.CriticalStatus.HardwareEmergencyStop</div>
-                </div>
-                <button class="btn btn-primary" data-bs-dismiss="offcanvas" @onclick="HandleRobotManageClick">
-                  Manage
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Task Data  -->
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body">
-              <div class="datagrid">
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Task Id</div>
-                  <div class="datagrid-content">@(CurrentTask?.Id != null ? CurrentTask.Id : "-")</div>
-                </div>
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Name</div>
-                  <div class="datagrid-content">@(CurrentTask?.Name != null ? CurrentTask.Name : "-")</div>
-                </div>
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Priority</div>
-                  <div class="datagrid-content">@(CurrentTask?.Priority != null ? CurrentTask.Priority : "-")</div>
-                </div>
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Current Progress</div>
-                  <div class="datagrid-content">@(CurrentTask?.CurrentProgress?.Name != null ? CurrentTask.CurrentProgress.Name : "-")</div>
-                </div>
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Flow</div>
-                  <div class="datagrid-content">@(CurrentTask?.Flow?.Name != null ? CurrentTask.Flow.Name : "-")</div>
-                </div>
-                @if (CurrentTask != null)
-                {
-                  <button class="btn btn-primary" data-bs-dismiss="offcanvas" @onclick="() => HandleViewTaskClick((int)CurrentTask.Id!)">
-                    View Task
-                  </button>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Task Progress  -->
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body">
-              <div class="datagrid">
-                <div class="datagrid-item">
-                  <div class="datagrid-title">ETA</div>
-                  <div class="datagrid-content">@Math.Round(SelectedRobot.NavProgress.Eta, 4) seconds</div>
-                </div>
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Recoveries</div>
-                  <div class="datagrid-content">@SelectedRobot.NavProgress.Recoveries</div>
-                </div>
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Distance Remaining</div>
-                  <div class="datagrid-content">@Math.Round(SelectedRobot.NavProgress.DistanceRemaining, 4) m</div>
-                </div>
-                <div class="datagrid-item">
-                  <div class="datagrid-title">Waypoints Remaining</div>
-                  <div class="datagrid-content">@SelectedRobot.NavProgress.WaypointsRemaining</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    }
-  </div>
-</div>
 <script>
   @if (Realm != null)
   { 
@@ -159,10 +158,12 @@
     @($"var MAP_RESOLUTION = 0;var MAP_ORIGIN_X = 0;var MAP_ORIGIN_Y = 0;var MAP_ORIGIN_ROTATION = 0;")
   }
 </script>
+
 <style>
 body {
   overflow: hidden;
 }
+
 footer.footer.footer-transparent {
   display: none;
 }
