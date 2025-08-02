@@ -131,6 +131,14 @@ public sealed partial class Map : ComponentBase, IDisposable
         if (SelectedRobot != null && SelectedRobot.RobotId == robotId)
         {
           SelectedRobot = robotData;
+          // Update Plan
+          List<double> plan = [];
+          foreach (var waypoint in robotData.NavProgress.Plan)
+          {
+            plan.Add(waypoint.X);
+            plan.Add(waypoint.Y);
+          }
+          await JSRuntime.InvokeVoidAsync("UpdateRobotPlan", plan);
         }
         await InvokeAsync(StateHasChanged);
       }

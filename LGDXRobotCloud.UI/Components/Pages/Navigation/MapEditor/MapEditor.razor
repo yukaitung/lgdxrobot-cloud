@@ -93,23 +93,26 @@
   </div>
 </div>
 
-<div id="navigation-map-div" class="flex-fill">
-  <div id="navigation-map-canvas"></div>
-  <a id="waypointModalButton" class="btn d-none" data-bs-toggle="modal" data-bs-target="#waypointModal">
-    Toggle modal
-  </a>
-  @if (Realm != null)
-  {
-    <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Realm.Image" />
-  }
-  <div id="navigation-map-buttons" class="btn-group-vertical">
-    <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
-    <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
-  </div>
-  <div id="navigation-map-ruler" class="border border-2 border-top-0 border-dark ps-2">
-    1m
+<div id="navigation-map" class="flex-fill d-flex">
+  <div id="navigation-map-container" class="flex-fill">
+    <div id="navigation-map-canvas"></div>
+    <a id="waypointModalButton" class="btn d-none" data-bs-toggle="modal" data-bs-target="#waypointModal">
+      Toggle modal
+    </a>
+    @if (Realm != null)
+    {
+      <img id="navigation-map-image" class="d-none" src="data:image/png;base64, @Realm.Image" />
+    }
+    <div id="navigation-map-buttons" class="btn-group-vertical">
+      <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
+      <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
+    </div>
+    <div id="navigation-map-ruler" class="border border-2 border-top-0 border-dark ps-2">
+      1m
+    </div>
   </div>
 </div>
+
 
 <div class="modal modal-blur fade" id="waypointModal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-3 modal-dialog-centered" role="document">

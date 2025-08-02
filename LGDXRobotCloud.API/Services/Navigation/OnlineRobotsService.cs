@@ -150,7 +150,8 @@ public class OnlineRobotsService(
         Eta = data.NavProgress.Eta,
         Recoveries = data.NavProgress.Recoveries,
         DistanceRemaining = data.NavProgress.DistanceRemaining,
-        WaypointsRemaining = data.NavProgress.WaypointsRemaining
+        WaypointsRemaining = data.NavProgress.WaypointsRemaining,
+        Plan = [.. data.NavProgress.Plan.Select(x => new Robot2Dof { X = x.X, Y = x.Y })]
       },
       CurrentTime = realtime ? DateTime.MaxValue : DateTime.UtcNow
     };
