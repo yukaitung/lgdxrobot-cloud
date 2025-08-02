@@ -22,6 +22,11 @@ message RobotClientsPath {
   repeated RobotClientsDof Waypoints = 1;
 }
 
+message RobotClients2Dof {
+  double X = 1;
+  double Y = 2;
+}
+
 message RobotClientsDof {
   double X = 1;
   double Y = 2;
@@ -113,6 +118,7 @@ message RobotClientsAutoTaskNavProgress {
   int32 Recoveries = 2;
   double DistanceRemaining = 3;
   int32 WaypointsRemaining = 4;
+  repeated RobotClients2Dof Plan = 5;
 }
 
 message RobotClientsExchange {

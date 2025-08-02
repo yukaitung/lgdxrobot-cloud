@@ -2,12 +2,19 @@ using LGDXRobotCloud.Utilities.Enums;
 
 namespace LGDXRobotCloud.Data.Contracts;
 
-public record AutoTaskNavProgress 
+public record AutoTaskNavProgress
 {
   public double Eta { get; set; }
   public int Recoveries { get; set; }
   public double DistanceRemaining { get; set; }
   public int WaypointsRemaining { get; set; }
+  public List<Robot2Dof> Plan { get; set; } = [];
+}
+
+public record Robot2Dof
+{
+  public double X { get; set; }
+  public double Y { get; set; }
 }
 
 public record RobotDof
