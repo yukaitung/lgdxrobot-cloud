@@ -116,7 +116,6 @@ function InitNavigationMap(dotNetObject)
  */
 function _internalOnResize()
 {
-  console.log('resize');
   const div = document.getElementById('navigation-map');
   const container = document.getElementById('navigation-map-container');
   if (div == null || container == null)
