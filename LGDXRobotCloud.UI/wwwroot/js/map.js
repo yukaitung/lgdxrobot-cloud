@@ -1,4 +1,3 @@
-var WindowHeight = window.innerHeight;
 var MapDotNetObject = {};
 var MapStage;
 var MapLayer;
@@ -91,8 +90,9 @@ function InitNavigationMap(dotNetObject)
   };
   MapStage.position(newPos);
   _internalRulerUpdate();
-  window.addEventListener('resize', _internalOnResize);
+
   // Resize when some events:
+  window.addEventListener('resize', _internalOnResize);
   const sidebarButton = document.getElementById('sidebar-button');
   if (sidebarButton != null)
   {
@@ -107,8 +107,16 @@ function InitNavigationMap(dotNetObject)
       }, 300);
     });
   }
-  
   _internalOnResize();
+
+  // Setup Plan
+  const plan = new Konva.Line({
+    id: 'currentRobotPlan',
+    points: [],
+    stroke: _internalGetCSSVariable('--tblr-blue'),
+    strokeWidth: 1
+  });
+  MapLayer.add(plan);
 }
 
 /*
@@ -348,6 +356,21 @@ function MoveRobot(robotId, x, y, rotation)
     robot.x(_internalToMapX(x));
     robot.y(_internalToMapY(y));
     robot.rotation(_internalToMapRotation(rotation));
+  }
+}
+
+function UpdateRobotPlan(plan)
+{
+  let processedPlan = [];
+  for (let i = 0; i < plan.length; i += 2)
+  {
+    processedPlan.push(_internalToMapX(plan[i]));
+    processedPlan.push(_internalToMapY(plan[i + 1]));
+  }
+  const planLine = MapLayer.findOne('#currentRobotPlan');
+  if (planLine != undefined)
+  {
+    planLine.points(processedPlan);
   }
 }
 
