@@ -8,6 +8,7 @@ service RobotClientsService {
   rpc ExchangeStream (stream RobotClientsExchange) returns (stream RobotClientsRespond);
   rpc AutoTaskNext (RobotClientsNextToken) returns (RobotClientsRespond);
   rpc AutoTaskAbort (RobotClientsAbortToken) returns (RobotClientsRespond);
+  rpc SlamExchange (stream RobotClientsSlamExchange) returns (stream RobotClientsSlamRespond);
 }
 
 /*
@@ -151,4 +152,39 @@ message RobotClientsAbortToken {
   int32 TaskId = 1;
   string NextToken = 2;
   RobotClientsAbortReason AbortReason = 3;
+}
+
+/*
+** SLAM
+*/
+message RobotClientsMapData {
+  float Resolution = 1;
+  uint32 Width = 2;
+  uint32 Height = 3;
+  RobotClientsDof Origin = 4;
+  repeated int32 Data = 5;
+}
+
+enum RobotClientsRealtimeNavResults {
+  SlamIdle = 0;
+  SlamRunning = 1;
+  SlamSuccess = 2;
+  SlamAborted = 3;
+}
+
+message RobotClientsSlamCommands {
+  optional bool AbortGoal = 1;
+  optional bool SoftwareEmergencyStop = 2;
+  optional bool GetMap = 3;
+}
+
+message RobotClientsSlamExchange {
+  RobotClientsRealtimeNavResults Status = 1;
+  RobotClientsExchange Exchange = 2;
+  optional RobotClientsMapData MapData = 3;
+}
+
+message RobotClientsSlamRespond {
+  optional RobotClientsDof Goal = 1;
+  optional RobotClientsSlamCommands Commands = 2;
 }
