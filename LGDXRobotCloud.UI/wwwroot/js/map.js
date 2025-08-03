@@ -361,16 +361,15 @@ function MoveRobot(robotId, x, y, rotation)
 
 function UpdateRobotPlan(plan)
 {
-  let processedPlan = [];
   for (let i = 0; i < plan.length; i += 2)
   {
-    processedPlan.push(_internalToMapX(plan[i]));
-    processedPlan.push(_internalToMapY(plan[i + 1]));
+    plan[i] = _internalToMapX(plan[i]);
+    plan[i + 1] = _internalToMapY(plan[i + 1]);
   }
   const planLine = MapLayer.findOne('#currentRobotPlan');
   if (planLine != undefined)
   {
-    planLine.points(processedPlan);
+    planLine.points(plan);
   }
 }
 
