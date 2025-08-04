@@ -342,6 +342,7 @@ public class RobotClientsService(
 
   private async Task SlamExchangeServerToClientAsync(IServerStreamWriter<RobotClientsSlamRespond> responseStream, ServerCallContext context)
   {
+    await responseStream.WriteAsync(new RobotClientsSlamRespond {});
     await foreach (var message in _slamStreamMessageQueue.Reader.ReadAllAsync(context.CancellationToken))
     {
       await responseStream.WriteAsync(message);
