@@ -357,6 +357,10 @@ function MoveRobot(robotId, x, y, rotation)
     robot.y(_internalToMapY(y));
     robot.rotation(_internalToMapRotation(rotation));
   }
+  else
+  {
+    AddRobot(robotId, x, y, rotation);
+  }
 }
 
 function UpdateRobotPlan(plan)

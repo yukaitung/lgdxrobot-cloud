@@ -20,6 +20,7 @@ public static class AppRoutes
       public const string Index = "/Navigation/Realms";
       public const string Create = "/Navigation/Realms/Create";
       public const string Detail = "/Navigation/Realms/{Id:int}";
+      public const string Slam = "/Navigation/Realms/{Id:int}/Slam";
     }
     public static class Robots
     {

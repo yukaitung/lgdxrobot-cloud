@@ -39,6 +39,10 @@ builder.Services.AddMassTransit(cfg =>
 		{
 			e.ConfigureConsumer<AutoTaskUpdateConsumer>(context);
 		});
+		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
+		{
+			e.ConfigureConsumer<SlamMapDataConsumer>(context);
+		});
 		cfg.ConfigureEndpoints(context);
 	});
 });
@@ -86,6 +90,7 @@ builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 builder.Services.AddSingleton<IRealTimeService, RealTimeService>();
+builder.Services.AddSingleton<ISlamService, SlamService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

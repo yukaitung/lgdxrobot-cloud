@@ -25,7 +25,8 @@ public class RobotClientsService(
     IEventService eventService,
     IOnlineRobotsService OnlineRobotsService,
     IOptionsSnapshot<LgdxRobotCloudSecretConfiguration> lgdxRobotCloudSecretConfiguration,
-    IRobotService robotService
+    IRobotService robotService,
+    ISlamService slamService
   ) : RobotClientsServiceBase
 {
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService;
@@ -33,6 +34,7 @@ public class RobotClientsService(
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
   private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value;
   private readonly IRobotService _robotService = robotService;
+  private readonly ISlamService _slamService = slamService;
   private Guid _streamingRobotId = Guid.Empty;
   private RobotClientsRobotStatus _streamingRobotStatus = RobotClientsRobotStatus.Offline;
   private readonly Channel<RobotClientsRespond> _streamMessageQueue = Channel.CreateUnbounded<RobotClientsRespond>();
@@ -328,21 +330,12 @@ public class RobotClientsService(
     while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
     {
       var request = requestStream.Current;
-      if (request.MapData.Data.Count == 0)
-      {
-        Console.WriteLine($"Client to server: received");
-      }
-      else
-      {
-        Console.WriteLine($"Client to server: received {request.MapData.Width}x{request.MapData.Height}");
-      }
+      await _slamService.UpdateMapDataAsync(robotId, request.Status, request.MapData);
+      await _onlineRobotsService.UpdateRobotDataAsync(robotId, request.Exchange);
     }
 
     // The reading stream is completed, stop wirting task
-
-    // Assume the robot going offline
     await _onlineRobotsService.RemoveRobotAsync(robotId);
-
     _slamStreamMessageQueue.Writer.TryComplete();
     await _slamStreamMessageQueue.Reader.Completion;
   }

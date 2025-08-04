@@ -223,6 +223,7 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Navigation
 builder.Services.AddScoped<IRealmService, RealmService>();
+builder.Services.AddScoped<ISlamService, SlamService>();
 builder.Services.AddScoped<IWaypointService, WaypointService>();
 builder.Services.AddScoped<IRobotService, RobotService>();
 builder.Services.AddScoped<IMapEditorService, MapEditorService>();

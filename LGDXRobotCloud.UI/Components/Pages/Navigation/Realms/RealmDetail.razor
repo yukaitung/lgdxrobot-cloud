@@ -12,6 +12,17 @@
         @(Id != null ? "Edit Realm" : "Create Realm")
       </h2>
     </div>
+    @if (Id != null)
+    {
+      <AuthorizeView Policy="@Permissions.Navigation.Realms.Write" Context="SLAM">
+        <div class="col-auto ms-auto">
+          <a href="@(AppRoutes.Navigation.Realms.Slam.Replace("{Id:int}", Id.ToString()))" type="button" class="btn btn-primary">
+            Start SLAM
+          </a>
+        </div>
+      </AuthorizeView>
+    }
+    
   </div>
 </PageHeader>
 
