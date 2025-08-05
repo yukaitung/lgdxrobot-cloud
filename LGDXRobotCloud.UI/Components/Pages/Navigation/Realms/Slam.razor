@@ -1,7 +1,7 @@
 @attribute [Route(AppRoutes.Navigation.Realms.Slam)]
 @attribute [Authorize(Policy = Permissions.Navigation.Realms.Write)]
 
-<PageHeader Title="Map Editor">
+<PageHeader Title="SLAM Mode">
   <div class="row align-items-center">
     <div class="col">
       <ReturnLink HREF="@(AppRoutes.Navigation.Realms.Index + $"/{Id}")" />
@@ -24,9 +24,15 @@
         <div class="row align-items-center">
           <div class="col">
             <div id="map-editor-tools" class="btn-group">
-
+              <button class="btn">Set Goal</button>
+              <button class="btn" disabled>Cancel</button>
+              <button class="btn">Refresh</button>
+              <button class="btn">Save Map</button>
             </div>
           </div>
+          <p id="navigation-map-coordinate" class="col text-center m-0"></p>
+          <p id="navigation-map-status" class="col text-end m-0 me-2">
+          </p>
         </div>
       </div>
     </div>

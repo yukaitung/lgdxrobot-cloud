@@ -25,14 +25,15 @@ public sealed partial class Slam : ComponentBase, IDisposable
   private Guid SelectedRobotId { get; set; } = Guid.Empty;
   private RobotDataContract? SelectedRobot { get; set; }
 
-  private async void OnMapDataUpdated(object? sender, SlamMapDataUpdatEventArgs updatEventArgs)
+  [JSInvokable("HandleRobotSelect")]
+  public void HandleRobotSelect(string robotId)
   {
-    if (updatEventArgs.RealmId != Id)
-    {
-      return;
-    }
+    Console.WriteLine($"Robot Selected: {robotId}");
+  }
 
-    var slamData = SlamService.GetSlamData(updatEventArgs.RealmId);
+  async Task UpdateSlamMap(int realmId)
+  {
+    var slamData = SlamService.GetSlamData(realmId);
     try
     {
       if (slamData != null)
@@ -50,7 +51,15 @@ public sealed partial class Slam : ComponentBase, IDisposable
     {
       Console.WriteLine("Exception");
     }
+  }
 
+  private async void OnMapDataUpdated(object? sender, SlamMapDataUpdatEventArgs updatEventArgs)
+  {
+    if (updatEventArgs.RealmId != Id)
+    {
+      return;
+    }
+    await UpdateSlamMap(updatEventArgs.RealmId);
     await InvokeAsync(StateHasChanged);
   }
 
@@ -95,15 +104,9 @@ public sealed partial class Slam : ComponentBase, IDisposable
       RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
-      var slamData = SlamService.GetSlamData(Id!.Value);
-      if (slamData != null)
+      if (Id != null)
       {
-        SelectedRobotId = slamData.RobotId;
-        if (slamData.MapData != null)
-        {
-          await JSRuntime.InvokeVoidAsync("UpdateSlamMapSpecification", slamData.MapData.Resolution, slamData.MapData.Origin.X, slamData.MapData.Origin.Y, slamData.MapData.Origin.Rotation);
-          await JSRuntime.InvokeVoidAsync("UpdateSlamMap", slamData.MapData.Width, slamData.MapData.Height, slamData.MapData.Data);
-        }
+        await UpdateSlamMap(Id.Value);
       }
     }
     await base.OnAfterRenderAsync(firstRender);

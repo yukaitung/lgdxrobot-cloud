@@ -52,7 +52,6 @@ public class OnlineRobotsService(
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
   private static string GetOnlineRobotsKey(int realmId) => $"OnlineRobotsService_OnlineRobots_{realmId}";
   private static string GetRobotCommandsKey(Guid robotId) => $"OnlineRobotsService_RobotCommands_{robotId}";
-  private const int robotAliveMinutes = 5;
 
   private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
   {
@@ -89,7 +88,6 @@ public class OnlineRobotsService(
     // Register the robot
     _memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
     _memoryCache.Set(GetRobotCommandsKey(robotId), new RobotClientsRobotCommands());
-    _memoryCache.Set($"OnlineRobotsService_RobotData_ConnectionAlive_{robotId}", true, TimeSpan.FromMinutes(robotAliveMinutes));
   }
 
   public async Task RemoveRobotAsync(Guid robotId)
@@ -121,8 +119,7 @@ public class OnlineRobotsService(
       // Blocking too much data to rabbitmq
       return;
     }
-    _memoryCache.Set($"OnlineRobotsService_RobotData_Pause_{robotId}", true, TimeSpan.FromSeconds(1));
-    _memoryCache.Set($"OnlineRobotsService_RobotData_ConnectionAlive_{robotId}", true, TimeSpan.FromMinutes(robotAliveMinutes));
+    _memoryCache.Set($"OnlineRobotsService_RobotData_Pause_{robotId}", true, TimeSpan.FromMilliseconds(500));
 
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var robotStatus = ConvertRobotStatus(data.RobotStatus);
@@ -156,7 +153,7 @@ public class OnlineRobotsService(
       CurrentTime = realtime ? DateTime.MaxValue : DateTime.UtcNow
     };
     await _bus.Publish(robotData);
-    _memoryCache.Set($"OnlineRobotsService_RobotData_{robotId}", robotData, TimeSpan.FromMinutes(robotAliveMinutes));
+    _memoryCache.Set($"OnlineRobotsService_RobotData_{robotId}", robotData);
 
     if (_memoryCache.TryGetValue<RobotClientsRobotCommands>(GetRobotCommandsKey(robotId), out var robotCommands))
     {
@@ -213,7 +210,7 @@ public class OnlineRobotsService(
   public async Task<bool> IsRobotOnlineAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    var onlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey((int)realmId));
+    var onlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId));
     return onlineRobotsIds != null && onlineRobotsIds.Contains(robotId);
   }
 

@@ -3,6 +3,7 @@ var MapStage;
 var MapLayer;
 var MapBackground;
 var MapBackgroundObj;
+var MapBackgroundYCoordinateOffset = 0;
 var MapEditorMode = 0;
 const InitalScale = 3;
 
@@ -49,6 +50,8 @@ function InitNavigationMap(dotNetObject)
   if (document.getElementById('navigation-map-coordinate') != null)
   {
     MapStage.on('mousemove', () => {
+      const p = document.getElementById('navigation-map-coordinate');
+      if (!p) return;
       const pointer = MapStage.getPointerPosition();
       if (!pointer) return;
 
@@ -56,12 +59,14 @@ function InitNavigationMap(dotNetObject)
       const localPos = MapBackground.getAbsoluteTransform().copy().invert().point(pointer);
 
       // Check if pointer is inside the rectangle bounds
-      if (
-        localPos.x >= 0 && localPos.x <= MapBackground.width() &&
-        localPos.y >= 0 && localPos.y <= MapBackground.height()
-      ) {
-        p.innerHTML = `X: ${_internalToRobotPositionX(localPos.x).toFixed(4)}m, Y: ${_internalToRobotPositionY(localPos.y).toFixed(4)}m`;
-      } else {
+      if (localPos.x >= 0 && localPos.x <= MapBackground.width() 
+          && localPos.y >= 0 && localPos.y <= MapBackground.height()) 
+      {
+        let y = _internalToRobotPositionY(localPos.y )+ MapBackgroundYCoordinateOffset;
+        p.innerHTML = `X: ${_internalToRobotPositionX(localPos.x).toFixed(4)}m, Y: ${y.toFixed(4)}m`;
+      } 
+      else 
+      {
         p.innerHTML = '';
       }
     });
@@ -552,14 +557,11 @@ function UpdateSlamMap(width, height, mapData)
   ctx.putImageData(iamgeData, 0, 0);
 
   // Update Map
-  const div = document.getElementById('navigation-map-container');
-  const divRect = div.getBoundingClientRect();
+  MapBackgroundYCoordinateOffset = (height * MAP_RESOLUTION);
   MapBackgroundObj.src = canvas.toDataURL("image/png");
   MapBackground.width(width);
   MapBackground.height(height);
   MapBackground.y(-height);
   MapBackground.fillPatternImage(MapBackgroundObj);
-  MapLayer.offsetX(-divRect.width / 2 + width / 2);
-  MapLayer.offsetY(-divRect.height / 2 - height / 2);
   _internalRulerUpdate();
 }
