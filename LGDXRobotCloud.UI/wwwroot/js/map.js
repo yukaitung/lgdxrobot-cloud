@@ -3,7 +3,6 @@ var MapStage;
 var MapLayer;
 var MapBackground;
 var MapBackgroundObj;
-var MapBackgroundYCoordinateOffset = 0;
 var MapEditorMode = 0;
 const InitalScale = 3;
 
@@ -62,7 +61,7 @@ function InitNavigationMap(dotNetObject)
       if (localPos.x >= 0 && localPos.x <= MapBackground.width() 
           && localPos.y >= 0 && localPos.y <= MapBackground.height()) 
       {
-        let y = _internalToRobotPositionY(localPos.y )+ MapBackgroundYCoordinateOffset;
+        let y = _internalToRobotPositionY(localPos.y);
         p.innerHTML = `X: ${_internalToRobotPositionX(localPos.x).toFixed(4)}m, Y: ${y.toFixed(4)}m`;
       } 
       else 
@@ -239,8 +238,7 @@ function _internalToRobotPositionX(x)
 
 function _internalToRobotPositionY(y)
 {
-  const mapBackgroundImage = document.getElementById('navigation-map-image');
-  return (mapBackgroundImage.height - y) * MAP_RESOLUTION + MAP_ORIGIN_Y;
+  return (MapBackgroundObj.height - y) * MAP_RESOLUTION + MAP_ORIGIN_Y;
 }
 function _internalToMapX(x)
 {
@@ -249,8 +247,7 @@ function _internalToMapX(x)
 
 function _internalToMapY(y)
 {
-  const mapBackgroundImage = document.getElementById('navigation-map-image');
-  return mapBackgroundImage.height - ((-MAP_ORIGIN_Y + y) / MAP_RESOLUTION);
+  return MapBackgroundObj.height - ((-MAP_ORIGIN_Y + y) / MAP_RESOLUTION);
 }
 
 function _internalToMapRotation(rotation)
@@ -557,11 +554,88 @@ function UpdateSlamMap(width, height, mapData)
   ctx.putImageData(iamgeData, 0, 0);
 
   // Update Map
-  MapBackgroundYCoordinateOffset = (height * MAP_RESOLUTION);
   MapBackgroundObj.src = canvas.toDataURL("image/png");
   MapBackground.width(width);
   MapBackground.height(height);
-  MapBackground.y(-height);
-  MapBackground.fillPatternImage(MapBackgroundObj);
   _internalRulerUpdate();
+}
+
+function _internalSlamMapSetGoalStartHandler()
+{
+  const pointer = MapStage.getPointerPosition();
+  if (!pointer) return;
+
+  // Transform stage coordinates to rect-local coordinates
+  const localPos = MapBackground.getAbsoluteTransform().copy().invert().point(pointer);
+
+  // Check if pointer is inside the rectangle bounds
+  if (localPos.x >= 0 && localPos.x <= MapBackground.width() 
+      && localPos.y >= 0 && localPos.y <= MapBackground.height()) 
+  {
+    const arrow = new Konva.Arrow({
+      stroke: _internalGetCSSVariable('--tblr-blue'),
+      fill: _internalGetCSSVariable('--tblr-blue'),
+      strokeWidth: 1,
+      id: 'slamMapGoalArrow',
+      points: [localPos.x, localPos.y, localPos.x, localPos.y],
+      pointerLength: 1,
+      pointerWidth: 1,
+    });
+    MapLayer.add(arrow);
+  } 
+}
+
+function _internalSlamMapSetGoalMoveHandler()
+{
+  const arrow = MapLayer.findOne('#slamMapGoalArrow');
+  if (arrow != undefined)
+  {
+    const pointer = MapStage.getPointerPosition();
+    if (!pointer) return;
+
+    // Transform stage coordinates to rect-local coordinates
+    const localPos = MapBackground.getAbsoluteTransform().copy().invert().point(pointer);
+    let path = arrow.points();
+    path[2] = localPos.x;
+    path[3] = localPos.y;
+    arrow.points(path);
+  }
+}
+
+function _internalGetAngleBetweenPoints(x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  return Math.atan2(dy, dx); // in radians
+}
+
+function _internalSlamMapSetGoalEndHandler()
+{
+  const arrow = MapLayer.findOne('#slamMapGoalArrow');
+  if (arrow != undefined)
+  {
+    let path = arrow.points();
+    let x = _internalToRobotPositionX(path[0]);
+    let y = _internalToRobotPositionY(path[1]);
+    let angle = _internalGetAngleBetweenPoints(path[0], path[1], path[2], path[3]);
+    console.log(x, y, angle);
+    arrow.destroy();
+    MapStage.off('mousedown', _internalSlamMapSetGoalStartHandler);
+    MapStage.off('touchstart', _internalSlamMapSetGoalStartHandler);
+    MapStage.off('mousemove', _internalSlamMapSetGoalMoveHandler);
+    MapStage.off('touchmove', _internalSlamMapSetGoalMoveHandler);
+    MapStage.off('mouseup', _internalSlamMapSetGoalEndHandler);
+    MapStage.off('touchend', _internalSlamMapSetGoalEndHandler);
+    MapStage.draggable(true);
+  }
+}
+
+function SlamMapSetGoalStart() 
+{
+  MapStage.draggable(false);
+  MapStage.on('mousedown', _internalSlamMapSetGoalStartHandler);
+  MapStage.on('touchstart', _internalSlamMapSetGoalStartHandler);
+  MapStage.on('mousemove', _internalSlamMapSetGoalMoveHandler);
+  MapStage.on('touchmove', _internalSlamMapSetGoalMoveHandler);
+  MapStage.on('mouseup', _internalSlamMapSetGoalEndHandler);
+  MapStage.on('touchend', _internalSlamMapSetGoalEndHandler);
 }

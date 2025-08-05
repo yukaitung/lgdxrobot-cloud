@@ -31,7 +31,12 @@ public sealed partial class Slam : ComponentBase, IDisposable
     Console.WriteLine($"Robot Selected: {robotId}");
   }
 
-  async Task UpdateSlamMap(int realmId)
+  public async Task SetGoal()
+  {
+    await JSRuntime.InvokeVoidAsync("SlamMapSetGoalStart");
+  }
+
+  private async Task UpdateSlamMap(int realmId)
   {
     var slamData = SlamService.GetSlamData(realmId);
     try
