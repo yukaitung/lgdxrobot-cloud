@@ -27,7 +27,16 @@ public sealed class SlamService(
 
   public void UpdateSlamData(SlamMapDataContract slamMapData)
   {
-    slamData[slamMapData.RealmId] = slamMapData;
+    if (!slamData.ContainsKey(slamMapData.RealmId) || slamMapData.MapData != null)
+    {
+      slamData[slamMapData.RealmId] = slamMapData;
+    }
+    else
+    {
+      slamData[slamMapData.RealmId].RealmId = slamMapData.RealmId;
+      slamData[slamMapData.RealmId].RobotId = slamMapData.RobotId;
+      slamData[slamMapData.RealmId].RealtimeNavResult = slamMapData.RealtimeNavResult;
+    }
     _realTimeService.SlamMapDataHasUpdated(new SlamMapDataUpdatEventArgs { RealmId = slamMapData.RealmId });
   }
 }

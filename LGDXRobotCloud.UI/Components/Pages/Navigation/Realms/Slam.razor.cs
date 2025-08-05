@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.UI.Services;
 using Microsoft.AspNetCore.Components;
@@ -34,11 +33,24 @@ public sealed partial class Slam : ComponentBase, IDisposable
     }
 
     var slamData = SlamService.GetSlamData(updatEventArgs.RealmId);
-    if (slamData != null)
+    try
     {
-      SelectedRobotId = slamData.RobotId;
+      if (slamData != null)
+      {
+        SelectedRobotId = slamData.RobotId;
+
+        if (slamData.MapData != null)
+        {
+          await JSRuntime.InvokeVoidAsync("UpdateSlamMapSpecification", slamData.MapData.Resolution, slamData.MapData.Origin.X, slamData.MapData.Origin.Y, slamData.MapData.Origin.Rotation);
+          await JSRuntime.InvokeVoidAsync("UpdateSlamMap", slamData.MapData.Width, slamData.MapData.Height, slamData.MapData.Data);
+        }
+      }
     }
-    
+    catch (Exception)
+    {
+      Console.WriteLine("Exception");
+    }
+
     await InvokeAsync(StateHasChanged);
   }
 
@@ -83,6 +95,16 @@ public sealed partial class Slam : ComponentBase, IDisposable
       RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
+      var slamData = SlamService.GetSlamData(Id!.Value);
+      if (slamData != null)
+      {
+        SelectedRobotId = slamData.RobotId;
+        if (slamData.MapData != null)
+        {
+          await JSRuntime.InvokeVoidAsync("UpdateSlamMapSpecification", slamData.MapData.Resolution, slamData.MapData.Origin.X, slamData.MapData.Origin.Y, slamData.MapData.Origin.Rotation);
+          await JSRuntime.InvokeVoidAsync("UpdateSlamMap", slamData.MapData.Width, slamData.MapData.Height, slamData.MapData.Data);
+        }
+      }
     }
     await base.OnAfterRenderAsync(firstRender);
   }

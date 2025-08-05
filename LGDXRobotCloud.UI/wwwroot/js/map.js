@@ -1,6 +1,8 @@
 var MapDotNetObject = {};
 var MapStage;
 var MapLayer;
+var MapBackground;
+var MapBackgroundObj;
 var MapEditorMode = 0;
 const InitalScale = 3;
 
@@ -22,48 +24,48 @@ function InitNavigationMap(dotNetObject)
 
   // Add map image
   const mapBackgroundImage = document.getElementById('navigation-map-image');
-  const mapBackgroundObj = new Image();
-  mapBackgroundObj.src = mapBackgroundImage.src;
-  const mapBackground = new Konva.Rect({
+  MapBackgroundObj = new Image();
+  MapBackgroundObj.src = mapBackgroundImage.src;
+  MapBackgroundObj.onload = () => {
+    let ctx = MapLayer.getContext()._context;
+    ctx.imageSmoothingEnabled = false;
+    MapBackground.fillPatternImage(MapBackgroundObj);
+  };
+  MapBackground = new Konva.Rect({
     x: 0,
     y: 0,
     width: mapBackgroundImage.width,
     height: mapBackgroundImage.height,
     draggable: false,
   });
-  mapBackgroundObj.onload = () => {
-    let ctx = MapLayer.getContext()._context;
-    ctx.imageSmoothingEnabled = false;
-    mapBackground.fillPatternImage(mapBackgroundObj);
-  };
   MapLayer = new Konva.Layer({
     offsetX: -divRect.width / 2 + mapBackgroundImage.width / 2,
     offsetY: -divRect.height / 2 + mapBackgroundImage.height / 2,
   });
+  MapLayer.add(MapBackground);
   MapStage.add(MapLayer);
-  MapLayer.add(mapBackground);
 
   // Mouse event on map
-  MapStage.on('mousemove', () => {
-    const p = document.getElementById('navigation-map-coordinate');
-    if (!p) return;
-    const pointer = MapStage.getPointerPosition();
-    if (!pointer) return;
+  if (document.getElementById('navigation-map-coordinate') != null)
+  {
+    MapStage.on('mousemove', () => {
+      const pointer = MapStage.getPointerPosition();
+      if (!pointer) return;
 
-    // Transform stage coordinates to rect-local coordinates
-    const localPos = mapBackground.getAbsoluteTransform().copy().invert().point(pointer);
+      // Transform stage coordinates to rect-local coordinates
+      const localPos = MapBackground.getAbsoluteTransform().copy().invert().point(pointer);
 
-    // Check if pointer is inside the rectangle bounds
-    if (
-      localPos.x >= 0 && localPos.x <= mapBackground.width() &&
-      localPos.y >= 0 && localPos.y <= mapBackground.height()
-    ) {
-      p.innerHTML = `X: ${_internalToRobotPositionX(localPos.x).toFixed(4)}m, Y: ${_internalToRobotPositionY(localPos.y).toFixed(4)}m`;
-    } else {
-      p.innerHTML = '';
-    }
-  });
-
+      // Check if pointer is inside the rectangle bounds
+      if (
+        localPos.x >= 0 && localPos.x <= MapBackground.width() &&
+        localPos.y >= 0 && localPos.y <= MapBackground.height()
+      ) {
+        p.innerHTML = `X: ${_internalToRobotPositionX(localPos.x).toFixed(4)}m, Y: ${_internalToRobotPositionY(localPos.y).toFixed(4)}m`;
+      } else {
+        p.innerHTML = '';
+      }
+    });
+  }
   MapStage.on('wheel', (e) => {
     e.evt.preventDefault();
 
@@ -508,4 +510,56 @@ function MapEditorAddTraffics(traffics) {
       MapLayer.add(arrow);
     }
   }
+}
+
+/*
+ * SLAM
+ */
+function UpdateSlamMapSpecification(resolution, originX, originY, originRotation) 
+{
+  MAP_RESOLUTION = resolution;
+  MAP_ORIGIN_X = originX;
+  MAP_ORIGIN_Y = originY;
+  MAP_ORIGIN_ROTATION = originRotation;
+}
+
+function UpdateSlamMap(width, height, mapData) 
+{
+  // Draw Map
+  let canvas = document.getElementById("navigation-slam-map-data");
+  canvas.width = width;
+  canvas.height = height;
+  let ctx = canvas.getContext("2d");
+  ctx.reset();
+  let iamgeData = ctx.createImageData(width, height);
+  for (let row = 0; row < height; row++) {
+    for (let col = 0; col < width; col++) {
+      let index = col + ((height - row - 1) * width);
+      let data = mapData[index];
+      var value = 205;
+      if (data === 100)
+        value = 0;
+      else if (data === 0)
+        value = 255;
+
+      var i = (col + (row * width)) * 4;
+      iamgeData.data[i] = value;
+      iamgeData.data[i + 1] = value;
+      iamgeData.data[i + 2] = value;
+      iamgeData.data[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(iamgeData, 0, 0);
+
+  // Update Map
+  const div = document.getElementById('navigation-map-container');
+  const divRect = div.getBoundingClientRect();
+  MapBackgroundObj.src = canvas.toDataURL("image/png");
+  MapBackground.width(width);
+  MapBackground.height(height);
+  MapBackground.y(-height);
+  MapBackground.fillPatternImage(MapBackgroundObj);
+  MapLayer.offsetX(-divRect.width / 2 + width / 2);
+  MapLayer.offsetY(-divRect.height / 2 - height / 2);
+  _internalRulerUpdate();
 }
