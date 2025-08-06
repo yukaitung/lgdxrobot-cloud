@@ -165,7 +165,7 @@ message RobotClientsMapData {
   repeated int32 Data = 5;
 }
 
-enum RobotClientsRealtimeNavResults {
+enum RobotClientsSlamStatus {
   SlamIdle = 0;
   SlamRunning = 1;
   SlamSuccess = 2;
@@ -173,7 +173,7 @@ enum RobotClientsRealtimeNavResults {
 }
 
 message RobotClientsSlamExchange {
-  RobotClientsRealtimeNavResults Status = 1;
+  RobotClientsSlamStatus Status = 1;
   RobotClientsExchange Exchange = 2;
   optional RobotClientsMapData MapData = 3;
 }

@@ -1,6 +1,6 @@
 namespace LGDXRobotCloud.Utilities.Enums;
 
-public enum RealtimeNavResult
+public enum SlamStatus
 {
   Idle = 1,
   Running = 2,

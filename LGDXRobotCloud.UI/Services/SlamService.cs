@@ -35,7 +35,7 @@ public sealed class SlamService(
     {
       slamData[sd.RealmId].RealmId = sd.RealmId;
       slamData[sd.RealmId].RobotId = sd.RobotId;
-      slamData[sd.RealmId].RealtimeNavResult = sd.RealtimeNavResult;
+      slamData[sd.RealmId].SlamStatus = sd.SlamStatus;
     }
     _realTimeService.SlamDataHasUpdated(new SlamDataUpdatEventArgs { RealmId = sd.RealmId });
   }

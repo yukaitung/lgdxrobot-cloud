@@ -15,6 +15,6 @@ public record SlamDataContract
 {
   public Guid RobotId { get; set; }
   public int RealmId { get; set; }
-  public RealtimeNavResult RealtimeNavResult { get; set; }
+  public SlamStatus SlamStatus { get; set; }
   public MapData? MapData { get; set; }
 }

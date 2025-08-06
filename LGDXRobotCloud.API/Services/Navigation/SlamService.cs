@@ -12,7 +12,7 @@ public interface ISlamService
   Task StopSlamAsync(Guid robotId);
 
   // Client to Server
-  Task UpdateSlamDataAsync(Guid robotId, RobotClientsRealtimeNavResults status, RobotClientsMapData mapData);
+  Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData mapData);
 
   // Server to Client
   IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId);
@@ -31,15 +31,15 @@ public class SlamService(
   private readonly IRobotDataService _robotDataService = robotDataService;
   private readonly IRobotService _robotService = robotService;
 
-  static RealtimeNavResult ConvertRealtimeNavResult(RobotClientsRealtimeNavResults realtimeNavResult)
+  static SlamStatus ConvertSlamStatus(RobotClientsSlamStatus slamStatus)
   {
-    return realtimeNavResult switch
+    return slamStatus switch
     {
-      RobotClientsRealtimeNavResults.SlamIdle => RealtimeNavResult.Idle,
-      RobotClientsRealtimeNavResults.SlamRunning => RealtimeNavResult.Running,
-      RobotClientsRealtimeNavResults.SlamSuccess => RealtimeNavResult.Success,
-      RobotClientsRealtimeNavResults.SlamAborted => RealtimeNavResult.Aborted,
-      _ => RealtimeNavResult.Idle,
+      RobotClientsSlamStatus.SlamIdle => SlamStatus.Idle,
+      RobotClientsSlamStatus.SlamRunning => SlamStatus.Running,
+      RobotClientsSlamStatus.SlamSuccess => SlamStatus.Success,
+      RobotClientsSlamStatus.SlamAborted => SlamStatus.Aborted,
+      _ => SlamStatus.Idle,
     };
   }
 
@@ -55,12 +55,12 @@ public class SlamService(
     _robotDataService.StopSlam(realmId);
   }
 
-  public async Task UpdateSlamDataAsync(Guid robotId, RobotClientsRealtimeNavResults status, RobotClientsMapData mapData)
+  public async Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData mapData)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    var navResult = ConvertRealtimeNavResult(status);
+    var slamStatus = ConvertSlamStatus(status);
     MapData? map = null;
-    if (mapData != null && mapData.Data.Count > 0)
+    if (mapData.Data.Count > 0)
     {
       map = new MapData
       {
@@ -80,7 +80,7 @@ public class SlamService(
     {
       RobotId = robotId,
       RealmId = realmId,
-      RealtimeNavResult = navResult,
+      SlamStatus = slamStatus,
       MapData = map
     };
     await _bus.Publish(data);
