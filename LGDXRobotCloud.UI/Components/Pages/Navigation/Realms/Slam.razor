@@ -1,3 +1,4 @@
+@using LGDXRobotCloud.Utilities.Enums
 @attribute [Route(AppRoutes.Navigation.Realms.Slam)]
 @attribute [Authorize(Policy = Permissions.Navigation.Realms.Write)]
 
@@ -17,27 +18,40 @@
   </div>
 </PageHeader>
 
-<div class="container-xl mt-2">
-  <div class="col-12">
-    <div class="card card-sm">
-      <div class="card-body p-0">
-        <div class="row align-items-center">
-          <div class="col">
-            <div id="map-editor-tools" class="btn-group">
-              <button class="btn" @onclick="SetGoal">Set Goal</button>
-              <button class="btn" disabled>Cancel</button>
-              <button class="btn">Refresh</button>
-              <button class="btn">Save Map</button>
+@if (SelectedRobot != null)
+{
+  <div class="container-xl mt-2">
+    <div class="col-12">
+      <div class="card card-sm">
+        <div class="card-body p-0">
+          <div class="row align-items-center">
+            <div class="col">
+              <div id="map-editor-tools" class="btn-group">
+                <button class="btn" @onclick="StartSetGoal" disabled=@(SlamMode != SlamMode.Normal)>Set Goal</button>
+                <button class="btn" @onclick="StopSetGoal" disabled=@(SlamMode != SlamMode.SetGoal)>Cancel</button>
+                <button class="btn" @onclick="AbortGoal">Abort</button>
+                <button class="btn" @onclick="RefreshMap">Refresh</button>
+                <button class="btn" @onclick="SaveMap">Save Map</button>
+              </div>
             </div>
+            <p id="navigation-map-coordinate" class="col text-center m-0"></p>
+            <p id="navigation-map-status" class="col text-end m-0 me-2">
+              @switch (SlamMode) {
+                default:
+                case SlamMode.Normal:
+                  <text></text>
+                  break;
+                case SlamMode.SetGoal:
+                  <text>Drag on the map to setup location and rotation.</text>
+                  break;
+              }
+            </p>
           </div>
-          <p id="navigation-map-coordinate" class="col text-center m-0"></p>
-          <p id="navigation-map-status" class="col text-end m-0 me-2">
-          </p>
         </div>
       </div>
     </div>
   </div>
-</div>
+}
 
 <!-- Map -->
 <div id="navigation-map" class="flex-fill row m-0 g-0">
@@ -110,6 +124,10 @@
               <div class="card">
                 <div class="card-body">
                   <div class="datagrid">
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Status</div>
+                      <div class="datagrid-content">@SlamStatus.ToEnumMember()</div>
+                    </div>
                     <div class="datagrid-item">
                       <div class="datagrid-title">ETA</div>
                       <div class="datagrid-content">@Math.Round(SelectedRobot.NavProgress.Eta, 4) seconds</div>

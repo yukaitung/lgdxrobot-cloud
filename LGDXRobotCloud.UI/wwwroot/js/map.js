@@ -617,20 +617,18 @@ function _internalSlamMapSetGoalEndHandler()
     let x = _internalToRobotPositionX(path[0]);
     let y = _internalToRobotPositionY(path[1]);
     let angle = _internalGetAngleBetweenPoints(path[0], path[1], path[2], path[3]);
-    console.log(x, y, angle);
-    arrow.destroy();
-    MapStage.off('mousedown', _internalSlamMapSetGoalStartHandler);
-    MapStage.off('touchstart', _internalSlamMapSetGoalStartHandler);
-    MapStage.off('mousemove', _internalSlamMapSetGoalMoveHandler);
-    MapStage.off('touchmove', _internalSlamMapSetGoalMoveHandler);
-    MapStage.off('mouseup', _internalSlamMapSetGoalEndHandler);
-    MapStage.off('touchend', _internalSlamMapSetGoalEndHandler);
-    MapStage.draggable(true);
+    MapDotNetObject.invokeMethodAsync('HandleSetGoalSuccess', x, y, angle);
+    SlamMapSetGoalStop();
   }
 }
 
 function SlamMapSetGoalStart() 
 {
+  const arrow = MapLayer.findOne('#slamMapGoalArrow');
+  if (arrow != undefined)
+  {
+    arrow.destroy();
+  }
   MapStage.draggable(false);
   MapStage.on('mousedown', _internalSlamMapSetGoalStartHandler);
   MapStage.on('touchstart', _internalSlamMapSetGoalStartHandler);
@@ -638,4 +636,20 @@ function SlamMapSetGoalStart()
   MapStage.on('touchmove', _internalSlamMapSetGoalMoveHandler);
   MapStage.on('mouseup', _internalSlamMapSetGoalEndHandler);
   MapStage.on('touchend', _internalSlamMapSetGoalEndHandler);
+}
+
+function SlamMapSetGoalStop() 
+{
+  const arrow = MapLayer.findOne('#slamMapGoalArrow');
+  if (arrow != undefined)
+  {
+    arrow.destroy();
+  }
+  MapStage.off('mousedown', _internalSlamMapSetGoalStartHandler);
+  MapStage.off('touchstart', _internalSlamMapSetGoalStartHandler);
+  MapStage.off('mousemove', _internalSlamMapSetGoalMoveHandler);
+  MapStage.off('touchmove', _internalSlamMapSetGoalMoveHandler);
+  MapStage.off('mouseup', _internalSlamMapSetGoalEndHandler);
+  MapStage.off('touchend', _internalSlamMapSetGoalEndHandler);
+  MapStage.draggable(true);
 }

@@ -10,7 +10,7 @@ public interface IRobotDataService
   void StopSlam(int realmId);
   Guid? GetRunningSlamRobotId(int realmId);  
 
-  IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId);
+  List<RobotClientsSlamCommands> GetSlamCommands(Guid robotId);
   void SetSlamCommands(int realmId, RobotClientsSlamCommands commands);
 }
 
@@ -47,9 +47,18 @@ public class RobotDataService : IRobotDataService
     return null;
   }
 
-  public IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId)
+  public List<RobotClientsSlamCommands> GetSlamCommands(Guid robotId)
   {
-    return slamCommands[robotId].ToList().AsReadOnly();
+    List<RobotClientsSlamCommands> result = [];
+    int count = slamCommands.Count;
+    for (int i = 0; i < count; i++)
+    {
+      if (slamCommands[robotId].TryDequeue(out var commands))
+      {
+        result.Add(commands);
+      }
+    }
+    return result;
   }
 
   public void SetSlamCommands(int realmId, RobotClientsSlamCommands commands)

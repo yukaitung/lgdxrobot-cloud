@@ -1,11 +1,24 @@
 using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.UI.Client;
+using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Services;
+using LGDXRobotCloud.Utilities.Enums;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Realms;
+
+public enum SlamMode
+{
+  Normal = 0,
+  SetGoal = 1
+}
+
 public sealed partial class Slam : ComponentBase, IDisposable
 {
+  [Inject]
+  public required LgdxApiClient LgdxApiClient { get; set; }
+
   [Inject]
   public required IRealTimeService RealTimeService { get; set; }
 
@@ -24,16 +37,49 @@ public sealed partial class Slam : ComponentBase, IDisposable
   private DotNetObjectReference<Slam> ObjectReference = null!;
   private Guid SelectedRobotId { get; set; } = Guid.Empty;
   private RobotDataContract? SelectedRobot { get; set; }
+  private SlamStatus SlamStatus { get; set; } = SlamStatus.Idle;
+  private SlamMode SlamMode { get; set; } = SlamMode.Normal;
 
   [JSInvokable("HandleRobotSelect")]
-  public void HandleRobotSelect(string robotId)
+  public void HandleRobotSelect(string _) { }
+
+  [JSInvokable("HandleSetGoalSuccess")]
+  public async Task HandleSetGoalSuccess(double x, double y, double rotation)
   {
-    Console.WriteLine($"Robot Selected: {robotId}");
+    SlamMode = SlamMode.Normal;
+    await LgdxApiClient.Navigation.Realms[Id!.Value].Slam.SetGoal.PostAsync(new RobotDofDto
+    {
+      X = x,
+      Y = y,
+      Rotation = rotation
+    });
   }
 
-  public async Task SetGoal()
+  public async Task StartSetGoal()
   {
+    SlamMode = SlamMode.SetGoal;
     await JSRuntime.InvokeVoidAsync("SlamMapSetGoalStart");
+  }
+
+  public async Task StopSetGoal()
+  {
+    SlamMode = SlamMode.Normal;
+    await JSRuntime.InvokeVoidAsync("SlamMapSetGoalStop");
+  }
+
+  public async Task AbortGoal()
+  {
+    await LgdxApiClient.Navigation.Realms[Id!.Value].Slam.AbortGoal.PostAsync();
+  }
+
+  public async Task RefreshMap()
+  {
+    await LgdxApiClient.Navigation.Realms[Id!.Value].Slam.RefreshMap.PostAsync();
+  }
+
+  public async Task SaveMap()
+  {
+    await LgdxApiClient.Navigation.Realms[Id!.Value].Slam.SaveMap.PostAsync();
   }
 
   private async Task UpdateSlamMap(int realmId)
@@ -44,6 +90,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
       if (slamData != null)
       {
         SelectedRobotId = slamData.RobotId;
+        SlamStatus = slamData.SlamStatus;
 
         if (slamData.MapData != null)
         {
@@ -82,7 +129,6 @@ public sealed partial class Slam : ComponentBase, IDisposable
       if (robotData != null)
       {
         await JSRuntime.InvokeVoidAsync("MoveRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
-        SelectedRobot = robotData;
         SelectedRobot = robotData;
         // Update Plan
         List<double> plan = [];
