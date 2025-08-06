@@ -183,7 +183,7 @@ public class RealmsController(
   {
     if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
     {
-      StopSlam = true
+      AbortGoal = true
     }))
     {
       return NoContent();
@@ -198,7 +198,7 @@ public class RealmsController(
   {
     if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
     {
-      StopSlam = true
+      CompleteSlam = true
     }))
     {
       await _realmService.UpdateRealmMapAsync(id, realmMapUpdateDto.ToBusinessModel());

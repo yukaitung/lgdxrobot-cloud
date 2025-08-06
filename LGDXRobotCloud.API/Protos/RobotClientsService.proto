@@ -185,5 +185,6 @@ message RobotClientsSlamCommands {
   optional bool SoftwareEmergencyStopDisable = 4;
   optional bool SaveMap = 5;
   optional bool RefreshMap = 6;
-  optional bool StopSlam = 7;
+  optional bool CompleteSlam = 7;
+  optional bool AbortSlam = 8;
 }
