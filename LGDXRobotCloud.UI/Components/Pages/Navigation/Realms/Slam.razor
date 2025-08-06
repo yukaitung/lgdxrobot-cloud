@@ -11,14 +11,22 @@
       </h2>
     </div>
     <div class="col-md-auto ms-auto">
-      <div class="btn-list">
-
-      </div>
+      @if (SelectedRobot != null)
+      {
+        <div class="btn-list">
+          <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#">
+            Abort SLAM
+          </a>
+          <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#">
+            Update Realm
+          </a>
+        </div>
+      }
     </div>
   </div>
 </PageHeader>
 
-@if (SelectedRobot != null)
+@if (SelectedRobot != null && SelectedRobot.RobotStatus != RobotStatus.Offline)
 {
   <div class="container-xl mt-2">
     <div class="col-12">
@@ -147,6 +155,12 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <!-- Button -->
+            <div class="col-12">
+              <a class="btn btn-danger ms-auto" data-bs-toggle="modal" data-bs-target="#">
+                Stop This Robot
+              </a>
             </div>
           </div>
         }

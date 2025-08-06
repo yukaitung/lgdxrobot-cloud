@@ -617,7 +617,7 @@ function _internalSlamMapSetGoalEndHandler()
     let x = _internalToRobotPositionX(path[0]);
     let y = _internalToRobotPositionY(path[1]);
     let angle = _internalGetAngleBetweenPoints(path[0], path[1], path[2], path[3]);
-    MapDotNetObject.invokeMethodAsync('HandleSetGoalSuccess', x, y, angle);
+    MapDotNetObject.invokeMethodAsync('HandleSetGoalSuccess', x, y, -angle);
     SlamMapSetGoalStop();
   }
 }

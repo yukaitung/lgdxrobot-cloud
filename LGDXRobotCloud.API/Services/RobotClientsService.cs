@@ -331,24 +331,29 @@ public class RobotClientsService(
 
   private async Task SlamExchangeClientToServerAsync(Guid robotId, IAsyncStreamReader<RobotClientsSlamExchange> requestStream, ServerCallContext context)
   {
-    if (await _slamService.StartSlamAsync(robotId))
+    try
     {
-      // Only one robot can running SLAM at a time in a realm
-      // The second robot will be ternimated
-      while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
+      if (await _slamService.StartSlamAsync(robotId))
       {
-        var request = requestStream.Current;
-        await _slamService.UpdateSlamDataAsync(robotId, request.Status, request.MapData);
-        await _onlineRobotsService.UpdateRobotDataAsync(robotId, request.Exchange);
+        // Only one robot can running SLAM at a time in a realm
+        // The second robot will be ternimated
+        while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
+        {
+          var request = requestStream.Current;
+          await _slamService.UpdateSlamDataAsync(robotId, request.Status, request.MapData);
+          await _onlineRobotsService.UpdateRobotDataAsync(robotId, request.Exchange);
+        }
       }
     }
+    finally
+    {
+      // The reading stream is completed, stop wirting task
+      await _onlineRobotsService.RemoveRobotAsync(robotId);
+      await _slamService.StopSlamAsync(robotId);
+      _eventService.SlamCommandsUpdated -= OnSlamCommandsUpdated;
+      _slamStreamMessageQueue.Writer.TryComplete();
+    }
 
-    // The reading stream is completed, stop wirting task
-    await _onlineRobotsService.RemoveRobotAsync(robotId);
-    await _slamService.StopSlamAsync(robotId);
-    _eventService.SlamCommandsUpdated -= OnSlamCommandsUpdated;
-
-    _slamStreamMessageQueue.Writer.TryComplete();
     await _slamStreamMessageQueue.Reader.Completion;
   }
 
