@@ -12,7 +12,7 @@ public interface ISlamService
   Task StopSlamAsync(Guid robotId);
 
   // Client to Server
-  Task UpdateMapDataAsync(Guid robotId, RobotClientsRealtimeNavResults status, RobotClientsMapData? mapData);
+  Task UpdateSlamDataAsync(Guid robotId, RobotClientsRealtimeNavResults status, RobotClientsMapData mapData);
 
   // Server to Client
   IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId);
@@ -55,14 +55,14 @@ public class SlamService(
     _robotDataService.StopSlam(realmId);
   }
 
-  public async Task UpdateMapDataAsync(Guid robotId, RobotClientsRealtimeNavResults status, RobotClientsMapData? mapData)
+  public async Task UpdateSlamDataAsync(Guid robotId, RobotClientsRealtimeNavResults status, RobotClientsMapData mapData)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var navResult = ConvertRealtimeNavResult(status);
-    SlamMapData? map = null;
+    MapData? map = null;
     if (mapData != null && mapData.Data.Count > 0)
     {
-      map = new SlamMapData
+      map = new MapData
       {
         Resolution = mapData.Resolution,
         Width = mapData.Width,
@@ -76,7 +76,7 @@ public class SlamService(
         Data = [.. mapData.Data.Select(x => (short)x)]
       };
     }
-    var data = new SlamMapDataContract
+    var data = new SlamDataContract
     {
       RobotId = robotId,
       RealmId = realmId,

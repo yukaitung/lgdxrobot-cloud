@@ -41,7 +41,7 @@ builder.Services.AddMassTransit(cfg =>
 		});
 		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
 		{
-			e.ConfigureConsumer<SlamMapDataConsumer>(context);
+			e.ConfigureConsumer<SlamDataConsumer>(context);
 		});
 		cfg.ConfigureEndpoints(context);
 	});

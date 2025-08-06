@@ -338,7 +338,7 @@ public class RobotClientsService(
       while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
       {
         var request = requestStream.Current;
-        await _slamService.UpdateMapDataAsync(robotId, request.Status, request.MapData);
+        await _slamService.UpdateSlamDataAsync(robotId, request.Status, request.MapData);
         await _onlineRobotsService.UpdateRobotDataAsync(robotId, request.Exchange);
       }
     }

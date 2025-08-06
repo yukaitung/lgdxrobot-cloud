@@ -58,7 +58,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
     }
   }
 
-  private async void OnMapDataUpdated(object? sender, SlamMapDataUpdatEventArgs updatEventArgs)
+  private async void OnSlamDataUpdated(object? sender, SlamDataUpdatEventArgs updatEventArgs)
   {
     if (updatEventArgs.RealmId != Id)
     {
@@ -105,7 +105,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
   {
     if (firstRender)
     {
-      RealTimeService.SlamMapDataUpdated += OnMapDataUpdated;
+      RealTimeService.SlamDataUpdated += OnSlamDataUpdated;
       RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
@@ -119,7 +119,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
 
   public void Dispose()
   {
-    RealTimeService.SlamMapDataUpdated -= OnMapDataUpdated;
+    RealTimeService.SlamDataUpdated -= OnSlamDataUpdated;
     RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
     GC.SuppressFinalize(this);
     ObjectReference?.Dispose();

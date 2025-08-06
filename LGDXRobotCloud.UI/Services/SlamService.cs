@@ -4,8 +4,8 @@ namespace LGDXRobotCloud.UI.Services;
 
 public interface ISlamService
 {
-  SlamMapDataContract? GetSlamData(int realmId);
-  void UpdateSlamData(SlamMapDataContract slamMapData);
+  SlamDataContract? GetSlamData(int realmId);
+  void UpdateSlamData(SlamDataContract slamData);
 }
 
 public sealed class SlamService(
@@ -14,9 +14,9 @@ public sealed class SlamService(
 {
   private readonly IRealTimeService _realTimeService = realTimeService ?? throw new ArgumentNullException(nameof(realTimeService));
   
-  private readonly Dictionary<int, SlamMapDataContract> slamData = []; // RealmId, SlamMapData
+  private readonly Dictionary<int, SlamDataContract> slamData = []; // RealmId, SlamMapData
 
-  public SlamMapDataContract? GetSlamData(int realmId)
+  public SlamDataContract? GetSlamData(int realmId)
   {
     if (slamData.TryGetValue(realmId, out var sd))
     {
@@ -25,18 +25,18 @@ public sealed class SlamService(
     return null;
   }
 
-  public void UpdateSlamData(SlamMapDataContract slamMapData)
+  public void UpdateSlamData(SlamDataContract sd)
   {
-    if (!slamData.ContainsKey(slamMapData.RealmId) || slamMapData.MapData != null)
+    if (!slamData.ContainsKey(sd.RealmId) || sd.MapData != null)
     {
-      slamData[slamMapData.RealmId] = slamMapData;
+      slamData[sd.RealmId] = sd;
     }
     else
     {
-      slamData[slamMapData.RealmId].RealmId = slamMapData.RealmId;
-      slamData[slamMapData.RealmId].RobotId = slamMapData.RobotId;
-      slamData[slamMapData.RealmId].RealtimeNavResult = slamMapData.RealtimeNavResult;
+      slamData[sd.RealmId].RealmId = sd.RealmId;
+      slamData[sd.RealmId].RobotId = sd.RobotId;
+      slamData[sd.RealmId].RealtimeNavResult = sd.RealtimeNavResult;
     }
-    _realTimeService.SlamMapDataHasUpdated(new SlamMapDataUpdatEventArgs { RealmId = slamMapData.RealmId });
+    _realTimeService.SlamDataHasUpdated(new SlamDataUpdatEventArgs { RealmId = sd.RealmId });
   }
 }
