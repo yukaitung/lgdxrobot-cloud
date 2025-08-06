@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LGDXRobotCloud.Utilities.Constants;
+using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.DTOs.V1.Requests;
+using LGDXRobotCloud.Protos;
 
 namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 
@@ -18,10 +21,12 @@ namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public class RealmsController(
-  IRealmService realmService
+  IRealmService realmService,
+  ISlamService slamService
 ) : ControllerBase
 {
-  private readonly IRealmService _realmService = realmService ?? throw new ArgumentNullException(nameof(realmService));
+  private readonly IRealmService _realmService = realmService;
+  private readonly ISlamService _slamService = slamService;
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<RealmListDto>), StatusCodes.Status200OK)]
@@ -100,5 +105,92 @@ public class RealmsController(
       return NotFound();
     }
     return NoContent();
+  }
+
+  /*
+   * Slam
+   */
+
+  [HttpPost("{id}/Slam/Goal")]
+  public ActionResult SetGoal(int id, RobotDofDto goal)
+  {
+    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      SetGoal = new RobotClientsDof
+      {
+        X = goal.X,
+        Y = goal.Y,
+        Rotation = goal.Rotation
+      }
+    }))
+    {
+      return NoContent();
+    }
+    return BadRequest();
+  }
+
+  [HttpPost("{id}/Slam/Goal/Abort")]
+  public ActionResult AbortGoal(int id)
+  {
+    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      AbortGoal = true
+    }))
+    {
+      return NoContent();
+    }
+    return BadRequest();
+  }
+
+  [HttpPost("{id}/Slam/Refresh")]
+  public ActionResult RefreshMap(int id)
+  {
+    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      RefreshMap = true
+    }))
+    {
+      return NoContent();
+    }
+    return BadRequest();
+  }
+
+  [HttpPost("{id}/Slam/Save")]
+  public ActionResult SaveMap(int id)
+  {
+    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      SaveMap = true
+    }))
+    {
+      return NoContent();
+    }
+    return BadRequest();
+  }
+
+  [HttpPost("{id}/Slam/Abort")]
+  public ActionResult AbortSlam(int id)
+  {
+    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      StopSlam = true
+    }))
+    {
+      return NoContent();
+    }
+    return BadRequest();
+  }
+
+  [HttpPost("{id}/Slam/Complete")]
+  public ActionResult CompleteSlam(int id)
+  {
+    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      StopSlam = true
+    }))
+    {
+      return NoContent();
+    }
+    return BadRequest();
   }
 }

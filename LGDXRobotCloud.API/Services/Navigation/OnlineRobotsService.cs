@@ -11,12 +11,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobotCloud.API.Services.Navigation;
 
-public class RobotCommandsEventArgs : EventArgs
-{
-  public Guid RobotId { get; set; }
-  public required RobotClientsRobotCommands Commands { get; set; }
-}
-
 public interface IOnlineRobotsService
 {
   Task AddRobotAsync(Guid robotId);

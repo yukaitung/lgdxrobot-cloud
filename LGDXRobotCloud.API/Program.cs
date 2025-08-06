@@ -222,11 +222,12 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Navigation
+builder.Services.AddScoped<IMapEditorService, MapEditorService>();
 builder.Services.AddScoped<IRealmService, RealmService>();
+builder.Services.AddScoped<IRobotService, RobotService>();
 builder.Services.AddScoped<ISlamService, SlamService>();
 builder.Services.AddScoped<IWaypointService, WaypointService>();
-builder.Services.AddScoped<IRobotService, RobotService>();
-builder.Services.AddScoped<IMapEditorService, MapEditorService>();
+builder.Services.AddSingleton<IRobotDataService, RobotDataService>();
 
 // Custom Services
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();

@@ -10,6 +10,9 @@ public interface IEventService
 
   event EventHandler<Guid> RobotHasNextTask;
   void RobotHasNextTaskTriggered(Guid robotId);
+
+  event EventHandler<Guid> SlamCommandsUpdated;
+  void SlamCommandsHasUpdated(Guid robotId);
 }
 
 public class EventService : IEventService
@@ -30,5 +33,11 @@ public class EventService : IEventService
   public void RobotHasNextTaskTriggered(Guid robotId)
   {
     RobotHasNextTask?.Invoke(this, robotId);
+  }
+
+  public event EventHandler<Guid>? SlamCommandsUpdated;
+  public void SlamCommandsHasUpdated(Guid robotId)
+  {
+    SlamCommandsUpdated?.Invoke(this, robotId);
   }
 }

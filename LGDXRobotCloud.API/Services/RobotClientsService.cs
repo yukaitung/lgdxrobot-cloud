@@ -38,7 +38,7 @@ public class RobotClientsService(
   private Guid _streamingRobotId = Guid.Empty;
   private RobotClientsRobotStatus _streamingRobotStatus = RobotClientsRobotStatus.Offline;
   private readonly Channel<RobotClientsRespond> _streamMessageQueue = Channel.CreateUnbounded<RobotClientsRespond>();
-  private readonly Channel<RobotClientsSlamRespond> _slamStreamMessageQueue = Channel.CreateUnbounded<RobotClientsSlamRespond>();
+  private readonly Channel<RobotClientsSlamCommands> _slamStreamMessageQueue = Channel.CreateUnbounded<RobotClientsSlamCommands>();
 
   private static Guid GetRobotId(ServerCallContext context)
   {
@@ -314,38 +314,60 @@ public class RobotClientsService(
   }
 
   [RobotClientShouldOnline]
-  public override async Task SlamExchange(IAsyncStreamReader<RobotClientsSlamExchange> requestStream, IServerStreamWriter<RobotClientsSlamRespond> responseStream, ServerCallContext context)
+  public override async Task SlamExchange(IAsyncStreamReader<RobotClientsSlamExchange> requestStream, IServerStreamWriter<RobotClientsSlamCommands> responseStream, ServerCallContext context)
   {
     var robotId = GetRobotId(context);
-
     _streamingRobotId = robotId;
+    _eventService.SlamCommandsUpdated += OnSlamCommandsUpdated;
 
     var clientToServer = SlamExchangeClientToServerAsync(robotId, requestStream, context);
     var serverToClient = SlamExchangeServerToClientAsync(responseStream, context);
     await Task.WhenAll(clientToServer, serverToClient);
   }
+  
+  /*
+   * SlamExchange
+   */
 
   private async Task SlamExchangeClientToServerAsync(Guid robotId, IAsyncStreamReader<RobotClientsSlamExchange> requestStream, ServerCallContext context)
   {
-    while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
+    if (await _slamService.StartSlamAsync(robotId))
     {
-      var request = requestStream.Current;
-      await _slamService.UpdateMapDataAsync(robotId, request.Status, request.MapData);
-      await _onlineRobotsService.UpdateRobotDataAsync(robotId, request.Exchange);
+      // Only one robot can running SLAM at a time in a realm
+      // The second robot will be ternimated
+      while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
+      {
+        var request = requestStream.Current;
+        await _slamService.UpdateMapDataAsync(robotId, request.Status, request.MapData);
+        await _onlineRobotsService.UpdateRobotDataAsync(robotId, request.Exchange);
+      }
     }
 
     // The reading stream is completed, stop wirting task
     await _onlineRobotsService.RemoveRobotAsync(robotId);
+    await _slamService.StopSlamAsync(robotId);
+    _eventService.SlamCommandsUpdated -= OnSlamCommandsUpdated;
+
     _slamStreamMessageQueue.Writer.TryComplete();
     await _slamStreamMessageQueue.Reader.Completion;
   }
 
-  private async Task SlamExchangeServerToClientAsync(IServerStreamWriter<RobotClientsSlamRespond> responseStream, ServerCallContext context)
+  private async Task SlamExchangeServerToClientAsync(IServerStreamWriter<RobotClientsSlamCommands> responseStream, ServerCallContext context)
   {
-    await responseStream.WriteAsync(new RobotClientsSlamRespond {});
+    await responseStream.WriteAsync(new RobotClientsSlamCommands { });
     await foreach (var message in _slamStreamMessageQueue.Reader.ReadAllAsync(context.CancellationToken))
     {
       await responseStream.WriteAsync(message);
+    }
+  }
+
+  private async void OnSlamCommandsUpdated(object? sender, Guid robotId)
+  {
+    if (_streamingRobotId != robotId)
+      return;
+    foreach (var command in _slamService.GetSlamCommands(_streamingRobotId))
+    {
+      await _slamStreamMessageQueue.Writer.WriteAsync(command);
     }
   }
 }

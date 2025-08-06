@@ -1,5 +1,5 @@
+using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.Data.Contracts;
-using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
 using MassTransit;
@@ -8,16 +8,28 @@ namespace LGDXRobotCloud.API.Services.Navigation;
 
 public interface ISlamService
 {
+  Task<bool> StartSlamAsync(Guid robotId);
+  Task StopSlamAsync(Guid robotId);
+
+  // Client to Server
   Task UpdateMapDataAsync(Guid robotId, RobotClientsRealtimeNavResults status, RobotClientsMapData? mapData);
+
+  // Server to Client
+  IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId);
+  bool SetSlamCommands(int realmId, RobotClientsSlamCommands commands);
 }
 
 public class SlamService(
   IBus bus,
+  IEventService eventService,
+  IRobotDataService robotDataService,
   IRobotService robotService
 ) : ISlamService
 {
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
-  private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
+  private readonly IBus _bus = bus;
+  private readonly IEventService _eventService = eventService;
+  private readonly IRobotDataService _robotDataService = robotDataService;
+  private readonly IRobotService _robotService = robotService;
 
   static RealtimeNavResult ConvertRealtimeNavResult(RobotClientsRealtimeNavResults realtimeNavResult)
   {
@@ -29,6 +41,18 @@ public class SlamService(
       RobotClientsRealtimeNavResults.SlamAborted => RealtimeNavResult.Aborted,
       _ => RealtimeNavResult.Idle,
     };
+  }
+
+  public async Task<bool> StartSlamAsync(Guid robotId)
+  {
+    var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+    return _robotDataService.StartSlam(realmId, robotId);
+  }
+
+  public async Task StopSlamAsync(Guid robotId)
+  {
+    var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+    _robotDataService.StopSlam(realmId);
   }
 
   public async Task UpdateMapDataAsync(Guid robotId, RobotClientsRealtimeNavResults status, RobotClientsMapData? mapData)
@@ -60,5 +84,22 @@ public class SlamService(
       MapData = map
     };
     await _bus.Publish(data);
+  }
+
+  public IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId)
+  {
+    return _robotDataService.GetSlamCommands(robotId);
+  }
+
+  public bool SetSlamCommands(int realmId, RobotClientsSlamCommands commands)
+  {
+    var robotId = _robotDataService.GetRunningSlamRobotId(realmId);
+    if (robotId == null)
+    {
+      return false;
+    }
+    _robotDataService.SetSlamCommands(realmId, commands);
+    _eventService.SlamCommandsHasUpdated(robotId.Value);
+    return true;
   }
 }
