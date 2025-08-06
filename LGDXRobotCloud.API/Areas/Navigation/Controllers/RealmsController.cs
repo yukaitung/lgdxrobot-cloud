@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LGDXRobotCloud.Utilities.Constants;
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Requests;
 using LGDXRobotCloud.Protos;
+using LGDXRobotCloud.API.Exceptions;
 
 namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 
@@ -111,7 +111,9 @@ public class RealmsController(
    * Slam
    */
 
-  [HttpPost("{id}/Slam/Goal")]
+  [HttpPost("{id}/Slam/SetGoal")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public ActionResult SetGoal(int id, RobotDofDto goal)
   {
     if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
@@ -126,10 +128,12 @@ public class RealmsController(
     {
       return NoContent();
     }
-    return BadRequest();
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
   }
 
-  [HttpPost("{id}/Slam/Goal/Abort")]
+  [HttpPost("{id}/Slam/AbortGoal")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public ActionResult AbortGoal(int id)
   {
     if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
@@ -139,10 +143,12 @@ public class RealmsController(
     {
       return NoContent();
     }
-    return BadRequest();
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
   }
 
-  [HttpPost("{id}/Slam/Refresh")]
+  [HttpPost("{id}/Slam/RefreshMap")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public ActionResult RefreshMap(int id)
   {
     if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
@@ -152,10 +158,12 @@ public class RealmsController(
     {
       return NoContent();
     }
-    return BadRequest();
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
   }
 
-  [HttpPost("{id}/Slam/Save")]
+  [HttpPost("{id}/Slam/SaveMap")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public ActionResult SaveMap(int id)
   {
     if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
@@ -165,10 +173,12 @@ public class RealmsController(
     {
       return NoContent();
     }
-    return BadRequest();
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
   }
 
   [HttpPost("{id}/Slam/Abort")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public ActionResult AbortSlam(int id)
   {
     if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
@@ -178,19 +188,22 @@ public class RealmsController(
     {
       return NoContent();
     }
-    return BadRequest();
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
   }
 
   [HttpPost("{id}/Slam/Complete")]
-  public ActionResult CompleteSlam(int id)
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<ActionResult> CompleteSlamAsync(int id, RealmMapUpdateDto realmMapUpdateDto)
   {
     if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
     {
       StopSlam = true
     }))
     {
+      await _realmService.UpdateRealmMapAsync(id, realmMapUpdateDto.ToBusinessModel());
       return NoContent();
     }
-    return BadRequest();
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
   }
 }

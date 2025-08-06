@@ -17,6 +17,7 @@ public interface IRealmService
   Task<RealmBusinessModel> GetDefaultRealmAsync();
   Task<RealmBusinessModel> CreateRealmAsync(RealmCreateBusinessModel createModel);
   Task<bool> UpdateRealmAsync(int id, RealmUpdateBusinessModel updateModel);
+  Task<bool> UpdateRealmMapAsync(int id, RealmMapUpdateBusinessModel updateModel);
   Task<bool> TestDeleteRealmAsync(int id);
   Task<bool> DeleteRealmAsync(int id);
 
@@ -138,6 +139,30 @@ public class RealmService(
         .SetProperty(m => m.Name, updateModel.Name)
         .SetProperty(m => m.Description, updateModel.Description)
         .SetProperty(m => m.HasWaypointsTrafficControl, updateModel.HasWaypointsTrafficControl)
+        .SetProperty(m => m.Image, Convert.FromBase64String(updateModel.Image))
+        .SetProperty(m => m.Resolution, updateModel.Resolution)
+        .SetProperty(m => m.OriginX, updateModel.OriginX)
+        .SetProperty(m => m.OriginY, updateModel.OriginY)
+        .SetProperty(m => m.OriginRotation, updateModel.OriginRotation)
+      ) == 1;
+
+    if (result)
+    {
+      await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
+      {
+        EntityName = nameof(Realm),
+        EntityId = id.ToString(),
+        Action = ActivityAction.Update,
+      });
+    }
+    return result;
+  }
+
+  public async Task<bool> UpdateRealmMapAsync(int id, RealmMapUpdateBusinessModel updateModel)
+  {
+    bool result = await _context.Realms
+      .Where(m => m.Id == id)
+      .ExecuteUpdateAsync(setters => setters
         .SetProperty(m => m.Image, Convert.FromBase64String(updateModel.Image))
         .SetProperty(m => m.Resolution, updateModel.Resolution)
         .SetProperty(m => m.OriginX, updateModel.OriginX)
