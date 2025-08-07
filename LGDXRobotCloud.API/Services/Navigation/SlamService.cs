@@ -12,7 +12,7 @@ public interface ISlamService
   Task StopSlamAsync(Guid robotId);
 
   // Client to Server
-  Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData mapData);
+  Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData? mapData);
 
   // Server to Client
   IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId);
@@ -55,12 +55,12 @@ public class SlamService(
     _robotDataService.StopSlam(realmId);
   }
 
-  public async Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData mapData)
+  public async Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData? mapData)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var slamStatus = ConvertSlamStatus(status);
     MapData? map = null;
-    if (mapData.Data.Count > 0)
+    if (mapData != null && mapData.Data.Count > 0)
     {
       map = new MapData
       {
