@@ -557,6 +557,7 @@ function UpdateSlamMap(width, height, mapData)
   MapBackgroundObj.src = canvas.toDataURL("image/png");
   MapBackground.width(width);
   MapBackground.height(height);
+  _internalOnResize();
   _internalRulerUpdate();
 }
 

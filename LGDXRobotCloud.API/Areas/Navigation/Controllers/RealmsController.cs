@@ -200,32 +200,26 @@ public class RealmsController(
 
   [HttpPost("{id}/Slam/Abort")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
-  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public ActionResult AbortSlam(int id)
   {
-    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    _slamService.SetSlamCommands(id, new RobotClientsSlamCommands
     {
       AbortSlam = true
-    }))
-    {
-      return NoContent();
-    }
-    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
+    });
+    return NoContent();
+    // Don't throw exception to allow the UI continue
   }
 
   [HttpPost("{id}/Slam/Complete")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
-  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public async Task<ActionResult> CompleteSlamAsync(int id, RealmMapUpdateDto realmMapUpdateDto)
   {
-    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    await _realmService.UpdateRealmMapAsync(id, realmMapUpdateDto.ToBusinessModel());
+    _slamService.SetSlamCommands(id, new RobotClientsSlamCommands
     {
       CompleteSlam = true
-    }))
-    {
-      await _realmService.UpdateRealmMapAsync(id, realmMapUpdateDto.ToBusinessModel());
-      return NoContent();
-    }
-    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
+    });
+    return NoContent();
+    // Don't throw exception to allow the UI continue
   }
 }
