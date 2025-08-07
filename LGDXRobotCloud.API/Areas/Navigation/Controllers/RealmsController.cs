@@ -176,6 +176,28 @@ public class RealmsController(
     throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
   }
 
+  [HttpPost("{id}/Slam/EmergencyStop")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public ActionResult EmergencyStop(int id, EnableDto enableDto)
+  {
+    var command = new RobotClientsSlamCommands();
+    if (enableDto.Enable)
+    {
+      command.SoftwareEmergencyStopEnable = true;
+    }
+    else
+    {
+      command.SoftwareEmergencyStopDisable = true;
+    }
+
+    if (_slamService.SetSlamCommands(id, command))
+    {
+      return NoContent();
+    }
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
+  }
+
   [HttpPost("{id}/Slam/Abort")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]

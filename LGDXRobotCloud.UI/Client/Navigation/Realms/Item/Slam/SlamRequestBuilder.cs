@@ -3,6 +3,7 @@
 using LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.Abort;
 using LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.AbortGoal;
 using LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.Complete;
+using LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.EmergencyStop;
 using LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.RefreshMap;
 using LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.SaveMap;
 using LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.SetGoal;
@@ -34,6 +35,11 @@ namespace LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam
         public global::LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.Complete.CompleteRequestBuilder Complete
         {
             get => new global::LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.Complete.CompleteRequestBuilder(PathParameters, RequestAdapter);
+        }
+        /// <summary>The EmergencyStop property</summary>
+        public global::LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.EmergencyStop.EmergencyStopRequestBuilder EmergencyStop
+        {
+            get => new global::LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.EmergencyStop.EmergencyStopRequestBuilder(PathParameters, RequestAdapter);
         }
         /// <summary>The RefreshMap property</summary>
         public global::LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.RefreshMap.RefreshMapRequestBuilder RefreshMap
