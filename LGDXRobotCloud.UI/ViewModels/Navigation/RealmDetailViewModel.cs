@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace LGDXRobotCloud.UI.ViewModels.Navigation;
 
-public sealed class RealmDetailViewModel : FormViewModel, IValidatableObject
+public sealed class RealmDetailViewModel : FormViewModel
 {
   public int? Id { get; set; } = null;
 
@@ -19,29 +19,17 @@ public sealed class RealmDetailViewModel : FormViewModel, IValidatableObject
   [Required(ErrorMessage = "Please select a traffic control type.")]
   public bool HasWaypointsTrafficControl { get; set; }
 
-  public string Image { get; set; } = null!;
+  public string? Image { get; set; }
 
   public IBrowserFile SelectedImage { get; set; } = null!;
 
-  [Required (ErrorMessage = "Please enter a resolution.")]
   public double? Resolution { get; set; } = null!;
 
-  [Required (ErrorMessage = "Please enter an origin X coordinate.")]
   public double? OriginX { get; set; } = null!;
 
-  [Required (ErrorMessage = "Please enter an origin Y coordinate.")]
   public double? OriginY { get; set; } = null!;
 
-  [Required (ErrorMessage = "Please enter an origin rotation.")]
   public double? OriginRotation { get; set; } = null!;
-
-  public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-  {
-    if (Id == null && SelectedImage == null)
-    {
-      yield return new ValidationResult("Please select an image.", [nameof(SelectedImage)]);
-    }
-  }
 }
 
 public static class RealmDetailViewModelExtensions
@@ -65,11 +53,11 @@ public static class RealmDetailViewModelExtensions
       Name = realmDetailViewModel.Name,
       Description = realmDetailViewModel.Description,
       HasWaypointsTrafficControl = realmDetailViewModel.HasWaypointsTrafficControl,
-      Image = realmDetailViewModel.Image,
-      Resolution = realmDetailViewModel.Resolution,
-      OriginX = realmDetailViewModel.OriginX,
-      OriginY = realmDetailViewModel.OriginY,
-      OriginRotation = realmDetailViewModel.OriginRotation
+      Image = realmDetailViewModel.Image ?? string.Empty,
+      Resolution = realmDetailViewModel.Resolution ?? 0,
+      OriginX = realmDetailViewModel.OriginX ?? 0,
+      OriginY = realmDetailViewModel.OriginY ?? 0,
+      OriginRotation = realmDetailViewModel.OriginRotation ?? 0
     };
   }
 
@@ -79,11 +67,11 @@ public static class RealmDetailViewModelExtensions
       Name = realmDetailViewModel.Name,
       Description = realmDetailViewModel.Description,
       HasWaypointsTrafficControl = realmDetailViewModel.HasWaypointsTrafficControl,
-      Image = realmDetailViewModel.Image,
-      Resolution = realmDetailViewModel.Resolution,
-      OriginX = realmDetailViewModel.OriginX,
-      OriginY = realmDetailViewModel.OriginY,
-      OriginRotation = realmDetailViewModel.OriginRotation
+      Image = realmDetailViewModel.Image ?? string.Empty,
+      Resolution = realmDetailViewModel.Resolution ?? 0,
+      OriginX = realmDetailViewModel.OriginX ?? 0,
+      OriginY = realmDetailViewModel.OriginY ?? 0,
+      OriginRotation = realmDetailViewModel.OriginRotation ?? 0
     };
   }
 }

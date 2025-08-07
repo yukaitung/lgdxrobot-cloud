@@ -3,6 +3,7 @@
 @attribute [Authorize(Policy = Permissions.Navigation.Realms.Read)]
 @using LGDXRobotCloud.Data.Entities
 @using LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components;
+@using LGDXRobotCloud.Utilities.Constants
 
 <PageHeader Title="@(Id != null ? "Edit Realm" : "Create Realm")">
   <div class="row align-items-center">
@@ -73,7 +74,7 @@
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.SelectedImage)">Image</label>
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.SelectedImage)">Image</label>
               <div class="col">
                 @if (RealmDetailViewModel.Image != null)
                 {
@@ -82,12 +83,12 @@
                 <InputFile id="@nameof(RealmDetailViewModel.SelectedImage)" class="form-control" OnChange="LoadImage"
                   accept=".png" />
                 <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.SelectedImage)" />
-                <span class="form-check-description">The maximum file size is 8 MB, and only .png images are
-                  accepted.</span>
+                <span class="form-check-description">The maximum file size is @((int)(LgdxApiConstants.ImageMaxSize / 1048576)) MB, and only .png images are
+                  accepted.@if (Id == null){<text>Also, the image can be created in SLAM mode after creating the realm.</text>}</span>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.Resolution)">Resolution
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.Resolution)">Resolution
                 (m)</label>
               <div class="col">
                 <InputNumber id="@nameof(RealmDetailViewModel.Resolution)" type="number" step="any" class="form-control"
@@ -96,7 +97,7 @@
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.OriginX)">Origin X (m)</label>
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.OriginX)">Origin X (m)</label>
               <div class="col">
                 <InputNumber id="@nameof(RealmDetailViewModel.OriginX)" type="number" step="any" class="form-control"
                   @bind-Value="RealmDetailViewModel.OriginX" />
@@ -104,7 +105,7 @@
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.OriginY)">Origin Y (m)</label>
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.OriginY)">Origin Y (m)</label>
               <div class="col">
                 <InputNumber id="@nameof(RealmDetailViewModel.OriginY)" type="number" step="any" class="form-control"
                   @bind-Value="RealmDetailViewModel.OriginY" />
@@ -112,7 +113,7 @@
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.OriginRotation)">Origin
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.OriginRotation)">Origin
                 Rotation (rad)</label>
               <div class="col">
                 <InputNumber id="@nameof(RealmDetailViewModel.OriginRotation)" type="number" step="any" class="form-control"

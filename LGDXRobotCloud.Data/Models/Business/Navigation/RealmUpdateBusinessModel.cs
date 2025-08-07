@@ -8,13 +8,13 @@ public record RealmUpdateBusinessModel
 
   public required bool HasWaypointsTrafficControl { get; set; }
 
-  public required string Image { get; set; }
+  public string? Image { get; set; }
 
-  public required double Resolution { get; set; }
+  public double Resolution { get; set; }
 
-  public required double OriginX { get; set; }
+  public double OriginX { get; set; }
 
-  public required double OriginY { get; set; }
+  public double OriginY { get; set; }
 
-  public required double OriginRotation { get; set; }
+  public double OriginRotation { get; set; }
 }

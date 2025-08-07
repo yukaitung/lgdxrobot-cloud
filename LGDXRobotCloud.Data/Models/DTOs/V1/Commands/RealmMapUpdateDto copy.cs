@@ -1,10 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
+using LGDXRobotCloud.Utilities.Constants;
 
 namespace LGDXRobotCloud.Data.Models.DTOs.V1.Commands;
 
 public record RealmMapUpdateDto
 {
+  // All fields are required in SLAM mode
+  
+  [MaxLength(LgdxApiConstants.ImageMaxSize, ErrorMessage = "The image size is too large.")]
   [Required(ErrorMessage = "Please upload an image.")]
   public required string Image { get; set; }
 

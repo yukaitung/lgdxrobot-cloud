@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using LGDXRobotCloud.Utilities.Constants;
 
 namespace LGDXRobotCloud.Data.Entities;
 
@@ -20,18 +21,14 @@ public class Realm
   [Required]
   public bool HasWaypointsTrafficControl { get; set; }
 
-  [Required]
-  public byte[] Image { get; set; } = null!;
+  [MaxLength(LgdxApiConstants.ImageMaxSize)]
+  public byte[] Image { get; set; } = [];
 
-  [Required]
-  public double Resolution { get; set; }
+  public double Resolution { get; set; } = 0;
 
-  [Required]
-  public double OriginX { get; set; }
+  public double OriginX { get; set; } = 0;
 
-  [Required]
-  public double OriginY { get; set; }
+  public double OriginY { get; set; } = 0;
 
-  [Required]
-  public double OriginRotation { get; set; }
+  public double OriginRotation { get; set; } = 0;
 }

@@ -100,7 +100,7 @@ public class RealmService(
       Name = createModel.Name,
       Description = createModel.Description,
       HasWaypointsTrafficControl = createModel.HasWaypointsTrafficControl,
-      Image = Convert.FromBase64String(createModel.Image),
+      Image = Convert.FromBase64String(createModel.Image ?? string.Empty),
       Resolution = createModel.Resolution,
       OriginX = createModel.OriginX,
       OriginY = createModel.OriginY,
@@ -123,7 +123,7 @@ public class RealmService(
       Name = realm.Name,
       Description = realm.Description,
       HasWaypointsTrafficControl = realm.HasWaypointsTrafficControl,
-      Image = createModel.Image,
+      Image = createModel.Image ?? string.Empty,
       Resolution = realm.Resolution,
       OriginX = realm.OriginX,
       OriginY = realm.OriginY,
@@ -139,7 +139,7 @@ public class RealmService(
         .SetProperty(m => m.Name, updateModel.Name)
         .SetProperty(m => m.Description, updateModel.Description)
         .SetProperty(m => m.HasWaypointsTrafficControl, updateModel.HasWaypointsTrafficControl)
-        .SetProperty(m => m.Image, Convert.FromBase64String(updateModel.Image))
+        .SetProperty(m => m.Image, Convert.FromBase64String(updateModel.Image ?? string.Empty))
         .SetProperty(m => m.Resolution, updateModel.Resolution)
         .SetProperty(m => m.OriginX, updateModel.OriginX)
         .SetProperty(m => m.OriginY, updateModel.OriginY)

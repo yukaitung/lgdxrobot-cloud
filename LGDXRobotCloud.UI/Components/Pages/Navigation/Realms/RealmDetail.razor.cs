@@ -4,6 +4,7 @@ using LGDXRobotCloud.UI.Helpers;
 using LGDXRobotCloud.UI.Services;
 using LGDXRobotCloud.UI.ViewModels.Navigation;
 using LGDXRobotCloud.UI.ViewModels.Shared;
+using LGDXRobotCloud.Utilities.Constants;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
@@ -53,7 +54,7 @@ public sealed partial class RealmDetail : ComponentBase
       {
         string path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.png");
         await using FileStream fs = new(path, FileMode.Create);
-        await file.OpenReadStream(8_388_608).CopyToAsync(fs);
+        await file.OpenReadStream(LgdxApiConstants.ImageMaxSize).CopyToAsync(fs);
         fs.Close();
         var bytes = File.ReadAllBytes(path);
         RealmDetailViewModel.Image = Convert.ToBase64String(bytes);
