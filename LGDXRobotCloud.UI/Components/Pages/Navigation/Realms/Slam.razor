@@ -15,10 +15,10 @@
       @if (SelectedRobot != null)
       {
         <div class="btn-list">
-          <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#">
+          <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#abortSlamModal">
             Abort SLAM
           </a>
-          <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#">
+          <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateRealmModal">
             Update Realm
           </a>
         </div>
@@ -188,5 +188,13 @@ footer.footer.footer-transparent {
 }
 </style>
 
-<SoftwareEmergencyStopModel RealmId="Id == null ? 0 : Id.Value" 
-  SoftwareEmergencyStop="SelectedRobot == null ? false : SelectedRobot.CriticalStatus.SoftwareEmergencyStop" />
+@if (SelectedRobot != null && SelectedRobot.RobotStatus != RobotStatus.Offline)
+{
+  <SoftwareEmergencyStopModel RealmId="Id == null ? 0 : Id.Value" 
+    SoftwareEmergencyStop="SelectedRobot == null ? false : SelectedRobot.CriticalStatus.SoftwareEmergencyStop" />
+}
+@if (SelectedRobot != null)
+{
+  <AbortSlamModel Abort="AbortSlam" />
+  <UpdateRealmModel Update="UpdateRealm" />
+}

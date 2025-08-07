@@ -4,8 +4,10 @@ namespace LGDXRobotCloud.UI.Services;
 
 public interface ISlamService
 {
+  void StartSlam(int realmId);
   SlamDataContract? GetSlamData(int realmId);
   void UpdateSlamData(SlamDataContract slamData);
+  void StopSlam(int realmId);
 }
 
 public sealed class SlamService(
@@ -13,8 +15,22 @@ public sealed class SlamService(
   ) : ISlamService
 {
   private readonly IRealTimeService _realTimeService = realTimeService ?? throw new ArgumentNullException(nameof(realTimeService));
-  
+
   private readonly Dictionary<int, SlamDataContract> slamData = []; // RealmId, SlamMapData
+
+  public void StartSlam(int realmId)
+  {
+    if (!slamData.ContainsKey(realmId))
+    {
+      slamData[realmId] = new SlamDataContract();
+    }
+  }
+
+  public void StopSlam(int realmId)
+  {
+    slamData.Remove(realmId);
+    // Redirect the user to the Realm page
+  }
 
   public SlamDataContract? GetSlamData(int realmId)
   {
@@ -27,7 +43,13 @@ public sealed class SlamService(
 
   public void UpdateSlamData(SlamDataContract sd)
   {
-    if (!slamData.ContainsKey(sd.RealmId) || sd.MapData != null)
+    if (!slamData.ContainsKey(sd.RealmId))
+    {
+      // Ignore the update
+      return;
+    }
+    
+    if (sd.MapData != null)
     {
       slamData[sd.RealmId] = sd;
     }

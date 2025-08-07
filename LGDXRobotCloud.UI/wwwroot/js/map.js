@@ -653,3 +653,10 @@ function SlamMapSetGoalStop()
   MapStage.off('touchend', _internalSlamMapSetGoalEndHandler);
   MapStage.draggable(true);
 }
+
+function SlamUpdateMap()
+{
+  let img = MapBackgroundObj.src;
+  img = img.replace("data:image/png;base64,", "");
+  MapDotNetObject.invokeMethodAsync('UpdateRealmStage2', img);
+} 

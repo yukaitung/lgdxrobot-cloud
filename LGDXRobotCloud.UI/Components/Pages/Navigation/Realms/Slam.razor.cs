@@ -1,6 +1,7 @@
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
+using LGDXRobotCloud.UI.Constants;
 using LGDXRobotCloud.UI.Services;
 using LGDXRobotCloud.Utilities.Enums;
 using Microsoft.AspNetCore.Components;
@@ -30,6 +31,12 @@ public sealed partial class Slam : ComponentBase, IDisposable
 
   [Inject]
   public required ISlamService SlamService { get; set; }
+
+  [Inject]
+  public required NavigationManager NavigationManager { get; set; }
+
+  [Inject]
+  public required ICachedRealmService CachedRealmService { get; set; }
 
   [Parameter]
   public int? Id { get; set; }
@@ -81,6 +88,41 @@ public sealed partial class Slam : ComponentBase, IDisposable
   {
     await LgdxApiClient.Navigation.Realms[Id!.Value].Slam.SaveMap.PostAsync();
   }
+
+  public async Task AbortSlam()
+  {
+    await LgdxApiClient.Navigation.Realms[Id!.Value].Slam.Abort.PostAsync();
+    SlamService.StopSlam(Id!.Value);
+    NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index + $"/{Id}");
+  }
+
+  public async Task UpdateRealm()
+  {
+    await JSRuntime.InvokeVoidAsync("SlamUpdateMap");
+  }
+
+  [JSInvokable("UpdateRealmStage2")]
+  public async Task UpdateRealmStage2(string mapData)
+  {
+    var slamData = SlamService.GetSlamData(Id!.Value);
+    if (slamData == null)
+    {
+      return;
+    }
+
+    await LgdxApiClient.Navigation.Realms[Id!.Value].Slam.Complete.PostAsync(new()
+    {
+      Resolution = slamData.MapData!.Resolution,
+      OriginX = slamData.MapData.Origin.X,
+      OriginY = slamData.MapData.Origin.Y,
+      OriginRotation = slamData.MapData.Origin.Rotation,
+      Image = mapData
+    });
+    SlamService.StopSlam(Id!.Value);
+    CachedRealmService.ClearCache(Id!.Value);
+    NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index + $"/{Id}");
+  }
+
 
   private async Task UpdateSlamMap(int realmId)
   {
@@ -151,6 +193,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
   {
     if (firstRender)
     {
+      SlamService.StartSlam(Id!.Value);
       RealTimeService.SlamDataUpdated += OnSlamDataUpdated;
       RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
       ObjectReference = DotNetObjectReference.Create(this);

@@ -205,7 +205,7 @@ public class RealmsController(
   {
     if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
     {
-      AbortGoal = true
+      AbortSlam = true
     }))
     {
       return NoContent();

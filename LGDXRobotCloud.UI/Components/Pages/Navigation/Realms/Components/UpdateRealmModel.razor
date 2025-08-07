@@ -1,0 +1,35 @@
+<div class="modal fade modal-blur" id="updateRealmModal" tabindex="-1" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-primary"></div>
+      <div class="modal-body py-4 d-flex flex-column">
+        <i class="ti ti-alert-triangle text-primary mb-2 text-center" style="font-size: 48px;"></i>
+        <h3 class="text-center">Update Realm</h3>
+        <div class="text-secondary">Do you want to update the realm with this map? The SLAM will be stopped and saved.</div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col">
+              <a class="btn w-100" data-bs-dismiss="modal">
+                Cancel
+              </a>
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-primary w-100" onclick="@(() => Update.InvokeAsync())"
+                data-bs-dismiss="modal">
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@code {
+  [Parameter]
+  public required EventCallback Update { get; set; }
+}
