@@ -90,12 +90,6 @@ public class RobotClientsServiceTests
     lgdxRobotCloudSecretConfiguration.RobotClientsJwtSecret = "12345678901234567890123456789012";
     mockConfiguration = new Mock<IOptionsSnapshot<LgdxRobotCloudSecretConfiguration>>();
     mockConfiguration.Setup(o => o.Value).Returns(lgdxRobotCloudSecretConfiguration);
-    mockOnlineRobotsService.Setup(m => m.GetRobotCommands(RobotGuid)).Returns(new RobotClientsRobotCommands {
-      AbortTask = true,
-      RenewCertificate = true,
-      SoftwareEmergencyStop = true,
-      PauseTaskAssigement = true,
-    });
   }
 
   private static ServerCallContext GenerateServerCallContext(string functionName, string? robotId)
@@ -317,115 +311,5 @@ public class RobotClientsServiceTests
     mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Never);
     mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Never);
     mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Never);
-  }
-
-  private static readonly RobotClientsExchange robotClientsExchange = new() {
-    RobotStatus = RobotClientsRobotStatus.Idle,
-    CriticalStatus = new RobotClientsRobotCriticalStatus {
-      HardwareEmergencyStop = true,
-      SoftwareEmergencyStop = true,
-    },
-    Position = new RobotClientsDof {
-      X = 1,
-      Y = 2,
-      Rotation = 3,
-    },
-    NavProgress = new RobotClientsAutoTaskNavProgress {
-      Eta = 1,
-      Recoveries = 2,
-      DistanceRemaining = 3,
-      WaypointsRemaining = 4,
-    }
-  };
-
-  [Fact]
-  public async Task AutoTaskNext_Called_ShouldReturnRobotClientsAutoTaskRespond()
-  {
-    // Arrange
-    var nextToken = new RobotClientsNextToken {
-      TaskId = 1,
-      NextToken = "NextToken"
-    };
-    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.AutoTaskNext), RobotGuid.ToString());
-    mockAutoTaskSchedulerService.Setup(m => m.AutoTaskNextAsync(RobotGuid, It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(robotClientsAutoTask);
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
-
-    // Act
-    var actural = await robotClientsService.AutoTaskNext(nextToken, serverCallContext);
-
-    // Assert
-    Assert.NotNull(actural);
-    Assert.Equal(RobotClientsResultStatus.Success, actural.Status);
-    Assert.NotNull(actural.Task);
-    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskNextAsync(RobotGuid, It.IsAny<int>(), It.IsAny<string>()), Times.Once);
-    mockOnlineRobotsService.Verify(m => m.GetRobotCommands(RobotGuid), Times.Once);
-  }
-
-  [Fact]
-  public async Task AutoTaskNext_CalledWithInvalidNextToken_ShouldReturnRobotClientsAutoTaskErrorRespond()
-  {
-    // Arrange
-    var nextToken = new RobotClientsNextToken {
-      TaskId = 1,
-      NextToken = "NextToken"
-    };
-    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.AutoTaskNext), RobotGuid.ToString());
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
-
-    // Act
-    var actural = await robotClientsService.AutoTaskNext(nextToken, serverCallContext);
-
-    // Assert
-    Assert.NotNull(actural);
-    Assert.Equal(RobotClientsResultStatus.Failed, actural.Status);
-    Assert.Null(actural.Task);
-    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskNextAsync(RobotGuid, It.IsAny<int>(), It.IsAny<string>()), Times.Once);
-    mockOnlineRobotsService.Verify(m => m.GetRobotCommands(RobotGuid), Times.Once);
-  }
-
-  [Fact]
-  public async Task AutoTaskAbort_Called_ShouldReturnRobotClientsRespond()
-  {
-    // Arrange
-    var abortToken = new RobotClientsAbortToken {
-      TaskId = 1,
-      NextToken = "NextToken",
-      AbortReason = RobotClientsAbortReason.UserApi
-    };
-    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.AutoTaskAbort), RobotGuid.ToString());
-    mockAutoTaskSchedulerService.Setup(m => m.AutoTaskAbortAsync(RobotGuid, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<AutoTaskAbortReason>())).ReturnsAsync(robotClientsAutoTask);
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
-
-    // Act
-    var actural = await robotClientsService.AutoTaskAbort(abortToken, serverCallContext);
-
-    // Assert
-    Assert.NotNull(actural);
-    Assert.Equal(RobotClientsResultStatus.Success, actural.Status);
-    Assert.NotNull(actural.Task);
-    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskAbortAsync(RobotGuid, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<AutoTaskAbortReason>()), Times.Once);
-    mockOnlineRobotsService.Verify(m => m.GetRobotCommands(RobotGuid), Times.Once);
-  }
-
-  [Fact]
-  public async Task AutoTaskAbort_CalledWithInvalidAbortToken_ShouldReturnRobotClientsAutoTaskErrorRespond()
-  {
-    // Arrange
-    var abortToken = new RobotClientsAbortToken {
-      TaskId = 1,
-      NextToken = "NextToken",
-      AbortReason = RobotClientsAbortReason.UserApi
-    };
-    var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.AutoTaskAbort), RobotGuid.ToString());
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
-
-    // Act
-    var actural = await robotClientsService.AutoTaskAbort(abortToken, serverCallContext);
-
-    // Assert
-    Assert.NotNull(actural);
-    Assert.Equal(RobotClientsResultStatus.Failed, actural.Status);
-    mockAutoTaskSchedulerService.Verify(m => m.AutoTaskAbortAsync(RobotGuid, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<AutoTaskAbortReason>()), Times.Once);
-    mockOnlineRobotsService.Verify(m => m.GetRobotCommands(RobotGuid), Times.Once);
   }
 }

@@ -3,21 +3,231 @@ using LGDXRobotCloud.Protos;
 
 namespace LGDXRobotCloud.API.Services.Navigation;
 
+public record RobotOperationalSettings
+{
+  public bool SoftwareEmergencyStop { get; set; }
+  public bool PauseTaskAssignment { get; set; }
+}
+
 public interface IRobotDataService
 {
+  // Exchange
+  void StartExchange(int realmId, Guid robotId);
+  void StopExchange(int realmId, Guid robotId);
+
+  IReadOnlyList<Guid> GetOnlineRobots(int realmId);
+  RobotClientsData? GetRobotData(Guid robotId);
+  bool SetRobotData(Guid robotId, RobotClientsData data);
+
+  bool AutoTaskSchedulerHoldRobot(int realmId, Guid robotId);
+  void AutoTaskScheduleReleaseRobot(int realmId, Guid robotId);
+
+  IReadOnlyList<RobotClientsRobotCommands> GetRobotCommands(Guid robotId);
+  bool SetRobotCommands(Guid robotId, RobotClientsRobotCommands cmd);
+  IReadOnlyList<RobotClientsAutoTask> GetAutoTasks(Guid robotId);
+  bool SetAutoTasks(Guid robotId, RobotClientsAutoTask autoTask);
+  RobotOperationalSettings? GetOperationalSettings(Guid robotId);
+
   // Slam
   bool StartSlam(int realmId, Guid robotId);
   void StopSlam(int realmId);
-  Guid? GetRunningSlamRobotId(int realmId);  
+  Guid? GetRunningSlamRobotId(int realmId);
 
-  List<RobotClientsSlamCommands> GetSlamCommands(Guid robotId);
+  IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId);
   void SetSlamCommands(int realmId, RobotClientsSlamCommands commands);
 }
 
 public class RobotDataService : IRobotDataService
 {
+  private readonly Dictionary<Guid, ConcurrentQueue<RobotClientsRobotCommands>> commands = []; // RobotId, RobotClientsRobotCommands
+  private readonly Dictionary<Guid, ConcurrentQueue<RobotClientsAutoTask>> autoTasks = []; // RobotId, RobotClientsAutoTask
+  private readonly Dictionary<Guid, RobotOperationalSettings> operationalSettings = []; // RobotId, RobotOperationalSettings
+
+  private readonly ConcurrentDictionary<int, HashSet<Guid>> onlineRobots = []; // RealmId, OnlineRobotsIds
+  private readonly ConcurrentDictionary<int, HashSet<Guid>> autoTaskSchedulerHold = []; // RealmId, OnlineRobotsIds
+  private readonly Dictionary<Guid, RobotClientsData> robotData = []; // RobotId, RobotClientsData
+
   private readonly ConcurrentDictionary<int, Guid> slamRobots = []; // RealmId, RobotId
-  private readonly Dictionary<Guid, ConcurrentQueue<RobotClientsSlamCommands>> slamCommands = []; // RealmId, RobotClientsSlamCommands
+  private readonly Dictionary<Guid, ConcurrentQueue<RobotClientsSlamCommands>> slamCommands = []; // RobotId, RobotClientsSlamCommands
+
+  public void StartExchange(int realmId, Guid robotId)
+  {
+    if (onlineRobots.TryGetValue(realmId, out HashSet<Guid>? OnlineRobotsIds))
+    {
+      OnlineRobotsIds.Add(robotId);
+    }
+    else
+    {
+      onlineRobots[realmId] = [robotId];
+    }
+
+    commands.Add(robotId, new ConcurrentQueue<RobotClientsRobotCommands>());
+    autoTasks.Add(robotId, new ConcurrentQueue<RobotClientsAutoTask>());
+    operationalSettings.Add(robotId, new RobotOperationalSettings());
+    robotData.Add(robotId, new RobotClientsData());
+  }
+
+  public void StopExchange(int realmId, Guid robotId)
+  {
+    if (onlineRobots.TryGetValue(realmId, out HashSet<Guid>? OnlineRobotsIds))
+    {
+      OnlineRobotsIds.Remove(robotId);
+    }
+
+    commands.Remove(robotId, out _);
+    autoTasks.Remove(robotId, out _);
+    operationalSettings.Remove(robotId, out _);
+    robotData.Remove(robotId, out _);
+  }
+
+  public IReadOnlyList<Guid> GetOnlineRobots(int realmId)
+  {
+    if (onlineRobots.TryGetValue(realmId, out HashSet<Guid>? OnlineRobotsIds))
+    {
+      return [.. OnlineRobotsIds];
+    }
+    else
+    {
+      return [];
+    }
+  }
+
+  public RobotClientsData? GetRobotData(Guid robotId)
+  {
+    if (robotData.TryGetValue(robotId, out RobotClientsData? data))
+    {
+      return data;
+    }
+    else
+    {
+      return null;
+    }
+  }
+
+  public bool SetRobotData(Guid robotId, RobotClientsData data)
+  {
+    if (robotData.TryGetValue(robotId, out RobotClientsData? _))
+    {
+      robotData[robotId] = data;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  public bool AutoTaskSchedulerHoldRobot(int realmId, Guid robotId)
+  {
+    if (autoTaskSchedulerHold.TryGetValue(realmId, out HashSet<Guid>? OnlineRobotsIds))
+    {
+      if (OnlineRobotsIds.Contains(robotId))
+      {
+        // Cannot hold the robot
+        return false;
+      }
+      OnlineRobotsIds.Add(robotId);
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  public void AutoTaskScheduleReleaseRobot(int realmId, Guid robotId)
+  {
+    // Release the robot
+    if (autoTaskSchedulerHold.TryGetValue(realmId, out HashSet<Guid>? OnlineRobotsIds))
+    {
+      OnlineRobotsIds.Remove(robotId);
+    }
+  }
+
+  public IReadOnlyList<RobotClientsRobotCommands> GetRobotCommands(Guid robotId)
+  {
+    List<RobotClientsRobotCommands> result = [];
+    int count = commands.Count;
+    for (int i = 0; i < count; i++)
+    {
+      if (commands[robotId].TryDequeue(out var cmd))
+      {
+        result.Add(cmd);
+      }
+    }
+    return result.AsReadOnly();
+  }
+
+  public bool SetRobotCommands(Guid robotId, RobotClientsRobotCommands cmd)
+  {
+    if (commands.TryGetValue(robotId, out ConcurrentQueue<RobotClientsRobotCommands>? value))
+    {
+      value.Enqueue(cmd);
+
+      // Update operational settings
+      if (cmd.SoftwareEmergencyStopEnable)
+      {
+        operationalSettings[robotId].SoftwareEmergencyStop = true;
+      }
+      else if (cmd.SoftwareEmergencyStopDisable)
+      {
+        operationalSettings[robotId].SoftwareEmergencyStop = false;
+      }
+      if (cmd.PauseTaskAssigementEnable)
+      {
+        operationalSettings[robotId].PauseTaskAssignment = true;
+      }
+      else if (cmd.PauseTaskAssigementDisable)
+      {
+        operationalSettings[robotId].PauseTaskAssignment = false;
+      }
+
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  public IReadOnlyList<RobotClientsAutoTask> GetAutoTasks(Guid robotId)
+  {
+    List<RobotClientsAutoTask> result = [];
+    int count = autoTasks.Count;
+    for (int i = 0; i < count; i++)
+    {
+      if (autoTasks[robotId].TryDequeue(out var autoTask))
+      {
+        result.Add(autoTask);
+      }
+    }
+    return result.AsReadOnly();
+  }
+
+  public bool SetAutoTasks(Guid robotId, RobotClientsAutoTask autoTask)
+  {
+    if (autoTasks.TryGetValue(robotId, out ConcurrentQueue<RobotClientsAutoTask>? value))
+    {
+      value.Enqueue(autoTask);
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  public RobotOperationalSettings? GetOperationalSettings(Guid robotId)
+  {
+    if (operationalSettings.TryGetValue(robotId, out RobotOperationalSettings? value))
+    {
+      return value;
+    }
+    else
+    {
+      return null;
+    }
+  }
 
   public bool StartSlam(int realmId, Guid robotId)
   {
@@ -47,7 +257,7 @@ public class RobotDataService : IRobotDataService
     return null;
   }
 
-  public List<RobotClientsSlamCommands> GetSlamCommands(Guid robotId)
+  public IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId)
   {
     List<RobotClientsSlamCommands> result = [];
     int count = slamCommands.Count;
@@ -58,7 +268,7 @@ public class RobotDataService : IRobotDataService
         result.Add(commands);
       }
     }
-    return result;
+    return result.AsReadOnly();
   }
 
   public void SetSlamCommands(int realmId, RobotClientsSlamCommands commands)
