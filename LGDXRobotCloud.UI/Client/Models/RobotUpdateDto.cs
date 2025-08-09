@@ -16,8 +16,6 @@ namespace LGDXRobotCloud.UI.Client.Models
         public IDictionary<string, object> AdditionalData { get; set; }
         /// <summary>The isProtectingHardwareSerialNumber property</summary>
         public bool? IsProtectingHardwareSerialNumber { get; set; }
-        /// <summary>The isRealtimeExchange property</summary>
-        public bool? IsRealtimeExchange { get; set; }
         /// <summary>The name property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -52,7 +50,6 @@ namespace LGDXRobotCloud.UI.Client.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "isProtectingHardwareSerialNumber", n => { IsProtectingHardwareSerialNumber = n.GetBoolValue(); } },
-                { "isRealtimeExchange", n => { IsRealtimeExchange = n.GetBoolValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
             };
         }
@@ -64,7 +61,6 @@ namespace LGDXRobotCloud.UI.Client.Models
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             writer.WriteBoolValue("isProtectingHardwareSerialNumber", IsProtectingHardwareSerialNumber);
-            writer.WriteBoolValue("isRealtimeExchange", IsRealtimeExchange);
             writer.WriteStringValue("name", Name);
             writer.WriteAdditionalData(AdditionalData);
         }

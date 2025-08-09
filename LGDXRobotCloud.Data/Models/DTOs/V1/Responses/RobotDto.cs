@@ -8,8 +8,6 @@ public record RobotDto
 
   public required RealmSearchDto Realm { get; set; }
 
-  public required bool IsRealtimeExchange { get; set; }
-
   public required bool IsProtectingHardwareSerialNumber { get; set; }
 
   public required RobotCertificateDto RobotCertificate { get; set; }

@@ -4,8 +4,7 @@ option csharp_namespace = "LGDXRobotCloud.Protos";
 
 service RobotClientsService {
   rpc Greet (RobotClientsGreet) returns (RobotClientsGreetRespond);
-  rpc Exchange (RobotClientsExchange) returns (RobotClientsRespond);
-  rpc ExchangeStream (stream RobotClientsExchange) returns (stream RobotClientsRespond);
+  rpc Exchange (stream RobotClientsExchange) returns (stream RobotClientsRespond);
   rpc AutoTaskNext (RobotClientsNextToken) returns (RobotClientsRespond);
   rpc AutoTaskAbort (RobotClientsAbortToken) returns (RobotClientsRespond);
   rpc SlamExchange (stream RobotClientsSlamExchange) returns (stream RobotClientsSlamCommands);
@@ -89,8 +88,7 @@ message RobotClientsGreet {
 message RobotClientsGreetRespond {
   RobotClientsResultStatus Status = 1;
   string AccessToken = 2;
-  bool IsRealtimeExchange = 3;
-  RobotClientsChassisInfo ChassisInfo = 4;
+  RobotClientsChassisInfo ChassisInfo = 3;
 }
 
 /*

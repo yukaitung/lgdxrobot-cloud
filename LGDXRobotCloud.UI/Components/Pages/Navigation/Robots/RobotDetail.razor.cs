@@ -47,7 +47,6 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
   private RobotDetailViewModel RobotDetailViewModel { get; set; } = new();
   private RobotCertificateDto? RobotCertificate { get; set; } = null!;
   private RobotSystemInfoDto? RobotSystemInfoDto { get; set; } = null!;
-  private RobotChassisInfoDto? RobotChassisInfoDto { get; set; } = new();
   private RobotChassisInfoViewModel RobotChassisInfoViewModel { get; set; } = new();
   private List<AutoTaskListDto>? AutoTasks { get; set; }
   private RobotDataContract? RobotData { get; set; }
@@ -188,7 +187,6 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       RobotDetailViewModel.FromDto(robot!);
       RobotCertificate = robot!.RobotCertificate;
       RobotSystemInfoDto = robot!.RobotSystemInfo;
-      RobotChassisInfoDto = robot!.RobotChassisInfo;
       RobotChassisInfoViewModel.FromDto(robot!.RobotChassisInfo!);
       AutoTasks = robot.AssignedTasks;
       RobotData = RobotDataService.GetRobotData(RobotDetailViewModel!.Id, realmId);

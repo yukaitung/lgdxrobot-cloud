@@ -12,8 +12,6 @@ public record RobotCreateDto
   [Required (ErrorMessage = "Please select a realm.")]
   public required int RealmId { get; set; }
 
-  public bool IsRealtimeExchange { get; set; } = false;
-
   public bool IsProtectingHardwareSerialNumber { get; set; } = false;
 
   public required RobotChassisInfoCreateDto RobotChassisInfo { get; set; }
@@ -26,7 +24,6 @@ public static class RobotCreateDtoExtensions
     return new RobotCreateBusinessModel {
       Name = model.Name,
       RealmId = model.RealmId,
-      IsRealtimeExchange = model.IsRealtimeExchange,
       IsProtectingHardwareSerialNumber = model.IsProtectingHardwareSerialNumber,
       RobotChassisInfo = model.RobotChassisInfo.ToBusinessModel()
     };

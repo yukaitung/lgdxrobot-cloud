@@ -43,19 +43,16 @@ public class RobotCertificateServiceTests
     new() {
       Id = Guid.Parse("8b609e85-5865-472b-8ced-6c936ee5f127"),
       Name = "Test Robot 1",
-      IsRealtimeExchange = true,
       IsProtectingHardwareSerialNumber = true
     },
     new() {
       Id = Guid.Parse("6ebff82e-0c12-4d35-9b4c-69452bc1d4e4"),
       Name = "Test Robot 2",
-      IsRealtimeExchange = false,
       IsProtectingHardwareSerialNumber = false
     },
     new() {
       Id = Guid.Parse("6ac8afe8-6532-4c04-b176-1c2cd0dc484e"),
       Name = "Test Robot 3",
-      IsRealtimeExchange = true,
       IsProtectingHardwareSerialNumber = true
     }
   ];
