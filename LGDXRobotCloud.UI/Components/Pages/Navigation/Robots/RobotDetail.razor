@@ -28,15 +28,15 @@
       }
     </div>
     <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="Control">
-      @if (RobotData != null && RobotCommands != null && RobotData.RobotStatus != RobotStatus.Offline)
+      @if (RobotData != null && RobotData.RobotStatus != RobotStatus.Offline)
       {
         <div class="col-md-auto ms-auto">
           <div class="btn-list">
-            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement" style="width: 185px;">
-              @(RobotCommands.Commands.PauseTaskAssigement ? "Resume Task Assignment" : "Pause Task Assignment")
+            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssignment" style="width: 185px;">
+              @(RobotData.PauseTaskAssignment ? "Resume Task Assignment" : "Pause Task Assignment")
             </a>
             <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop" style="width: 160px;">
-              @(RobotCommands.Commands.SoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
+              @(RobotData.CriticalStatus.SoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
             </a>
           </div>
         </div>
@@ -132,7 +132,14 @@
   </div>
 </PageBody>
 
-<AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ControlModel">
-  <PauseTaskAssigementModel RobotCommands="RobotCommands" />
-  <SoftwareEmergencyStopModel RobotCommands="RobotCommands" />
-</AuthorizeView>
+@if (RobotData != null)
+{
+  <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ControlModel">
+    <PauseTaskAssignmentModel 
+      Enabled="RobotData.PauseTaskAssignment"
+      OnConfirm="HandlePauseTaskAssignment" />
+    <SoftwareEmergencyStopModel
+      Enabled="RobotData.CriticalStatus.SoftwareEmergencyStop"
+      OnConfirm="HandleEmergencyStop" />
+  </AuthorizeView>
+}

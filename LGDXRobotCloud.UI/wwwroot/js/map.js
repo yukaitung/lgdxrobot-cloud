@@ -1,6 +1,8 @@
 var MapDotNetObject = {};
 var MapStage;
 var MapLayer;
+var MapBackground;
+var MapBackgroundObj;
 var MapEditorMode = 0;
 const InitalScale = 3;
 
@@ -22,48 +24,52 @@ function InitNavigationMap(dotNetObject)
 
   // Add map image
   const mapBackgroundImage = document.getElementById('navigation-map-image');
-  const mapBackgroundObj = new Image();
-  mapBackgroundObj.src = mapBackgroundImage.src;
-  const mapBackground = new Konva.Rect({
+  MapBackgroundObj = new Image();
+  MapBackgroundObj.src = mapBackgroundImage.src;
+  MapBackgroundObj.onload = () => {
+    let ctx = MapLayer.getContext()._context;
+    ctx.imageSmoothingEnabled = false;
+    MapBackground.fillPatternImage(MapBackgroundObj);
+  };
+  MapBackground = new Konva.Rect({
     x: 0,
     y: 0,
     width: mapBackgroundImage.width,
     height: mapBackgroundImage.height,
     draggable: false,
   });
-  mapBackgroundObj.onload = () => {
-    let ctx = MapLayer.getContext()._context;
-    ctx.imageSmoothingEnabled = false;
-    mapBackground.fillPatternImage(mapBackgroundObj);
-  };
   MapLayer = new Konva.Layer({
     offsetX: -divRect.width / 2 + mapBackgroundImage.width / 2,
     offsetY: -divRect.height / 2 + mapBackgroundImage.height / 2,
   });
+  MapLayer.add(MapBackground);
   MapStage.add(MapLayer);
-  MapLayer.add(mapBackground);
 
   // Mouse event on map
-  MapStage.on('mousemove', () => {
-    const p = document.getElementById('navigation-map-coordinate');
-    if (!p) return;
-    const pointer = MapStage.getPointerPosition();
-    if (!pointer) return;
+  if (document.getElementById('navigation-map-coordinate') != null)
+  {
+    MapStage.on('mousemove', () => {
+      const p = document.getElementById('navigation-map-coordinate');
+      if (!p) return;
+      const pointer = MapStage.getPointerPosition();
+      if (!pointer) return;
 
-    // Transform stage coordinates to rect-local coordinates
-    const localPos = mapBackground.getAbsoluteTransform().copy().invert().point(pointer);
+      // Transform stage coordinates to rect-local coordinates
+      const localPos = MapBackground.getAbsoluteTransform().copy().invert().point(pointer);
 
-    // Check if pointer is inside the rectangle bounds
-    if (
-      localPos.x >= 0 && localPos.x <= mapBackground.width() &&
-      localPos.y >= 0 && localPos.y <= mapBackground.height()
-    ) {
-      p.innerHTML = `X: ${_internalToRobotPositionX(localPos.x).toFixed(4)}m, Y: ${_internalToRobotPositionY(localPos.y).toFixed(4)}m`;
-    } else {
-      p.innerHTML = '';
-    }
-  });
-
+      // Check if pointer is inside the rectangle bounds
+      if (localPos.x >= 0 && localPos.x <= MapBackground.width() 
+          && localPos.y >= 0 && localPos.y <= MapBackground.height()) 
+      {
+        let y = _internalToRobotPositionY(localPos.y);
+        p.innerHTML = `X: ${_internalToRobotPositionX(localPos.x).toFixed(4)}m, Y: ${y.toFixed(4)}m`;
+      } 
+      else 
+      {
+        p.innerHTML = '';
+      }
+    });
+  }
   MapStage.on('wheel', (e) => {
     e.evt.preventDefault();
 
@@ -232,8 +238,7 @@ function _internalToRobotPositionX(x)
 
 function _internalToRobotPositionY(y)
 {
-  const mapBackgroundImage = document.getElementById('navigation-map-image');
-  return (mapBackgroundImage.height - y) * MAP_RESOLUTION + MAP_ORIGIN_Y;
+  return (MapBackgroundObj.height - y) * MAP_RESOLUTION + MAP_ORIGIN_Y;
 }
 function _internalToMapX(x)
 {
@@ -242,8 +247,7 @@ function _internalToMapX(x)
 
 function _internalToMapY(y)
 {
-  const mapBackgroundImage = document.getElementById('navigation-map-image');
-  return mapBackgroundImage.height - ((-MAP_ORIGIN_Y + y) / MAP_RESOLUTION);
+  return MapBackgroundObj.height - ((-MAP_ORIGIN_Y + y) / MAP_RESOLUTION);
 }
 
 function _internalToMapRotation(rotation)
@@ -357,20 +361,32 @@ function MoveRobot(robotId, x, y, rotation)
     robot.y(_internalToMapY(y));
     robot.rotation(_internalToMapRotation(rotation));
   }
+  else
+  {
+    AddRobot(robotId, x, y, rotation);
+  }
+}
+
+function RemoveRobot(robotId)
+{
+  let robot = MapLayer.findOne('#' + robotId);
+  if (robot != undefined)
+  {
+    robot.destroy();
+  }
 }
 
 function UpdateRobotPlan(plan)
 {
-  let processedPlan = [];
   for (let i = 0; i < plan.length; i += 2)
   {
-    processedPlan.push(_internalToMapX(plan[i]));
-    processedPlan.push(_internalToMapY(plan[i + 1]));
+    plan[i] = _internalToMapX(plan[i]);
+    plan[i + 1] = _internalToMapY(plan[i + 1]);
   }
   const planLine = MapLayer.findOne('#currentRobotPlan');
   if (planLine != undefined)
   {
-    planLine.points(processedPlan);
+    planLine.points(plan);
   }
 }
 
@@ -506,3 +522,151 @@ function MapEditorAddTraffics(traffics) {
     }
   }
 }
+
+/*
+ * SLAM
+ */
+function UpdateSlamMapSpecification(resolution, originX, originY, originRotation) 
+{
+  MAP_RESOLUTION = resolution;
+  MAP_ORIGIN_X = originX;
+  MAP_ORIGIN_Y = originY;
+  MAP_ORIGIN_ROTATION = originRotation;
+}
+
+function UpdateSlamMap(width, height, mapData) 
+{
+  // Draw Map
+  let canvas = document.getElementById("navigation-slam-map-data");
+  canvas.width = width;
+  canvas.height = height;
+  let ctx = canvas.getContext("2d");
+  ctx.reset();
+  let iamgeData = ctx.createImageData(width, height);
+  for (let row = 0; row < height; row++) {
+    for (let col = 0; col < width; col++) {
+      let index = col + ((height - row - 1) * width);
+      let data = mapData[index];
+      var value = 205;
+      if (data === 100)
+        value = 0;
+      else if (data === 0)
+        value = 255;
+
+      var i = (col + (row * width)) * 4;
+      iamgeData.data[i] = value;
+      iamgeData.data[i + 1] = value;
+      iamgeData.data[i + 2] = value;
+      iamgeData.data[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(iamgeData, 0, 0);
+
+  // Update Map
+  MapBackgroundObj.src = canvas.toDataURL("image/png");
+  MapBackground.width(width);
+  MapBackground.height(height);
+  _internalOnResize();
+  _internalRulerUpdate();
+}
+
+function _internalSlamMapSetGoalStartHandler()
+{
+  const pointer = MapStage.getPointerPosition();
+  if (!pointer) return;
+
+  // Transform stage coordinates to rect-local coordinates
+  const localPos = MapBackground.getAbsoluteTransform().copy().invert().point(pointer);
+
+  // Check if pointer is inside the rectangle bounds
+  if (localPos.x >= 0 && localPos.x <= MapBackground.width() 
+      && localPos.y >= 0 && localPos.y <= MapBackground.height()) 
+  {
+    const arrow = new Konva.Arrow({
+      stroke: _internalGetCSSVariable('--tblr-blue'),
+      fill: _internalGetCSSVariable('--tblr-blue'),
+      strokeWidth: 1,
+      id: 'slamMapGoalArrow',
+      points: [localPos.x, localPos.y, localPos.x, localPos.y],
+      pointerLength: 1,
+      pointerWidth: 1,
+    });
+    MapLayer.add(arrow);
+  } 
+}
+
+function _internalSlamMapSetGoalMoveHandler()
+{
+  const arrow = MapLayer.findOne('#slamMapGoalArrow');
+  if (arrow != undefined)
+  {
+    const pointer = MapStage.getPointerPosition();
+    if (!pointer) return;
+
+    // Transform stage coordinates to rect-local coordinates
+    const localPos = MapBackground.getAbsoluteTransform().copy().invert().point(pointer);
+    let path = arrow.points();
+    path[2] = localPos.x;
+    path[3] = localPos.y;
+    arrow.points(path);
+  }
+}
+
+function _internalGetAngleBetweenPoints(x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  return Math.atan2(dy, dx); // in radians
+}
+
+function _internalSlamMapSetGoalEndHandler()
+{
+  const arrow = MapLayer.findOne('#slamMapGoalArrow');
+  if (arrow != undefined)
+  {
+    let path = arrow.points();
+    let x = _internalToRobotPositionX(path[0]);
+    let y = _internalToRobotPositionY(path[1]);
+    let angle = _internalGetAngleBetweenPoints(path[0], path[1], path[2], path[3]);
+    MapDotNetObject.invokeMethodAsync('HandleSetGoalSuccess', x, y, -angle);
+    SlamMapSetGoalStop();
+  }
+}
+
+function SlamMapSetGoalStart() 
+{
+  const arrow = MapLayer.findOne('#slamMapGoalArrow');
+  if (arrow != undefined)
+  {
+    arrow.destroy();
+  }
+  MapStage.draggable(false);
+  MapStage.on('mousedown', _internalSlamMapSetGoalStartHandler);
+  MapStage.on('touchstart', _internalSlamMapSetGoalStartHandler);
+  MapStage.on('mousemove', _internalSlamMapSetGoalMoveHandler);
+  MapStage.on('touchmove', _internalSlamMapSetGoalMoveHandler);
+  MapStage.on('mouseup', _internalSlamMapSetGoalEndHandler);
+  MapStage.on('touchend', _internalSlamMapSetGoalEndHandler);
+}
+
+function SlamMapSetGoalStop() 
+{
+  const arrow = MapLayer.findOne('#slamMapGoalArrow');
+  if (arrow != undefined)
+  {
+    arrow.destroy();
+  }
+  MapStage.off('mousedown', _internalSlamMapSetGoalStartHandler);
+  MapStage.off('touchstart', _internalSlamMapSetGoalStartHandler);
+  MapStage.off('mousemove', _internalSlamMapSetGoalMoveHandler);
+  MapStage.off('touchmove', _internalSlamMapSetGoalMoveHandler);
+  MapStage.off('mouseup', _internalSlamMapSetGoalEndHandler);
+  MapStage.off('touchend', _internalSlamMapSetGoalEndHandler);
+  MapStage.draggable(true);
+}
+
+function SlamUpdateMap()
+{
+  let img = MapBackgroundObj.src;
+  img = img.replace("data:image/png;base64,", "");
+  MapDotNetObject.invokeMethodAsync('UpdateRealmStage2', img);
+} 

@@ -1,0 +1,55 @@
+@using LGDXRobotCloud.Utilities.Enums
+
+<div class="modal fade modal-blur" id="pauseTaskAssignment" tabindex="-1" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-primary"></div>
+      <div class="modal-body text-center py-4 d-flex flex-column">
+        @if (Enabled) {
+          <i class="ti ti-player-play text-primary mb-2" style="font-size: 48px;"></i>
+        }
+        else {
+          <i class="ti ti-player-pause text-primary mb-2" style="font-size: 48px;"></i>
+        }
+        <h3>@(Enabled ? "Resume Task Assigment" : "Pause Task Assigment")</h3>
+        <div class="text-secondary">
+          <div class="text-secondary">
+            @(Enabled ?
+              $"The robot will start receiving task." :
+              $"The robot will stop receiving task.")
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn w-100" data-bs-dismiss="modal">Cancel</button>
+            </div>
+            <div class="col">
+              <button type="button" class="btn w-100 btn-primary" @onclick="HandleRequest">Yes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@code {
+  [Inject]
+  public required IJSRuntime JSRuntime { get; set; }
+
+  [Parameter]
+  public bool Enabled { get; set; }
+
+  [Parameter]
+  public EventCallback OnConfirm { get; set; }
+
+  public async Task HandleRequest()
+  {
+    await JSRuntime.InvokeVoidAsync("CloseModal", "#pauseTaskAssignment");
+    await OnConfirm.InvokeAsync();
+  }
+}

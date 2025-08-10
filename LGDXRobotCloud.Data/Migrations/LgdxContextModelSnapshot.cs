@@ -433,6 +433,7 @@ namespace LGDXRobotCloud.Data.Migrations
 
                     b.Property<byte[]>("Image")
                         .IsRequired()
+                        .HasMaxLength(16777216)
                         .HasColumnType("bytea");
 
                     b.Property<string>("Name")
@@ -478,9 +479,6 @@ namespace LGDXRobotCloud.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsProtectingHardwareSerialNumber")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsRealtimeExchange")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")

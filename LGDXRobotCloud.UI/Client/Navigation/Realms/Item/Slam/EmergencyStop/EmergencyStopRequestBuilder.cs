@@ -9,28 +9,28 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
-namespace LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement
+namespace LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.EmergencyStop
 {
     /// <summary>
-    /// Builds and executes requests for operations under \Navigation\Robots\{id}\PauseTaskAssigement
+    /// Builds and executes requests for operations under \Navigation\Realms\{id}\Slam\EmergencyStop
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
-    public partial class PauseTaskAssigementRequestBuilder : BaseRequestBuilder
+    public partial class EmergencyStopRequestBuilder : BaseRequestBuilder
     {
         /// <summary>
-        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement.PauseTaskAssigementRequestBuilder"/> and sets the default values.
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.EmergencyStop.EmergencyStopRequestBuilder"/> and sets the default values.
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public PauseTaskAssigementRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Navigation/Robots/{id}/PauseTaskAssigement", pathParameters)
+        public EmergencyStopRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Navigation/Realms/{id}/Slam/EmergencyStop", pathParameters)
         {
         }
         /// <summary>
-        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement.PauseTaskAssigementRequestBuilder"/> and sets the default values.
+        /// Instantiates a new <see cref="global::LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.EmergencyStop.EmergencyStopRequestBuilder"/> and sets the default values.
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public PauseTaskAssigementRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Navigation/Robots/{id}/PauseTaskAssigement", rawUrl)
+        public EmergencyStopRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/Navigation/Realms/{id}/Slam/EmergencyStop", rawUrl)
         {
         }
         /// <param name="body">The request body</param>
@@ -39,15 +39,15 @@ namespace LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement
         /// <exception cref="global::LGDXRobotCloud.UI.Client.Models.ValidationProblemDetails">When receiving a 400 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public async Task PatchAsync(global::LGDXRobotCloud.UI.Client.Models.EnableDto body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task PostAsync(global::LGDXRobotCloud.UI.Client.Models.EnableDto body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #nullable restore
 #else
-        public async Task PatchAsync(global::LGDXRobotCloud.UI.Client.Models.EnableDto body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task PostAsync(global::LGDXRobotCloud.UI.Client.Models.EnableDto body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #endif
             _ = body ?? throw new ArgumentNullException(nameof(body));
-            var requestInfo = ToPatchRequestInformation(body, requestConfiguration);
+            var requestInfo = ToPostRequestInformation(body, requestConfiguration);
             var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
             {
                 { "400", global::LGDXRobotCloud.UI.Client.Models.ValidationProblemDetails.CreateFromDiscriminatorValue },
@@ -59,15 +59,15 @@ namespace LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public RequestInformation ToPatchRequestInformation(global::LGDXRobotCloud.UI.Client.Models.EnableDto body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default)
+        public RequestInformation ToPostRequestInformation(global::LGDXRobotCloud.UI.Client.Models.EnableDto body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default)
         {
 #nullable restore
 #else
-        public RequestInformation ToPatchRequestInformation(global::LGDXRobotCloud.UI.Client.Models.EnableDto body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default)
+        public RequestInformation ToPostRequestInformation(global::LGDXRobotCloud.UI.Client.Models.EnableDto body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default)
         {
 #endif
             _ = body ?? throw new ArgumentNullException(nameof(body));
-            var requestInfo = new RequestInformation(Method.PATCH, UrlTemplate, PathParameters);
+            var requestInfo = new RequestInformation(Method.POST, UrlTemplate, PathParameters);
             requestInfo.Configure(requestConfiguration);
             requestInfo.Headers.TryAdd("Accept", "application/json, text/plain;q=0.9");
             requestInfo.SetContentFromParsable(RequestAdapter, "application/json", body);
@@ -76,18 +76,18 @@ namespace LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement
         /// <summary>
         /// Returns a request builder with the provided arbitrary URL. Using this method means any other path or query parameters are ignored.
         /// </summary>
-        /// <returns>A <see cref="global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement.PauseTaskAssigementRequestBuilder"/></returns>
+        /// <returns>A <see cref="global::LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.EmergencyStop.EmergencyStopRequestBuilder"/></returns>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
-        public global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement.PauseTaskAssigementRequestBuilder WithUrl(string rawUrl)
+        public global::LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.EmergencyStop.EmergencyStopRequestBuilder WithUrl(string rawUrl)
         {
-            return new global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement.PauseTaskAssigementRequestBuilder(rawUrl, RequestAdapter);
+            return new global::LGDXRobotCloud.UI.Client.Navigation.Realms.Item.Slam.EmergencyStop.EmergencyStopRequestBuilder(rawUrl, RequestAdapter);
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.
         /// </summary>
         [Obsolete("This class is deprecated. Please use the generic RequestConfiguration class generated by the generator.")]
         [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
-        public partial class PauseTaskAssigementRequestBuilderPatchRequestConfiguration : RequestConfiguration<DefaultQueryParameters>
+        public partial class EmergencyStopRequestBuilderPostRequestConfiguration : RequestConfiguration<DefaultQueryParameters>
         {
         }
     }

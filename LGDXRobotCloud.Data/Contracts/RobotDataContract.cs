@@ -34,12 +34,12 @@ public record RobotCriticalStatus
 
 public record RobotDataContract
 {
-  public required Guid RobotId { get; set; }
-  public required int RealmId { get; set; }
+  public Guid RobotId { get; set; }
+  public int RealmId { get; set; }
   public RobotStatus RobotStatus { get; set; } = RobotStatus.Offline;
   public RobotCriticalStatus CriticalStatus { get; set; } = new();
   public List<double> Batteries { get; set; } = [];
   public RobotDof Position { get; set; } = new();
   public AutoTaskNavProgress NavProgress { get; set; } = new();
-  public DateTime CurrentTime { get; set; } = DateTime.UtcNow;
+  public bool PauseTaskAssignment { get; set; }
 }

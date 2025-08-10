@@ -47,11 +47,9 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
   private RobotDetailViewModel RobotDetailViewModel { get; set; } = new();
   private RobotCertificateDto? RobotCertificate { get; set; } = null!;
   private RobotSystemInfoDto? RobotSystemInfoDto { get; set; } = null!;
-  private RobotChassisInfoDto? RobotChassisInfoDto { get; set; } = new();
   private RobotChassisInfoViewModel RobotChassisInfoViewModel { get; set; } = new();
   private List<AutoTaskListDto>? AutoTasks { get; set; }
   private RobotDataContract? RobotData { get; set; }
-  private RobotCommandsContract? RobotCommands { get; set; }
 
   private string RealmName { get; set; } = string.Empty;
   private int CurrentTab { get; set; } = 0;
@@ -90,30 +88,32 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
     }
   }
 
+  public async Task HandlePauseTaskAssignment()
+  {
+    bool enabled = RobotData!.RobotStatus != RobotStatus.Paused;
+    await LgdxApiClient.Navigation.Robots[RobotData!.RobotId].PauseTaskAssignment.PatchAsync(new() {
+      Enable = enabled
+    });
+  }
+
+  public async Task HandleEmergencyStop()
+  {
+    bool enabled = !RobotData!.CriticalStatus.SoftwareEmergencyStop;
+    await LgdxApiClient.Navigation.Robots[RobotData!.RobotId].EmergencyStop.PatchAsync(new() {
+      Enable = enabled
+    });
+  }
+
   private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
   {
     var robotId = updatEventArgs.RobotId;
     if (Id != robotId.ToString())
       return;
-    
+
     var robotData = RobotDataService.GetRobotData(robotId, updatEventArgs.RealmId);
     if (robotData != null)
     {
       RobotData = robotData;
-      await InvokeAsync(StateHasChanged);
-    }
-  }
-
-  private async void OnRobotCommandsUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
-  {
-    var robotId = updatEventArgs.RobotId;
-    if (Id != robotId.ToString())
-      return;
-
-    var robotCommands = RobotDataService.GetRobotCommands(updatEventArgs.RobotId);
-    if (robotCommands != null)
-    {
-      RobotCommands = robotCommands;
       await InvokeAsync(StateHasChanged);
     }
   }
@@ -188,15 +188,12 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       RobotDetailViewModel.FromDto(robot!);
       RobotCertificate = robot!.RobotCertificate;
       RobotSystemInfoDto = robot!.RobotSystemInfo;
-      RobotChassisInfoDto = robot!.RobotChassisInfo;
       RobotChassisInfoViewModel.FromDto(robot!.RobotChassisInfo!);
       AutoTasks = robot.AssignedTasks;
       RobotData = RobotDataService.GetRobotData(RobotDetailViewModel!.Id, realmId);
-      RobotCommands = RobotDataService.GetRobotCommands(RobotDetailViewModel!.Id);
     }
 
     RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
-    RealTimeService.RobotCommandsUpdated += OnRobotCommandsUpdated;
     RealTimeService.AutoTaskUpdated += OnAutoTaskUpdated;
     
     await base.OnInitializedAsync();
@@ -205,7 +202,6 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
   public void Dispose()
   {
     RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
-    RealTimeService.RobotCommandsUpdated -= OnRobotCommandsUpdated;
     RealTimeService.AutoTaskUpdated -= OnAutoTaskUpdated;
     GC.SuppressFinalize(this);
   }

@@ -14,8 +14,6 @@ public record RobotBusinessModel
 
   public required string RealmName { get; set; }
 
-  public required bool IsRealtimeExchange { get; set; }
-
   public required bool IsProtectingHardwareSerialNumber { get; set; }
 
   public required RobotCertificateBusinessModel RobotCertificate { get; set; }
@@ -38,7 +36,6 @@ public static class RobotBusinessModelExtensions
         Id = robot.RealmId,
         Name = robot.RealmName,
       },
-      IsRealtimeExchange = robot.IsRealtimeExchange,
       IsProtectingHardwareSerialNumber = robot.IsProtectingHardwareSerialNumber,
       RobotCertificate = robot.RobotCertificate.ToDto(),
       RobotSystemInfo = robot.RobotSystemInfo?.ToDto(),

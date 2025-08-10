@@ -1,6 +1,5 @@
 using LGDXRobotCloud.API.Exceptions;
 using LGDXRobotCloud.API.Services.Administration;
-using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
@@ -34,7 +33,6 @@ public class AutoTaskService(
     IActivityLogService activityLogService,
     IAutoTaskSchedulerService autoTaskSchedulerService,
     IBus bus,
-    IEventService eventService,
     IMemoryCache memoryCache,
     IOnlineRobotsService onlineRobotsService,
     LgdxContext context
@@ -259,8 +257,6 @@ public class AutoTaskService(
     };
     await _context.AutoTasks.AddAsync(autoTask);
     await _context.SaveChangesAsync();
-    _autoTaskSchedulerService.ResetIgnoreRobot(autoTask.RealmId);
-    eventService.AutoTaskHasCreated();
 
     var autoTaskBusinessModel = await _context.AutoTasks.AsNoTracking()
       .Where(t => t.Id == autoTask.Id)
@@ -313,8 +309,8 @@ public class AutoTaskService(
       };
       await _context.AutoTasksJourney.AddAsync(autoTaskJourney);
       await _context.SaveChangesAsync();
-
       await _bus.Publish(autoTaskBusinessModel.ToContract());
+      await _autoTaskSchedulerService.RunSchedulerNewAutoTaskAsync(autoTask.RealmId, autoTask.AssignedRobotId);
     }
 
     await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
@@ -445,7 +441,7 @@ public class AutoTaskService(
 
     if (autoTask.CurrentProgressId != (int)ProgressState.Waiting &&
         autoTask.AssignedRobotId != null &&
-        await _onlineRobotsService.SetAbortTaskAsync((Guid)autoTask.AssignedRobotId!, true))
+        _onlineRobotsService.SetAbortTask((Guid)autoTask.AssignedRobotId!))
     {
       // If the robot is online, abort the task from the robot
       return;
@@ -458,9 +454,11 @@ public class AutoTaskService(
 
   public async Task AutoTaskNextApiAsync(Guid robotId, int taskId, string token)
   {
-    var result = await _autoTaskSchedulerService.AutoTaskNextApiAsync(robotId, taskId, token)
-      ?? throw new LgdxValidation400Expection(nameof(token), "The next token is invalid.");
-    _onlineRobotsService.SetAutoTaskNextApi(robotId, result);
+    var result = await _autoTaskSchedulerService.AutoTaskNextApiAsync(robotId, taskId, token);
+    if (!result)
+    {
+      throw new LgdxValidation400Expection(nameof(token), "The next token is invalid.");
+    }
   }
 
   public async Task<AutoTaskStatisticsBusinessModel> GetAutoTaskStatisticsAsync(int realmId)

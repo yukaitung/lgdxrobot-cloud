@@ -9,8 +9,6 @@ public record RobotUpdateDto
   [Required (ErrorMessage = "Please enter a name.")]
   public required string Name { get; set; }
 
-  public bool IsRealtimeExchange { get; set; } = false;
-
   public bool IsProtectingHardwareSerialNumber { get; set; } = false;
 }
 
@@ -20,7 +18,6 @@ public static class RobotUpdateDtoExtensions
   {
     return new RobotUpdateBusinessModel {
       Name = model.Name,
-      IsRealtimeExchange = model.IsRealtimeExchange,
       IsProtectingHardwareSerialNumber = model.IsProtectingHardwareSerialNumber,
     };
   }

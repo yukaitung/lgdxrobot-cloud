@@ -3,7 +3,7 @@
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Client.Navigation.Robots.Item.Chassis;
 using LGDXRobotCloud.UI.Client.Navigation.Robots.Item.EmergencyStop;
-using LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement;
+using LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssignment;
 using LGDXRobotCloud.UI.Client.Navigation.Robots.Item.TestDelete;
 using Microsoft.Kiota.Abstractions.Extensions;
 using Microsoft.Kiota.Abstractions.Serialization;
@@ -31,10 +31,10 @@ namespace LGDXRobotCloud.UI.Client.Navigation.Robots.Item
         {
             get => new global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.EmergencyStop.EmergencyStopRequestBuilder(PathParameters, RequestAdapter);
         }
-        /// <summary>The PauseTaskAssigement property</summary>
-        public global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement.PauseTaskAssigementRequestBuilder PauseTaskAssigement
+        /// <summary>The PauseTaskAssignment property</summary>
+        public global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssignment.PauseTaskAssignmentRequestBuilder PauseTaskAssignment
         {
-            get => new global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssigement.PauseTaskAssigementRequestBuilder(PathParameters, RequestAdapter);
+            get => new global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.PauseTaskAssignment.PauseTaskAssignmentRequestBuilder(PathParameters, RequestAdapter);
         }
         /// <summary>The TestDelete property</summary>
         public global::LGDXRobotCloud.UI.Client.Navigation.Robots.Item.TestDelete.TestDeleteRequestBuilder TestDelete

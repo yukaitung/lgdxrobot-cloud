@@ -17,7 +17,7 @@ internal sealed class LgdxAuthenticationStateProvider(
   private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
   private readonly NavigationManager _navigationManager = navigationManager;
 
-  protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(1);
+  protected override TimeSpan RevalidationInterval => TimeSpan.FromSeconds(15);
 
   protected override async Task<bool> ValidateAuthenticationStateAsync(AuthenticationState authenticationState, CancellationToken cancellationToken)
   {
@@ -25,6 +25,7 @@ internal sealed class LgdxAuthenticationStateProvider(
     if (!_tokenService.IsLoggedIn(user))
     {
       _navigationManager.NavigateTo(AppRoutes.Identity.Login + "?ReturnUrl=" + _navigationManager.ToBaseRelativePath(_navigationManager.Uri));
+      _navigationManager.Refresh(true);
       return false;
     }
 
@@ -33,6 +34,7 @@ internal sealed class LgdxAuthenticationStateProvider(
     {
       _tokenService.Logout(user);
       _navigationManager.NavigateTo(AppRoutes.Identity.Login + "?ReturnUrl=" + _navigationManager.ToBaseRelativePath(_navigationManager.Uri));
+      _navigationManager.Refresh(true);
       return false;
     }
 

@@ -118,9 +118,9 @@ public sealed partial class Map : ComponentBase, IDisposable
     {
       if (robotData != null)
       {
-        if (!RobotsData.ContainsKey(robotId))
+        if (robotData.RobotStatus == RobotStatus.Offline)
         {
-          await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
+          await JSRuntime.InvokeVoidAsync("RemoveRobot", robotId);
         }
         else
         {

@@ -29,15 +29,15 @@ builder.Services.AddMassTransit(cfg =>
 		});
 		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
 		{
-			e.ConfigureConsumer<RobotCommandsConsumer>(context);
-		});
-		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
-		{
 			e.ConfigureConsumer<RobotDataConsumer>(context);
 		});
 		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
 		{
 			e.ConfigureConsumer<AutoTaskUpdateConsumer>(context);
+		});
+		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
+		{
+			e.ConfigureConsumer<SlamDataConsumer>(context);
 		});
 		cfg.ConfigureEndpoints(context);
 	});
@@ -86,14 +86,13 @@ builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 builder.Services.AddSingleton<IRealTimeService, RealTimeService>();
+builder.Services.AddSingleton<ISlamService, SlamService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(cfg =>
 	{
 		cfg.LoginPath = AppRoutes.Identity.Login;
-		cfg.ExpireTimeSpan = TimeSpan.FromMinutes(int.Parse(builder.Configuration["LGDXRobotCloudUI:SessionTimeoutMinutes"] ?? "15"));
-		cfg.SlidingExpiration = true;
 	});
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
@@ -125,6 +124,6 @@ app.MapPost("api/Logout", async (HttpContext context) =>
 {
 	await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 	return TypedResults.LocalRedirect(AppRoutes.Identity.Login);
-}).RequireAuthorization();
+});
 
 app.Run();

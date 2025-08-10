@@ -3,24 +3,14 @@ syntax = "proto3";
 option csharp_namespace = "LGDXRobotCloud.Protos";
 
 service RobotClientsService {
-  rpc Greet (RobotClientsGreet) returns (RobotClientsGreetRespond);
-  rpc Exchange (RobotClientsExchange) returns (RobotClientsRespond);
-  rpc ExchangeStream (stream RobotClientsExchange) returns (stream RobotClientsRespond);
-  rpc AutoTaskNext (RobotClientsNextToken) returns (RobotClientsRespond);
-  rpc AutoTaskAbort (RobotClientsAbortToken) returns (RobotClientsRespond);
+  rpc Greet (RobotClientsGreet) returns (RobotClientsGreetResponse);
+  rpc Exchange (stream RobotClientsExchange) returns (stream RobotClientsResponse);
+  rpc SlamExchange (stream RobotClientsSlamExchange) returns (stream RobotClientsSlamCommands);
 }
 
 /*
 ** Common
 */
-enum RobotClientsResultStatus {
-  Success = 0;
-  Failed = 1;
-}
-
-message RobotClientsPath {
-  repeated RobotClientsDof Waypoints = 1;
-}
 
 message RobotClients2Dof {
   double X = 1;
@@ -33,31 +23,50 @@ message RobotClientsDof {
   double Rotation = 3;
 }
 
-message RobotClientsRobotCommands {
-  bool AbortTask = 1;
-  bool RenewCertificate = 2;
-  bool SoftwareEmergencyStop = 3;
-  bool PauseTaskAssigement = 4;
+enum RobotClientsRobotStatus {
+  Idle = 0;
+  Running = 1;
+  Stuck = 2;
+  Aborting = 3;
+  Paused = 4;
+  Critical = 5;
+  Charging = 6;
+  Offline = 7;
 }
 
-message RobotClientsAutoTask {
-  int32 TaskId = 1;
-  string TaskName = 2;
-  int32 TaskProgressId = 3;
-  string TaskProgressName = 4;
-  repeated RobotClientsPath Paths = 5;
-  string NextToken = 6;
+message RobotClientsRobotCriticalStatus {
+  bool HardwareEmergencyStop = 1;
+  bool SoftwareEmergencyStop = 2;
+  repeated int32 BatteryLow = 3;
+  repeated int32 MotorDamaged = 4;
 }
 
-message RobotClientsRespond {
-  RobotClientsResultStatus Status = 1;
-  RobotClientsRobotCommands Commands = 2;
-  optional RobotClientsAutoTask Task = 3;
+message RobotClientsAutoTaskNavProgress {
+  double Eta = 1;
+  int32 Recoveries = 2;
+  double DistanceRemaining = 3;
+  int32 WaypointsRemaining = 4;
+  repeated RobotClients2Dof Plan = 5;
+}
+
+// Final Data
+message RobotClientsData {
+  RobotClientsRobotStatus RobotStatus = 1;
+  RobotClientsRobotCriticalStatus CriticalStatus = 2;
+  repeated double Batteries = 3;
+  RobotClientsDof Position = 4;
+  RobotClientsAutoTaskNavProgress NavProgress = 5;
+  bool PauseTaskAssignment = 6;
 }
 
 /*
 ** Greet
 */
+enum RobotClientsResultStatus {
+  Success = 0;
+  Failed = 1;
+}
+
 message RobotClientsSystemInfo {
   string Cpu = 1;
   string Motherboard = 2;
@@ -85,61 +94,20 @@ message RobotClientsGreet {
   RobotClientsSystemInfo SystemInfo = 1;
 }
 
-message RobotClientsGreetRespond {
+message RobotClientsGreetResponse {
   RobotClientsResultStatus Status = 1;
   string AccessToken = 2;
-  bool IsRealtimeExchange = 3;
-  RobotClientsChassisInfo ChassisInfo = 4;
+  RobotClientsChassisInfo ChassisInfo = 3;
 }
 
 /*
 ** Exchange
-*/
-enum RobotClientsRobotStatus {
-  Idle = 0;
-  Running = 1;
-  Stuck = 2;
-  Aborting = 3;
-  Paused = 4;
-  Critical = 5;
-  Charging = 6;
-  Offline = 7;
-}
-
-message RobotClientsRobotCriticalStatus {
-  bool HardwareEmergencyStop = 1;
-  bool SoftwareEmergencyStop = 2;
-  repeated int32 BatteryLow = 3;
-  repeated int32 MotorDamaged = 4;
-}
-
-message RobotClientsAutoTaskNavProgress {
-  double Eta = 1;
-  int32 Recoveries = 2;
-  double DistanceRemaining = 3;
-  int32 WaypointsRemaining = 4;
-  repeated RobotClients2Dof Plan = 5;
-}
-
-message RobotClientsExchange {
-  RobotClientsRobotStatus RobotStatus = 1;
-  RobotClientsRobotCriticalStatus CriticalStatus = 2;
-  repeated double Batteries = 3;
-  RobotClientsDof Position = 4;
-  RobotClientsAutoTaskNavProgress NavProgress = 5;
-}
-
-/*
-** AutoTaskNext
 */
 message RobotClientsNextToken {
   int32 TaskId = 1;
   string NextToken = 2;
 }
 
-/*
-** AutoTaskAbort
-*/
 enum RobotClientsAbortReason {
   Reserved = 0;
   UserApi = 1;
@@ -151,4 +119,77 @@ message RobotClientsAbortToken {
   int32 TaskId = 1;
   string NextToken = 2;
   RobotClientsAbortReason AbortReason = 3;
+}
+
+// Clients to Server
+message RobotClientsExchange {
+  RobotClientsData RobotData = 1;
+  optional RobotClientsNextToken NextToken = 2;
+  optional RobotClientsAbortToken AbortToken = 3;
+}
+
+message RobotClientsRobotCommands {
+  optional bool AbortTask = 1;
+  optional bool RenewCertificate = 2;
+  optional bool SoftwareEmergencyStopEnable = 3;
+  optional bool SoftwareEmergencyStopDisable = 4;
+  optional bool PauseTaskAssignmentEnable = 5;
+  optional bool PauseTaskAssignmentDisable = 6;
+}
+
+message RobotClientsPath {
+  repeated RobotClientsDof Waypoints = 1;
+}
+
+message RobotClientsAutoTask {
+  int32 TaskId = 1;
+  string TaskName = 2;
+  int32 TaskProgressId = 3;
+  string TaskProgressName = 4;
+  repeated RobotClientsPath Paths = 5;
+  string NextToken = 6;
+}
+
+// Server to Clients
+message RobotClientsResponse {
+  optional RobotClientsRobotCommands Commands = 1;
+  optional RobotClientsAutoTask Task = 2;
+}
+
+/*
+** SLAM
+*/
+
+enum RobotClientsSlamStatus {
+  SlamIdle = 0;
+  SlamRunning = 1;
+  SlamSuccess = 2;
+  SlamAborted = 3;
+}
+
+message RobotClientsMapData {
+  float Resolution = 1;
+  uint32 Width = 2;
+  uint32 Height = 3;
+  RobotClientsDof Origin = 4;
+  repeated int32 Data = 5;
+}
+
+// Clients to Server
+message RobotClientsSlamExchange {
+  RobotClientsSlamStatus Status = 1;
+  RobotClientsData RobotData = 2;
+  optional RobotClientsMapData MapData = 3;
+}
+
+// Server to Clients
+message RobotClientsSlamCommands {
+  optional RobotClientsDof SetGoal = 1;
+  optional bool AbortGoal = 2;
+  optional bool SoftwareEmergencyStopEnable = 3;
+  optional bool SoftwareEmergencyStopDisable = 4;
+  optional bool SaveMap = 5;
+  optional bool RefreshMap = 6;
+  optional bool CompleteSlam = 7;
+  optional bool AbortSlam = 8;
 }

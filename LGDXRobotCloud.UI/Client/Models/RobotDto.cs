@@ -26,8 +26,6 @@ namespace LGDXRobotCloud.UI.Client.Models
         public Guid? Id { get; set; }
         /// <summary>The isProtectingHardwareSerialNumber property</summary>
         public bool? IsProtectingHardwareSerialNumber { get; set; }
-        /// <summary>The isRealtimeExchange property</summary>
-        public bool? IsRealtimeExchange { get; set; }
         /// <summary>The name property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -96,7 +94,6 @@ namespace LGDXRobotCloud.UI.Client.Models
                 { "assignedTasks", n => { AssignedTasks = n.GetCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.AutoTaskListDto>(global::LGDXRobotCloud.UI.Client.Models.AutoTaskListDto.CreateFromDiscriminatorValue)?.AsList(); } },
                 { "id", n => { Id = n.GetGuidValue(); } },
                 { "isProtectingHardwareSerialNumber", n => { IsProtectingHardwareSerialNumber = n.GetBoolValue(); } },
-                { "isRealtimeExchange", n => { IsRealtimeExchange = n.GetBoolValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
                 { "realm", n => { Realm = n.GetObjectValue<global::LGDXRobotCloud.UI.Client.Models.RealmSearchDto>(global::LGDXRobotCloud.UI.Client.Models.RealmSearchDto.CreateFromDiscriminatorValue); } },
                 { "robotCertificate", n => { RobotCertificate = n.GetObjectValue<global::LGDXRobotCloud.UI.Client.Models.RobotCertificateDto>(global::LGDXRobotCloud.UI.Client.Models.RobotCertificateDto.CreateFromDiscriminatorValue); } },
@@ -114,7 +111,6 @@ namespace LGDXRobotCloud.UI.Client.Models
             writer.WriteCollectionOfObjectValues<global::LGDXRobotCloud.UI.Client.Models.AutoTaskListDto>("assignedTasks", AssignedTasks);
             writer.WriteGuidValue("id", Id);
             writer.WriteBoolValue("isProtectingHardwareSerialNumber", IsProtectingHardwareSerialNumber);
-            writer.WriteBoolValue("isRealtimeExchange", IsRealtimeExchange);
             writer.WriteStringValue("name", Name);
             writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.RealmSearchDto>("realm", Realm);
             writer.WriteObjectValue<global::LGDXRobotCloud.UI.Client.Models.RobotCertificateDto>("robotCertificate", RobotCertificate);

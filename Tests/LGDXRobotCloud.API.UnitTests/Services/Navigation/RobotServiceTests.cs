@@ -160,7 +160,6 @@ public class RobotServiceTests
     Assert.NotNull(actual);
     Assert.Equal(expected!.Name, actual.Name);
     Assert.Equal(expected.RealmId, actual.RealmId);
-    Assert.Equal(expected.IsRealtimeExchange, actual.IsRealtimeExchange);
     Assert.Equal(expected.IsProtectingHardwareSerialNumber, actual.IsProtectingHardwareSerialNumber);
 
     Assert.NotNull(actual.RobotCertificate);
@@ -214,7 +213,6 @@ public class RobotServiceTests
     var expected = new RobotCreateBusinessModel {
       Name = "Test Robot",
       RealmId = 1,
-      IsRealtimeExchange = true,
       IsProtectingHardwareSerialNumber = true,
       RobotChassisInfo = new RobotChassisInfoCreateBusinessModel {
         RobotTypeId = 1,
@@ -252,7 +250,6 @@ public class RobotServiceTests
     var expected = new RobotCreateBusinessModel {
       Name = "Test Robot",
       RealmId = realms.Count + 1,
-      IsRealtimeExchange = true,
       IsProtectingHardwareSerialNumber = true,
       RobotChassisInfo = new RobotChassisInfoCreateBusinessModel {
         RobotTypeId = 1,
@@ -415,19 +412,5 @@ public class RobotServiceTests
 
     // Assert
     Assert.Null(actual);
-  }
-
-  [Fact]
-  public async Task GetRobotIsRealtimeExchange_CalledWithValidId_ShouldReturnsRealtimeExchange()
-  {
-    // Arrange
-    var expected = robots.Where(r => r.Id == RobotGuid).FirstOrDefault();
-    var robotService = new RobotService(mockActivityLogService.Object, mockMemoryCache.Object, mockRobotCertificateService.Object, lgdxContext);
-
-    // Act
-    var actual = await robotService.GetRobotIsRealtimeExchange(RobotGuid);
-
-    // Assert
-    Assert.Equal(expected!.IsRealtimeExchange, actual);
   }
 }

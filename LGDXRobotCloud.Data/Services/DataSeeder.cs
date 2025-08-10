@@ -66,14 +66,12 @@ public class DataSeeder(LgdxContext context)
         Name = "Robot1",
         RealmId = realm.Id,
         IsProtectingHardwareSerialNumber = false,
-        IsRealtimeExchange = false,
       },
       new (){
         Id = Guid.Parse("0198276e-e868-733b-b9e7-d67c0ab84afd"),
         Name = "Robot2",
         RealmId = realm.Id,
         IsProtectingHardwareSerialNumber = false,
-        IsRealtimeExchange = false,
       }
     };
 

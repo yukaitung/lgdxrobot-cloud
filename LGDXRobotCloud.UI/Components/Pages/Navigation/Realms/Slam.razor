@@ -1,0 +1,206 @@
+@using LGDXRobotCloud.Utilities.Enums
+@using LGDXRobotCloud.UI.Components.Pages.Navigation.Realms.Components
+@attribute [Route(AppRoutes.Navigation.Realms.Slam)]
+@attribute [Authorize(Policy = Permissions.Navigation.Realms.Write)]
+
+<PageHeader Title="SLAM Mode">
+  <div class="row align-items-center">
+    <div class="col">
+      <ReturnLink HREF="@(AppRoutes.Navigation.Realms.Index + $"/{Id}")" />
+      <h2 class="page-title">
+        SLAM Mode
+      </h2>
+    </div>
+    <div class="col-md-auto ms-auto">
+      @if (SelectedRobot != null)
+      {
+        <div class="btn-list">
+          <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#abortSlamModal">
+            Abort SLAM
+          </a>
+          <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateRealmModal">
+            Update Realm
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+</PageHeader>
+
+@if (SelectedRobot != null && SelectedRobot.RobotStatus != RobotStatus.Offline)
+{
+  <div class="container-xl mt-2">
+    <div class="col-12">
+      <div class="card card-sm">
+        <div class="card-body p-0">
+          <div class="row align-items-center">
+            <div class="col">
+              <div id="map-editor-tools" class="btn-group">
+                <button class="btn" @onclick="StartSetGoal" disabled=@(SlamMode != SlamMode.Normal)>Set Goal</button>
+                <button class="btn" @onclick="StopSetGoal" disabled=@(SlamMode != SlamMode.SetGoal)>Cancel</button>
+                <button class="btn" @onclick="AbortGoal">Abort</button>
+                <button class="btn" @onclick="RefreshMap">Refresh</button>
+                <button class="btn" @onclick="SaveMap">Save Map</button>
+              </div>
+            </div>
+            <p id="navigation-map-coordinate" class="col text-center m-0"></p>
+            <p id="navigation-map-status" class="col text-end m-0 me-2">
+              @switch (SlamMode) {
+                default:
+                case SlamMode.Normal:
+                  <text></text>
+                  break;
+                case SlamMode.SetGoal:
+                  <text>Drag on the map to setup location and rotation.</text>
+                  break;
+              }
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Map -->
+<div id="navigation-map" class="flex-fill row m-0 g-0">
+  <!-- Map -->
+  <div id="navigation-map-container" class="col">
+    <div id="navigation-map-canvas"></div>
+    <img id="navigation-map-image" class="d-none" src="" />
+    <div id="navigation-map-buttons" class="btn-group-vertical">
+      <button class="btn" onclick="NavigationMapZoomIn()"><i class="ti ti-zoom-in"></i></button>
+      <button class="btn" onclick="NavigationMapZoomOut()"><i class="ti ti-zoom-out"></i></button>
+    </div>
+    <div id="navigation-map-ruler" class="border border-2 border-top-0 border-dark ps-2">
+      1m
+    </div>
+    <canvas id="navigation-slam-map-data" class="d-none" style="display: none;"></canvas>
+  </div>
+  <!-- Sidebar -->
+  <div id="navigation-map-sidebar" class="col-sm-12 my-2 pe-sm-0 pe-md-2 pb-sm-0 pb-md-2">
+    <div id="navigation-map-sidebar-info" class="card h-100">
+      <div class="card-body">
+        @if (SelectedRobot != null && SelectedRobot.RobotStatus != RobotStatus.Offline)
+        {
+          <div class="row row-deck row-cards">
+            <!-- Robot Data  -->
+            <div class="col-12">
+              <div class="card">
+                <div class="card-body">
+                  <div class="datagrid">
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">ID</div>
+                      <div class="datagrid-content">@SelectedRobot.RobotId</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Position</div>
+                      <div class="datagrid-content">
+                        X: @Math.Round(SelectedRobot.Position.X, 4) m<br />
+                        Y: @Math.Round(SelectedRobot.Position.Y, 4) m<br />
+                        Rotation: @Math.Round((SelectedRobot.Position.Rotation * 180 / Math.PI), 4) degree
+                      </div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Batteries</div>
+                      <div class="datagrid-content">
+                        @if (SelectedRobot.Batteries.Count() > 0)
+                        {
+                          @for (int i = 0; i < SelectedRobot.Batteries.Count(); i++)
+                          {
+                            @(' ')
+                            <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
+                              @(SelectedRobot.Batteries.ElementAt(i) + " V")
+                            </span>
+                          }
+                        }
+                        else
+                        {
+                          <span class="badge badge-outline">Unavailable</span>
+                        }
+                      </div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Emergency Stops</div>
+                      <div class="datagrid-content">Software: @SelectedRobot.CriticalStatus.SoftwareEmergencyStop<br />Hardware: @SelectedRobot.CriticalStatus.HardwareEmergencyStop</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Task Progress  -->
+            <div class="col-12">
+              <div class="card">
+                <div class="card-body">
+                  <div class="datagrid">
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Status</div>
+                      <div class="datagrid-content">@SlamStatus.ToEnumMember()</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">ETA</div>
+                      <div class="datagrid-content">@Math.Round(SelectedRobot.NavProgress.Eta, 4) seconds</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Recoveries</div>
+                      <div class="datagrid-content">@SelectedRobot.NavProgress.Recoveries</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Distance Remaining</div>
+                      <div class="datagrid-content">@Math.Round(SelectedRobot.NavProgress.DistanceRemaining, 4) m</div>
+                    </div>
+                    <div class="datagrid-item">
+                      <div class="datagrid-title">Waypoints Remaining</div>
+                      <div class="datagrid-content">@SelectedRobot.NavProgress.WaypointsRemaining</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Button -->
+            <div class="col-12">
+              <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop" style="width: 160px;">
+                @(SelectedRobot.CriticalStatus.SoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
+              </a>
+            </div>
+          </div>
+        }
+        else
+        {
+          <h1>Awaiting Robot...</h1>
+          <div class="alert alert-info" role="alert">
+            <div class="d-flex">
+              <i class="me-2 ti ti-info-circle" style="font-size: 22px;"></i>
+              <div>Only one robot is supported in SLAM mode.</div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  @($"var MAP_RESOLUTION = 0;var MAP_ORIGIN_X = 0;var MAP_ORIGIN_Y = 0;var MAP_ORIGIN_ROTATION = 0;")
+</script>
+
+<style>
+body {
+  overflow: hidden;
+}
+
+footer.footer.footer-transparent {
+  display: none;
+}
+</style>
+
+@if (SelectedRobot != null && SelectedRobot.RobotStatus != RobotStatus.Offline)
+{
+  <SoftwareEmergencyStopModel RealmId="Id == null ? 0 : Id.Value" 
+    SoftwareEmergencyStop="SelectedRobot == null ? false : SelectedRobot.CriticalStatus.SoftwareEmergencyStop" />
+}
+@if (SelectedRobot != null)
+{
+  <AbortSlamModel Abort="AbortSlam" />
+  <UpdateRealmModel Update="UpdateRealm" />
+}

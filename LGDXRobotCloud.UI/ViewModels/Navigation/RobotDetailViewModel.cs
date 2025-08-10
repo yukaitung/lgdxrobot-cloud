@@ -17,8 +17,6 @@ public sealed class RobotDetailViewModel : FormViewModel
 
   public string? RealmName { get; set; }
   
-  public bool IsRealtimeExchange { get; set; }
-
   public bool IsProtectingHardwareSerialNumber { get; set; }
 }
 
@@ -30,7 +28,6 @@ public static class RobotDetailViewModelExtensions
     robotDetailViewModel.Name = robotDto.Name!;
     robotDetailViewModel.RealmId = robotDto.Realm!.Id;
     robotDetailViewModel.RealmName = robotDto.Realm!.Name;
-    robotDetailViewModel.IsRealtimeExchange = (bool)robotDto.IsRealtimeExchange!;
     robotDetailViewModel.IsProtectingHardwareSerialNumber = (bool)robotDto.IsProtectingHardwareSerialNumber!;
   }
 
@@ -39,7 +36,6 @@ public static class RobotDetailViewModelExtensions
     return new RobotCreateDto {
       Name = robotDetailViewModel.Name,
       RealmId = robotDetailViewModel.RealmId,
-      IsRealtimeExchange = robotDetailViewModel.IsRealtimeExchange,
       IsProtectingHardwareSerialNumber = robotDetailViewModel.IsProtectingHardwareSerialNumber,
       RobotChassisInfo = robotChassisInfoCreateDto
     };
@@ -49,7 +45,6 @@ public static class RobotDetailViewModelExtensions
   {
     return new RobotUpdateDto {
       Name = robotDetailViewModel.Name,
-      IsRealtimeExchange = robotDetailViewModel.IsRealtimeExchange,
       IsProtectingHardwareSerialNumber = robotDetailViewModel.IsProtectingHardwareSerialNumber
     };
   }

@@ -30,7 +30,6 @@ public interface IRobotService
   Task<IEnumerable<RobotSearchBusinessModel>> SearchRobotsAsync(int realmId, string? name, Guid? robotId);
 
   Task<int?> GetRobotRealmIdAsync(Guid robotId);
-  Task<bool> GetRobotIsRealtimeExchange(Guid robotId);
 }
 
 public class RobotService(
@@ -83,7 +82,6 @@ public class RobotService(
         Name = r.Name,
         RealmId = r.RealmId,
         RealmName = r.Realm.Name,
-        IsRealtimeExchange = r.IsRealtimeExchange,
         IsProtectingHardwareSerialNumber = r.IsProtectingHardwareSerialNumber,
         RobotCertificate = new RobotCertificateBusinessModel {
           Id = r.RobotCertificate.Id,
@@ -156,7 +154,6 @@ public class RobotService(
       Id = id,
       Name = robotCreateBusinessModel.Name,
       RealmId = robotCreateBusinessModel.RealmId,
-      IsRealtimeExchange = robotCreateBusinessModel.IsRealtimeExchange,
       IsProtectingHardwareSerialNumber = robotCreateBusinessModel.IsProtectingHardwareSerialNumber,
       RobotCertificate = new RobotCertificate {
         Thumbprint = robotCertificate.RobotCertificateThumbprint,
@@ -200,7 +197,6 @@ public class RobotService(
       .Where(r => r.Id == id)
       .ExecuteUpdateAsync(setters => setters
         .SetProperty(r => r.Name, robotUpdateDtoBusinessModel.Name)
-        .SetProperty(r => r.IsRealtimeExchange, robotUpdateDtoBusinessModel.IsRealtimeExchange)
         .SetProperty(r => r.IsProtectingHardwareSerialNumber, robotUpdateDtoBusinessModel.IsProtectingHardwareSerialNumber)
       ) == 1;
 
@@ -375,13 +371,5 @@ public class RobotService(
 
     _memoryCache.Set($"RobotService_GetRobotRealmIdAsync_{robotId}", robot!.RealmId, TimeSpan.FromDays(1));
     return robot.RealmId;
-  }
-
-  public async Task<bool> GetRobotIsRealtimeExchange(Guid robotId)
-  {
-    return await _context.Robots.AsNoTracking()
-      .Where(r => r.Id == robotId)
-      .Select(r => r.IsRealtimeExchange)
-      .FirstOrDefaultAsync();
   }
 }

@@ -8,42 +8,44 @@ using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobotCloud.API.Services.Automation;
 
 public interface IAutoTaskSchedulerService
 {
-  void ResetIgnoreRobot(int realmId);
-  Task<RobotClientsAutoTask?> GetAutoTaskAsync(Guid robotId);
-  Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason);
+  Task RunSchedulerNewAutoTaskAsync(int realmId, Guid? robotId);
+  Task RunSchedulerRobotNewJoinAsync(Guid robotId);
+  Task<bool> RunSchedulerRobotReadyAsync(Guid robotId);
+
+  void ReleaseRobot(Guid robotId);
+
+  Task AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason);
   Task<bool> AutoTaskAbortApiAsync(int taskId);
-  Task<RobotClientsAutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token);
-  Task<AutoTask?> AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
-  Task<RobotClientsAutoTask?> AutoTaskNextConstructAsync(AutoTask autoTask);
+  Task AutoTaskNextAsync(Guid robotId, int taskId, string token);
+  Task<bool> AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
 }
 
 public class AutoTaskSchedulerService(
     IAutoTaskPathPlannerService autoTaskPathPlanner,
     IBus bus,
     IEmailService emailService,
-    IMemoryCache memoryCache,
+    IEventService eventService,
     IOnlineRobotsService onlineRobotsService,
+    IRobotDataService robotDataService,
     IRobotService robotService,
     ITriggerService triggerService,
     LgdxContext context
   ) : IAutoTaskSchedulerService
 {
-  private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner ?? throw new ArgumentNullException(nameof(autoTaskPathPlanner));
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
-  private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
-  private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
-  private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
-  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
-  private static string GetIgnoreRobotsKey(int realmId) => $"AutoTaskSchedulerService_IgnoreRobot_{realmId}";
+  private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner;
+  private readonly IBus _bus = bus;
+  private readonly IEmailService _emailService = emailService;
+  private readonly IEventService _eventService = eventService;
+  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService;
+  private readonly IRobotDataService _robotDataService = robotDataService;
+  private readonly IRobotService _robotService = robotService;
+  private readonly ITriggerService _triggerService = triggerService;
+  private readonly LgdxContext _context = context;
 
   private async Task AddAutoTaskJourney(AutoTask autoTask)
   {
@@ -56,13 +58,8 @@ public class AutoTaskSchedulerService(
     await _context.SaveChangesAsync();
   }
 
-  private async Task<RobotClientsAutoTask?> GenerateTaskDetail(AutoTask? task, bool continueAutoTask = false)
+  private async Task<RobotClientsAutoTask?> GenerateTaskDetail(AutoTask task, bool continueAutoTask = false)
   {
-    if (task == null)
-    {
-      return null;
-    }
-
     var progress = await _context.Progresses.AsNoTracking()
       .Where(p => p.Id == task.CurrentProgressId)
       .Select(p => new { p.Name })
@@ -151,11 +148,84 @@ public class AutoTaskSchedulerService(
     };
   }
 
-  public void ResetIgnoreRobot(int realmId)
+  private void SetAutoTask(Guid robotId, RobotClientsAutoTask autoTask)
   {
-    _memoryCache.Remove(GetIgnoreRobotsKey(realmId));
+    _robotDataService.SetAutoTasks(robotId, autoTask);
+    _eventService.RobotHasNextTaskTriggered(robotId);
   }
 
+  private async Task FindRobotLoop(int realmId)
+  {
+    var onlineRobotsIds = _robotDataService.GetOnlineRobots(realmId);
+    // Find any robot that is idle
+    foreach (var robotId in onlineRobotsIds)
+    {
+      if (_robotDataService.AutoTaskSchedulerHoldRobot(realmId, robotId))
+      {
+        var robotData = _robotDataService.GetRobotData(robotId);
+        if (robotData != null)
+        {
+          if (robotData.RobotStatus == RobotClientsRobotStatus.Idle &&
+                !_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+          {
+            // A robot is available for the task, ask it to obatin the task
+            await RunSchedulerRobotReadyAsync(robotId);
+            // Release the robot when it obtains the task
+            return;
+          }
+          else
+          {
+            // The robot is paused, release it and continue
+            _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
+          }
+        }
+      }
+    }
+  }
+
+  private async Task FindRobotSingle(int realmId, Guid robotId)
+  {
+    var onlineRobotsIds = _robotDataService.GetOnlineRobots(realmId);
+    if (!onlineRobotsIds.Contains(robotId))
+    {
+      // The specified robot is offline, stop the scheduler
+      return;
+    }
+    
+    if (_robotDataService.AutoTaskSchedulerHoldRobot(realmId, robotId))
+    {
+      var robotData = _robotDataService.GetRobotData(robotId);
+      if (robotData != null)
+      {
+        if (robotData.RobotStatus == RobotClientsRobotStatus.Idle &&
+              !_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+        {
+          // A robot is available for the task, ask it to obatin the task
+          await RunSchedulerRobotReadyAsync(robotId);
+          // Release the robot when it obtains the task
+          return;
+        }
+        else
+        {
+          // The robot is paused, release it and continue
+          _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
+        }
+      }
+    }
+  }
+
+  public async Task RunSchedulerNewAutoTaskAsync(int realmId, Guid? robotId)
+  {
+    if (robotId != null)
+    {
+      await FindRobotSingle(realmId, robotId.Value);
+    }
+    else
+    {
+      await FindRobotLoop(realmId);
+    }
+  }
+  
   private async Task<AutoTask?> GetRunningAutoTaskSqlAsync(Guid robotId)
   {
     return await _context.AutoTasks.AsNoTracking()
@@ -168,7 +238,29 @@ public class AutoTaskSchedulerService(
       .FirstOrDefaultAsync();
   }
 
-  private async Task<AutoTask?> AssignAutoTaskSqlAsync(Guid robotId)
+  public async Task RunSchedulerRobotNewJoinAsync(Guid robotId)
+  {
+    if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+    {
+      return;
+    }
+
+    var runningAutoTask = await GetRunningAutoTaskSqlAsync(robotId);
+    if (runningAutoTask != null)
+    {
+      // Send the running task to the robot
+      var task = await GenerateTaskDetail(runningAutoTask, true);
+      if (task != null)
+      {
+        SetAutoTask(robotId, task);
+      }
+      return;
+    }
+    // Assign the task to the robot
+    await RunSchedulerRobotReadyAsync(robotId);
+  }
+
+  private async Task<AutoTask?> GetNextAutoTaskSqlAsync(Guid robotId, int realmId)
   {
     AutoTask? task = null;
     using var transaction = await _context.Database.BeginTransactionAsync();
@@ -177,10 +269,14 @@ public class AutoTaskSchedulerService(
       // Get waiting task
       task = await _context.AutoTasks.FromSql(
         $@"SELECT * FROM ""Automation.AutoTasks"" AS T 
-            WHERE T.""CurrentProgressId"" = {(int)ProgressState.Waiting} AND (T.""AssignedRobotId"" = {robotId} OR T.""AssignedRobotId"" IS NULL)
+            WHERE T.""CurrentProgressId"" = {(int)ProgressState.Waiting} AND (T.""AssignedRobotId"" = {robotId} OR T.""AssignedRobotId"" IS NULL) AND T.""RealmId"" = {realmId}
             ORDER BY T.""Priority"" DESC, T.""AssignedRobotId"" DESC, T.""Id""
             LIMIT 1 FOR UPDATE SKIP LOCKED"
       ).FirstOrDefaultAsync();
+      if (task == null)
+      {
+        return null;
+      }
 
       // Get flow detail
       var flowDetail = await _context.FlowDetails
@@ -208,42 +304,34 @@ public class AutoTaskSchedulerService(
     return null;
   }
 
-  public async Task<RobotClientsAutoTask?> GetAutoTaskAsync(Guid robotId)
+  public async Task<bool> RunSchedulerRobotReadyAsync(Guid robotId)
   {
+    if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+    {
+      return false;
+    }
+
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    _memoryCache.TryGetValue(GetIgnoreRobotsKey(realmId), out HashSet<Guid>? ignoreRobotIds);
-    if (ignoreRobotIds != null && (ignoreRobotIds?.Contains(robotId) ?? false))
+    var newTask = await GetNextAutoTaskSqlAsync(robotId, realmId);
+    if (newTask != null)
     {
-      return null;
-    }
-
-    var currentTask = await GetRunningAutoTaskSqlAsync(robotId);
-    bool continueAutoTask = currentTask != null;
-    if (currentTask == null)
-    {
-      if (!_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+      await AddAutoTaskJourney(newTask);
+      // Send the running task to the robot
+      var task = await GenerateTaskDetail(newTask);
+      if (task != null)
       {
-        currentTask = await AssignAutoTaskSqlAsync(robotId);
-        if (currentTask != null)
-        {
-          await AddAutoTaskJourney(currentTask);
-        }
+        SetAutoTask(robotId, task);
       }
-      else
-      {
-        // If pause auto task assignment is true, new task will not be assigned.
-        return null;
-      }
+      // Has new task
+      return true;
     }
+    return false;
+  }
 
-    if (currentTask == null)
-    {
-      // No task for this robot, pause database access.
-      ignoreRobotIds ??= [];
-      ignoreRobotIds.Add(robotId);
-      _memoryCache.Set(GetIgnoreRobotsKey(realmId), ignoreRobotIds, TimeSpan.FromMinutes(5));
-    }
-    return await GenerateTaskDetail(currentTask, continueAutoTask);
+  public void ReleaseRobot(Guid robotId)
+  {
+    var realmId = _robotService.GetRobotRealmIdAsync(robotId).Result ?? 0;
+    _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
   }
 
   private async Task<AutoTask?> AutoTaskAbortSqlAsync(int taskId, Guid? robotId = null, string? token = null)
@@ -270,6 +358,10 @@ public class AutoTaskSchedulerService(
               LIMIT 1 FOR UPDATE NOWAIT"
         ).FirstOrDefaultAsync();
       }
+      if (task == null)
+      {
+        return null;
+      }
 
       // Update task
       task!.CurrentProgressId = (int)ProgressState.Aborted;
@@ -294,27 +386,50 @@ public class AutoTaskSchedulerService(
     }
   }
 
-  public async Task<RobotClientsAutoTask?> AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason)
+  public async Task AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason)
   {
     var task = await AutoTaskAbortSqlAsync(taskId, robotId, token);
-    if (task != null)
+    if (task == null)
     {
-      await DeleteTriggerRetries(taskId);
-      await _emailService.SendAutoTaskAbortEmailAsync(taskId, autoTaskAbortReason);
-      await AddAutoTaskJourney(task);
+      return;
     }
-    return await GenerateTaskDetail(task);
+
+    await DeleteTriggerRetries(taskId);
+    await _emailService.SendAutoTaskAbortEmailAsync(taskId, autoTaskAbortReason);
+    await AddAutoTaskJourney(task);
+    // Allow update the task to rabbitmq
+    var sendTask = await GenerateTaskDetail(task);
+    if (!await RunSchedulerRobotReadyAsync(robotId))
+    {
+      // No new task, send the aborted task to idle the robot
+      if (sendTask != null)
+      {
+        SetAutoTask(robotId, sendTask);
+      }
+    }
   }
 
   public async Task<bool> AutoTaskAbortApiAsync(int taskId)
   {
     var task = await AutoTaskAbortSqlAsync(taskId);
     if (task == null)
+    {
       return false;
+    }
       
     await DeleteTriggerRetries(taskId);
     await _emailService.SendAutoTaskAbortEmailAsync(taskId, AutoTaskAbortReason.UserApi);
     await AddAutoTaskJourney(task);
+    // Allow update the task to rabbitmq
+    var sendTask = await GenerateTaskDetail(task);
+    if (task.AssignedRobotId != null && !await RunSchedulerRobotReadyAsync(task.AssignedRobotId.Value))
+    {
+      // No new task, send the aborted task to idle the robot
+      if (sendTask != null)
+      {
+        SetAutoTask(task.AssignedRobotId!.Value, sendTask);
+      }
+    }
     return true;
   }
 
@@ -330,6 +445,10 @@ public class AutoTaskSchedulerService(
             WHERE T.""Id"" = {taskId} AND T.""AssignedRobotId"" = {robotId} AND T.""NextToken"" = {token}
             LIMIT 1 FOR UPDATE NOWAIT"
       ).FirstOrDefaultAsync();
+      if (task == null)
+      {
+        return null;
+      }
 
       // Get flow detail
       var flowDetail = await _context.FlowDetails.AsNoTracking()
@@ -366,28 +485,54 @@ public class AutoTaskSchedulerService(
     return task;
   }
 
-  public async Task<RobotClientsAutoTask?> AutoTaskNextAsync(Guid robotId, int taskId, string token)
+  public async Task AutoTaskNextAsync(Guid robotId, int taskId, string token)
   {
     var task = await AutoTaskNextSqlAsync(robotId, taskId, token);
-    if (task != null)
+    if (task == null)
     {
-      await AddAutoTaskJourney(task);
+      return;
     }
-    return await GenerateTaskDetail(task);
+
+    await AddAutoTaskJourney(task);
+    if (task.CurrentProgressId == (int)ProgressState.Completed && await RunSchedulerRobotReadyAsync(robotId))
+    {
+      // Allow update the task to rabbitmq
+      await GenerateTaskDetail(task);
+      // Completed task, and new task available
+      return;
+    }
+
+    // Send the running task / complete task to the robot
+    var sendTask = await GenerateTaskDetail(task);
+    if (sendTask != null)
+    {
+      SetAutoTask(robotId, sendTask);
+    }
   }
 
-  public async Task<AutoTask?> AutoTaskNextApiAsync(Guid robotId, int taskId, string token)
+  public async Task<bool> AutoTaskNextApiAsync(Guid robotId, int taskId, string token)
   {
     var task = await AutoTaskNextSqlAsync(robotId, taskId, token);
-    if (task != null)
+    if (task == null)
     {
-      await AddAutoTaskJourney(task);
+      return false;
     }
-    return task;
-  }
+    
+    await AddAutoTaskJourney(task);
+    if (task.CurrentProgressId == (int)ProgressState.Completed && await RunSchedulerRobotReadyAsync(robotId))
+    {
+      // Allow update the task to rabbitmq
+      await GenerateTaskDetail(task);
+      // Completed task, and new task available
+      return true;
+    }
 
-  public async Task<RobotClientsAutoTask?> AutoTaskNextConstructAsync(AutoTask autoTask)
-  {
-    return await GenerateTaskDetail(autoTask);
+    // Send the running task / complete task to the robot
+    var sendTask = await GenerateTaskDetail(task);
+    if (sendTask != null)
+    {
+      SetAutoTask(robotId, sendTask);
+    }
+    return true;
   }
 }

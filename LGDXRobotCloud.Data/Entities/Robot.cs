@@ -20,8 +20,6 @@ public class Robot
   [Required]
   public int RealmId { get; set; }
 
-  public bool IsRealtimeExchange { get; set; }
-
   public bool IsProtectingHardwareSerialNumber { get; set; }
 
   public RobotCertificate RobotCertificate { get; set; } = null!;

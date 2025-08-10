@@ -107,7 +107,7 @@ public class LgdxContext(DbContextOptions<LgdxContext> options) : IdentityDbCont
       .HasForeignKey(e => e.ApiKeyId)
       .IsRequired(false)
       .OnDelete(DeleteBehavior.SetNull);
-   
+      
     // Navigation.Robots
     modelBuilder.Entity<Robot>()
       .HasOne(e => e.RobotSystemInfo)

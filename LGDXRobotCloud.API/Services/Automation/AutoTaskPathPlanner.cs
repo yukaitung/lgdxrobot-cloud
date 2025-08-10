@@ -15,14 +15,14 @@ public interface IAutoTaskPathPlannerService
 public sealed partial class AutoTaskPathPlannerService(
     ILogger<AutoTaskPathPlannerService> logger,
     IMapEditorService mapEditorService,
-    IOnlineRobotsService onlineRobotsService,
+    IRobotDataService robotDataService,
     LgdxContext context
   ) : IAutoTaskPathPlannerService
 {
-  private readonly IMapEditorService _mapEditorService = mapEditorService ?? throw new ArgumentNullException(nameof(mapEditorService));
-  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
-  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
-
+  private readonly IMapEditorService _mapEditorService = mapEditorService;
+  private readonly IRobotDataService _robotDataService = robotDataService;
+  private readonly LgdxContext _context = context;
+  
   [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Path planning: The task detail does not have waypoint.")]
   public partial void TheTaskDetailDoesNotHaveWaypoint();
 
@@ -151,7 +151,7 @@ public sealed partial class AutoTaskPathPlannerService(
   public async Task<List<RobotClientsPath>> GeneratePath(AutoTask autoTask)
   {
     var realmId = autoTask.RealmId;
-    var hasWaypointsTrafficControl = context.Realms.AsNoTracking()
+    var hasWaypointsTrafficControl = _context.Realms.AsNoTracking()
       .Where(r => r.Id == realmId)
       .Select(r => r.HasWaypointsTrafficControl)
       .FirstOrDefault();
@@ -188,7 +188,7 @@ public sealed partial class AutoTaskPathPlannerService(
       var waypointsTraffic = await _mapEditorService.GetWaypointTrafficAsync(realmId);
 
       // Find the nearest waypoint
-      var robotData = _onlineRobotsService.GetRobotData((Guid)autoTask.AssignedRobotId!);
+      var robotData = _robotDataService.GetRobotData((Guid)autoTask.AssignedRobotId!);
       if (robotData == null)
       {
         RobotDataNotFoundForRobotId((Guid)autoTask.AssignedRobotId!);

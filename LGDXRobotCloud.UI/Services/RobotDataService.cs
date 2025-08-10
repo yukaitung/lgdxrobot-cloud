@@ -1,4 +1,5 @@
 using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Utilities.Enums;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobotCloud.UI.Services;
@@ -9,9 +10,6 @@ public interface IRobotDataService
 
   RobotDataContract? GetRobotData(Guid robotId, int realmId);
   void UpdateRobotData(RobotDataContract robotData);
-
-  RobotCommandsContract? GetRobotCommands(Guid robotId);
-  void UpdateRobotCommands(RobotCommandsContract robotCommands);
 }
 
 public sealed class RobotDataService(
@@ -22,7 +20,6 @@ public sealed class RobotDataService(
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IRealTimeService _realTimeService = realTimeService ?? throw new ArgumentNullException(nameof(realTimeService));
   private static string GetRobotDataKey(Guid robotId) => $"RobotDataService_RobotData_{robotId}";
-  private static string GetRobotCommandsKey(Guid robotId) => $"RobotDataService_RobotCommands_{robotId}";
   private static string GetOnlineRobotsKey(int realmId) => $"RobotDataService_OnlineRobots_{realmId}";
 
   public HashSet<Guid> GetOnlineRobots(int realmId)
@@ -43,29 +40,21 @@ public sealed class RobotDataService(
   {
     var robotId = robotData.RobotId;
     var realmId = robotData.RealmId;
-    if (!_memoryCache.TryGetValue(GetRobotDataKey(robotId), out var _))
+    if (!_memoryCache.TryGetValue(GetRobotDataKey(robotId), out var _) && robotData.RobotStatus != RobotStatus.Offline)
     {
       // Register the robot data in the cache
       var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId)) ?? [];
       OnlineRobotsIds.Add(robotId);
       memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
     }
+    else if (robotData.RobotStatus == RobotStatus.Offline)
+    {
+      // Remove the robot data from the cache
+      var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId)) ?? [];
+      OnlineRobotsIds.Remove(robotId);
+      memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
+    }
     _memoryCache.Set(GetRobotDataKey(robotId), robotData);
     _realTimeService.RobotDataHasUpdated(new RobotUpdatEventArgs { RobotId = robotId, RealmId = realmId });
-  }
-
-  public RobotCommandsContract? GetRobotCommands(Guid robotId)
-  {
-    if (_memoryCache.TryGetValue(GetRobotCommandsKey(robotId), out RobotCommandsContract? robotCommands))
-    {
-      return robotCommands;
-    }
-    return null;
-  }
-
-  public void UpdateRobotCommands(RobotCommandsContract robotCommands)
-  {
-    _memoryCache.Set(GetRobotCommandsKey(robotCommands.RobotId), robotCommands, DateTimeOffset.Now.AddMinutes(1));
-    _realTimeService.RobotCommandsHasUpdated(new RobotUpdatEventArgs { RobotId = robotCommands.RobotId, RealmId = robotCommands.RealmId });
   }
 }

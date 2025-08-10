@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LGDXRobotCloud.Utilities.Constants;
+using LGDXRobotCloud.Data.Models.DTOs.V1.Requests;
+using LGDXRobotCloud.Protos;
+using LGDXRobotCloud.API.Exceptions;
 
 namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 
@@ -18,10 +21,12 @@ namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
 public class RealmsController(
-  IRealmService realmService
+  IRealmService realmService,
+  ISlamService slamService
 ) : ControllerBase
 {
-  private readonly IRealmService _realmService = realmService ?? throw new ArgumentNullException(nameof(realmService));
+  private readonly IRealmService _realmService = realmService;
+  private readonly ISlamService _slamService = slamService;
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<RealmListDto>), StatusCodes.Status200OK)]
@@ -100,5 +105,121 @@ public class RealmsController(
       return NotFound();
     }
     return NoContent();
+  }
+
+  /*
+   * Slam
+   */
+
+  [HttpPost("{id}/Slam/SetGoal")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public ActionResult SetGoal(int id, RobotDofDto goal)
+  {
+    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      SetGoal = new RobotClientsDof
+      {
+        X = goal.X,
+        Y = goal.Y,
+        Rotation = goal.Rotation
+      }
+    }))
+    {
+      return NoContent();
+    }
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
+  }
+
+  [HttpPost("{id}/Slam/AbortGoal")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public ActionResult AbortGoal(int id)
+  {
+    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      AbortGoal = true
+    }))
+    {
+      return NoContent();
+    }
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
+  }
+
+  [HttpPost("{id}/Slam/RefreshMap")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public ActionResult RefreshMap(int id)
+  {
+    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      RefreshMap = true
+    }))
+    {
+      return NoContent();
+    }
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
+  }
+
+  [HttpPost("{id}/Slam/SaveMap")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public ActionResult SaveMap(int id)
+  {
+    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      SaveMap = true
+    }))
+    {
+      return NoContent();
+    }
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
+  }
+
+  [HttpPost("{id}/Slam/EmergencyStop")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public ActionResult EmergencyStop(int id, EnableDto enableDto)
+  {
+    var command = new RobotClientsSlamCommands();
+    if (enableDto.Enable)
+    {
+      command.SoftwareEmergencyStopEnable = true;
+    }
+    else
+    {
+      command.SoftwareEmergencyStopDisable = true;
+    }
+
+    if (_slamService.SetSlamCommands(id, command))
+    {
+      return NoContent();
+    }
+    throw new LgdxValidation400Expection(nameof(id), $"The realm has no robot running SLAM or the realm does not exist.");
+  }
+
+  [HttpPost("{id}/Slam/Abort")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  public ActionResult AbortSlam(int id)
+  {
+    _slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      AbortSlam = true
+    });
+    return NoContent();
+    // Don't throw exception to allow the UI continue
+  }
+
+  [HttpPost("{id}/Slam/Complete")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  public async Task<ActionResult> CompleteSlamAsync(int id, RealmMapUpdateDto realmMapUpdateDto)
+  {
+    await _realmService.UpdateRealmMapAsync(id, realmMapUpdateDto.ToBusinessModel());
+    _slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    {
+      CompleteSlam = true
+    });
+    return NoContent();
+    // Don't throw exception to allow the UI continue
   }
 }

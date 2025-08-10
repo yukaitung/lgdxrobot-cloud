@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using LGDXRobotCloud.Data.Models.Business.Identity;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
+using LGDXRobotCloud.Utilities.Constants;
 
 namespace LGDXRobotCloud.Data.Models.DTOs.V1.Commands;
 
@@ -16,20 +17,16 @@ public record RealmUpdateDto
   [Required(ErrorMessage = "Please select a traffic control type.")]
   public bool HasWaypointsTrafficControl { get; set; }
   
-  [Required(ErrorMessage = "Please upload an image.")]
-  public required string Image { get; set; }
+  [MaxLength(LgdxApiConstants.ImageMaxSize, ErrorMessage = "The image size is too large.")]
+  public string? Image { get; set; }
 
-  [Required (ErrorMessage = "Please enter a resolution.")]
-  public required double Resolution { get; set; }
+  public double Resolution { get; set; }
 
-  [Required (ErrorMessage = "Please enter an origin X coordinate.")]
-  public required double OriginX { get; set; }
+  public double OriginX { get; set; }
 
-  [Required (ErrorMessage = "Please enter an origin Y coordinate.")]
-  public required double OriginY { get; set; }
+  public double OriginY { get; set; }
 
-  [Required (ErrorMessage = "Please enter an origin rotation.")]
-  public required double OriginRotation { get; set; }
+  public double OriginRotation { get; set; }
 }
 
 public static class RealmUpdateDtoExtensions
