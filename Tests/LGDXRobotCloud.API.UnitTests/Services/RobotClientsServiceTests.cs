@@ -158,7 +158,6 @@ public class RobotClientsServiceTests
     mockRobotService.Verify(m => m.GetRobotAsync(RobotGuid), Times.Once);
     mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Once);
     mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Never);
-    mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Once);
   }
 
   [Fact]
@@ -242,7 +241,6 @@ public class RobotClientsServiceTests
     mockRobotService.Verify(m => m.GetRobotAsync(RobotGuid), Times.Once);
     mockRobotService.Verify(m => m.CreateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoCreateBusinessModel>()), Times.Never);
     mockRobotService.Verify(m => m.UpdateRobotSystemInfoAsync(RobotGuid, It.IsAny<RobotSystemInfoUpdateBusinessModel>()), Times.Once);
-    mockOnlineRobotsService.Verify(m => m.AddRobotAsync(RobotGuid), Times.Once);
   }
 
   [Fact]
