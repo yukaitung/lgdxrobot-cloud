@@ -1,4 +1,5 @@
 using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Utilities.Enums;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace LGDXRobotCloud.UI.Services;
@@ -39,11 +40,18 @@ public sealed class RobotDataService(
   {
     var robotId = robotData.RobotId;
     var realmId = robotData.RealmId;
-    if (!_memoryCache.TryGetValue(GetRobotDataKey(robotId), out var _))
+    if (!_memoryCache.TryGetValue(GetRobotDataKey(robotId), out var _) && robotData.RobotStatus != RobotStatus.Offline)
     {
       // Register the robot data in the cache
       var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId)) ?? [];
       OnlineRobotsIds.Add(robotId);
+      memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
+    }
+    else if (robotData.RobotStatus == RobotStatus.Offline)
+    {
+      // Remove the robot data from the cache
+      var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId)) ?? [];
+      OnlineRobotsIds.Remove(robotId);
       memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
     }
     _memoryCache.Set(GetRobotDataKey(robotId), robotData);

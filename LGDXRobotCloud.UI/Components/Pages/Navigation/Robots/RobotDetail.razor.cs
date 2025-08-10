@@ -88,10 +88,10 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
     }
   }
 
-  public async Task HandlePauseTaskAssigement()
+  public async Task HandlePauseTaskAssignment()
   {
     bool enabled = RobotData!.RobotStatus != RobotStatus.Paused;
-    await LgdxApiClient.Navigation.Robots[RobotData!.RobotId].PauseTaskAssigement.PatchAsync(new() {
+    await LgdxApiClient.Navigation.Robots[RobotData!.RobotId].PauseTaskAssignment.PatchAsync(new() {
       Enable = enabled
     });
   }

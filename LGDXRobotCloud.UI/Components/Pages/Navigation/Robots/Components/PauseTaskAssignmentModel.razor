@@ -1,6 +1,6 @@
 @using LGDXRobotCloud.Utilities.Enums
 
-<div class="modal fade modal-blur" id="pauseTaskAssigement" tabindex="-1" data-bs-keyboard="false">
+<div class="modal fade modal-blur" id="pauseTaskAssignment" tabindex="-1" data-bs-keyboard="false">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -49,7 +49,7 @@
 
   public async Task HandleRequest()
   {
-    await JSRuntime.InvokeVoidAsync("CloseModal", "#pauseTaskAssigement");
+    await JSRuntime.InvokeVoidAsync("CloseModal", "#pauseTaskAssignment");
     await OnConfirm.InvokeAsync();
   }
 }

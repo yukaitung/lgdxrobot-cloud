@@ -367,6 +367,15 @@ function MoveRobot(robotId, x, y, rotation)
   }
 }
 
+function RemoveRobot(robotId)
+{
+  let robot = MapLayer.findOne('#' + robotId);
+  if (robot != undefined)
+  {
+    robot.destroy();
+  }
+}
+
 function UpdateRobotPlan(plan)
 {
   for (let i = 0; i < plan.length; i += 2)

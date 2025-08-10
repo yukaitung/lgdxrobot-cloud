@@ -239,7 +239,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
       if (_id != null)
       {
         var task = await LgdxApiClient.Automation.AutoTasks[(int)_id].GetAsync();
-        // Normal Assigement
+        // Normal Assignment
         AutoTaskDetailViewModel.FromDto(task!);
         _editContext = new EditContext(AutoTaskDetailViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);

@@ -79,12 +79,12 @@ public sealed class RobotsController(
     return ValidationProblem();
   }
 
-  [HttpPatch("{id}/PauseTaskAssigement")]
+  [HttpPatch("{id}/PauseTaskAssignment")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-  public async Task<ActionResult> SetPauseTaskAssigementAsync(Guid id, EnableDto data)
+  public async Task<ActionResult> SetPauseTaskAssignmentAsync(Guid id, EnableDto data)
   {
-    if (await _onlineRobotsService.SetPauseTaskAssigementAsync(id, data.Enable))
+    if (await _onlineRobotsService.SetPauseTaskAssignmentAsync(id, data.Enable))
     {
       return NoContent();
     }

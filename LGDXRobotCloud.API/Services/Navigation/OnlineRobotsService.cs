@@ -15,11 +15,11 @@ public interface IOnlineRobotsService
 {
   Task AddRobotAsync(Guid robotId);
   Task RemoveRobotAsync(Guid robotId);
-  Task UpdateRobotDataAsync(Guid robotId, RobotClientsData data, bool realtime = false);
+  Task UpdateRobotDataAsync(Guid robotId, RobotClientsData data);
 
   bool SetAbortTask(Guid robotId);
   Task<bool> SetSoftwareEmergencyStopAsync(Guid robotId, bool enable);
-  Task<bool> SetPauseTaskAssigementAsync(Guid robotId, bool enable);
+  Task<bool> SetPauseTaskAssignmentAsync(Guid robotId, bool enable);
   bool GetPauseAutoTaskAssignment(Guid robotId);
 
   IReadOnlyList<RobotClientsRobotCommands> GetRobotCommands(Guid robotId);
@@ -43,6 +43,8 @@ public class OnlineRobotsService(
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IRobotDataService _robotDataService = robotDataService ?? throw new ArgumentNullException(nameof(robotDataService));
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
+
+  private RobotDataContract sendRobotData = new();
 
   private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
   {
@@ -80,7 +82,7 @@ public class OnlineRobotsService(
     });
   }
 
-  public async Task UpdateRobotDataAsync(Guid robotId, RobotClientsData data, bool realtime = false)
+  public async Task UpdateRobotDataAsync(Guid robotId, RobotClientsData data)
   {
     if (_memoryCache.TryGetValue<bool>($"OnlineRobotsService_RobotData_Pause_{robotId}", out var _))
     {
@@ -92,36 +94,26 @@ public class OnlineRobotsService(
     _robotDataService.SetRobotData(robotId, data);
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var robotStatus = ConvertRobotStatus(data.RobotStatus);
-    var robotData = new RobotDataContract
-    {
-      RobotId = robotId,
-      RealmId = realmId,
-      RobotStatus = robotStatus,
-      CriticalStatus = new RobotCriticalStatus
-      {
-        HardwareEmergencyStop = data.CriticalStatus.HardwareEmergencyStop,
-        SoftwareEmergencyStop = data.CriticalStatus.SoftwareEmergencyStop,
-        BatteryLow = [.. data.CriticalStatus.BatteryLow],
-        MotorDamaged = [.. data.CriticalStatus.MotorDamaged]
-      },
-      Batteries = [.. data.Batteries],
-      Position = new RobotDof
-      {
-        X = data.Position.X,
-        Y = data.Position.Y,
-        Rotation = data.Position.Rotation
-      },
-      NavProgress = new AutoTaskNavProgress
-      {
-        Eta = data.NavProgress.Eta,
-        Recoveries = data.NavProgress.Recoveries,
-        DistanceRemaining = data.NavProgress.DistanceRemaining,
-        WaypointsRemaining = data.NavProgress.WaypointsRemaining,
-        Plan = [.. data.NavProgress.Plan.Select(x => new Robot2Dof { X = x.X, Y = x.Y })]
-      },
-      CurrentTime = realtime ? DateTime.MaxValue : DateTime.UtcNow
-    };
-    await _bus.Publish(robotData);
+
+    // Update the robot data
+    sendRobotData.RobotId = robotId;
+    sendRobotData.RealmId = realmId;
+    sendRobotData.RobotStatus = robotStatus;
+    sendRobotData.CriticalStatus.HardwareEmergencyStop = data.CriticalStatus.HardwareEmergencyStop;
+    sendRobotData.CriticalStatus.SoftwareEmergencyStop = data.CriticalStatus.SoftwareEmergencyStop;
+    sendRobotData.CriticalStatus.BatteryLow = [.. data.CriticalStatus.BatteryLow];
+    sendRobotData.CriticalStatus.MotorDamaged = [.. data.CriticalStatus.MotorDamaged];
+    sendRobotData.Batteries = [.. data.Batteries];
+    sendRobotData.Position.X = data.Position.X;
+    sendRobotData.Position.Y = data.Position.Y;
+    sendRobotData.Position.Rotation = data.Position.Rotation;
+    sendRobotData.NavProgress.Eta = data.NavProgress.Eta;
+    sendRobotData.NavProgress.Recoveries = data.NavProgress.Recoveries;
+    sendRobotData.NavProgress.DistanceRemaining = data.NavProgress.DistanceRemaining;
+    sendRobotData.NavProgress.WaypointsRemaining = data.NavProgress.WaypointsRemaining;
+    sendRobotData.NavProgress.Plan = [.. data.NavProgress.Plan.Select(x => new Robot2Dof { X = x.X, Y = x.Y })];
+    sendRobotData.PauseTaskAssignment = data.PauseTaskAssignment;
+    await _bus.Publish(sendRobotData);
 
     if (robotStatus == RobotStatus.Stuck)
     {
@@ -173,17 +165,17 @@ public class OnlineRobotsService(
     return result;
   }
 
-  public async Task<bool> SetPauseTaskAssigementAsync(Guid robotId, bool enable)
+  public async Task<bool> SetPauseTaskAssignmentAsync(Guid robotId, bool enable)
   {
     bool result = false;
 
     if (enable)
     {
-      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { PauseTaskAssigementEnable = true });
+      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { PauseTaskAssignmentEnable = true });
     }
     else
     {
-      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { PauseTaskAssigementDisable = true });
+      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { PauseTaskAssignmentDisable = true });
     }
 
     if (result)
@@ -204,7 +196,7 @@ public class OnlineRobotsService(
     var robotData = _robotDataService.GetRobotData(robotId);
     if (robotData != null)
     {
-      return robotData.RobotStatus == RobotClientsRobotStatus.Paused;
+      return robotData.PauseTaskAssignment;
     }
     return false;
   }

@@ -32,8 +32,8 @@
       {
         <div class="col-md-auto ms-auto">
           <div class="btn-list">
-            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssigement" style="width: 185px;">
-              @(RobotData.RobotStatus == RobotStatus.Paused ? "Resume Task Assignment" : "Pause Task Assignment")
+            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssignment" style="width: 185px;">
+              @(RobotData.PauseTaskAssignment ? "Resume Task Assignment" : "Pause Task Assignment")
             </a>
             <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop" style="width: 160px;">
               @(RobotData.CriticalStatus.SoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
@@ -135,9 +135,9 @@
 @if (RobotData != null)
 {
   <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ControlModel">
-    <PauseTaskAssigementModel 
-      Enabled="RobotData.RobotStatus == RobotStatus.Paused"
-      OnConfirm="HandlePauseTaskAssigement" />
+    <PauseTaskAssignmentModel 
+      Enabled="RobotData.PauseTaskAssignment"
+      OnConfirm="HandlePauseTaskAssignment" />
     <SoftwareEmergencyStopModel
       Enabled="RobotData.CriticalStatus.SoftwareEmergencyStop"
       OnConfirm="HandleEmergencyStop" />

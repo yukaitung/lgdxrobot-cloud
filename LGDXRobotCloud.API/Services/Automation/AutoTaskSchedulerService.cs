@@ -154,53 +154,75 @@ public class AutoTaskSchedulerService(
     _eventService.RobotHasNextTaskTriggered(robotId);
   }
 
-  public async Task RunSchedulerNewAutoTaskAsync(int realmId, Guid? robotId)
+  private async Task FindRobotLoop(int realmId)
   {
     var onlineRobotsIds = _robotDataService.GetOnlineRobots(realmId);
-    if (robotId != null && !onlineRobotsIds.Contains(robotId.Value))
+    // Find any robot that is idle
+    foreach (var robotId in onlineRobotsIds)
+    {
+      if (_robotDataService.AutoTaskSchedulerHoldRobot(realmId, robotId))
+      {
+        var robotData = _robotDataService.GetRobotData(robotId);
+        if (robotData != null)
+        {
+          if (robotData.RobotStatus == RobotClientsRobotStatus.Idle &&
+                !_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+          {
+            // A robot is available for the task, ask it to obatin the task
+            await RunSchedulerRobotReadyAsync(robotId);
+            // Release the robot when it obtains the task
+            return;
+          }
+          else
+          {
+            // The robot is paused, release it and continue
+            _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
+          }
+        }
+      }
+    }
+  }
+
+  private async Task FindRobotSingle(int realmId, Guid robotId)
+  {
+    var onlineRobotsIds = _robotDataService.GetOnlineRobots(realmId);
+    if (!onlineRobotsIds.Contains(robotId))
     {
       // The specified robot is offline, stop the scheduler
       return;
     }
-
-    if (robotId == null)
+    
+    if (_robotDataService.AutoTaskSchedulerHoldRobot(realmId, robotId))
     {
-      // Find any robot that is idle
-      foreach (var rid in onlineRobotsIds)
+      var robotData = _robotDataService.GetRobotData(robotId);
+      if (robotData != null)
       {
-        if (_robotDataService.AutoTaskSchedulerHoldRobot(realmId, rid))
+        if (robotData.RobotStatus == RobotClientsRobotStatus.Idle &&
+              !_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
         {
-          var robotData = _robotDataService.GetRobotData(rid);
-          if (robotData != null)
-          {
-            if (robotData.RobotStatus == RobotClientsRobotStatus.Idle)
-            {
-              // A robot is available for the task, ask it to obatin the task
-              await RunSchedulerRobotReadyAsync(rid);
-              // Release the robot when it obtains the task
-              return;
-            }
-          }
+          // A robot is available for the task, ask it to obatin the task
+          await RunSchedulerRobotReadyAsync(robotId);
+          // Release the robot when it obtains the task
+          return;
+        }
+        else
+        {
+          // The robot is paused, release it and continue
+          _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
         }
       }
     }
+  }
+
+  public async Task RunSchedulerNewAutoTaskAsync(int realmId, Guid? robotId)
+  {
+    if (robotId != null)
+    {
+      await FindRobotSingle(realmId, robotId.Value);
+    }
     else
     {
-      // The specified robot is online, check if it is idle
-      if (_robotDataService.AutoTaskSchedulerHoldRobot(realmId, robotId.Value))
-      {
-        var robotData = _robotDataService.GetRobotData(robotId.Value);
-        if (robotData != null)
-        {
-          if (robotData.RobotStatus == RobotClientsRobotStatus.Idle)
-          {
-            // A robot is available for the task, ask it to obatin the task
-            await RunSchedulerRobotReadyAsync(robotId.Value);
-            // Release the robot when it obtains the task
-            return;
-          }
-        }
-      }
+      await FindRobotLoop(realmId);
     }
   }
   

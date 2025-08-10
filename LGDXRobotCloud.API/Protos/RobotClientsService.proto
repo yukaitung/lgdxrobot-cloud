@@ -56,6 +56,7 @@ message RobotClientsData {
   repeated double Batteries = 3;
   RobotClientsDof Position = 4;
   RobotClientsAutoTaskNavProgress NavProgress = 5;
+  bool PauseTaskAssignment = 6;
 }
 
 /*
@@ -132,8 +133,8 @@ message RobotClientsRobotCommands {
   optional bool RenewCertificate = 2;
   optional bool SoftwareEmergencyStopEnable = 3;
   optional bool SoftwareEmergencyStopDisable = 4;
-  optional bool PauseTaskAssigementEnable = 5;
-  optional bool PauseTaskAssigementDisable = 6;
+  optional bool PauseTaskAssignmentEnable = 5;
+  optional bool PauseTaskAssignmentDisable = 6;
 }
 
 message RobotClientsPath {
