@@ -14,7 +14,6 @@ using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.API.Services.Automation;
 using System.Threading.Channels;
 using LGDXRobotCloud.API.Services.Common;
-using LGDXRobotCloud.API.Authorisation;
 
 namespace LGDXRobotCloud.API.Services;
 
@@ -34,6 +33,8 @@ public class RobotClientsService(
   private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value;
   private readonly IRobotService _robotService = robotService;
   private readonly ISlamService _slamService = slamService;
+
+  private bool pauseAutoTaskAssignmentEffective = false;
   private Guid _streamingRobotId = Guid.Empty;
   private readonly Channel<RobotClientsResponse> _streamMessageQueue = Channel.CreateUnbounded<RobotClientsResponse>();
   private readonly Channel<RobotClientsSlamCommands> _slamStreamMessageQueue = Channel.CreateUnbounded<RobotClientsSlamCommands>();
@@ -162,6 +163,7 @@ public class RobotClientsService(
       await _autoTaskSchedulerService.RunSchedulerRobotNewJoinAsync(robotId);
       while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
       {
+        // Process Data
         var request = requestStream.Current;
         await _onlineRobotsService.UpdateRobotDataAsync(robotId, request.RobotData);
         if (request.NextToken != null && request.NextToken.NextToken.Length > 0)
@@ -172,6 +174,23 @@ public class RobotClientsService(
         {
           await _autoTaskSchedulerService.AutoTaskAbortAsync(robotId, request.AbortToken.TaskId, request.AbortToken.NextToken,
             (Utilities.Enums.AutoTaskAbortReason)(int)request.AbortToken.AbortReason);
+        }
+        // Process Pause Auto Task Assignment
+        if (pauseAutoTaskAssignmentEffective)
+        {
+          if (request.RobotData.RobotStatus != RobotClientsRobotStatus.Paused &&
+                !request.RobotData.PauseTaskAssignment)
+          {
+            // Exit pause auto task assignment mode and request a task
+            pauseAutoTaskAssignmentEffective = false;
+            await _autoTaskSchedulerService.RunSchedulerRobotReadyAsync(robotId);
+          }
+        }
+        else if (request.RobotData.RobotStatus == RobotClientsRobotStatus.Paused &&
+                  request.RobotData.PauseTaskAssignment)
+        {
+          // Enter pause auto task assignment mode
+          pauseAutoTaskAssignmentEffective = true;
         }
       }
     }
