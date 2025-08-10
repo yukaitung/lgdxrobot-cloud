@@ -43,7 +43,6 @@ public class OnlineRobotsService(
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IRobotDataService _robotDataService = robotDataService ?? throw new ArgumentNullException(nameof(robotDataService));
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
-  private static string GetOnlineRobotsKey(int realmId) => $"OnlineRobotsService_OnlineRobots_{realmId}";
 
   private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
   {
@@ -158,11 +157,12 @@ public class OnlineRobotsService(
     }
     else
     {
-      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { SoftwareEmergencyStopDisable = false });
+      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { SoftwareEmergencyStopDisable = true });
     }
 
     if (result)
     {
+      _eventService.RobotCommandsHasUpdated(robotId);
       await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Robot),
@@ -183,7 +183,7 @@ public class OnlineRobotsService(
     }
     else
     {
-      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { PauseTaskAssigementDisable = false });
+      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { PauseTaskAssigementDisable = true });
     }
 
     if (result)
@@ -201,15 +201,12 @@ public class OnlineRobotsService(
 
   public bool GetPauseAutoTaskAssignment(Guid robotId)
   {
-    var operationalSettings = _robotDataService.GetOperationalSettings(robotId);
-    if (operationalSettings != null)
+    var robotData = _robotDataService.GetRobotData(robotId);
+    if (robotData != null)
     {
-      return operationalSettings.PauseTaskAssignment;
+      return robotData.RobotStatus == RobotClientsRobotStatus.Paused;
     }
-    else
-    {
-      return false;
-    }
+    return false;
   }
 
   public IReadOnlyList<RobotClientsRobotCommands> GetRobotCommands(Guid robotId)

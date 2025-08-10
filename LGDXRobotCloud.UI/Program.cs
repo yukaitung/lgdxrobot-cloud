@@ -29,10 +29,6 @@ builder.Services.AddMassTransit(cfg =>
 		});
 		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
 		{
-			e.ConfigureConsumer<RobotCommandsConsumer>(context);
-		});
-		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
-		{
 			e.ConfigureConsumer<RobotDataConsumer>(context);
 		});
 		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>

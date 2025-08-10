@@ -3,12 +3,6 @@ using LGDXRobotCloud.Protos;
 
 namespace LGDXRobotCloud.API.Services.Navigation;
 
-public record RobotOperationalSettings
-{
-  public bool SoftwareEmergencyStop { get; set; }
-  public bool PauseTaskAssignment { get; set; }
-}
-
 public interface IRobotDataService
 {
   // Exchange
@@ -26,7 +20,6 @@ public interface IRobotDataService
   bool SetRobotCommands(Guid robotId, RobotClientsRobotCommands cmd);
   IReadOnlyList<RobotClientsAutoTask> GetAutoTasks(Guid robotId);
   bool SetAutoTasks(Guid robotId, RobotClientsAutoTask autoTask);
-  RobotOperationalSettings? GetOperationalSettings(Guid robotId);
 
   // Slam
   bool StartSlam(int realmId, Guid robotId);
@@ -41,7 +34,6 @@ public class RobotDataService : IRobotDataService
 {
   private readonly Dictionary<Guid, ConcurrentQueue<RobotClientsRobotCommands>> commands = []; // RobotId, RobotClientsRobotCommands
   private readonly Dictionary<Guid, ConcurrentQueue<RobotClientsAutoTask>> autoTasks = []; // RobotId, RobotClientsAutoTask
-  private readonly Dictionary<Guid, RobotOperationalSettings> operationalSettings = []; // RobotId, RobotOperationalSettings
 
   private readonly ConcurrentDictionary<int, HashSet<Guid>> onlineRobots = []; // RealmId, OnlineRobotsIds
   private readonly ConcurrentDictionary<int, HashSet<Guid>> autoTaskSchedulerHold = []; // RealmId, OnlineRobotsIds
@@ -63,7 +55,6 @@ public class RobotDataService : IRobotDataService
 
     commands.Add(robotId, new ConcurrentQueue<RobotClientsRobotCommands>());
     autoTasks.Add(robotId, new ConcurrentQueue<RobotClientsAutoTask>());
-    operationalSettings.Add(robotId, new RobotOperationalSettings());
     robotData.Add(robotId, new RobotClientsData());
   }
 
@@ -76,7 +67,6 @@ public class RobotDataService : IRobotDataService
 
     commands.Remove(robotId, out _);
     autoTasks.Remove(robotId, out _);
-    operationalSettings.Remove(robotId, out _);
     robotData.Remove(robotId, out _);
   }
 
@@ -164,25 +154,6 @@ public class RobotDataService : IRobotDataService
     if (commands.TryGetValue(robotId, out ConcurrentQueue<RobotClientsRobotCommands>? value))
     {
       value.Enqueue(cmd);
-
-      // Update operational settings
-      if (cmd.SoftwareEmergencyStopEnable)
-      {
-        operationalSettings[robotId].SoftwareEmergencyStop = true;
-      }
-      else if (cmd.SoftwareEmergencyStopDisable)
-      {
-        operationalSettings[robotId].SoftwareEmergencyStop = false;
-      }
-      if (cmd.PauseTaskAssigementEnable)
-      {
-        operationalSettings[robotId].PauseTaskAssignment = true;
-      }
-      else if (cmd.PauseTaskAssigementDisable)
-      {
-        operationalSettings[robotId].PauseTaskAssignment = false;
-      }
-
       return true;
     }
     else
@@ -215,18 +186,6 @@ public class RobotDataService : IRobotDataService
     else
     {
       return false;
-    }
-  }
-
-  public RobotOperationalSettings? GetOperationalSettings(Guid robotId)
-  {
-    if (operationalSettings.TryGetValue(robotId, out RobotOperationalSettings? value))
-    {
-      return value;
-    }
-    else
-    {
-      return null;
     }
   }
 

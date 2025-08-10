@@ -33,8 +33,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
   private string RealmName { get; set; } = string.Empty;
   private List<RobotListDto>? RobotsList { get; set; }
   private Dictionary<Guid, RobotDataContract?> RobotsData { get; set; } = [];
-  private Dictionary<Guid, RobotCommandsContract?> RobotsCommands { get; set; } = [];
-  private RobotCommandsContract? SelectedRobotCommands { get; set; }
 
   private PaginationHelper? PaginationHelper { get; set; }
   private int CurrentPage { get; set; } = 1;
@@ -65,21 +63,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
           RealmId = RealmId
         };
       }
-
-      var robotCommands = RobotDataService.GetRobotCommands(robotId);
-      if (robotCommands != null)
-      {
-        RobotsCommands[robotId] = robotCommands;
-      }
-      else
-      {
-        RobotsCommands[robotId] = new RobotCommandsContract
-        {
-          RobotId = robotId,
-          RealmId = RealmId
-        };
-      }
-      ;
     }
   }
 
@@ -162,11 +145,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
 
-  public void HandleRobotSelect(RobotListDto robot)
-  {
-    SelectedRobotCommands = RobotsCommands[(Guid)robot.Id!];
-  }
-
   private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
   {
     var robotId = updatEventArgs.RobotId;
@@ -184,23 +162,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
     }
   }
 
-  private async void OnRobotCommandsUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
-  {
-    var robotId = updatEventArgs.RobotId;
-    if (updatEventArgs.RealmId != RealmId && !RobotsCommands.ContainsKey(robotId))
-      return;
-
-    var robotCommands = RobotDataService.GetRobotCommands(robotId);
-    if (robotCommands != null)
-    {
-      RobotsCommands[robotId] = robotCommands;
-      await InvokeAsync(() =>
-      {
-        StateHasChanged();
-      });
-    }
-  }
-
   protected override async Task OnInitializedAsync()
   {
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
@@ -209,14 +170,12 @@ public sealed partial class Robots : ComponentBase, IDisposable
     RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await Refresh();
     RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
-    RealTimeService.RobotCommandsUpdated += OnRobotCommandsUpdated;
     await base.OnInitializedAsync();
   }
 
   public void Dispose()
   {
     RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
-    RealTimeService.RobotCommandsUpdated -= OnRobotCommandsUpdated;
     GC.SuppressFinalize(this);
   }
 }

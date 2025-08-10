@@ -400,7 +400,7 @@ public class AutoTaskSchedulerService(
     await AddAutoTaskJourney(task);
     // Allow update the task to rabbitmq
     var sendTask = await GenerateTaskDetail(task);
-    if (!await RunSchedulerRobotReadyAsync(task.AssignedRobotId!.Value))
+    if (task.AssignedRobotId != null && !await RunSchedulerRobotReadyAsync(task.AssignedRobotId.Value))
     {
       // No new task, send the aborted task to idle the robot
       if (sendTask != null)
