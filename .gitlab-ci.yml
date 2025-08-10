@@ -150,8 +150,8 @@ build-arm64:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   dependencies: []
   tags:
-    - saas-linux-small-arm64 
-    #- lgdx-arm64
+    #- saas-linux-small-arm64 
+    - lgdx-arm64
   services:
     - docker:24.0.5-dind
   script:
