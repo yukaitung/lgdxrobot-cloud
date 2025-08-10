@@ -17,7 +17,6 @@ public interface IOnlineRobotsService
   Task RemoveRobotAsync(Guid robotId);
   Task UpdateRobotDataAsync(Guid robotId, RobotClientsData data, bool realtime = false);
 
-  Task<bool> IsRobotOnlineAsync(Guid robotId);
   bool SetAbortTask(Guid robotId);
   Task<bool> SetSoftwareEmergencyStopAsync(Guid robotId, bool enable);
   Task<bool> SetPauseTaskAssigementAsync(Guid robotId, bool enable);
@@ -78,8 +77,7 @@ public class OnlineRobotsService(
     {
       RobotId = robotId,
       RealmId = realmId,
-      RobotStatus = RobotStatus.Offline,
-      CurrentTime = DateTime.MinValue
+      RobotStatus = RobotStatus.Offline
     });
   }
 
@@ -135,14 +133,6 @@ public class OnlineRobotsService(
       }
       _memoryCache.Set($"OnlineRobotsService_RobotStuck_{robotId}", true, TimeSpan.FromMinutes(5));
     }
-  }
-
-
-  public async Task<bool> IsRobotOnlineAsync(Guid robotId)
-  {
-    var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    var onlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId));
-    return onlineRobotsIds != null && onlineRobotsIds.Contains(robotId);
   }
 
   public bool SetAbortTask(Guid robotId)

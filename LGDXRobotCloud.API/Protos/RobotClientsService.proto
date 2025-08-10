@@ -128,12 +128,12 @@ message RobotClientsExchange {
 }
 
 message RobotClientsRobotCommands {
-  bool AbortTask = 1;
-  bool RenewCertificate = 2;
-  bool SoftwareEmergencyStopEnable = 3;
-  bool SoftwareEmergencyStopDisable = 4;
-  bool PauseTaskAssigementEnable = 5;
-  bool PauseTaskAssigementDisable = 6;
+  optional bool AbortTask = 1;
+  optional bool RenewCertificate = 2;
+  optional bool SoftwareEmergencyStopEnable = 3;
+  optional bool SoftwareEmergencyStopDisable = 4;
+  optional bool PauseTaskAssigementEnable = 5;
+  optional bool PauseTaskAssigementDisable = 6;
 }
 
 message RobotClientsPath {

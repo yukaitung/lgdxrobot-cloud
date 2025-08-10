@@ -131,7 +131,8 @@ public class RobotDataService : IRobotDataService
     }
     else
     {
-      return false;
+      autoTaskSchedulerHold[realmId] = [robotId];
+      return true;
     }
   }
 

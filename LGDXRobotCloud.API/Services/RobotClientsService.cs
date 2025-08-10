@@ -120,8 +120,6 @@ public class RobotClientsService(
       credentials);
     var token = new JwtSecurityTokenHandler().WriteToken(secToken);
 
-    await _onlineRobotsService.AddRobotAsync(robotId);
-
     return new RobotClientsGreetResponse
     {
       Status = RobotClientsResultStatus.Success,
@@ -143,8 +141,6 @@ public class RobotClientsService(
   /*
    * Exchange
    */
-
-  [RobotClientShouldOnline]
   public override async Task Exchange(IAsyncStreamReader<RobotClientsExchange> requestStream, IServerStreamWriter<RobotClientsResponse> responseStream, ServerCallContext context)
   {
     var robotId = GetRobotId(context);
@@ -162,16 +158,17 @@ public class RobotClientsService(
   {
     try
     {
+      await _onlineRobotsService.AddRobotAsync(robotId);
       await _autoTaskSchedulerService.RunSchedulerRobotNewJoinAsync(robotId);
       while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
       {
         var request = requestStream.Current;
         await _onlineRobotsService.UpdateRobotDataAsync(robotId, request.RobotData);
-        if (request.NextToken != null)
+        if (request.NextToken != null && request.NextToken.NextToken.Length > 0)
         {
           await _autoTaskSchedulerService.AutoTaskNextAsync(robotId, request.NextToken.TaskId, request.NextToken.NextToken);
         }
-        if (request.AbortToken != null)
+        if (request.AbortToken != null && request.AbortToken.NextToken.Length > 0)
         {
           await _autoTaskSchedulerService.AutoTaskAbortAsync(robotId, request.AbortToken.TaskId, request.AbortToken.NextToken,
             (Utilities.Enums.AutoTaskAbortReason)(int)request.AbortToken.AbortReason);
@@ -183,8 +180,6 @@ public class RobotClientsService(
       // The reading stream is completed, stop wirting task
       _eventService.RobotHasNextTask -= OnRobotHasNextTask;
       _eventService.RobotCommandsUpdated -= OnRobotCommandsUpdated;
-
-      // Assume the robot going offline
       await _onlineRobotsService.RemoveRobotAsync(robotId);
     }
     
@@ -213,6 +208,7 @@ public class RobotClientsService(
         Task = task
       });
     }
+    _autoTaskSchedulerService.ReleaseRobot(robotId);
   }
 
   private async void OnRobotCommandsUpdated(object? sender, Guid robotId)
@@ -232,8 +228,6 @@ public class RobotClientsService(
   /*
    * SlamExchange
    */
-
-  [RobotClientShouldOnline]
   public override async Task SlamExchange(IAsyncStreamReader<RobotClientsSlamExchange> requestStream, IServerStreamWriter<RobotClientsSlamCommands> responseStream, ServerCallContext context)
   {
     var robotId = GetRobotId(context);
@@ -264,7 +258,6 @@ public class RobotClientsService(
     finally
     {
       // The reading stream is completed, stop wirting task
-      await _onlineRobotsService.RemoveRobotAsync(robotId);
       await _slamService.StopSlamAsync(robotId);
       _eventService.SlamCommandsUpdated -= OnSlamCommandsUpdated;
       _slamStreamMessageQueue.Writer.TryComplete();

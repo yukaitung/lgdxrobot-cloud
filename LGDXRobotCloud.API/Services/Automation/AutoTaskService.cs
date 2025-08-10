@@ -257,7 +257,6 @@ public class AutoTaskService(
     };
     await _context.AutoTasks.AddAsync(autoTask);
     await _context.SaveChangesAsync();
-    await _autoTaskSchedulerService.RunSchedulerNewAutoTaskAsync(autoTask.RealmId);
 
     var autoTaskBusinessModel = await _context.AutoTasks.AsNoTracking()
       .Where(t => t.Id == autoTask.Id)
@@ -310,8 +309,8 @@ public class AutoTaskService(
       };
       await _context.AutoTasksJourney.AddAsync(autoTaskJourney);
       await _context.SaveChangesAsync();
-
       await _bus.Publish(autoTaskBusinessModel.ToContract());
+      await _autoTaskSchedulerService.RunSchedulerNewAutoTaskAsync(autoTask.RealmId, autoTask.AssignedRobotId);
     }
 
     await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
