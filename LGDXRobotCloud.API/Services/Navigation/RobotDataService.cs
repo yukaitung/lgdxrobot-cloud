@@ -165,12 +165,15 @@ public class RobotDataService : IRobotDataService
   public IReadOnlyList<RobotClientsAutoTask> GetAutoTasks(Guid robotId)
   {
     List<RobotClientsAutoTask> result = [];
-    int count = autoTasks.Count;
-    for (int i = 0; i < count; i++)
+    if (autoTasks.TryGetValue(robotId, out var autoTasksForRobot))
     {
-      if (autoTasks[robotId].TryDequeue(out var autoTask))
+      int count = autoTasksForRobot.Count;
+      for (int i = 0; i < count; i++)
       {
-        result.Add(autoTask);
+        if (autoTasksForRobot.TryDequeue(out var autoTask))
+        {
+          result.Add(autoTask);
+        }
       }
     }
     return result.AsReadOnly();
