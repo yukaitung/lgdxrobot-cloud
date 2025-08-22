@@ -40,8 +40,6 @@ public class OnlineRobotsService(
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository ?? throw new ArgumentNullException(nameof(robotDataRepository));
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
 
-  private RobotDataContract sendRobotData = new();
-
   private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
   {
     return robotStatus switch
@@ -89,28 +87,8 @@ public class OnlineRobotsService(
 
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     await _robotDataRepository.SetRobotDataAsync(realmId, robotId, data);
+    
     var robotStatus = ConvertRobotStatus(data.RobotStatus);
-
-    // Update the robot data
-    sendRobotData.RobotId = robotId;
-    sendRobotData.RealmId = realmId;
-    sendRobotData.RobotStatus = robotStatus;
-    sendRobotData.CriticalStatus.HardwareEmergencyStop = data.CriticalStatus.HardwareEmergencyStop;
-    sendRobotData.CriticalStatus.SoftwareEmergencyStop = data.CriticalStatus.SoftwareEmergencyStop;
-    sendRobotData.CriticalStatus.BatteryLow = [.. data.CriticalStatus.BatteryLow];
-    sendRobotData.CriticalStatus.MotorDamaged = [.. data.CriticalStatus.MotorDamaged];
-    sendRobotData.Batteries = [.. data.Batteries];
-    sendRobotData.Position.X = data.Position.X;
-    sendRobotData.Position.Y = data.Position.Y;
-    sendRobotData.Position.Rotation = data.Position.Rotation;
-    sendRobotData.NavProgress.Eta = data.NavProgress.Eta;
-    sendRobotData.NavProgress.Recoveries = data.NavProgress.Recoveries;
-    sendRobotData.NavProgress.DistanceRemaining = data.NavProgress.DistanceRemaining;
-    sendRobotData.NavProgress.WaypointsRemaining = data.NavProgress.WaypointsRemaining;
-    sendRobotData.NavProgress.Plan = [.. data.NavProgress.Plan.Select(x => new Robot2Dof { X = x.X, Y = x.Y })];
-    sendRobotData.PauseTaskAssignment = data.PauseTaskAssignment;
-    await _bus.Publish(sendRobotData);
-
     if (robotStatus == RobotStatus.Stuck)
     {
       if (!_memoryCache.TryGetValue<bool>($"OnlineRobotsService_RobotStuck_{robotId}", out var _))

@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
@@ -154,11 +153,19 @@ public class AutoTaskSchedulerService(
     if (robotId == null)
     {
       robotId = await _robotDataRepository.SchedulerHoldAnyRobotAsync(realmId);
+      if (robotId != null)
+      {
+        await RunSchedulerRobotReadyAsync(robotId.Value);
+        // Release the robot when it obtains the task
+      }
     }
-    if (robotId != null && await _robotDataRepository.SchedulerHoldRobotAsync(realmId, robotId.Value))
+    else
     {
-      await RunSchedulerRobotReadyAsync(robotId.Value);
-      // Release the robot when it obtains the task
+      if (await _robotDataRepository.SchedulerHoldRobotAsync(realmId, robotId.Value))
+      {
+        await RunSchedulerRobotReadyAsync(robotId.Value);
+        // Release the robot when it obtains the task
+      }
     }
   }
   

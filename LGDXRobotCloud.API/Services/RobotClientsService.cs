@@ -12,13 +12,16 @@ using System.Security.Claims;
 using System.Text;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.API.Services.Automation;
-using System.Threading.Channels;
+using StackExchange.Redis;
+using static StackExchange.Redis.RedisChannel;
+using LGDXRobotCloud.Utilities.Helpers;
 
 namespace LGDXRobotCloud.API.Services;
 
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.RobotClientsJwtScheme)]
 public class RobotClientsService(
     IAutoTaskSchedulerService autoTaskSchedulerService,
+    IConnectionMultiplexer redisConnection,
     IOnlineRobotsService OnlineRobotsService,
     IOptionsSnapshot<LgdxRobotCloudSecretConfiguration> lgdxRobotCloudSecretConfiguration,
     IRobotService robotService,
@@ -26,15 +29,13 @@ public class RobotClientsService(
   ) : RobotClientsServiceBase
 {
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService;
+  private readonly IConnectionMultiplexer _redisConnection = redisConnection;
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
   private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value;
   private readonly IRobotService _robotService = robotService;
   private readonly ISlamService _slamService = slamService;
 
   private bool pauseAutoTaskAssignmentEffective = false;
-  private Guid _streamingRobotId = Guid.Empty;
-  private readonly Channel<RobotClientsResponse> _streamMessageQueue = Channel.CreateUnbounded<RobotClientsResponse>();
-  private readonly Channel<RobotClientsSlamCommands> _slamStreamMessageQueue = Channel.CreateUnbounded<RobotClientsSlamCommands>();
 
   private static Guid GetRobotId(ServerCallContext context)
   {
@@ -142,11 +143,8 @@ public class RobotClientsService(
   public override async Task Exchange(IAsyncStreamReader<RobotClientsExchange> requestStream, IServerStreamWriter<RobotClientsResponse> responseStream, ServerCallContext context)
   {
     var robotId = GetRobotId(context);
-
-    _streamingRobotId = robotId;
-
     var clientToServer = ExchangeStreamClientToServerAsync(robotId, requestStream, context);
-    var serverToClient = ExchangeStreamServerToClientAsync(responseStream, context);
+    var serverToClient = ExchangeStreamServerToClientAsync(robotId, responseStream, context);
     await Task.WhenAll(clientToServer, serverToClient);
   }
 
@@ -158,7 +156,7 @@ public class RobotClientsService(
       await _autoTaskSchedulerService.RunSchedulerRobotNewJoinAsync(robotId);
       while (await requestStream.MoveNext(CancellationToken.None) && !context.CancellationToken.IsCancellationRequested)
       {
-        // Process Data
+        // 1. Process Data
         var request = requestStream.Current;
         await _onlineRobotsService.UpdateRobotDataAsync(robotId, request.RobotData);
         if (request.NextToken != null && request.NextToken.NextToken.Length > 0)
@@ -170,7 +168,7 @@ public class RobotClientsService(
           await _autoTaskSchedulerService.AutoTaskAbortAsync(robotId, request.AbortToken.TaskId, request.AbortToken.NextToken,
             (Utilities.Enums.AutoTaskAbortReason)(int)request.AbortToken.AbortReason);
         }
-        // Process Pause Auto Task Assignment
+        // 2. Process Pause Auto Task Assignment
         if (pauseAutoTaskAssignmentEffective)
         {
           if (request.RobotData.RobotStatus != RobotClientsRobotStatus.Paused &&
@@ -194,18 +192,26 @@ public class RobotClientsService(
       // The reading stream is completed, stop wirting task
       await _onlineRobotsService.RemoveRobotAsync(robotId);
     }
-    
-    _streamMessageQueue.Writer.TryComplete();
-    await _streamMessageQueue.Reader.Completion;
   }
 
-  private async Task ExchangeStreamServerToClientAsync(IServerStreamWriter<RobotClientsResponse> responseStream, ServerCallContext context)
+  private async Task ExchangeStreamServerToClientAsync(Guid robotId, IServerStreamWriter<RobotClientsResponse> responseStream, ServerCallContext context)
   {
     await responseStream.WriteAsync(new RobotClientsResponse());
-    await foreach (var message in _streamMessageQueue.Reader.ReadAllAsync(context.CancellationToken))
+
+    var subscriber = _redisConnection.GetSubscriber();
+    await subscriber.SubscribeAsync(new RedisChannel($"robotExchangeQueue:{robotId}", PatternMode.Literal), (channel, value) =>
     {
-      await responseStream.WriteAsync(message);
-    }
+      var response = SerialiserHelper.FromBase64<RobotClientsResponse>(value!);
+      if (response != null)
+      {
+        responseStream.WriteAsync(response);
+      }
+      _autoTaskSchedulerService.ReleaseRobotAsync(robotId);
+    });
+    context.CancellationToken.Register(() =>
+    {
+      subscriber.UnsubscribeAllAsync();
+    });
   }
   
   /*
@@ -214,10 +220,10 @@ public class RobotClientsService(
   public override async Task SlamExchange(IAsyncStreamReader<RobotClientsSlamExchange> requestStream, IServerStreamWriter<RobotClientsSlamCommands> responseStream, ServerCallContext context)
   {
     var robotId = GetRobotId(context);
-    _streamingRobotId = robotId;
+    var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
 
     var clientToServer = SlamExchangeClientToServerAsync(robotId, requestStream, context);
-    var serverToClient = SlamExchangeServerToClientAsync(responseStream, context);
+    var serverToClient = SlamExchangeServerToClientAsync(realmId, responseStream, context);
     await Task.WhenAll(clientToServer, serverToClient);
   }
 
@@ -241,18 +247,25 @@ public class RobotClientsService(
     {
       // The reading stream is completed, stop wirting task
       await _slamService.StopSlamAsync(robotId);
-      _slamStreamMessageQueue.Writer.TryComplete();
     }
-
-    await _slamStreamMessageQueue.Reader.Completion;
   }
 
-  private async Task SlamExchangeServerToClientAsync(IServerStreamWriter<RobotClientsSlamCommands> responseStream, ServerCallContext context)
+  private async Task SlamExchangeServerToClientAsync(int realmId, IServerStreamWriter<RobotClientsSlamCommands> responseStream, ServerCallContext context)
   {
     await responseStream.WriteAsync(new RobotClientsSlamCommands());
-    await foreach (var message in _slamStreamMessageQueue.Reader.ReadAllAsync(context.CancellationToken))
+
+    var subscriber = _redisConnection.GetSubscriber();
+    await subscriber.SubscribeAsync(new RedisChannel($"robotSlamExchangeQueue:{realmId}", PatternMode.Literal), (channel, value) =>
     {
-      await responseStream.WriteAsync(message);
-    }
+      var response = SerialiserHelper.FromBase64<RobotClientsSlamCommands>(value!);
+      if (response != null)
+      {
+        responseStream.WriteAsync(response);
+      }
+    });
+    context.CancellationToken.Register(() =>
+    {
+      subscriber.UnsubscribeAllAsync();
+    });
   }
 }

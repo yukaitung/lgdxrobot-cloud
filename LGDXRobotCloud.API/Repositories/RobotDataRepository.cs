@@ -1,5 +1,5 @@
-using System.Text.Json;
 using LGDXRobotCloud.Protos;
+using LGDXRobotCloud.Utilities.Helpers;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Literals.Enums;
@@ -37,24 +37,48 @@ public class RobotDataRepository(
 {
   private readonly IConnectionMultiplexer _redisConnection = redisConnection;
 
+  private async Task<bool> IndexExistsAsync(string indexName)
+  {
+    var db = _redisConnection.GetDatabase();
+    try
+    {
+      var index = await db.FT().InfoAsync(indexName);
+    }
+    catch (Exception ex)
+    {
+      if (ex.Message.Contains("Unknown index name", StringComparison.CurrentCultureIgnoreCase))
+      {
+        return false;
+      }
+      throw;
+    }
+    return true;
+  }
+
   public async Task StartExchangeAsync(int realmId, Guid robotId)
   {
     var db = _redisConnection.GetDatabase();
 
     // Create index
-    bool indexExists = await db.KeyExistsAsync($"robotClientData:{realmId}:*");
-    if (!indexExists)
+    if (!await IndexExistsAsync($"idxRobotClientData:{realmId}"))
     {
-      var schema = new Schema()
-        .AddTextField(nameof(RobotClientsData.RobotId))
-        .AddNumericField(nameof(RobotClientsData.RobotStatus))
-        .AddNumericField(nameof(RobotClientsData.PauseTaskAssignment));
-
-      await db.FT().CreateAsync($"idxRobotClientData:{realmId}",
-        new FTCreateParams()
-          .On(IndexDataType.JSON)
-          .Prefix($"robotClientData:{realmId}:"),
-        schema);
+      try
+      {
+        await db.FT().CreateAsync($"idxRobotClientData:{realmId}",
+          new FTCreateParams()
+            .On(IndexDataType.JSON)
+            .Prefix($"robotClientData:{realmId}:"),
+          new Schema()
+          .AddNumericField(new FieldName($"$.{nameof(RobotClientsData.RobotStatus)}", $"{nameof(RobotClientsData.RobotStatus)}"))
+          .AddTagField(new FieldName($"$.{nameof(RobotClientsData.PauseTaskAssignment)}", $"{nameof(RobotClientsData.PauseTaskAssignment)}")));
+      }
+      catch (Exception ex)
+      {
+        if (!ex.Message.Contains("Index already exists", StringComparison.CurrentCultureIgnoreCase))
+        {
+          throw;
+        }
+      }
     }
 
     await db.JSON().SetAsync($"robotClientData:{realmId}:{robotId}", "$", new RobotClientsData());
@@ -81,10 +105,12 @@ public class RobotDataRepository(
   public async Task<Guid?> SchedulerHoldAnyRobotAsync(int realmId)
   {
     var db = _redisConnection.GetDatabase();
+    int robotStatus = (int)RobotClientsRobotStatus.Idle;
     var search = await db.FT().SearchAsync($"idxRobotClientData:{realmId}",
-      new Query($"@{nameof(RobotClientsData.RobotStatus)}:{(int)RobotClientsRobotStatus.Idle} @{nameof(RobotClientsData.PauseTaskAssignment)}:0")
-        .Limit(0, 1));
-    string? robotId = search.Documents.Select(x => x[$"{nameof(RobotClientsData.RobotId)}"]).FirstOrDefault();
+      new Query($"@{nameof(RobotClientsData.RobotStatus)}:[{robotStatus} {robotStatus}] @{nameof(RobotClientsData.PauseTaskAssignment)}:{{false}}")
+        .Limit(0, 1)
+        .ReturnFields(["__key"]));
+    string? robotId = search.Documents.FirstOrDefault()?.Id.Replace($"robotClientData:{realmId}:", string.Empty);
     if (robotId == null)
     {
       return null;
@@ -115,24 +141,26 @@ public class RobotDataRepository(
   public async Task<bool> AddRobotCommandAsync(int realmId, Guid robotId, RobotClientsRobotCommands cmd)
   {
     var db = _redisConnection.GetDatabase();
-    if (!await db.HashExistsAsync($"robotClientData:{realmId}:{robotId}", $"{nameof(RobotClientsData.RobotId)}"))
+    if (!await db.KeyExistsAsync($"robotClientData:{realmId}:{robotId}"))
       return false;
 
     var subscriber = _redisConnection.GetSubscriber();
-    var json = JsonSerializer.Serialize(cmd);
-    await subscriber.PublishAsync(new RedisChannel($"robotCommandQueue:{robotId}", PatternMode.Literal), json);
+    var data = new RobotClientsResponse { Commands = cmd };
+    var base64 = SerialiserHelper.ToBase64(data);
+    await subscriber.PublishAsync(new RedisChannel($"robotExchangeQueue:{robotId}", PatternMode.Literal), base64);
     return true;
   }
 
   public async Task<bool> AddAutoTaskAsync(int realmId, Guid robotId, RobotClientsAutoTask autoTask)
   {
     var db = _redisConnection.GetDatabase();
-    if (!await db.HashExistsAsync($"robotClientData:{realmId}:{robotId}", $"{nameof(RobotClientsData.RobotId)}"))
+    if (!await db.KeyExistsAsync($"robotClientData:{realmId}:{robotId}"))
       return false;
 
     var subscriber = _redisConnection.GetSubscriber();
-    var json = JsonSerializer.Serialize(autoTask);
-    await subscriber.PublishAsync(new RedisChannel($"autoTaskQueue:{robotId}", PatternMode.Literal), json);
+    var data = new RobotClientsResponse { Task = autoTask };
+    var base64 = SerialiserHelper.ToBase64(data);
+    await subscriber.PublishAsync(new RedisChannel($"robotExchangeQueue:{robotId}", PatternMode.Literal), base64);
     return true;
   }
 
@@ -159,11 +187,11 @@ public class RobotDataRepository(
   public async Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands)
   {
     var db = _redisConnection.GetDatabase();
-    if (!await db.HashExistsAsync($"slamRobot:{realmId}", "RobotId"))
+    if (!await db.KeyExistsAsync($"slamRobot:{realmId}"))
       return false;
     var subscriber = _redisConnection.GetSubscriber();
-    var json = JsonSerializer.Serialize(commands);
-    await subscriber.PublishAsync(new RedisChannel($"robotSlamCommandQueue:{realmId}", PatternMode.Literal), json);
+    var base64 = SerialiserHelper.ToBase64(commands);
+    await subscriber.PublishAsync(new RedisChannel($"robotSlamExchangeQueue:{realmId}", PatternMode.Literal), base64);
     return true;
   }
 }

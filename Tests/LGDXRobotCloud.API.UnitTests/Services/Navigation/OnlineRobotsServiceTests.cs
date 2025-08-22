@@ -21,7 +21,6 @@ public class OnlineRobotsServiceTests
   private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly Mock<IBus> mockBus = new();
   private readonly Mock<IEmailService> mockEmailService = new();
-  private readonly Mock<IEventService> mockEventService = new();
   private readonly Mock<IMemoryCache> mockMemoryCache = new();
   private readonly Mock<IRobotService> mockRobotService = new();
 
