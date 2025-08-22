@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using LGDXRobotCloud.Protos;
 
-namespace LGDXRobotCloud.API.Services.Navigation;
+namespace LGDXRobotCloud.API.Repositories;
 
-public interface IRobotDataService
+public interface IRobotDataRepository
 {
   // Exchange
   void StartExchange(int realmId, Guid robotId);
@@ -30,7 +30,7 @@ public interface IRobotDataService
   void SetSlamCommands(int realmId, RobotClientsSlamCommands commands);
 }
 
-public class RobotDataService : IRobotDataService
+public class RobotDataRepository : IRobotDataRepository
 {
   private readonly Dictionary<Guid, ConcurrentQueue<RobotClientsRobotCommands>> commands = []; // RobotId, RobotClientsRobotCommands
   private readonly Dictionary<Guid, ConcurrentQueue<RobotClientsAutoTask>> autoTasks = []; // RobotId, RobotClientsAutoTask

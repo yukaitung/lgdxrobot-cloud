@@ -1,3 +1,4 @@
+using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Protos;
@@ -22,13 +23,13 @@ public interface ISlamService
 public class SlamService(
   IBus bus,
   IEventService eventService,
-  IRobotDataService robotDataService,
+  IRobotDataRepository robotDataRepository,
   IRobotService robotService
 ) : ISlamService
 {
   private readonly IBus _bus = bus;
   private readonly IEventService _eventService = eventService;
-  private readonly IRobotDataService _robotDataService = robotDataService;
+  private readonly IRobotDataRepository _robotDataRepository = robotDataRepository;
   private readonly IRobotService _robotService = robotService;
 
   static SlamStatus ConvertSlamStatus(RobotClientsSlamStatus slamStatus)
@@ -46,13 +47,13 @@ public class SlamService(
   public async Task<bool> StartSlamAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    return _robotDataService.StartSlam(realmId, robotId);
+    return _robotDataRepository.StartSlam(realmId, robotId);
   }
 
   public async Task StopSlamAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    _robotDataService.StopSlam(realmId);
+    _robotDataRepository.StopSlam(realmId);
 
     // Publish the robot is offline
     await _bus.Publish(new RobotDataContract
@@ -96,17 +97,17 @@ public class SlamService(
 
   public IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId)
   {
-    return _robotDataService.GetSlamCommands(robotId);
+    return _robotDataRepository.GetSlamCommands(robotId);
   }
 
   public bool SetSlamCommands(int realmId, RobotClientsSlamCommands commands)
   {
-    var robotId = _robotDataService.GetRunningSlamRobotId(realmId);
+    var robotId = _robotDataRepository.GetRunningSlamRobotId(realmId);
     if (robotId == null)
     {
       return false;
     }
-    _robotDataService.SetSlamCommands(realmId, commands);
+    _robotDataRepository.SetSlamCommands(realmId, commands);
     _eventService.SlamCommandsHasUpdated(robotId.Value);
     return true;
   }

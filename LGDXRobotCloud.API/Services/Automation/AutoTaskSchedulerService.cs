@@ -1,3 +1,4 @@
+using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Data.Contracts;
@@ -31,7 +32,7 @@ public class AutoTaskSchedulerService(
     IEmailService emailService,
     IEventService eventService,
     IOnlineRobotsService onlineRobotsService,
-    IRobotDataService robotDataService,
+    IRobotDataRepository robotDataRepository,
     IRobotService robotService,
     ITriggerService triggerService,
     LgdxContext context
@@ -42,7 +43,7 @@ public class AutoTaskSchedulerService(
   private readonly IEmailService _emailService = emailService;
   private readonly IEventService _eventService = eventService;
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService;
-  private readonly IRobotDataService _robotDataService = robotDataService;
+  private readonly IRobotDataRepository _robotDataRepository = robotDataRepository;
   private readonly IRobotService _robotService = robotService;
   private readonly ITriggerService _triggerService = triggerService;
   private readonly LgdxContext _context = context;
@@ -150,19 +151,19 @@ public class AutoTaskSchedulerService(
 
   private void SetAutoTask(Guid robotId, RobotClientsAutoTask autoTask)
   {
-    _robotDataService.SetAutoTasks(robotId, autoTask);
+    _robotDataRepository.SetAutoTasks(robotId, autoTask);
     _eventService.RobotHasNextTaskTriggered(robotId);
   }
 
   private async Task FindRobotLoop(int realmId)
   {
-    var onlineRobotsIds = _robotDataService.GetOnlineRobots(realmId);
+    var onlineRobotsIds = _robotDataRepository.GetOnlineRobots(realmId);
     // Find any robot that is idle
     foreach (var robotId in onlineRobotsIds)
     {
-      if (_robotDataService.AutoTaskSchedulerHoldRobot(realmId, robotId))
+      if (_robotDataRepository.AutoTaskSchedulerHoldRobot(realmId, robotId))
       {
-        var robotData = _robotDataService.GetRobotData(robotId);
+        var robotData = _robotDataRepository.GetRobotData(robotId);
         if (robotData != null)
         {
           if (robotData.RobotStatus == RobotClientsRobotStatus.Idle &&
@@ -176,7 +177,7 @@ public class AutoTaskSchedulerService(
           else
           {
             // The robot is paused, release it and continue
-            _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
+            _robotDataRepository.AutoTaskScheduleReleaseRobot(realmId, robotId);
           }
         }
       }
@@ -185,16 +186,16 @@ public class AutoTaskSchedulerService(
 
   private async Task FindRobotSingle(int realmId, Guid robotId)
   {
-    var onlineRobotsIds = _robotDataService.GetOnlineRobots(realmId);
+    var onlineRobotsIds = _robotDataRepository.GetOnlineRobots(realmId);
     if (!onlineRobotsIds.Contains(robotId))
     {
       // The specified robot is offline, stop the scheduler
       return;
     }
     
-    if (_robotDataService.AutoTaskSchedulerHoldRobot(realmId, robotId))
+    if (_robotDataRepository.AutoTaskSchedulerHoldRobot(realmId, robotId))
     {
-      var robotData = _robotDataService.GetRobotData(robotId);
+      var robotData = _robotDataRepository.GetRobotData(robotId);
       if (robotData != null)
       {
         if (robotData.RobotStatus == RobotClientsRobotStatus.Idle &&
@@ -208,7 +209,7 @@ public class AutoTaskSchedulerService(
         else
         {
           // The robot is paused, release it and continue
-          _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
+          _robotDataRepository.AutoTaskScheduleReleaseRobot(realmId, robotId);
         }
       }
     }
@@ -331,7 +332,7 @@ public class AutoTaskSchedulerService(
   public void ReleaseRobot(Guid robotId)
   {
     var realmId = _robotService.GetRobotRealmIdAsync(robotId).Result ?? 0;
-    _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
+    _robotDataRepository.AutoTaskScheduleReleaseRobot(realmId, robotId);
   }
 
   private async Task<AutoTask?> AutoTaskAbortSqlAsync(int taskId, Guid? robotId = null, string? token = null)

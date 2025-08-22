@@ -2,6 +2,7 @@ using LGDXRobotCloud.API.Authentication;
 using LGDXRobotCloud.API.Authorisation;
 using LGDXRobotCloud.API.Configurations;
 using LGDXRobotCloud.API.Middleware;
+using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services;
 using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Automation;
@@ -220,7 +221,7 @@ builder.Services.AddScoped<IRealmService, RealmService>();
 builder.Services.AddScoped<IRobotService, RobotService>();
 builder.Services.AddScoped<ISlamService, SlamService>();
 builder.Services.AddScoped<IWaypointService, WaypointService>();
-builder.Services.AddSingleton<IRobotDataService, RobotDataService>();
+builder.Services.AddSingleton<IRobotDataRepository, RobotDataRepository>();
 
 // Custom Services
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();

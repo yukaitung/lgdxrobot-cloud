@@ -1,3 +1,4 @@
+using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.Data.Contracts;
@@ -32,7 +33,7 @@ public class OnlineRobotsService(
     IEmailService emailService,
     IEventService eventService,
     IMemoryCache memoryCache,
-    IRobotDataService robotDataService,
+    IRobotDataRepository robotDataRepository,
     IRobotService robotService
   ) : IOnlineRobotsService
 {
@@ -41,7 +42,7 @@ public class OnlineRobotsService(
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly IEventService _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-  private readonly IRobotDataService _robotDataService = robotDataService ?? throw new ArgumentNullException(nameof(robotDataService));
+  private readonly IRobotDataRepository _robotDataRepository = robotDataRepository ?? throw new ArgumentNullException(nameof(robotDataRepository));
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
 
   private RobotDataContract sendRobotData = new();
@@ -65,13 +66,13 @@ public class OnlineRobotsService(
   public async Task AddRobotAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    _robotDataService.StartExchange(realmId, robotId);
+    _robotDataRepository.StartExchange(realmId, robotId);
   }
 
   public async Task RemoveRobotAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    _robotDataService.StopExchange(realmId, robotId);
+    _robotDataRepository.StopExchange(realmId, robotId);
 
     // Publish the robot is offline
     await _bus.Publish(new RobotDataContract
@@ -91,7 +92,7 @@ public class OnlineRobotsService(
     }
     _memoryCache.Set($"OnlineRobotsService_RobotData_Pause_{robotId}", true, TimeSpan.FromMilliseconds(100));
 
-    _robotDataService.SetRobotData(robotId, data);
+    _robotDataRepository.SetRobotData(robotId, data);
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     var robotStatus = ConvertRobotStatus(data.RobotStatus);
 
@@ -128,7 +129,7 @@ public class OnlineRobotsService(
 
   public bool SetAbortTask(Guid robotId)
   {
-    if (_robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { AbortTask = true }))
+    if (_robotDataRepository.SetRobotCommands(robotId, new RobotClientsRobotCommands { AbortTask = true }))
     {
       _eventService.RobotCommandsHasUpdated(robotId);
       return true;
@@ -145,11 +146,11 @@ public class OnlineRobotsService(
 
     if (enable)
     {
-      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { SoftwareEmergencyStopEnable = true });
+      result = _robotDataRepository.SetRobotCommands(robotId, new RobotClientsRobotCommands { SoftwareEmergencyStopEnable = true });
     }
     else
     {
-      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { SoftwareEmergencyStopDisable = true });
+      result = _robotDataRepository.SetRobotCommands(robotId, new RobotClientsRobotCommands { SoftwareEmergencyStopDisable = true });
     }
 
     if (result)
@@ -171,11 +172,11 @@ public class OnlineRobotsService(
 
     if (enable)
     {
-      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { PauseTaskAssignmentEnable = true });
+      result = _robotDataRepository.SetRobotCommands(robotId, new RobotClientsRobotCommands { PauseTaskAssignmentEnable = true });
     }
     else
     {
-      result = _robotDataService.SetRobotCommands(robotId, new RobotClientsRobotCommands { PauseTaskAssignmentDisable = true });
+      result = _robotDataRepository.SetRobotCommands(robotId, new RobotClientsRobotCommands { PauseTaskAssignmentDisable = true });
     }
 
     if (result)
@@ -193,7 +194,7 @@ public class OnlineRobotsService(
 
   public bool GetPauseAutoTaskAssignment(Guid robotId)
   {
-    var robotData = _robotDataService.GetRobotData(robotId);
+    var robotData = _robotDataRepository.GetRobotData(robotId);
     if (robotData != null)
     {
       return robotData.PauseTaskAssignment;
@@ -203,11 +204,11 @@ public class OnlineRobotsService(
 
   public IReadOnlyList<RobotClientsRobotCommands> GetRobotCommands(Guid robotId)
   {
-    return _robotDataService.GetRobotCommands(robotId);
+    return _robotDataRepository.GetRobotCommands(robotId);
   }
 
   public IReadOnlyList<RobotClientsAutoTask> GetAutoTasks(Guid robotId)
   {
-    return _robotDataService.GetAutoTasks(robotId);
+    return _robotDataRepository.GetAutoTasks(robotId);
   }
 }

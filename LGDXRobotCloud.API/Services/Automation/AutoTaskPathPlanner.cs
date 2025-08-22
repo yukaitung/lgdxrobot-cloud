@@ -1,3 +1,4 @@
+using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
@@ -15,12 +16,12 @@ public interface IAutoTaskPathPlannerService
 public sealed partial class AutoTaskPathPlannerService(
     ILogger<AutoTaskPathPlannerService> logger,
     IMapEditorService mapEditorService,
-    IRobotDataService robotDataService,
+    IRobotDataRepository robotDataRepository,
     LgdxContext context
   ) : IAutoTaskPathPlannerService
 {
   private readonly IMapEditorService _mapEditorService = mapEditorService;
-  private readonly IRobotDataService _robotDataService = robotDataService;
+  private readonly IRobotDataRepository _robotDataRepository = robotDataRepository;
   private readonly LgdxContext _context = context;
   
   [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Path planning: The task detail does not have waypoint.")]
@@ -188,7 +189,7 @@ public sealed partial class AutoTaskPathPlannerService(
       var waypointsTraffic = await _mapEditorService.GetWaypointTrafficAsync(realmId);
 
       // Find the nearest waypoint
-      var robotData = _robotDataService.GetRobotData((Guid)autoTask.AssignedRobotId!);
+      var robotData = _robotDataRepository.GetRobotData((Guid)autoTask.AssignedRobotId!);
       if (robotData == null)
       {
         RobotDataNotFoundForRobotId((Guid)autoTask.AssignedRobotId!);
