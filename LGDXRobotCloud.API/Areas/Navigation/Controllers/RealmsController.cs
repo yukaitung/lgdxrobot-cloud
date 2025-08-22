@@ -114,9 +114,9 @@ public class RealmsController(
   [HttpPost("{id}/Slam/SetGoal")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-  public ActionResult SetGoal(int id, RobotDofDto goal)
+  public async Task<ActionResult> SetGoalAsync(int id, RobotDofDto goal)
   {
-    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    if (await _slamService.AddSlamCommandAsync(id, new RobotClientsSlamCommands
     {
       SetGoal = new RobotClientsDof
       {
@@ -134,9 +134,9 @@ public class RealmsController(
   [HttpPost("{id}/Slam/AbortGoal")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-  public ActionResult AbortGoal(int id)
+  public async Task<ActionResult> AbortGoalAsync(int id)
   {
-    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    if (await _slamService.AddSlamCommandAsync(id, new RobotClientsSlamCommands
     {
       AbortGoal = true
     }))
@@ -149,9 +149,9 @@ public class RealmsController(
   [HttpPost("{id}/Slam/RefreshMap")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-  public ActionResult RefreshMap(int id)
+  public async Task<ActionResult> RefreshMapAsync(int id)
   {
-    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    if (await _slamService.AddSlamCommandAsync(id, new RobotClientsSlamCommands
     {
       RefreshMap = true
     }))
@@ -164,9 +164,9 @@ public class RealmsController(
   [HttpPost("{id}/Slam/SaveMap")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-  public ActionResult SaveMap(int id)
+  public async Task<ActionResult> SaveMapAsync(int id)
   {
-    if (_slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    if (await _slamService.AddSlamCommandAsync(id, new RobotClientsSlamCommands
     {
       SaveMap = true
     }))
@@ -179,7 +179,7 @@ public class RealmsController(
   [HttpPost("{id}/Slam/EmergencyStop")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-  public ActionResult EmergencyStop(int id, EnableDto enableDto)
+  public async Task<ActionResult> EmergencyStopAsync(int id, EnableDto enableDto)
   {
     var command = new RobotClientsSlamCommands();
     if (enableDto.Enable)
@@ -191,7 +191,7 @@ public class RealmsController(
       command.SoftwareEmergencyStopDisable = true;
     }
 
-    if (_slamService.SetSlamCommands(id, command))
+    if (await _slamService.AddSlamCommandAsync(id, command))
     {
       return NoContent();
     }
@@ -200,9 +200,9 @@ public class RealmsController(
 
   [HttpPost("{id}/Slam/Abort")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
-  public ActionResult AbortSlam(int id)
+  public async Task<ActionResult> AbortSlamAsync(int id)
   {
-    _slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    await _slamService.AddSlamCommandAsync(id, new RobotClientsSlamCommands
     {
       AbortSlam = true
     });
@@ -215,7 +215,7 @@ public class RealmsController(
   public async Task<ActionResult> CompleteSlamAsync(int id, RealmMapUpdateDto realmMapUpdateDto)
   {
     await _realmService.UpdateRealmMapAsync(id, realmMapUpdateDto.ToBusinessModel());
-    _slamService.SetSlamCommands(id, new RobotClientsSlamCommands
+    await _slamService.AddSlamCommandAsync(id, new RobotClientsSlamCommands
     {
       CompleteSlam = true
     });

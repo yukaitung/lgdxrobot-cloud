@@ -219,6 +219,7 @@ public class RobotClientsService(
   {
     if (_streamingRobotId != robotId)
       return;
+    /*
     var tasks = _onlineRobotsService.GetAutoTasks(robotId);
     foreach (var task in tasks)
     {
@@ -227,13 +228,14 @@ public class RobotClientsService(
         Task = task
       });
     }
-    _autoTaskSchedulerService.ReleaseRobot(robotId);
+    _autoTaskSchedulerService.ReleaseRobot(robotId);*/
   }
 
   private async void OnRobotCommandsUpdated(object? sender, Guid robotId)
   {
     if (_streamingRobotId != robotId)
       return;
+    /*
     var commands = _onlineRobotsService.GetRobotCommands(robotId);
     foreach (var command in commands)
     {
@@ -241,7 +243,7 @@ public class RobotClientsService(
       {
         Commands = command
       });
-    }
+    }*/
   }
   
   /*
@@ -298,10 +300,10 @@ public class RobotClientsService(
   {
     if (_streamingRobotId != robotId)
       return;
-    var commands = _slamService.GetSlamCommands(_streamingRobotId);
+    /*var commands = _slamService.GetSlamCommands(_streamingRobotId);
     foreach (var command in commands)
     {
       await _slamStreamMessageQueue.Writer.WriteAsync(command);
-    }
+    }*/
   }
 }

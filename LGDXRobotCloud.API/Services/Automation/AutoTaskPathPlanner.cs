@@ -189,7 +189,7 @@ public sealed partial class AutoTaskPathPlannerService(
       var waypointsTraffic = await _mapEditorService.GetWaypointTrafficAsync(realmId);
 
       // Find the nearest waypoint
-      var robotData = _robotDataRepository.GetRobotData((Guid)autoTask.AssignedRobotId!);
+      var robotData = await _robotDataRepository.GetRobotDataAsync(realmId, (Guid)autoTask.AssignedRobotId!);
       if (robotData == null)
       {
         RobotDataNotFoundForRobotId((Guid)autoTask.AssignedRobotId!);

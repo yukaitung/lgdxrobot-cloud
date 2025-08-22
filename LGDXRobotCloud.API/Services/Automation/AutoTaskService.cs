@@ -441,7 +441,7 @@ public class AutoTaskService(
 
     if (autoTask.CurrentProgressId != (int)ProgressState.Waiting &&
         autoTask.AssignedRobotId != null &&
-        _onlineRobotsService.SetAbortTask((Guid)autoTask.AssignedRobotId!))
+        await _onlineRobotsService.SetAbortTaskAsync((Guid)autoTask.AssignedRobotId!))
     {
       // If the robot is online, abort the task from the robot
       return;

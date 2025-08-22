@@ -51,12 +51,13 @@ message RobotClientsAutoTaskNavProgress {
 
 // Final Data
 message RobotClientsData {
-  RobotClientsRobotStatus RobotStatus = 1;
-  RobotClientsRobotCriticalStatus CriticalStatus = 2;
-  repeated double Batteries = 3;
-  RobotClientsDof Position = 4;
-  RobotClientsAutoTaskNavProgress NavProgress = 5;
-  bool PauseTaskAssignment = 6;
+  string RobotId = 1;
+  RobotClientsRobotStatus RobotStatus = 2;
+  RobotClientsRobotCriticalStatus CriticalStatus = 3;
+  repeated double Batteries = 4;
+  RobotClientsDof Position = 5;
+  RobotClientsAutoTaskNavProgress NavProgress = 6;
+  bool PauseTaskAssignment = 7;
 }
 
 /*

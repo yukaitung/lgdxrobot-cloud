@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
@@ -18,7 +19,7 @@ public interface IAutoTaskSchedulerService
   Task RunSchedulerRobotNewJoinAsync(Guid robotId);
   Task<bool> RunSchedulerRobotReadyAsync(Guid robotId);
 
-  void ReleaseRobot(Guid robotId);
+  Task ReleaseRobotAsync(Guid robotId);
 
   Task AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason);
   Task<bool> AutoTaskAbortApiAsync(int taskId);
@@ -149,81 +150,17 @@ public class AutoTaskSchedulerService(
     };
   }
 
-  private void SetAutoTask(Guid robotId, RobotClientsAutoTask autoTask)
-  {
-    _robotDataRepository.SetAutoTasks(robotId, autoTask);
-    _eventService.RobotHasNextTaskTriggered(robotId);
-  }
-
-  private async Task FindRobotLoop(int realmId)
-  {
-    var onlineRobotsIds = _robotDataRepository.GetOnlineRobots(realmId);
-    // Find any robot that is idle
-    foreach (var robotId in onlineRobotsIds)
-    {
-      if (_robotDataRepository.AutoTaskSchedulerHoldRobot(realmId, robotId))
-      {
-        var robotData = _robotDataRepository.GetRobotData(robotId);
-        if (robotData != null)
-        {
-          if (robotData.RobotStatus == RobotClientsRobotStatus.Idle &&
-                !_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
-          {
-            // A robot is available for the task, ask it to obatin the task
-            await RunSchedulerRobotReadyAsync(robotId);
-            // Release the robot when it obtains the task
-            return;
-          }
-          else
-          {
-            // The robot is paused, release it and continue
-            _robotDataRepository.AutoTaskScheduleReleaseRobot(realmId, robotId);
-          }
-        }
-      }
-    }
-  }
-
-  private async Task FindRobotSingle(int realmId, Guid robotId)
-  {
-    var onlineRobotsIds = _robotDataRepository.GetOnlineRobots(realmId);
-    if (!onlineRobotsIds.Contains(robotId))
-    {
-      // The specified robot is offline, stop the scheduler
-      return;
-    }
-    
-    if (_robotDataRepository.AutoTaskSchedulerHoldRobot(realmId, robotId))
-    {
-      var robotData = _robotDataRepository.GetRobotData(robotId);
-      if (robotData != null)
-      {
-        if (robotData.RobotStatus == RobotClientsRobotStatus.Idle &&
-              !_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
-        {
-          // A robot is available for the task, ask it to obatin the task
-          await RunSchedulerRobotReadyAsync(robotId);
-          // Release the robot when it obtains the task
-          return;
-        }
-        else
-        {
-          // The robot is paused, release it and continue
-          _robotDataRepository.AutoTaskScheduleReleaseRobot(realmId, robotId);
-        }
-      }
-    }
-  }
-
   public async Task RunSchedulerNewAutoTaskAsync(int realmId, Guid? robotId)
   {
-    if (robotId != null)
+    // Find any robot that is idle
+    if (robotId == null)
     {
-      await FindRobotSingle(realmId, robotId.Value);
+      robotId = await _robotDataRepository.SchedulerHoldAnyRobotAsync(realmId);
     }
-    else
+    if (robotId != null && await _robotDataRepository.SchedulerHoldRobotAsync(realmId, robotId.Value))
     {
-      await FindRobotLoop(realmId);
+      await RunSchedulerRobotReadyAsync(robotId.Value);
+      // Release the robot when it obtains the task
     }
   }
   
@@ -241,7 +178,7 @@ public class AutoTaskSchedulerService(
 
   public async Task RunSchedulerRobotNewJoinAsync(Guid robotId)
   {
-    if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+    if (await _onlineRobotsService.GetPauseAutoTaskAssignmentAsync(robotId))
     {
       return;
     }
@@ -253,7 +190,8 @@ public class AutoTaskSchedulerService(
       var task = await GenerateTaskDetail(runningAutoTask, true);
       if (task != null)
       {
-        SetAutoTask(robotId, task);
+        var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+        await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, task);
       }
       return;
     }
@@ -307,7 +245,7 @@ public class AutoTaskSchedulerService(
 
   public async Task<bool> RunSchedulerRobotReadyAsync(Guid robotId)
   {
-    if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+    if (await _onlineRobotsService.GetPauseAutoTaskAssignmentAsync(robotId))
     {
       return false;
     }
@@ -321,7 +259,7 @@ public class AutoTaskSchedulerService(
       var task = await GenerateTaskDetail(newTask);
       if (task != null)
       {
-        SetAutoTask(robotId, task);
+        await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, task);
       }
       // Has new task
       return true;
@@ -329,10 +267,10 @@ public class AutoTaskSchedulerService(
     return false;
   }
 
-  public void ReleaseRobot(Guid robotId)
+  public async Task ReleaseRobotAsync(Guid robotId)
   {
     var realmId = _robotService.GetRobotRealmIdAsync(robotId).Result ?? 0;
-    _robotDataRepository.AutoTaskScheduleReleaseRobot(realmId, robotId);
+    await _robotDataRepository.SchedulerReleaseRobotAsync(realmId, robotId);
   }
 
   private async Task<AutoTask?> AutoTaskAbortSqlAsync(int taskId, Guid? robotId = null, string? token = null)
@@ -405,7 +343,8 @@ public class AutoTaskSchedulerService(
       // No new task, send the aborted task to idle the robot
       if (sendTask != null)
       {
-        SetAutoTask(robotId, sendTask);
+        var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+      await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
       }
     }
   }
@@ -428,7 +367,8 @@ public class AutoTaskSchedulerService(
       // No new task, send the aborted task to idle the robot
       if (sendTask != null)
       {
-        SetAutoTask(task.AssignedRobotId!.Value, sendTask);
+        var realmId = await _robotService.GetRobotRealmIdAsync(task.AssignedRobotId!.Value) ?? 0;
+        await _robotDataRepository.AddAutoTaskAsync(realmId, task.AssignedRobotId!.Value, sendTask);
       }
     }
     return true;
@@ -507,7 +447,8 @@ public class AutoTaskSchedulerService(
     var sendTask = await GenerateTaskDetail(task);
     if (sendTask != null)
     {
-      SetAutoTask(robotId, sendTask);
+      var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+      await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
     }
   }
 
@@ -532,7 +473,8 @@ public class AutoTaskSchedulerService(
     var sendTask = await GenerateTaskDetail(task);
     if (sendTask != null)
     {
-      SetAutoTask(robotId, sendTask);
+      var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+      await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
     }
     return true;
   }

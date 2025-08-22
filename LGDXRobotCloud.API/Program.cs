@@ -52,6 +52,9 @@ builder.Services.Configure<LgdxRobotCloudSecretConfiguration>(
  */
 builder.Services.AddLogging(builder => builder.AddConsole());
 
+var redis = StackExchange.Redis.ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"] ?? string.Empty);
+builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(redis);
+
 builder.Services.AddMassTransit(cfg =>
 {
 	cfg.UsingRabbitMq((context, cfg) =>

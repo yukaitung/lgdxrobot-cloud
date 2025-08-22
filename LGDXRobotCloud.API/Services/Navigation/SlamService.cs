@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.Data.Contracts;
@@ -16,8 +17,7 @@ public interface ISlamService
   Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData? mapData);
 
   // Server to Client
-  IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId);
-  bool SetSlamCommands(int realmId, RobotClientsSlamCommands commands);
+  Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands);
 }
 
 public class SlamService(
@@ -47,13 +47,13 @@ public class SlamService(
   public async Task<bool> StartSlamAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    return _robotDataRepository.StartSlam(realmId, robotId);
+    return await _robotDataRepository.StartSlamAsync(realmId, robotId);
   }
 
   public async Task StopSlamAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    _robotDataRepository.StopSlam(realmId);
+    await _robotDataRepository.StopSlamAsync(realmId, robotId);
 
     // Publish the robot is offline
     await _bus.Publish(new RobotDataContract
@@ -95,20 +95,8 @@ public class SlamService(
     await _bus.Publish(data);
   }
 
-  public IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId)
+  public async Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands)
   {
-    return _robotDataRepository.GetSlamCommands(robotId);
-  }
-
-  public bool SetSlamCommands(int realmId, RobotClientsSlamCommands commands)
-  {
-    var robotId = _robotDataRepository.GetRunningSlamRobotId(realmId);
-    if (robotId == null)
-    {
-      return false;
-    }
-    _robotDataRepository.SetSlamCommands(realmId, commands);
-    _eventService.SlamCommandsHasUpdated(robotId.Value);
-    return true;
+    return await _robotDataRepository.AddSlamCommandAsync(realmId, commands);
   }
 }
