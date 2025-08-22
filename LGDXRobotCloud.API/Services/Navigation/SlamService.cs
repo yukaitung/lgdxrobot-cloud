@@ -22,13 +22,11 @@ public interface ISlamService
 
 public class SlamService(
   IBus bus,
-  IEventService eventService,
   IRobotDataRepository robotDataRepository,
   IRobotService robotService
 ) : ISlamService
 {
   private readonly IBus _bus = bus;
-  private readonly IEventService _eventService = eventService;
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository;
   private readonly IRobotService _robotService = robotService;
 

@@ -31,7 +31,6 @@ public class AutoTaskSchedulerService(
     IAutoTaskPathPlannerService autoTaskPathPlanner,
     IBus bus,
     IEmailService emailService,
-    IEventService eventService,
     IOnlineRobotsService onlineRobotsService,
     IRobotDataRepository robotDataRepository,
     IRobotService robotService,
@@ -42,7 +41,6 @@ public class AutoTaskSchedulerService(
   private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner;
   private readonly IBus _bus = bus;
   private readonly IEmailService _emailService = emailService;
-  private readonly IEventService _eventService = eventService;
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService;
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository;
   private readonly IRobotService _robotService = robotService;

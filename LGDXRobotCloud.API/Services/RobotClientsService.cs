@@ -13,14 +13,12 @@ using System.Text;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.API.Services.Automation;
 using System.Threading.Channels;
-using LGDXRobotCloud.API.Services.Common;
 
 namespace LGDXRobotCloud.API.Services;
 
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.RobotClientsJwtScheme)]
 public class RobotClientsService(
     IAutoTaskSchedulerService autoTaskSchedulerService,
-    IEventService eventService,
     IOnlineRobotsService OnlineRobotsService,
     IOptionsSnapshot<LgdxRobotCloudSecretConfiguration> lgdxRobotCloudSecretConfiguration,
     IRobotService robotService,
@@ -28,7 +26,6 @@ public class RobotClientsService(
   ) : RobotClientsServiceBase
 {
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService;
-  private readonly IEventService _eventService = eventService;
   private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
   private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value;
   private readonly IRobotService _robotService = robotService;
@@ -147,8 +144,6 @@ public class RobotClientsService(
     var robotId = GetRobotId(context);
 
     _streamingRobotId = robotId;
-    _eventService.RobotHasNextTask += OnRobotHasNextTask;
-    _eventService.RobotCommandsUpdated += OnRobotCommandsUpdated;
 
     var clientToServer = ExchangeStreamClientToServerAsync(robotId, requestStream, context);
     var serverToClient = ExchangeStreamServerToClientAsync(responseStream, context);
@@ -197,8 +192,6 @@ public class RobotClientsService(
     finally
     {
       // The reading stream is completed, stop wirting task
-      _eventService.RobotHasNextTask -= OnRobotHasNextTask;
-      _eventService.RobotCommandsUpdated -= OnRobotCommandsUpdated;
       await _onlineRobotsService.RemoveRobotAsync(robotId);
     }
     
@@ -214,37 +207,6 @@ public class RobotClientsService(
       await responseStream.WriteAsync(message);
     }
   }
-
-  private async void OnRobotHasNextTask(object? sender, Guid robotId)
-  {
-    if (_streamingRobotId != robotId)
-      return;
-    /*
-    var tasks = _onlineRobotsService.GetAutoTasks(robotId);
-    foreach (var task in tasks)
-    {
-      await _streamMessageQueue.Writer.WriteAsync(new RobotClientsResponse
-      {
-        Task = task
-      });
-    }
-    _autoTaskSchedulerService.ReleaseRobot(robotId);*/
-  }
-
-  private async void OnRobotCommandsUpdated(object? sender, Guid robotId)
-  {
-    if (_streamingRobotId != robotId)
-      return;
-    /*
-    var commands = _onlineRobotsService.GetRobotCommands(robotId);
-    foreach (var command in commands)
-    {
-      await _streamMessageQueue.Writer.WriteAsync(new RobotClientsResponse
-      {
-        Commands = command
-      });
-    }*/
-  }
   
   /*
    * SlamExchange
@@ -253,7 +215,6 @@ public class RobotClientsService(
   {
     var robotId = GetRobotId(context);
     _streamingRobotId = robotId;
-    _eventService.SlamCommandsUpdated += OnSlamCommandsUpdated;
 
     var clientToServer = SlamExchangeClientToServerAsync(robotId, requestStream, context);
     var serverToClient = SlamExchangeServerToClientAsync(responseStream, context);
@@ -280,7 +241,6 @@ public class RobotClientsService(
     {
       // The reading stream is completed, stop wirting task
       await _slamService.StopSlamAsync(robotId);
-      _eventService.SlamCommandsUpdated -= OnSlamCommandsUpdated;
       _slamStreamMessageQueue.Writer.TryComplete();
     }
 
@@ -294,16 +254,5 @@ public class RobotClientsService(
     {
       await responseStream.WriteAsync(message);
     }
-  }
-
-  private async void OnSlamCommandsUpdated(object? sender, Guid robotId)
-  {
-    if (_streamingRobotId != robotId)
-      return;
-    /*var commands = _slamService.GetSlamCommands(_streamingRobotId);
-    foreach (var command in commands)
-    {
-      await _slamStreamMessageQueue.Writer.WriteAsync(command);
-    }*/
   }
 }

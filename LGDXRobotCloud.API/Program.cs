@@ -230,7 +230,6 @@ builder.Services.AddSingleton<IRobotDataRepository, RobotDataRepository>();
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();
 builder.Services.AddScoped<ITriggerService, TriggerService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddSingleton<IEventService, EventService>();
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();

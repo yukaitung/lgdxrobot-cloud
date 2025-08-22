@@ -28,7 +28,6 @@ public class OnlineRobotsService(
     IActivityLogService activityLogService,
     IBus bus,
     IEmailService emailService,
-    IEventService eventService,
     IMemoryCache memoryCache,
     IRobotDataRepository robotDataRepository,
     IRobotService robotService
@@ -37,7 +36,6 @@ public class OnlineRobotsService(
   private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-  private readonly IEventService _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository ?? throw new ArgumentNullException(nameof(robotDataRepository));
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
@@ -153,7 +151,6 @@ public class OnlineRobotsService(
 
     if (result)
     {
-      _eventService.RobotCommandsHasUpdated(robotId);
       await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Robot),
@@ -180,7 +177,6 @@ public class OnlineRobotsService(
 
     if (result)
     {
-      _eventService.RobotCommandsHasUpdated(robotId);
       await _activityLogService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Robot),
