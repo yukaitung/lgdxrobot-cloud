@@ -1,12 +1,9 @@
-using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using LGDXRobotCloud.UI;
 using LGDXRobotCloud.UI.Authorisation;
 using LGDXRobotCloud.UI.Components;
 using LGDXRobotCloud.UI.Constants;
-using LGDXRobotCloud.UI.Consumers;
 using LGDXRobotCloud.UI.Services;
-using MassTransit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -16,32 +13,6 @@ using Microsoft.Kiota.Http.HttpClientLibrary.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddMassTransit(cfg =>
-{
-	var entryAssembly = Assembly.GetEntryAssembly();
-  cfg.AddConsumers(entryAssembly);
-	cfg.UsingRabbitMq((context, cfg) =>
-	{
-		cfg.Host(builder.Configuration["RabbitMq:Host"], builder.Configuration["RabbitMq:VirtualHost"], h =>
-		{
-			h.Username(builder.Configuration["RabbitMq:Username"] ?? string.Empty);
-			h.Password(builder.Configuration["RabbitMq:Password"] ?? string.Empty);
-		});
-		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
-		{
-			e.ConfigureConsumer<RobotDataConsumer>(context);
-		});
-		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
-		{
-			e.ConfigureConsumer<AutoTaskUpdateConsumer>(context);
-		});
-		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
-		{
-			e.ConfigureConsumer<SlamDataConsumer>(context);
-		});
-		cfg.ConfigureEndpoints(context);
-	});
-});
 builder.Services.AddMemoryCache();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -84,9 +55,6 @@ builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client
 			return handler;
 	});
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
-builder.Services.AddScoped<IRobotDataService, RobotDataService>();
-builder.Services.AddSingleton<IRealTimeService, RealTimeService>();
-builder.Services.AddSingleton<ISlamService, SlamService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

@@ -22,16 +22,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
   public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IRealTimeService RealTimeService { get; set; }
-
-  [Inject]
   public required IJSRuntime JSRuntime { get; set; }
-
-  [Inject]
-  public required IRobotDataService RobotDataService { get; set; }
-
-  [Inject]
-  public required ISlamService SlamService { get; set; }
 
   [Inject]
   public required NavigationManager NavigationManager { get; set; }
@@ -93,7 +84,6 @@ public sealed partial class Slam : ComponentBase, IDisposable
   public async Task AbortSlam()
   {
     await LgdxApiClient.Navigation.Realms[Id!.Value].Slam.Abort.PostAsync();
-    SlamService.StopSlam(Id!.Value);
     NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index + $"/{Id}");
   }
 
@@ -105,7 +95,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
   [JSInvokable("UpdateRealmStage2")]
   public async Task UpdateRealmStage2(string mapData)
   {
-    var slamData = SlamService.GetSlamData(Id!.Value);
+    /*var slamData = SlamService.GetSlamData(Id!.Value);
     if (slamData == null)
     {
       return;
@@ -119,7 +109,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
       OriginRotation = slamData.MapData.Origin.Rotation,
       Image = mapData
     });
-    SlamService.StopSlam(Id!.Value);
+    SlamService.StopSlam(Id!.Value);*/
     CachedRealmService.ClearCache(Id!.Value);
     NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index + $"/{Id}");
   }
@@ -127,6 +117,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
 
   private async Task UpdateSlamMap(int realmId)
   {
+    /*
     var slamData = SlamService.GetSlamData(realmId);
     try
     {
@@ -145,19 +136,9 @@ public sealed partial class Slam : ComponentBase, IDisposable
     catch (Exception)
     {
       Console.WriteLine("Exception");
-    }
+    }*/
   }
-
-  private async void OnSlamDataUpdated(object? sender, SlamDataUpdatEventArgs updatEventArgs)
-  {
-    if (updatEventArgs.RealmId != Id)
-    {
-      return;
-    }
-    await UpdateSlamMap(updatEventArgs.RealmId);
-    await InvokeAsync(StateHasChanged);
-  }
-
+/*
   private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
   {
     var robotId = updatEventArgs.RobotId;
@@ -189,14 +170,11 @@ public sealed partial class Slam : ComponentBase, IDisposable
       Console.WriteLine("Exception");
     }
   }
-
+*/
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
     if (firstRender)
     {
-      SlamService.StartSlam(Id!.Value);
-      RealTimeService.SlamDataUpdated += OnSlamDataUpdated;
-      RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
       if (Id != null)
@@ -209,8 +187,6 @@ public sealed partial class Slam : ComponentBase, IDisposable
 
   public void Dispose()
   {
-    RealTimeService.SlamDataUpdated -= OnSlamDataUpdated;
-    RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
     GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
   }

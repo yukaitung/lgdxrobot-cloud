@@ -15,9 +15,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
   public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IRealTimeService RealTimeService { get; set; }
-
-  [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
@@ -25,9 +22,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
 
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
-
-  [Inject]
-  public required IRobotDataService RobotDataService { get; set; }
 
   private int RealmId { get; set; }
   private string RealmName { get; set; } = string.Empty;
@@ -40,31 +34,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
   private string DataSearch { get; set; } = string.Empty;
   private string LastDataSearch { get; set; } = string.Empty;
 
-  private void SetRobotsData(IEnumerable<RobotListDto>? robots)
-  {
-    RobotsData.Clear();
-    if (robots == null)
-    {
-      return;
-    }
-    foreach (var robot in robots)
-    {
-      Guid robotId = (Guid)robot.Id!;
-      var robotData = RobotDataService.GetRobotData(robotId, RealmId);
-      if (robotData != null)
-      {
-        RobotsData[robotId] = robotData;
-      }
-      else
-      {
-        RobotsData[robotId] = new RobotDataContract
-        {
-          RobotId = robotId,
-          RealmId = RealmId
-        };
-      }
-    }
-  }
 
   public async Task HandleSearch()
   {
@@ -83,7 +52,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
         PageSize = PageSize
       };
     });
-    SetRobotsData(robots);
     RobotsList = robots;
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
     LastDataSearch = DataSearch;
@@ -118,7 +86,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
         PageSize = PageSize
       };
     });
-    SetRobotsData(robots);
     RobotsList = robots;
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
@@ -140,11 +107,10 @@ public sealed partial class Robots : ComponentBase, IDisposable
         PageSize = PageSize
       };
     });
-    SetRobotsData(robots);
     RobotsList = robots;
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
-
+/*
   private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
   {
     var robotId = updatEventArgs.RobotId;
@@ -160,7 +126,7 @@ public sealed partial class Robots : ComponentBase, IDisposable
         StateHasChanged();
       });
     }
-  }
+  }*/
 
   protected override async Task OnInitializedAsync()
   {
@@ -169,13 +135,11 @@ public sealed partial class Robots : ComponentBase, IDisposable
     RealmId = settings.CurrentRealmId;
     RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await Refresh();
-    RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
     await base.OnInitializedAsync();
   }
 
   public void Dispose()
   {
-    RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
     GC.SuppressFinalize(this);
   }
 }

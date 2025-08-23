@@ -19,13 +19,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
   public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IRealTimeService RealTimeService { get; set; }
-
-  [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
-
-  [Inject]
-  public required IRobotDataService RobotDataService { get; set; }
 
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
@@ -103,7 +97,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       Enable = enabled
     });
   }
-
+/*
   private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
   {
     var robotId = updatEventArgs.RobotId;
@@ -116,7 +110,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       RobotData = robotData;
       await InvokeAsync(StateHasChanged);
     }
-  }
+  }*/
 
   private AutoTaskListDto ToAutoTaskListDto(AutoTaskUpdateContract autoTaskUpdateContract)
   {
@@ -142,7 +136,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       }
     };
   }
-
+/*
   private async void OnAutoTaskUpdated(object? sender, AutoTaskUpdatEventArgs updatEventArgs)
   {
     if (AutoTasks == null)
@@ -173,7 +167,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       .ThenBy(x => x.Id)
       .ToList();
     await InvokeAsync(StateHasChanged);
-  }
+  }*/
 
   protected override async Task OnInitializedAsync()
   {
@@ -190,19 +184,12 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       RobotSystemInfoDto = robot!.RobotSystemInfo;
       RobotChassisInfoViewModel.FromDto(robot!.RobotChassisInfo!);
       AutoTasks = robot.AssignedTasks;
-      RobotData = RobotDataService.GetRobotData(RobotDetailViewModel!.Id, realmId);
     }
-
-    RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
-    RealTimeService.AutoTaskUpdated += OnAutoTaskUpdated;
-    
     await base.OnInitializedAsync();
   }
 
   public void Dispose()
   {
-    RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
-    RealTimeService.AutoTaskUpdated -= OnAutoTaskUpdated;
     GC.SuppressFinalize(this);
   }
 }

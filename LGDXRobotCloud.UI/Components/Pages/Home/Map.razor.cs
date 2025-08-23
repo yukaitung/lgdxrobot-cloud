@@ -15,18 +15,12 @@ public sealed partial class Map : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
-
-  [Inject]
-  public required IRealTimeService RealTimeService { get; set; }
   
   [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }
-
-  [Inject]
-  public required IRobotDataService RobotDataService { get; set; }
 
   [Inject]
   public required ITokenService TokenService { get; set; }
@@ -77,7 +71,7 @@ public sealed partial class Map : ComponentBase, IDisposable
   {
     NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}?ReturnUrl=/?tab=1");
   }
-
+/*
   private async void OnAutoTaskUpdated(object? sender, AutoTaskUpdatEventArgs updatEventArgs)
   {
     if (CurrentTask == null)
@@ -147,7 +141,7 @@ public sealed partial class Map : ComponentBase, IDisposable
     {
       Console.WriteLine("Exception");
     }
-  }
+  }*/
 
   protected override async Task OnInitializedAsync() 
   {
@@ -155,18 +149,7 @@ public sealed partial class Map : ComponentBase, IDisposable
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     Realm = await CachedRealmService.GetCurrrentRealmAsync(settings.CurrentRealmId);
-    var realmId = Realm.Id ?? 0;
 
-    // Set Online Robots
-    var onlineRobots = RobotDataService.GetOnlineRobots(realmId!);
-    foreach (var robotId in onlineRobots)
-    {
-      var robotData = RobotDataService.GetRobotData(robotId, realmId!);
-      if (robotData != null)
-      {
-        RobotsData.Add(robotId, robotData);
-      }
-    }
     await base.OnInitializedAsync();
   }
 
@@ -174,8 +157,6 @@ public sealed partial class Map : ComponentBase, IDisposable
   {
     if (firstRender)
     {
-      RealTimeService.AutoTaskUpdated += OnAutoTaskUpdated;
-      RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
       foreach (var (robotId, robotData) in RobotsData)
@@ -188,8 +169,6 @@ public sealed partial class Map : ComponentBase, IDisposable
 
   public void Dispose()
   {
-    RealTimeService.AutoTaskUpdated -= OnAutoTaskUpdated;
-    RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
     GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
   }

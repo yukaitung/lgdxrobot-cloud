@@ -15,7 +15,6 @@
     <PackageReference Include="Microsoft.Kiota.Bundle" Version="1.17.2" />
     <PackageReference Include="Net.Codecrete.QrCodeGenerator" Version="2.0.6" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.0" />
   </ItemGroup>
 
   <ItemGroup>

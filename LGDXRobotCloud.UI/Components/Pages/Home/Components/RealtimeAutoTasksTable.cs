@@ -17,9 +17,6 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
   public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IRealTimeService RealTimeService { get; set; }
-
-  [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
@@ -80,7 +77,7 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
     TotalAutoTasks = PaginationHelper?.ItemCount ?? 0;
     AutoTasks ??= [];
   }
-
+/*
   private async void OnAutoTaskUpdated(object? sender, AutoTaskUpdatEventArgs updatEventArgs)
   {
     if (AutoTasks == null)
@@ -143,7 +140,7 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
       }
       await InvokeAsync(StateHasChanged);
     }
-  }
+  }*/
 
   protected override async Task OnInitializedAsync()
   {
@@ -151,14 +148,12 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
     var settings = TokenService.GetSessionSettings(user);
     RealmId = settings.CurrentRealmId;
     RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
-    RealTimeService.AutoTaskUpdated += OnAutoTaskUpdated;
     await Refresh();
     await base.OnInitializedAsync();
   }
 
   public void Dispose()
   {
-    RealTimeService.AutoTaskUpdated -= OnAutoTaskUpdated;
     GC.SuppressFinalize(this);
   }
 }
