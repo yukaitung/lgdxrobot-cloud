@@ -59,6 +59,7 @@ builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client
 	});
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
+builder.Services.AddSingleton<IRealTimeService, RealTimeService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

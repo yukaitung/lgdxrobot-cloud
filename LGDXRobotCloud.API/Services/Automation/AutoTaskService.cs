@@ -32,7 +32,6 @@ public interface IAutoTaskService
 public class AutoTaskService(
     IActivityLogService activityLogService,
     IAutoTaskSchedulerService autoTaskSchedulerService,
-    IBus bus,
     IMemoryCache memoryCache,
     IOnlineRobotsService onlineRobotsService,
     LgdxContext context
@@ -40,7 +39,6 @@ public class AutoTaskService(
 {
   private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -309,7 +307,7 @@ public class AutoTaskService(
       };
       await _context.AutoTasksJourney.AddAsync(autoTaskJourney);
       await _context.SaveChangesAsync();
-      await _bus.Publish(autoTaskBusinessModel.ToContract());
+      await _autoTaskSchedulerService.UpdateAutoTaskQueue(autoTask.RealmId, autoTaskBusinessModel.ToContract());
       await _autoTaskSchedulerService.RunSchedulerNewAutoTaskAsync(autoTask.RealmId, autoTask.AssignedRobotId);
     }
 

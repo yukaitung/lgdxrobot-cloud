@@ -1,3 +1,4 @@
+using System.Text.Json;
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
@@ -20,6 +21,12 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
 
   [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
+  public required IRobotDataService RobotDataService { get; set; }
+
+  [Inject]
+  public required IRealTimeService RealTimeService { get; set; }
 
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
@@ -45,6 +52,10 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
   private List<AutoTaskListDto>? AutoTasks { get; set; }
   private RobotDataContract? RobotData { get; set; }
 
+  private Timer? Timer = null;
+
+  private Guid IdGuid { get; set; }
+  private int RealmId { get; set; }
   private string RealmName { get; set; } = string.Empty;
   private int CurrentTab { get; set; } = 0;
   private readonly List<string> Tabs = ["Robot", "System", "Chassis", "Certificate", "Activity Logs", "Delete Robot"];
@@ -97,20 +108,29 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       Enable = enabled
     });
   }
-/*
-  private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
-  {
-    var robotId = updatEventArgs.RobotId;
-    if (Id != robotId.ToString())
-      return;
 
-    var robotData = RobotDataService.GetRobotData(robotId, updatEventArgs.RealmId);
-    if (robotData != null)
+  private void TimerStart()
+  {
+    Timer?.Change(0, 500);
+  }
+
+  private void TimerStop()
+  {
+    Timer?.Change(Timeout.Infinite, Timeout.Infinite);
+  }
+
+  private async Task OnRobotDataUpdated()
+  {
+    TimerStop();
+    Guid robotId = Guid.Parse(Id);
+    var robotData = await RobotDataService.GetRobotDataFromListAsync(RealmId, [IdGuid]);
+    if (robotData.TryGetValue(robotId, out var rd))
     {
-      RobotData = robotData;
+      RobotData = rd;
       await InvokeAsync(StateHasChanged);
     }
-  }*/
+    TimerStart();
+  }
 
   private AutoTaskListDto ToAutoTaskListDto(AutoTaskUpdateContract autoTaskUpdateContract)
   {
@@ -136,12 +156,11 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       }
     };
   }
-/*
-  private async void OnAutoTaskUpdated(object? sender, AutoTaskUpdatEventArgs updatEventArgs)
+
+  private async void OnAutoTaskUpdated(AutoTaskUpdateContract autoTaskUpdateContract)
   {
     if (AutoTasks == null)
       return;
-    var autoTaskUpdateContract = updatEventArgs.AutoTaskUpdateContract;
     if (autoTaskUpdateContract.AssignedRobotId.ToString() != Id)
       return;
 
@@ -167,13 +186,13 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       .ThenBy(x => x.Id)
       .ToList();
     await InvokeAsync(StateHasChanged);
-  }*/
+  }
 
   protected override async Task OnInitializedAsync()
   {
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
-    var realmId = settings.CurrentRealmId;
+    RealmId = settings.CurrentRealmId;
     RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
 
     if (Guid.TryParse(Id, out Guid _id))
@@ -184,12 +203,23 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       RobotSystemInfoDto = robot!.RobotSystemInfo;
       RobotChassisInfoViewModel.FromDto(robot!.RobotChassisInfo!);
       AutoTasks = robot.AssignedTasks;
+      IdGuid = _id;
     }
+    
+    await RealTimeService.SubscribeToTaskUpdateQueueAsync(RealmId, OnAutoTaskUpdated);
+    Timer = new Timer(async (state) =>
+    {
+      await OnRobotDataUpdated();
+    }, null, Timeout.Infinite, Timeout.Infinite);
+    TimerStart();
+    
     await base.OnInitializedAsync();
   }
 
   public void Dispose()
   {
+    RealTimeService.UnsubscribeToTaskUpdateQueueAsync(RealmId, OnAutoTaskUpdated);
+    Timer?.Dispose();
     GC.SuppressFinalize(this);
   }
 }

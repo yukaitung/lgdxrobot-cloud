@@ -1,4 +1,3 @@
-using System.Text.Json;
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
@@ -9,9 +8,6 @@ using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
-using Microsoft.Kiota.Abstractions;
-using StackExchange.Redis;
-using static StackExchange.Redis.RedisChannel;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home;
 
@@ -24,7 +20,7 @@ public sealed partial class Map : ComponentBase, IDisposable
   public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
-  public required IConnectionMultiplexer RedisConnection { get; set; }
+  public required IRealTimeService RealTimeService { get; set; }
 
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }
@@ -42,7 +38,6 @@ public sealed partial class Map : ComponentBase, IDisposable
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
   private Timer? Timer = null;
-  private ISubscriber? Subscriber = null!;
   private DotNetObjectReference<Map> ObjectReference = null!;
 
   private RealmDto Realm { get; set; } = null!;
@@ -94,7 +89,7 @@ public sealed partial class Map : ComponentBase, IDisposable
     NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}?ReturnUrl=/?tab=1");
   }
 
-  private async Task OnAutoTaskUpdated(AutoTaskUpdateContract autoTaskUpdateContract)
+  private async void OnAutoTaskUpdated(AutoTaskUpdateContract autoTaskUpdateContract)
   {
     if (CurrentTask == null)
       return;
@@ -123,44 +118,47 @@ public sealed partial class Map : ComponentBase, IDisposable
   {
     TimerStop();
     var robotData = await RobotDataService.GetRobotDataFromRealmAsync(Realm.Id!.Value);
-    try
+    if (robotData.Count > 0)
     {
-      // Update map
-      foreach (var data in robotData)
+      try
       {
-        var position = data.Value.Position;
-        await JSRuntime.InvokeVoidAsync("MoveRobot", data.Key, position.X, position.Y, position.Rotation);
-      }
-
-      // Update current robot
-      if (SelectedRobot != null && robotData.TryGetValue(SelectedRobotId, out var rd))
-      {
-        SelectedRobot = rd;
-        // Update Plan
-        List<double> plan = [];
-        foreach (var waypoint in rd.NavProgress.Plan)
+        // Update map
+        foreach (var data in robotData)
         {
-          plan.Add(waypoint.X);
-          plan.Add(waypoint.Y);
+          var position = data.Value.Position;
+          await JSRuntime.InvokeVoidAsync("MoveRobot", data.Key, position.X, position.Y, position.Rotation);
         }
-        await JSRuntime.InvokeVoidAsync("UpdateRobotPlan", plan);
-      }
 
-      // Remove offline robots
-      List<Guid> oldRobotIds = [.. RobotsData.Keys];
-      List<Guid> newRobotIds = [.. robotData.Keys];
-      List<Guid> removeRobotIds = [.. oldRobotIds.Except(newRobotIds)];
-      foreach (var robotId in removeRobotIds)
+        // Update current robot
+        if (SelectedRobot != null && robotData.TryGetValue(SelectedRobotId, out var rd))
+        {
+          SelectedRobot = rd;
+          // Update Plan
+          List<double> plan = [];
+          foreach (var waypoint in rd.NavProgress.Plan)
+          {
+            plan.Add(waypoint.X);
+            plan.Add(waypoint.Y);
+          }
+          await JSRuntime.InvokeVoidAsync("UpdateRobotPlan", plan);
+        }
+
+        // Remove offline robots
+        List<Guid> oldRobotIds = [.. RobotsData.Keys];
+        List<Guid> newRobotIds = [.. robotData.Keys];
+        List<Guid> removeRobotIds = [.. oldRobotIds.Except(newRobotIds)];
+        foreach (var robotId in removeRobotIds)
+        {
+          await JSRuntime.InvokeVoidAsync("RemoveRobot", robotId);
+        }
+
+        RobotsData = robotData;
+        await InvokeAsync(StateHasChanged);
+      }
+      catch (Exception)
       {
-        await JSRuntime.InvokeVoidAsync("RemoveRobot", robotId);
+        // Ignore
       }
-
-      RobotsData = robotData;
-      await InvokeAsync(StateHasChanged);
-    }
-    catch (Exception)
-    {
-      // Ignore
     }
     TimerStart();
   }
@@ -181,12 +179,7 @@ public sealed partial class Map : ComponentBase, IDisposable
     {
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
-      Subscriber = RedisConnection.GetSubscriber();
-      await Subscriber.SubscribeAsync(new RedisChannel($"autoTaskUpdate:{Realm.Id}", PatternMode.Literal), async (channel, value) =>
-      {
-        var update = JsonSerializer.Deserialize<AutoTaskUpdateContract>(value!);
-        await OnAutoTaskUpdated(update!);
-      });
+      await RealTimeService.SubscribeToTaskUpdateQueueAsync(Realm.Id!.Value, OnAutoTaskUpdated);
       Timer = new Timer(async (state) =>
       {
         await OnRobotDataUpdated();
@@ -198,7 +191,7 @@ public sealed partial class Map : ComponentBase, IDisposable
 
   public void Dispose()
   {
-    Subscriber?.UnsubscribeAllAsync();
+    RealTimeService.UnsubscribeToTaskUpdateQueueAsync(Realm.Id!.Value, OnAutoTaskUpdated);
     Timer?.Dispose();
     GC.SuppressFinalize(this);
     ObjectReference?.Dispose();

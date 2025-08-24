@@ -28,7 +28,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
 
   private Timer? Timer = null;
   private int RealmId { get; set; }
-  private string RealmName { get; set; } = string.Empty;
   private List<RobotListDto>? RobotsList { get; set; }
   private Dictionary<Guid, RobotDataContract?> RobotsData { get; set; } = [];
 
@@ -143,7 +142,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     RealmId = settings.CurrentRealmId;
-    RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     Timer = new Timer(async (state) =>
     {
       await OnRobotDataUpdated();
@@ -154,6 +152,7 @@ public sealed partial class Robots : ComponentBase, IDisposable
 
   public void Dispose()
   {
+    Timer?.Dispose();
     GC.SuppressFinalize(this);
   }
 }

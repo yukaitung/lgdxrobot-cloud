@@ -26,6 +26,8 @@ public interface IAutoTaskSchedulerService
   Task<bool> AutoTaskAbortApiAsync(int taskId);
   Task AutoTaskNextAsync(Guid robotId, int taskId, string token);
   Task<bool> AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
+
+  Task UpdateAutoTaskQueue(int realmId, AutoTaskUpdateContract autoTaskUpdateContract);
 }
 
 public class AutoTaskSchedulerService(
@@ -82,7 +84,6 @@ public class AutoTaskSchedulerService(
       }
 
       // Send the updated to the Redis queue
-      var subscriber = _redisConnection.GetSubscriber();
       var data = new AutoTaskUpdateContract
       {
         Id = task.Id,
@@ -96,8 +97,7 @@ public class AutoTaskSchedulerService(
         CurrentProgressId = task.CurrentProgressId,
         CurrentProgressName = progress!.Name,
       };
-      var json = JsonSerializer.Serialize(data);
-      await subscriber.PublishAsync(new RedisChannel($"autoTaskUpdate:{task.RealmId}", PatternMode.Literal), json);
+      await UpdateAutoTaskQueue(task.RealmId, data);
     }
 
     if (task.CurrentProgressId == (int)ProgressState.Completed || task.CurrentProgressId == (int)ProgressState.Aborted)
@@ -175,7 +175,7 @@ public class AutoTaskSchedulerService(
       }
     }
   }
-  
+
   private async Task<AutoTask?> GetRunningAutoTaskSqlAsync(Guid robotId)
   {
     return await _context.AutoTasks.AsNoTracking()
@@ -232,9 +232,10 @@ public class AutoTaskSchedulerService(
       // Get flow detail
       var flowDetail = await _context.FlowDetails
         .Where(f => f.FlowId == task!.FlowId)
-        .Select(f => new { 
-          f.ProgressId, 
-          f.Order 
+        .Select(f => new
+        {
+          f.ProgressId,
+          f.Order
         })
         .OrderBy(f => f.Order)
         .FirstOrDefaultAsync();
@@ -356,7 +357,7 @@ public class AutoTaskSchedulerService(
       if (sendTask != null)
       {
         var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-      await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
+        await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
       }
     }
   }
@@ -368,7 +369,7 @@ public class AutoTaskSchedulerService(
     {
       return false;
     }
-      
+
     await DeleteTriggerRetries(taskId);
     await _emailService.SendAutoTaskAbortEmailAsync(taskId, AutoTaskAbortReason.UserApi);
     await AddAutoTaskJourney(task);
@@ -407,9 +408,10 @@ public class AutoTaskSchedulerService(
       var flowDetail = await _context.FlowDetails.AsNoTracking()
         .Where(f => f.FlowId == task!.FlowId)
         .Where(f => f.Order > task!.CurrentProgressOrder)
-        .Select(f => new { 
-          f.ProgressId, 
-          f.Order 
+        .Select(f => new
+        {
+          f.ProgressId,
+          f.Order
         })
         .OrderBy(f => f.Order)
         .FirstOrDefaultAsync();
@@ -427,7 +429,7 @@ public class AutoTaskSchedulerService(
         task.CurrentProgressOrder = null;
         task.NextToken = null;
       }
-      
+
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
     }
@@ -471,7 +473,7 @@ public class AutoTaskSchedulerService(
     {
       return false;
     }
-    
+
     await AddAutoTaskJourney(task);
     if (task.CurrentProgressId == (int)ProgressState.Completed && await RunSchedulerRobotReadyAsync(robotId))
     {
@@ -489,5 +491,12 @@ public class AutoTaskSchedulerService(
       await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
     }
     return true;
+  }
+
+  public async Task UpdateAutoTaskQueue(int realmId, AutoTaskUpdateContract autoTaskUpdateContract)
+  {
+    var subscriber = _redisConnection.GetSubscriber();
+    var json = JsonSerializer.Serialize(autoTaskUpdateContract);
+    await subscriber.PublishAsync(new RedisChannel($"autoTaskUpdate:{realmId}", PatternMode.Literal), json);
   }
 }
