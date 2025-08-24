@@ -26,7 +26,6 @@ public interface IOnlineRobotsService
 
 public class OnlineRobotsService(
     IActivityLogService activityLogService,
-    IBus bus,
     IEmailService emailService,
     IMemoryCache memoryCache,
     IRobotDataRepository robotDataRepository,
@@ -34,7 +33,6 @@ public class OnlineRobotsService(
   ) : IOnlineRobotsService
 {
   private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository ?? throw new ArgumentNullException(nameof(robotDataRepository));
@@ -66,14 +64,6 @@ public class OnlineRobotsService(
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     await _robotDataRepository.StopExchangeAsync(realmId, robotId);
-
-    // Publish the robot is offline
-    await _bus.Publish(new RobotDataContract
-    {
-      RobotId = robotId,
-      RealmId = realmId,
-      RobotStatus = RobotStatus.Offline
-    });
   }
 
   public async Task UpdateRobotDataAsync(Guid robotId, RobotClientsData data)
@@ -86,7 +76,33 @@ public class OnlineRobotsService(
     _memoryCache.Set($"OnlineRobotsService_RobotData_Pause_{robotId}", true, TimeSpan.FromMilliseconds(100));
 
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    await _robotDataRepository.SetRobotDataAsync(realmId, robotId, data);
+    await _robotDataRepository.SetRobotDataAsync(realmId, robotId, new RobotDataContract
+    {
+      RobotStatus = ConvertRobotStatus(data.RobotStatus),
+      CriticalStatus = new RobotCriticalStatus
+      {
+        SoftwareEmergencyStop = data.CriticalStatus.SoftwareEmergencyStop,
+        HardwareEmergencyStop = data.CriticalStatus.HardwareEmergencyStop,
+        BatteryLow = [.. data.CriticalStatus.BatteryLow],
+        MotorDamaged = [.. data.CriticalStatus.MotorDamaged]
+      },
+      Batteries = [.. data.Batteries],
+      Position = new RobotDof
+      {
+        X = data.Position.X,
+        Y = data.Position.Y,
+        Rotation = data.Position.Rotation
+      },
+      NavProgress = new AutoTaskNavProgress
+      {
+        Eta = data.NavProgress.Eta,
+        Recoveries = data.NavProgress.Recoveries,
+        DistanceRemaining = data.NavProgress.DistanceRemaining,
+        WaypointsRemaining = data.NavProgress.WaypointsRemaining,
+        Plan = [.. data.NavProgress.Plan.Select(x => new Robot2Dof { X = x.X, Y = x.Y })]
+      },
+      PauseTaskAssignment = data.PauseTaskAssignment
+    });
     
     var robotStatus = ConvertRobotStatus(data.RobotStatus);
     if (robotStatus == RobotStatus.Stuck)

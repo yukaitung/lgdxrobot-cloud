@@ -1,3 +1,4 @@
+@using LGDXRobotCloud.Data.Contracts
 @using LGDXRobotCloud.Utilities.Enums
 @using LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components
 @attribute [Authorize (Policy = Permissions.Navigation.Robots.Read)]
@@ -16,29 +17,34 @@
       @foreach (var robot in RobotsList)
       {
         Guid id = (Guid)robot.Id!;
+        RobotDataContract? robotData = null;
+        @if (RobotsData.TryGetValue(id, out var rd))
+        {
+          robotData = rd;
+        }
         <div class="col-sm-6 col-md-4">
           <div class="card">
-            <RobotCardTop RobotStatus="@RobotsData[id]!.RobotStatus" />
+            <RobotCardTop RobotStatus="@(robotData != null ? robotData.RobotStatus : RobotStatus.Offline)" />
             <div class="card-body row">
               <div class="d-flex">
                 <h2 style="display: table;">@robot.Name</h2>
-                <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@RobotsData[id]!.RobotStatus" /></h2>
+                <h2 class="ms-auto"><RobotStatusBadge RobotStatus="@(robotData != null ? robotData.RobotStatus : RobotStatus.Offline)" /></h2>
               </div>
               <div class="datagrid mt-auto">
                 <div class="datagrid-item">
                   <div class="datagrid-title">ID</div>
-                  <div class="datagrid-content">@RobotsData[id]!.RobotId</div>
+                  <div class="datagrid-content">@id</div>
                 </div>
                 <div class="datagrid-item">
                   <div class="datagrid-title">Batteries</div>
                   <div class="datagrid-content">
-                    @if (@RobotsData[id]!.Batteries.Count() > 0)
+                    @if (robotData?.Batteries.Count() > 0)
                     {
-                      @for (int i = 0; i < @RobotsData[id]!.Batteries.Count(); i++)
+                      @for (int i = 0; i < robotData.Batteries.Count(); i++)
                       {
                         @(' ')
                         <span class="badge badge-outline text-green" title="@($"Battery {i + 1}")">
-                          @(@RobotsData[id]!.Batteries.ElementAt(i) + " V")
+                          @(robotData.Batteries.ElementAt(i) + " V")
                         </span>
                       }
                     }
@@ -50,7 +56,7 @@
                 </div>
                 <div class="datagrid-item">
                   <div class="datagrid-title">Emergency Stops</div>
-                  <div class="datagrid-content">Software: @RobotsData[id]!.CriticalStatus.SoftwareEmergencyStop<br />Hardware: @RobotsData[id]!.CriticalStatus.HardwareEmergencyStop</div>
+                  <div class="datagrid-content">Software: @(robotData != null ? robotData.CriticalStatus.SoftwareEmergencyStop : '-')<br />Hardware: @(robotData != null ? robotData.CriticalStatus.HardwareEmergencyStop : '-')</div>
                 </div>
               </div>
             </div>

@@ -52,14 +52,6 @@ public class SlamService(
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     await _robotDataRepository.StopSlamAsync(realmId, robotId);
-
-    // Publish the robot is offline
-    await _bus.Publish(new RobotDataContract
-    {
-      RobotId = robotId,
-      RealmId = realmId,
-      RobotStatus = RobotStatus.Offline
-    });
   }
 
   public async Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData? mapData)

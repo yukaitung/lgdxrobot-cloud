@@ -17,6 +17,9 @@ builder.Services.AddMemoryCache();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+var redis = StackExchange.Redis.ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"] ?? string.Empty);
+builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(redis);
+
 // Add API
 var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
 store.Open(OpenFlags.ReadOnly);
@@ -55,6 +58,7 @@ builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client
 			return handler;
 	});
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
+builder.Services.AddScoped<IRobotDataService, RobotDataService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

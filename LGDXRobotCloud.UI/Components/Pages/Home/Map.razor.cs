@@ -1,3 +1,4 @@
+using System.Text.Json;
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
@@ -8,6 +9,9 @@ using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using Microsoft.Kiota.Abstractions;
+using StackExchange.Redis;
+using static StackExchange.Redis.RedisChannel;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home;
 
@@ -20,10 +24,16 @@ public sealed partial class Map : ComponentBase, IDisposable
   public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
+  public required IConnectionMultiplexer RedisConnection { get; set; }
+
+  [Inject]
   public required IJSRuntime JSRuntime { get; set; }
 
   [Inject]
   public required ITokenService TokenService { get; set; }
+
+  [Inject]
+  public required IRobotDataService RobotDataService { get; set; }
 
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
@@ -31,35 +41,47 @@ public sealed partial class Map : ComponentBase, IDisposable
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
+  private Timer? Timer = null;
+  private ISubscriber? Subscriber = null!;
   private DotNetObjectReference<Map> ObjectReference = null!;
+
   private RealmDto Realm { get; set; } = null!;
   private RobotDataContract? SelectedRobot { get; set; }
   private string SelectedRobotName { get; set; } = string.Empty;
-  private Guid LastSelectedRobotId { get; set; } = Guid.Empty;
   private Guid SelectedRobotId { get; set; } = Guid.Empty;
   private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = [];
   private AutoTaskListDto? CurrentTask { get; set; }
 
+  private void TimerStart()
+  {
+    Timer?.Change(0, 500);
+  }
+
+  private void TimerStop()
+  {
+    Timer?.Change(Timeout.Infinite, Timeout.Infinite);
+  }
+
   [JSInvokable("HandleRobotSelect")]
   public async Task HandleRobotSelect(string robotId)
   {
-    SelectedRobotId = Guid.Parse(robotId);
-    if (LastSelectedRobotId != SelectedRobotId)
+    Guid newRobotId = Guid.Parse(robotId);
+    if (newRobotId != SelectedRobotId)
     {
       var response = await LgdxApiClient.Navigation.Robots.Search.GetAsync(x => x.QueryParameters = new()
       {
         RealmId = Realm.Id,
-        RobotId = SelectedRobotId
+        RobotId = newRobotId
       });
       if (response?.Count > 0)
       {
         SelectedRobotName = response[0].Name!;
       }
-      CurrentTask = await LgdxApiClient.Automation.AutoTasks.RobotCurrentTask[SelectedRobotId].GetAsync();
+      CurrentTask = await LgdxApiClient.Automation.AutoTasks.RobotCurrentTask[newRobotId].GetAsync();
     }
-    SelectedRobot = RobotsData.TryGetValue(SelectedRobotId, out RobotDataContract? value) ? value : null;
+    SelectedRobot = RobotsData.TryGetValue(newRobotId, out RobotDataContract? value) ? value : null;
     StateHasChanged();
-    LastSelectedRobotId = SelectedRobotId;
+    SelectedRobotId = newRobotId;
   }
 
   public void HandleRobotManageClick()
@@ -71,12 +93,11 @@ public sealed partial class Map : ComponentBase, IDisposable
   {
     NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}?ReturnUrl=/?tab=1");
   }
-/*
-  private async void OnAutoTaskUpdated(object? sender, AutoTaskUpdatEventArgs updatEventArgs)
+
+  private async Task OnAutoTaskUpdated(AutoTaskUpdateContract autoTaskUpdateContract)
   {
     if (CurrentTask == null)
       return;
-    var autoTaskUpdateContract = updatEventArgs.AutoTaskUpdateContract;
     if (autoTaskUpdateContract.AssignedRobotId != SelectedRobotId)
       return;
 
@@ -98,50 +119,51 @@ public sealed partial class Map : ComponentBase, IDisposable
     await InvokeAsync(StateHasChanged);
   }
 
-  private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
+  private async Task OnRobotDataUpdated()
   {
-    var robotId = updatEventArgs.RobotId;
-    var realmId = Realm.Id ?? 0;
-    if (realmId != updatEventArgs.RealmId)
-    {
-      return;
-    }
-
-    var robotData = RobotDataService.GetRobotData(robotId, realmId);
+    TimerStop();
+    var robotData = await RobotDataService.GetRobotDataFromRealmAsync(Realm.Id!.Value);
     try
     {
-      if (robotData != null)
+      // Update map
+      foreach (var data in robotData)
       {
-        if (robotData.RobotStatus == RobotStatus.Offline)
-        {
-          await JSRuntime.InvokeVoidAsync("RemoveRobot", robotId);
-        }
-        else
-        {
-          await JSRuntime.InvokeVoidAsync("MoveRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
-        }
-        RobotsData[robotId] = robotData;
-        // Update offcanvas
-        if (SelectedRobot != null && SelectedRobot.RobotId == robotId)
-        {
-          SelectedRobot = robotData;
-          // Update Plan
-          List<double> plan = [];
-          foreach (var waypoint in robotData.NavProgress.Plan)
-          {
-            plan.Add(waypoint.X);
-            plan.Add(waypoint.Y);
-          }
-          await JSRuntime.InvokeVoidAsync("UpdateRobotPlan", plan);
-        }
-        await InvokeAsync(StateHasChanged);
+        var position = data.Value.Position;
+        await JSRuntime.InvokeVoidAsync("MoveRobot", data.Key, position.X, position.Y, position.Rotation);
       }
+
+      // Update current robot
+      if (SelectedRobot != null && robotData.TryGetValue(SelectedRobotId, out var rd))
+      {
+        SelectedRobot = rd;
+        // Update Plan
+        List<double> plan = [];
+        foreach (var waypoint in rd.NavProgress.Plan)
+        {
+          plan.Add(waypoint.X);
+          plan.Add(waypoint.Y);
+        }
+        await JSRuntime.InvokeVoidAsync("UpdateRobotPlan", plan);
+      }
+
+      // Remove offline robots
+      List<Guid> oldRobotIds = [.. RobotsData.Keys];
+      List<Guid> newRobotIds = [.. robotData.Keys];
+      List<Guid> removeRobotIds = [.. oldRobotIds.Except(newRobotIds)];
+      foreach (var robotId in removeRobotIds)
+      {
+        await JSRuntime.InvokeVoidAsync("RemoveRobot", robotId);
+      }
+
+      RobotsData = robotData;
+      await InvokeAsync(StateHasChanged);
     }
     catch (Exception)
     {
-      Console.WriteLine("Exception");
+      // Ignore
     }
-  }*/
+    TimerStart();
+  }
 
   protected override async Task OnInitializedAsync() 
   {
@@ -159,16 +181,25 @@ public sealed partial class Map : ComponentBase, IDisposable
     {
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitNavigationMap", ObjectReference);
-      foreach (var (robotId, robotData) in RobotsData)
+      Subscriber = RedisConnection.GetSubscriber();
+      await Subscriber.SubscribeAsync(new RedisChannel($"autoTaskUpdate:{Realm.Id}", PatternMode.Literal), async (channel, value) =>
       {
-        await JSRuntime.InvokeVoidAsync("AddRobot", robotId, robotData.Position.X, robotData.Position.Y, robotData.Position.Rotation);
-      }
+        var update = JsonSerializer.Deserialize<AutoTaskUpdateContract>(value!);
+        await OnAutoTaskUpdated(update!);
+      });
+      Timer = new Timer(async (state) =>
+      {
+        await OnRobotDataUpdated();
+      }, null, Timeout.Infinite, Timeout.Infinite);
+      TimerStart();
     }
     await base.OnAfterRenderAsync(firstRender);
   }
 
   public void Dispose()
   {
+    Subscriber?.UnsubscribeAllAsync();
+    Timer?.Dispose();
     GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
   }

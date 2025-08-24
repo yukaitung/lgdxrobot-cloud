@@ -1,3 +1,4 @@
+using System.Text.Json;
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
@@ -7,7 +8,9 @@ using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using StackExchange.Redis;
 using static LGDXRobotCloud.UI.Client.Automation.AutoTasks.AutoTasksRequestBuilder;
+using static StackExchange.Redis.RedisChannel;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home.Components;
 
@@ -18,6 +21,9 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
 
   [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }
+
+  [Inject]
+  public required IConnectionMultiplexer RedisConnection { get; set; }
 
   [Inject]
   public required ITokenService TokenService { get; set; }
@@ -31,6 +37,7 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
   [Parameter]
   public bool RunningAutoTasks { get; set; } = false;
 
+  private ISubscriber? Subscriber;
   private int TotalAutoTasks { get; set; }
   private int MaxPageSize { get; set; } = 50;
   private int RealmId { get; set; }
@@ -77,13 +84,10 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
     TotalAutoTasks = PaginationHelper?.ItemCount ?? 0;
     AutoTasks ??= [];
   }
-/*
-  private async void OnAutoTaskUpdated(object? sender, AutoTaskUpdatEventArgs updatEventArgs)
+
+  private async void OnAutoTaskUpdated(AutoTaskUpdateContract autoTaskUpdateContract)
   {
     if (AutoTasks == null)
-      return;
-    var autoTaskUpdateContract = updatEventArgs.AutoTaskUpdateContract;
-    if (autoTaskUpdateContract.RealmId != RealmId)
       return;
 
     if (RunningAutoTasks)
@@ -140,7 +144,7 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
       }
       await InvokeAsync(StateHasChanged);
     }
-  }*/
+  }
 
   protected override async Task OnInitializedAsync()
   {
@@ -149,11 +153,18 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
     RealmId = settings.CurrentRealmId;
     RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await Refresh();
+    Subscriber = RedisConnection.GetSubscriber();
+    await Subscriber.SubscribeAsync(new RedisChannel($"autoTaskUpdate:{RealmId}", PatternMode.Literal), (channel, value) =>
+    {
+      var update = JsonSerializer.Deserialize<AutoTaskUpdateContract>(value!);
+      OnAutoTaskUpdated(update!);
+    });
     await base.OnInitializedAsync();
   }
 
   public void Dispose()
   {
+    Subscriber?.UnsubscribeAllAsync();
     GC.SuppressFinalize(this);
   }
 }

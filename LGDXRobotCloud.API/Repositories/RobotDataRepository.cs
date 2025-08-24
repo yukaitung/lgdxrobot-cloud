@@ -1,4 +1,6 @@
+using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Protos;
+using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
@@ -14,8 +16,8 @@ public interface IRobotDataRepository
   Task StartExchangeAsync(int realmId, Guid robotId);
   Task StopExchangeAsync(int realmId, Guid robotId);
 
-  Task<RobotClientsData?> GetRobotDataAsync(int realmId, Guid robotId);
-  Task<bool> SetRobotDataAsync(int realmId, Guid robotId, RobotClientsData data);
+  Task<RobotDataContract?> GetRobotDataAsync(int realmId, Guid robotId);
+  Task<bool> SetRobotDataAsync(int realmId, Guid robotId, RobotDataContract data);
 
   Task<Guid?> SchedulerHoldAnyRobotAsync(int realmId);
   Task<bool> SchedulerHoldRobotAsync(int realmId, Guid robotId);
@@ -69,8 +71,8 @@ public class RobotDataRepository(
             .On(IndexDataType.JSON)
             .Prefix($"robotClientData:{realmId}:"),
           new Schema()
-          .AddNumericField(new FieldName($"$.{nameof(RobotClientsData.RobotStatus)}", $"{nameof(RobotClientsData.RobotStatus)}"))
-          .AddTagField(new FieldName($"$.{nameof(RobotClientsData.PauseTaskAssignment)}", $"{nameof(RobotClientsData.PauseTaskAssignment)}")));
+          .AddNumericField(new FieldName($"$.{nameof(RobotDataContract.RobotStatus)}", $"{nameof(RobotDataContract.RobotStatus)}"))
+          .AddTagField(new FieldName($"$.{nameof(RobotDataContract.PauseTaskAssignment)}", $"{nameof(RobotDataContract.PauseTaskAssignment)}")));
       }
       catch (Exception ex)
       {
@@ -81,7 +83,7 @@ public class RobotDataRepository(
       }
     }
 
-    await db.JSON().SetAsync($"robotClientData:{realmId}:{robotId}", "$", new RobotClientsData());
+    await db.JSON().SetAsync($"robotClientData:{realmId}:{robotId}", "$", new RobotDataContract());
   }
 
   public async Task StopExchangeAsync(int realmId, Guid robotId)
@@ -90,13 +92,13 @@ public class RobotDataRepository(
     await db.KeyDeleteAsync($"robotClientData:{realmId}:{robotId}");
   }
 
-  public async Task<RobotClientsData?> GetRobotDataAsync(int realmId, Guid robotId)
+  public async Task<RobotDataContract?> GetRobotDataAsync(int realmId, Guid robotId)
   {
     var db = _redisConnection.GetDatabase();
-    return await db.JSON().GetAsync<RobotClientsData>($"robotClientData:{realmId}:{robotId}");
+    return await db.JSON().GetAsync<RobotDataContract>($"robotClientData:{realmId}:{robotId}");
   }
 
-  public async Task<bool> SetRobotDataAsync(int realmId, Guid robotId, RobotClientsData data)
+  public async Task<bool> SetRobotDataAsync(int realmId, Guid robotId, RobotDataContract data)
   {
     var db = _redisConnection.GetDatabase();
     return await db.JSON().SetAsync($"robotClientData:{realmId}:{robotId}", "$", data);
@@ -105,9 +107,9 @@ public class RobotDataRepository(
   public async Task<Guid?> SchedulerHoldAnyRobotAsync(int realmId)
   {
     var db = _redisConnection.GetDatabase();
-    int robotStatus = (int)RobotClientsRobotStatus.Idle;
+    int robotStatus = (int)RobotStatus.Idle;
     var search = await db.FT().SearchAsync($"idxRobotClientData:{realmId}",
-      new Query($"@{nameof(RobotClientsData.RobotStatus)}:[{robotStatus} {robotStatus}] @{nameof(RobotClientsData.PauseTaskAssignment)}:{{false}}")
+      new Query($"@{nameof(RobotDataContract.RobotStatus)}:[{robotStatus} {robotStatus}] @{nameof(RobotDataContract.PauseTaskAssignment)}:{{false}}")
         .Limit(0, 1)
         .ReturnFields(["__key"]));
     string? robotId = search.Documents.FirstOrDefault()?.Id.Replace($"robotClientData:{realmId}:", string.Empty);
@@ -123,7 +125,7 @@ public class RobotDataRepository(
   {
     var robotData = await GetRobotDataAsync(realmId, robotId);
     if (robotData == null ||
-        robotData.RobotStatus != RobotClientsRobotStatus.Idle ||
+        robotData.RobotStatus != RobotStatus.Idle ||
         robotData.PauseTaskAssignment == true)
     {
       return false;

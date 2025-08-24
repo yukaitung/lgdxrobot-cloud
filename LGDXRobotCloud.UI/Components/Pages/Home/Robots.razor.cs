@@ -18,11 +18,15 @@ public sealed partial class Robots : ComponentBase, IDisposable
   public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
+  public required IRobotDataService RobotDataService { get; set; }
+
+  [Inject]
   public required ITokenService TokenService { get; set; }
 
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
+  private Timer? Timer = null;
   private int RealmId { get; set; }
   private string RealmName { get; set; } = string.Empty;
   private List<RobotListDto>? RobotsList { get; set; }
@@ -34,6 +38,15 @@ public sealed partial class Robots : ComponentBase, IDisposable
   private string DataSearch { get; set; } = string.Empty;
   private string LastDataSearch { get; set; } = string.Empty;
 
+  private void TimerStart()
+  {
+    Timer?.Change(0, 500);
+  }
+
+  private void TimerStop()
+  {
+    Timer?.Change(Timeout.Infinite, Timeout.Infinite);
+  }
 
   public async Task HandleSearch()
   {
@@ -95,6 +108,7 @@ public sealed partial class Robots : ComponentBase, IDisposable
     if (deleteOpt && CurrentPage > 1 && RobotsList?.Count == 1)
       CurrentPage--;
 
+    TimerStop();
     var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
     var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x =>
     {
@@ -109,24 +123,20 @@ public sealed partial class Robots : ComponentBase, IDisposable
     });
     RobotsList = robots;
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
+    TimerStart();
   }
-/*
-  private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
+
+  private async Task OnRobotDataUpdated()
   {
-    var robotId = updatEventArgs.RobotId;
-    if (updatEventArgs.RealmId != RealmId && !RobotsData.ContainsKey(robotId))
+    if (RobotsList == null)
       return;
 
-    var robotData = RobotDataService.GetRobotData(robotId, RealmId);
-    if (robotData != null)
-    {
-      RobotsData[robotId] = robotData;
-      await InvokeAsync(() =>
-      {
-        StateHasChanged();
-      });
-    }
-  }*/
+    TimerStop();
+    List<Guid> robotIds = [.. RobotsList.Where(x => x.Id != null).Select(x => x.Id!.Value)];
+    RobotsData = await RobotDataService.GetRobotDataFromListAsync(RealmId, robotIds);
+    await InvokeAsync(StateHasChanged);
+    TimerStart();
+  }
 
   protected override async Task OnInitializedAsync()
   {
@@ -134,6 +144,10 @@ public sealed partial class Robots : ComponentBase, IDisposable
     var settings = TokenService.GetSessionSettings(user);
     RealmId = settings.CurrentRealmId;
     RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    Timer = new Timer(async (state) =>
+    {
+      await OnRobotDataUpdated();
+    }, null, Timeout.Infinite, Timeout.Infinite);
     await Refresh();
     await base.OnInitializedAsync();
   }

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
@@ -7,8 +8,9 @@ using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
+using static StackExchange.Redis.RedisChannel;
 
 namespace LGDXRobotCloud.API.Services.Automation;
 
@@ -28,7 +30,7 @@ public interface IAutoTaskSchedulerService
 
 public class AutoTaskSchedulerService(
     IAutoTaskPathPlannerService autoTaskPathPlanner,
-    IBus bus,
+    IConnectionMultiplexer redisConnection,
     IEmailService emailService,
     IOnlineRobotsService onlineRobotsService,
     IRobotDataRepository robotDataRepository,
@@ -38,7 +40,7 @@ public class AutoTaskSchedulerService(
   ) : IAutoTaskSchedulerService
 {
   private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner;
-  private readonly IBus _bus = bus;
+  private readonly IConnectionMultiplexer _redisConnection = redisConnection;
   private readonly IEmailService _emailService = emailService;
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService;
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository;
@@ -78,7 +80,10 @@ public class AutoTaskSchedulerService(
           .Select(r => r.Name)
           .FirstOrDefaultAsync();
       }
-      await _bus.Publish(new AutoTaskUpdateContract
+
+      // Send the updated to the Redis queue
+      var subscriber = _redisConnection.GetSubscriber();
+      var data = new AutoTaskUpdateContract
       {
         Id = task.Id,
         Name = task.Name,
@@ -90,7 +95,9 @@ public class AutoTaskSchedulerService(
         AssignedRobotName = robotName,
         CurrentProgressId = task.CurrentProgressId,
         CurrentProgressName = progress!.Name,
-      });
+      };
+      var json = JsonSerializer.Serialize(data);
+      await subscriber.PublishAsync(new RedisChannel($"autoTaskUpdate:{task.RealmId}", PatternMode.Literal), json);
     }
 
     if (task.CurrentProgressId == (int)ProgressState.Completed || task.CurrentProgressId == (int)ProgressState.Aborted)

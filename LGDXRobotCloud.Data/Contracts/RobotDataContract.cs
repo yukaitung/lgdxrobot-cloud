@@ -34,8 +34,6 @@ public record RobotCriticalStatus
 
 public record RobotDataContract
 {
-  public Guid RobotId { get; set; }
-  public int RealmId { get; set; }
   public RobotStatus RobotStatus { get; set; } = RobotStatus.Offline;
   public RobotCriticalStatus CriticalStatus { get; set; } = new();
   public List<double> Batteries { get; set; } = [];
