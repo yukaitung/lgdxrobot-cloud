@@ -29,6 +29,7 @@ public interface IRobotDataRepository
   // Slam
   Task<bool> StartSlamAsync(int realmId, Guid robotId);
   Task StopSlamAsync(int realmId, Guid robotId);
+  Task<bool> SetSlamExchangeAsync(int realmId, SlamDataContract exchange);
 
   Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands);
 }
@@ -184,6 +185,14 @@ public class RobotDataRepository(
     var db = _redisConnection.GetDatabase();
     await db.KeyDeleteAsync($"slamRobot:{realmId}");
     await StopExchangeAsync(realmId, robotId);
+  }
+
+  public async Task<bool> SetSlamExchangeAsync(int realmId, SlamDataContract exchange)
+  {
+    var db = _redisConnection.GetDatabase();
+    if (!await db.KeyExistsAsync($"slamRobot:{realmId}"))
+      return false;
+    return await db.JSON().SetAsync($"robotClientSlamData:{realmId}", "$", exchange);
   }
 
   public async Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands)

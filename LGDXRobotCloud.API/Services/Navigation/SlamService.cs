@@ -1,6 +1,4 @@
-using System.Threading.Tasks;
 using LGDXRobotCloud.API.Repositories;
-using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
@@ -82,7 +80,7 @@ public class SlamService(
       SlamStatus = slamStatus,
       MapData = map
     };
-    await _bus.Publish(data);
+    await _robotDataRepository.SetSlamExchangeAsync(realmId, data);
   }
 
   public async Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands)

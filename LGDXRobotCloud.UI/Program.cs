@@ -59,6 +59,7 @@ builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client
 	});
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
+builder.Services.AddScoped<ISlamDataService, SlamDataService>();
 builder.Services.AddSingleton<IRealTimeService, RealTimeService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
