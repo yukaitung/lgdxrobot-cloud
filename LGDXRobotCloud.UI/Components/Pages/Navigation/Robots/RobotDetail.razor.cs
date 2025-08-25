@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Robots;
-public sealed partial class RobotDetail : ComponentBase, IDisposable
+public sealed partial class RobotDetail : ComponentBase, IAsyncDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
@@ -133,31 +133,6 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
     TimerStart();
   }
 
-  private AutoTaskListDto ToAutoTaskListDto(AutoTaskUpdate autoTaskUpdate)
-  {
-    return new AutoTaskListDto{
-      Id = autoTaskUpdate.Id,
-      Name = autoTaskUpdate.Name,
-      Priority = autoTaskUpdate.Priority,
-      Flow = new FlowSearchDto {
-        Id = autoTaskUpdate.FlowId,
-        Name = autoTaskUpdate.FlowName
-      },
-      Realm = new RealmSearchDto {
-        Id = autoTaskUpdate.RealmId,
-        Name = RealmName
-      },
-      AssignedRobot = new RobotSearchDto2 {
-        Id = autoTaskUpdate.AssignedRobotId,
-        Name = autoTaskUpdate.AssignedRobotName
-      },
-      CurrentProgress = new ProgressSearchDto {
-        Id = autoTaskUpdate.CurrentProgressId,
-        Name = autoTaskUpdate.CurrentProgressName
-      }
-    };
-  }
-
   private async void OnAutoTaskUpdated(AutoTaskUpdate autoTaskUpdate)
   {
     if (AutoTasks == null)
@@ -172,7 +147,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
       {
         AutoTasks.RemoveAll(x => x.Id == autoTaskUpdate.Id);
       }
-      AutoTasks.Add(ToAutoTaskListDto(autoTaskUpdate));
+      AutoTasks.Add(ConvertHelper.ToAutoTaskListDto(autoTaskUpdate, RealmName));
     }
     else if (autoTaskUpdate.CurrentProgressId == (int)ProgressState.Completed || autoTaskUpdate.CurrentProgressId == (int)ProgressState.Aborted)
     {
@@ -180,7 +155,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
     }
     else if (autoTaskUpdate.CurrentProgressId == (int)ProgressState.Waiting)
     {
-      AutoTasks.Add(ToAutoTaskListDto(autoTaskUpdate));
+      AutoTasks.Add(ConvertHelper.ToAutoTaskListDto(autoTaskUpdate, RealmName));
     }
     AutoTasks = AutoTasks.OrderByDescending(x => x.CurrentProgress?.Id)
       .OrderByDescending(x => x.Priority)
@@ -217,9 +192,9 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
     await base.OnInitializedAsync();
   }
 
-  public void Dispose()
+  public async ValueTask DisposeAsync()
   {
-    RealTimeService.UnsubscribeToTaskUpdateQueueAsync(RealmId, OnAutoTaskUpdated);
+    await RealTimeService.UnsubscribeToTaskUpdateQueueAsync(RealmId, OnAutoTaskUpdated);
     Timer?.Dispose();
     GC.SuppressFinalize(this);
   }

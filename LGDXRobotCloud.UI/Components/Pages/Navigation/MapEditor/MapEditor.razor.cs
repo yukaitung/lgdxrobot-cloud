@@ -300,7 +300,7 @@ public sealed partial class MapEditor : ComponentBase, IDisposable
 
   public void Dispose()
   {
-    GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
+    GC.SuppressFinalize(this);
   }
 }

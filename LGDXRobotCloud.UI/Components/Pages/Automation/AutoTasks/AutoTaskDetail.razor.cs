@@ -282,7 +282,7 @@ public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
 
   public void Dispose()
   {
-    GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
+    GC.SuppressFinalize(this);
   }
 }

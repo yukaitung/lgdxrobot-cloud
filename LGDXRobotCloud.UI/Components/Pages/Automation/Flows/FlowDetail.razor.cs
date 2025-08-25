@@ -217,7 +217,7 @@ public sealed partial class FlowDetail : ComponentBase, IDisposable
 
   public void Dispose()
   {
-    GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
+    GC.SuppressFinalize(this);
   }
 }

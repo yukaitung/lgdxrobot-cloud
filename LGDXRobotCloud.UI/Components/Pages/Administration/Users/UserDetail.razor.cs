@@ -190,7 +190,7 @@ public sealed partial class UserDetail : ComponentBase, IDisposable
 
   public void Dispose()
   {
-    GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
+    GC.SuppressFinalize(this);
   }
 }

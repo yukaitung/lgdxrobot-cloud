@@ -1,4 +1,3 @@
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
@@ -12,7 +11,7 @@ using static LGDXRobotCloud.UI.Client.Automation.AutoTasks.AutoTasksRequestBuild
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home.Components;
 
-public sealed partial class RealtimeAutoTasksTable : IDisposable
+public sealed partial class RealtimeAutoTasksTable : IAsyncDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
@@ -40,31 +39,6 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
   private int RealmId { get; set; }
   private string RealmName { get; set; } = string.Empty;
   private List<AutoTaskListDto>? AutoTasks { get; set; }
-
-  private AutoTaskListDto ToAutoTaskListDto(AutoTaskUpdate autoTaskUpdate)
-  {
-    return new AutoTaskListDto{
-      Id = autoTaskUpdate.Id,
-      Name = autoTaskUpdate.Name,
-      Priority = autoTaskUpdate.Priority,
-      Flow = new FlowSearchDto {
-        Id = autoTaskUpdate.FlowId,
-        Name = autoTaskUpdate.FlowName
-      },
-      Realm = new RealmSearchDto {
-        Id = autoTaskUpdate.RealmId,
-        Name = RealmName
-      },
-      AssignedRobot = new RobotSearchDto2 {
-        Id = autoTaskUpdate.AssignedRobotId,
-        Name = autoTaskUpdate.AssignedRobotName
-      },
-      CurrentProgress = new ProgressSearchDto {
-        Id = autoTaskUpdate.CurrentProgressId,
-        Name = autoTaskUpdate.CurrentProgressName
-      }
-    };
-  }
 
   private async Task Refresh()
   {
@@ -101,7 +75,7 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
         {
           TotalAutoTasks++;
         }
-        AutoTasks.Add(ToAutoTaskListDto(autoTaskUpdate));
+        AutoTasks.Add(ConvertHelper.ToAutoTaskListDto(autoTaskUpdate, RealmName));
       }
       else if (autoTaskUpdate.CurrentProgressId == (int)ProgressState.Completed || autoTaskUpdate.CurrentProgressId == (int)ProgressState.Aborted)
       {
@@ -122,7 +96,7 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
       if (autoTaskUpdate.CurrentProgressId == (int)ProgressState.Waiting)
       {
         // Handle Waiting Auto Tasks
-        AutoTasks.Add(ToAutoTaskListDto(autoTaskUpdate));
+        AutoTasks.Add(ConvertHelper.ToAutoTaskListDto(autoTaskUpdate, RealmName));
         TotalAutoTasks++;
       }
       else
@@ -154,9 +128,9 @@ public sealed partial class RealtimeAutoTasksTable : IDisposable
     await base.OnInitializedAsync();
   }
 
-  public void Dispose()
+  public async ValueTask DisposeAsync()
   {
-    RealTimeService.UnsubscribeToTaskUpdateQueueAsync(RealmId, OnAutoTaskUpdated);
+    await RealTimeService.UnsubscribeToTaskUpdateQueueAsync(RealmId, OnAutoTaskUpdated);
     GC.SuppressFinalize(this);
   }
 }

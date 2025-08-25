@@ -93,7 +93,7 @@ public sealed partial class ChangeRealmModal : ComponentBase, IDisposable
   
   public void Dispose()
   {
-    GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
+    GC.SuppressFinalize(this);
   }
 }

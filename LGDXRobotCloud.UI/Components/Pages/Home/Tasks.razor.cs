@@ -69,7 +69,7 @@ public sealed partial class Tasks : ComponentBase, IDisposable
 
   public void Dispose()
   {
-    GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
+    GC.SuppressFinalize(this);
   }
 }

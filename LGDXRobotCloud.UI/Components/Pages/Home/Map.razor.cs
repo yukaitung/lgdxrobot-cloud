@@ -1,4 +1,3 @@
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
@@ -12,7 +11,7 @@ using Microsoft.JSInterop;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home;
 
-public sealed partial class Map : ComponentBase, IDisposable
+public sealed partial class Map : ComponentBase, IAsyncDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
@@ -190,11 +189,11 @@ public sealed partial class Map : ComponentBase, IDisposable
     await base.OnAfterRenderAsync(firstRender);
   }
 
-  public void Dispose()
+  public async ValueTask DisposeAsync()
   {
-    RealTimeService.UnsubscribeToTaskUpdateQueueAsync(Realm.Id!.Value, OnAutoTaskUpdated);
+    await RealTimeService.UnsubscribeToTaskUpdateQueueAsync(Realm.Id!.Value, OnAutoTaskUpdated);
     Timer?.Dispose();
-    GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
+    GC.SuppressFinalize(this);
   }
 }

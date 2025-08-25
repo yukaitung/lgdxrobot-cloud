@@ -1,4 +1,3 @@
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
@@ -220,7 +219,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
   public void Dispose()
   {
     Timer?.Dispose();
-    GC.SuppressFinalize(this);
     ObjectReference?.Dispose();
+    GC.SuppressFinalize(this);
   }
 }
