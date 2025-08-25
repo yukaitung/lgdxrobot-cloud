@@ -6,7 +6,6 @@ using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobotCloud.API.Services.Automation;

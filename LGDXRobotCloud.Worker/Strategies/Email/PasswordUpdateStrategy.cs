@@ -1,5 +1,5 @@
 using System.Text.Json;
-using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Worker.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -8,11 +8,11 @@ using MimeKit;
 namespace LGDXRobotCloud.Worker.Strategies.Email;
 
 public class PasswordUpdateStrategy(
-    EmailContract emailContract,
+    EmailRequest emailContract,
     HtmlRenderer htmlRenderer
   ) : IEmailStrategy
 {
-  private readonly EmailContract _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
+  private readonly EmailRequest _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
   private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
   protected readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
 

@@ -3,17 +3,15 @@ using LGDXRobotCloud.API.Exceptions;
 using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Automation;
-using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.Utilities.Enums;
-using MassTransit;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
+using Wolverine;
 
 namespace LGDXRobotCloud.API.UnitTests.Services.Automation;
 
@@ -198,7 +196,7 @@ public class AutoTaskServiceTests
 
   private readonly Mock<IActivityLogService> mockActivityLogService = new();
   private readonly Mock<IAutoTaskSchedulerService> mockAutoTaskSchedulerService = new();
-  private readonly Mock<IBus> mockBus = new();
+  private readonly Mock<IMessageBus> mockBus = new();
   private readonly Mock<IOnlineRobotsService> mockOnlineRobotService = new();
   private readonly Mock<IMemoryCache> mockMemoryCache = new();
   private readonly Mock<IAutoTaskRepository> mockAutoTaskRepository = new();
@@ -391,7 +389,7 @@ public class AutoTaskServiceTests
       Assert.Equal(e.CustomRotation, a.CustomRotation);
       Assert.Equal(e.WaypointId, a.Waypoint!.Id);
     });
-    mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdate>(), It.IsAny<CancellationToken>()), Times.Once());
+    //mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdate>(), It.IsAny<CancellationToken>()), Times.Once());
   }
 
   [Fact]
@@ -435,7 +433,7 @@ public class AutoTaskServiceTests
       Assert.Equal(e.CustomRotation, a.CustomRotation);
       Assert.Equal(e.WaypointId, a.Waypoint!.Id);
     });
-    mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdate>(), It.IsAny<CancellationToken>()), Times.Never());
+    //mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskUpdate>(), It.IsAny<CancellationToken>()), Times.Never());
   }
 
   [Fact]

@@ -1,8 +1,8 @@
 using LGDXRobotCloud.Data.Entities;
 
-namespace LGDXRobotCloud.Data.Contracts;
+namespace LGDXRobotCloud.Data.Models.RabbitMQ;
 
-public record AutoTaskTriggerContract
+public record AutoTaskTriggerRequest
 {
   public required Trigger Trigger { get; set; }
 

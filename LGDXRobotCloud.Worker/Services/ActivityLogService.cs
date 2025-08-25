@@ -1,12 +1,12 @@
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 
 namespace LGDXRobotCloud.Worker.Services;
 
 public interface IActivityLogService
 {
-  Task CreateActivityLogAsync(ActivityLogContract activityLogContract);
+  Task CreateActivityLogAsync(ActivityLogRequest activityLogContract);
 }
 
 partial class ActivityLogService(
@@ -15,7 +15,7 @@ partial class ActivityLogService(
 {
   private readonly LgdxLogsContext _lgdxLogsContext = LgdxLogsContext ?? throw new ArgumentNullException(nameof(LgdxLogsContext));
 
-  public async Task CreateActivityLogAsync(ActivityLogContract activityLogContract)
+  public async Task CreateActivityLogAsync(ActivityLogRequest activityLogContract)
   {
     var activityLog = new ActivityLog
     {

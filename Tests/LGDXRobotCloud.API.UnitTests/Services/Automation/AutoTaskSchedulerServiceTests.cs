@@ -1,17 +1,14 @@
 using EntityFrameworkCore.Testing.Moq;
-using EntityFrameworkCore.Testing.Moq.Extensions;
 using LGDXRobotCloud.API.Services.Automation;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
-using LGDXRobotCloud.API.UnitTests.Utilities;
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
-using MassTransit;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
+using Wolverine;
 
 namespace LGDXRobotCloud.API.UnitTests.Services.Automation;
 
@@ -359,7 +356,7 @@ public class AutoTaskSchedulerServiceTests
 
   private List<RobotClientsDof> robotClientsDofs = [];
 
-  private readonly Mock<IBus> mockBus = new();
+  private readonly Mock<IMessageBus> mockBus = new();
   private readonly Mock<IEmailService> mockEmailService = new();
   private readonly Mock<IMemoryCache> mockMemoryCache = new();
   private readonly Mock<IOnlineRobotsService> mockOnlineRobotService = new();

@@ -1,6 +1,6 @@
 using LGDXRobotCloud.Utilities.Enums;
 
-namespace LGDXRobotCloud.Data.Contracts;
+namespace LGDXRobotCloud.Data.Models.RabbitMQ;
 
 public record EmailRecipient
 {
@@ -8,7 +8,7 @@ public record EmailRecipient
   public required string Name { get; set; }
 }
 
-public record EmailContract
+public record EmailRequest
 {
   public required EmailType EmailType { get; set; }
   public required IEnumerable<EmailRecipient> Recipients { get; set; }

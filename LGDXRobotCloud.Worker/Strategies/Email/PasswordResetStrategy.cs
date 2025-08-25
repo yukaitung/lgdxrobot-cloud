@@ -1,7 +1,7 @@
 using System.Text.Json;
-using LGDXRobotCloud.Data.Contracts;
-using LGDXRobotCloud.Worker.Configurations;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Worker.Components;
+using LGDXRobotCloud.Worker.Configurations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MimeKit;
@@ -9,12 +9,12 @@ using MimeKit;
 namespace LGDXRobotCloud.Worker.Strategies.Email;
 
 public class PasswordResetStrategy(
-    EmailContract emailContract,
+    EmailRequest emailContract,
     EmailLinksConfiguration emailLinksConfiguration,
     HtmlRenderer htmlRenderer
   ) : IEmailStrategy
 {
-  private readonly EmailContract _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
+  private readonly EmailRequest _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
   private readonly EmailLinksConfiguration _emailLinksConfiguration = emailLinksConfiguration ?? throw new ArgumentNullException(nameof(emailLinksConfiguration));
   private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
   protected readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };

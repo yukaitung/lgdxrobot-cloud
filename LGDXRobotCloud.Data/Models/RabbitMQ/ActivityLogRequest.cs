@@ -1,8 +1,8 @@
 using LGDXRobotCloud.Utilities.Enums;
 
-namespace LGDXRobotCloud.Data.Contracts;
+namespace LGDXRobotCloud.Data.Models.RabbitMQ;
 
-public record ActivityLogContract
+public record ActivityLogRequest
 {
   public required string EntityName { get; set; }
 

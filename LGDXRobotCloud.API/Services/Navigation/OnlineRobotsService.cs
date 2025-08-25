@@ -6,7 +6,6 @@ using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
-using MassTransit;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 

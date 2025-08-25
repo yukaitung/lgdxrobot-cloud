@@ -9,7 +9,6 @@ using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 

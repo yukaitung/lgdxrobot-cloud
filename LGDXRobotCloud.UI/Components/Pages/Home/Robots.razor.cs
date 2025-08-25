@@ -1,4 +1,3 @@
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;

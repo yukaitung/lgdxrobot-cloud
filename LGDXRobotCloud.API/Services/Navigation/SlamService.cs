@@ -2,7 +2,6 @@ using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
-using MassTransit;
 
 namespace LGDXRobotCloud.API.Services.Navigation;
 
@@ -19,12 +18,10 @@ public interface ISlamService
 }
 
 public class SlamService(
-  IBus bus,
   ISlamDataRepository slamDataRepository,
   IRobotService robotService
 ) : ISlamService
 {
-  private readonly IBus _bus = bus;
   private readonly ISlamDataRepository _slamDataRepository = slamDataRepository;
   private readonly IRobotService _robotService = robotService;
 

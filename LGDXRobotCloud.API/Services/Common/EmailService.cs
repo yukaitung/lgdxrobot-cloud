@@ -1,13 +1,13 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Models.Emails;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Wolverine;
 
 namespace LGDXRobotCloud.API.Services.Common;
 
@@ -22,11 +22,11 @@ public interface IEmailService
 }
 
 public sealed class EmailService(
-    IBus bus,
+    IMessageBus bus,
     LgdxContext context
   ) : IEmailService
 {
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+  private readonly IMessageBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   private async Task<List<EmailRecipient>> GetRecipientsAsync()
@@ -46,7 +46,7 @@ public sealed class EmailService(
 
   public async Task SendWelcomeEmailAsync(string recipientEmail, string recipientName, string userName)
   {
-    var emailContract = new EmailContract
+    var EmailRequest = new EmailRequest
     {
       EmailType = EmailType.Welcome,
       Recipients = [new EmailRecipient
@@ -58,12 +58,12 @@ public sealed class EmailService(
         UserName = userName
       })
     };
-    await _bus.Publish(emailContract);
+    await _bus.PublishAsync(EmailRequest);
   }
 
   public async Task SendWellcomePasswordSetEmailAsync(string recipientEmail, string recipientName, string userName, string token)
   {
-    var emailContract = new EmailContract
+    var EmailRequest = new EmailRequest
     {
       EmailType = EmailType.WelcomePasswordSet,
       Recipients = [new EmailRecipient
@@ -77,12 +77,12 @@ public sealed class EmailService(
         Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
       })
     };
-    await _bus.Publish(emailContract);
+    await _bus.PublishAsync(EmailRequest);
   }
 
   public async Task SendPasswordResetEmailAsync(string recipientEmail, string recipientName, string userName, string token)
   {
-    var emailContract = new EmailContract
+    var EmailRequest = new EmailRequest
     {
       EmailType = EmailType.PasswordReset,
       Recipients = [new EmailRecipient
@@ -96,13 +96,13 @@ public sealed class EmailService(
         Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
       })
     };
-    await _bus.Publish(emailContract);
+    await _bus.PublishAsync(EmailRequest);
   }
 
   public async Task SendPasswordUpdateEmailAsync(string recipientEmail, string recipientName, string userName)
   {
     string currentTime = DateTime.Now.ToString(CultureInfo.CurrentCulture);
-    var emailContract = new EmailContract
+    var EmailRequest = new EmailRequest
     {
       EmailType = EmailType.PasswordUpdate,
       Recipients = [new EmailRecipient
@@ -115,7 +115,7 @@ public sealed class EmailService(
         Time = currentTime
       })
     };
-    await _bus.Publish(emailContract);
+    await _bus.PublishAsync(EmailRequest);
   }
 
   public async Task SendRobotStuckEmailAsync(Guid robotId, double x, double y)
@@ -141,13 +141,13 @@ public sealed class EmailService(
       .FirstOrDefaultAsync();
     if (viewModel != null)
     {
-      var emailContract = new EmailContract
+      var EmailRequest = new EmailRequest
       {
         EmailType = EmailType.RobotStuck,
         Recipients = recipients,
         Metadata = JsonSerializer.Serialize(viewModel)
       };
-      await _bus.Publish(emailContract);
+      await _bus.PublishAsync(EmailRequest);
     }
   }
 
@@ -176,13 +176,13 @@ public sealed class EmailService(
       .FirstOrDefaultAsync();
       if (viewModel != null)
       {
-        var emailContract = new EmailContract
+        var EmailRequest = new EmailRequest
         {
           EmailType = EmailType.AutoTaskAbort,
           Recipients = recipients,
           Metadata = JsonSerializer.Serialize(viewModel)
         };
-        await _bus.Publish(emailContract);
+        await _bus.PublishAsync(EmailRequest);
       }
   }
 }

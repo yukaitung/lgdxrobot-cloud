@@ -11,8 +11,8 @@ using LGDXRobotCloud.API.Services.Identity;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Utilities.Constants;
-using MassTransit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,6 +29,8 @@ using Scalar.AspNetCore;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Wolverine;
+using Wolverine.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(cfg =>
@@ -55,15 +57,22 @@ builder.Services.AddLogging(builder => builder.AddConsole());
 var redis = StackExchange.Redis.ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"] ?? string.Empty);
 builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(redis);
 
-builder.Services.AddMassTransit(cfg =>
+builder.UseWolverine(cfg =>
 {
-	cfg.UsingRabbitMq((context, cfg) =>
+	cfg.UseRabbitMq(new Uri(builder.Configuration["RabbitMq:ConnectionString"]!))
+		.UseSenderConnectionOnly()
+		.AutoProvision();
+	cfg.PublishMessage<ActivityLogRequest>().ToRabbitExchange("activity-logs-exchange", e =>
 	{
-		cfg.Host(builder.Configuration["RabbitMq:Host"], builder.Configuration["RabbitMq:VirtualHost"], h =>
-		{
-			h.Username(builder.Configuration["RabbitMq:Username"] ?? string.Empty);
-			h.Password(builder.Configuration["RabbitMq:Password"] ?? string.Empty);
-		});
+		e.BindQueue("activity-logs-queue", "activity-exchange-queue");
+	});
+	cfg.PublishMessage<EmailRequest>().ToRabbitExchange("email-exchange", e =>
+	{
+		e.BindQueue("email-queue", "email-exchange-queue");
+	});
+	cfg.PublishMessage<AutoTaskTriggerRequest>().ToRabbitExchange("auto-task-trigger-exchange", e =>
+	{
+		e.BindQueue("auto-task-trigger-queue", "auto-task-trigger-exchange-queue");
 	});
 });
 builder.Services.AddMemoryCache();
