@@ -54,7 +54,31 @@ builder.Services.Configure<LgdxRobotCloudSecretConfiguration>(
  */
 builder.Services.AddLogging(builder => builder.AddConsole());
 
-var redis = StackExchange.Redis.ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"] ?? string.Empty);
+var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+store.Open(OpenFlags.ReadOnly);
+var redisOptions = StackExchange.Redis.ConfigurationOptions.Parse(builder.Configuration["Redis:ConnectionString"]!);
+redisOptions.Ssl = true;
+redisOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+redisOptions.AbortOnConnectFail = false;
+redisOptions.CertificateSelection += delegate
+{
+	var certificate = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["Redis:CertificateSN"]!));
+	return certificate;
+};
+redisOptions.CertificateValidation += (sender, cert, chain, errors) =>
+{
+	if (cert == null)
+	{
+		return false;
+	}
+	var myCert = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["Redis:CertificateSN"]!));
+	if (myCert.Issuer == cert.Issuer)
+	{
+		return true;
+	}
+	return false;
+};
+var redis = StackExchange.Redis.ConnectionMultiplexer.Connect(redisOptions);
 builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(redis);
 
 builder.UseWolverine(cfg =>

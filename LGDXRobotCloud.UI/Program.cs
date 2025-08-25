@@ -9,24 +9,45 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Kiota.Http.HttpClientLibrary.Middleware;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
+builder.Services.AddLogging(builder => builder.AddConsole());
 builder.Services.AddMemoryCache();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-var redis = StackExchange.Redis.ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"] ?? string.Empty);
-builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(redis);
-
-builder.Services.AddLogging(builder => builder.AddConsole());
-
-// Add API
 var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
 store.Open(OpenFlags.ReadOnly);
+var redisOptions = ConfigurationOptions.Parse(builder.Configuration["Redis:ConnectionString"]!);
+redisOptions.Ssl = true;
+redisOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+redisOptions.AbortOnConnectFail = false;
+redisOptions.CertificateSelection += delegate
+{
+	return store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["Redis:CertificateSN"]!));
+};
+redisOptions.CertificateValidation += (sender, cert, chain, errors) =>
+{
+	if (cert == null)
+	{
+		return false;
+	}
+	var myCert = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["Redis:CertificateSN"]!));
+	if (myCert.Issuer == cert.Issuer)
+	{
+		return true;
+	}
+	return false;
+};
+var redis = ConnectionMultiplexer.Connect(redisOptions);
+builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
+
+// Add API
 var certificate = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["LGDXRobotCloudAPI:CertificateSN"]!));
-var url = new Uri(builder.Configuration["LGDXRobotCloudAPI:Url"] ?? string.Empty);
+var url = new Uri(builder.Configuration["LGDXRobotCloudAPI:Url"]!);
 
 builder.Services.AddKiotaHandlers();
 builder.Services.AddScoped<LgdxApiClientFactory>();
