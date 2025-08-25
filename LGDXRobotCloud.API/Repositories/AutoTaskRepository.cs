@@ -19,29 +19,44 @@ public interface IAutoTaskRepository
   Task AutoTaskHasUpdateAsync(int realmId, AutoTaskUpdate autoTaskUpdate);
 }
 
-public class AutoTaskRepository(
+public partial class AutoTaskRepository(
     IConnectionMultiplexer redisConnection,
+    ILogger<AutoTaskRepository> logger,
     IRobotDataRepository robotDataRepository
   ) : IAutoTaskRepository
 {
   private readonly IConnectionMultiplexer _redisConnection = redisConnection;
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository;
 
+  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "{Msg}")]
+  public partial void LogException(string msg);
+
   public async Task<Guid?> SchedulerHoldAnyRobotAsync(int realmId)
   {
     var db = _redisConnection.GetDatabase();
+    Guid? result = null;
     int robotStatus = (int)RobotStatus.Idle;
-    var search = await db.FT().SearchAsync(RedisHelper.GetRobotDataIndex(realmId),
-      new Query($"@{nameof(RobotData.RobotStatus)}:[{robotStatus} {robotStatus}] @{nameof(RobotData.PauseTaskAssignment)}:{{false}}")
-        .Limit(0, 1)
-        .ReturnFields(["__key"]));
-    string? robotId = search.Documents.FirstOrDefault()?.Id.Replace(RedisHelper.GetRobotDataPrefix(realmId), string.Empty);
-    if (robotId == null)
+    try
     {
-      return null;
+      var search = await db.FT().SearchAsync(RedisHelper.GetRobotDataIndex(realmId),
+      new Query($"@{nameof(RobotData.RobotStatus)}:[{robotStatus} {robotStatus}] @{nameof(RobotData.PauseTaskAssignment)}:{{false}}")
+          .Limit(0, 1)
+          .ReturnFields(["__key"]));
+      string? robotId = search.Documents.FirstOrDefault()?.Id.Replace(RedisHelper.GetRobotDataPrefix(realmId), string.Empty);
+      if (robotId == null)
+      {
+        return null;
+      }
+      if (await db.HashSetAsync(RedisHelper.GetSchedulerHold(realmId, Guid.Parse(robotId)), "Value", "1", When.NotExists))
+      {
+        result = Guid.Parse(robotId);
+      }
     }
-    bool result = await db.HashSetAsync(RedisHelper.GetSchedulerHold(realmId, Guid.Parse(robotId)), "Value", "1", When.NotExists);
-    return result ? Guid.Parse(robotId) : null;
+    catch (Exception ex)
+    {
+      LogException(ex.Message);
+    }
+    return result;
   }
 
   public async Task<bool> SchedulerHoldRobotAsync(int realmId, Guid robotId)
@@ -53,14 +68,31 @@ public class AutoTaskRepository(
     {
       return false;
     }
+
+    bool result = false;
     var db = _redisConnection.GetDatabase();
-    return await db.HashSetAsync(RedisHelper.GetSchedulerHold(realmId, robotId), "Value", "1", When.NotExists);
+    try
+    {
+      result = await db.HashSetAsync(RedisHelper.GetSchedulerHold(realmId, robotId), "Value", "1", When.NotExists);
+    }
+    catch (Exception ex)
+    {
+      LogException(ex.Message);
+    }
+    return result;
   }
 
   public async Task SchedulerReleaseRobotAsync(int realmId, Guid robotId)
   {
     var db = _redisConnection.GetDatabase();
-    await db.KeyDeleteAsync(RedisHelper.GetSchedulerHold(realmId, robotId));
+    try
+    {
+      await db.KeyDeleteAsync(RedisHelper.GetSchedulerHold(realmId, robotId));
+    }
+    catch (Exception ex)
+    {
+      LogException(ex.Message);
+    }
   }
 
   public async Task AddAutoTaskAsync(int realmId, Guid robotId, RobotClientsAutoTask autoTask)
@@ -68,13 +100,27 @@ public class AutoTaskRepository(
     var subscriber = _redisConnection.GetSubscriber();
     var data = new RobotClientsResponse { Task = autoTask };
     var base64 = SerialiserHelper.ToBase64(data);
-    await subscriber.PublishAsync(new RedisChannel(RedisHelper.GetRobotExchangeQueue(robotId), PatternMode.Literal), base64);
+    try
+    {
+      await subscriber.PublishAsync(new RedisChannel(RedisHelper.GetRobotExchangeQueue(robotId), PatternMode.Literal), base64);
+    }
+    catch (Exception ex)
+    {
+      LogException(ex.Message);
+    }
   }
 
   public async Task AutoTaskHasUpdateAsync(int realmId, AutoTaskUpdate autoTaskUpdate)
   {
     var subscriber = _redisConnection.GetSubscriber();
     var json = JsonSerializer.Serialize(autoTaskUpdate);
-    await subscriber.PublishAsync(new RedisChannel(RedisHelper.GetAutoTaskUpdateQueue(realmId), PatternMode.Literal), json);
+    try
+    {
+      await subscriber.PublishAsync(new RedisChannel(RedisHelper.GetAutoTaskUpdateQueue(realmId), PatternMode.Literal), json);
+    }
+    catch (Exception ex)
+    {
+      LogException(ex.Message);
+    }
   }
 }

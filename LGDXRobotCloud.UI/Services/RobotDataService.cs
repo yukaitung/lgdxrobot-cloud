@@ -13,11 +13,15 @@ public interface IRobotDataService
   Task<Dictionary<Guid, RobotData?>> GetRobotDataFromListAsync(int realmId, List<Guid> robotIds);
 }
 
-public class RobotDataService(
-    IConnectionMultiplexer redisConnection
+public partial class RobotDataService(
+    IConnectionMultiplexer redisConnection,
+    ILogger<RobotDataService> logger
   ) : IRobotDataService
 {
   private readonly IConnectionMultiplexer _redisConnection = redisConnection;
+
+  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "{Msg}")]
+  public partial void LogException(string msg);
 
   public async Task<Dictionary<Guid, RobotData>> GetRobotDataFromRealmAsync(int realmId)
   {
@@ -37,7 +41,7 @@ public class RobotDataService(
     {
       if (!ex.Message.Contains("Unknown index name", StringComparison.CurrentCultureIgnoreCase))
       {
-        throw;
+        LogException(ex.Message);
       }
     }
     return robotData;
@@ -54,7 +58,15 @@ public class RobotDataService(
       keys[i] = RedisHelper.GetRobotData(realmId, robotIds[i]);
     }
     var db = _redisConnection.GetDatabase();
-    var result = await db.JSON().MGetAsync(keys, "$");
+    RedisResult[] result = [];
+    try
+    {
+      result = await db.JSON().MGetAsync(keys, "$");
+    }
+    catch (Exception ex)
+    {
+      LogException(ex.Message);
+    }
 
     Dictionary<Guid, RobotData?> robotData = [];
     for (int i = 0; i < result.Length; i++)

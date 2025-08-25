@@ -20,6 +20,8 @@ builder.Services.AddRazorComponents()
 var redis = StackExchange.Redis.ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"] ?? string.Empty);
 builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(redis);
 
+builder.Services.AddLogging(builder => builder.AddConsole());
+
 // Add API
 var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
 store.Open(OpenFlags.ReadOnly);
