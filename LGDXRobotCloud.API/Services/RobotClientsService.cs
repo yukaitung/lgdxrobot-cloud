@@ -199,7 +199,7 @@ public class RobotClientsService(
     await responseStream.WriteAsync(new RobotClientsResponse());
 
     var subscriber = _redisConnection.GetSubscriber();
-    await subscriber.SubscribeAsync(new RedisChannel($"robotExchangeQueue:{robotId}", PatternMode.Literal), (channel, value) =>
+    await subscriber.SubscribeAsync(new RedisChannel(RedisHelper.GetRobotExchangeQueue(robotId), PatternMode.Literal), (channel, value) =>
     {
       var response = SerialiserHelper.FromBase64<RobotClientsResponse>(value!);
       if (response != null)
@@ -255,7 +255,7 @@ public class RobotClientsService(
     await responseStream.WriteAsync(new RobotClientsSlamCommands());
 
     var subscriber = _redisConnection.GetSubscriber();
-    await subscriber.SubscribeAsync(new RedisChannel($"robotSlamExchangeQueue:{realmId}", PatternMode.Literal), (channel, value) =>
+    await subscriber.SubscribeAsync(new RedisChannel(RedisHelper.GetSlamExchangeQueue(realmId), PatternMode.Literal), (channel, value) =>
     {
       var response = SerialiserHelper.FromBase64<RobotClientsSlamCommands>(value!);
       if (response != null)

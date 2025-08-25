@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
-using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.Redis;
+using LGDXRobotCloud.Utilities.Helpers;
 using StackExchange.Redis;
 using static StackExchange.Redis.RedisChannel;
 
@@ -8,8 +9,8 @@ namespace LGDXRobotCloud.UI.Services;
 
 public interface IRealTimeService
 {
-  Task SubscribeToTaskUpdateQueueAsync(int realmId, Action<AutoTaskUpdateContract> handler);
-  Task UnsubscribeToTaskUpdateQueueAsync(int realmId, Action<AutoTaskUpdateContract> handler);
+  Task SubscribeToTaskUpdateQueueAsync(int realmId, Action<AutoTaskUpdate> handler);
+  Task UnsubscribeToTaskUpdateQueueAsync(int realmId, Action<AutoTaskUpdate> handler);
 }
 
 public class RealTimeService(
@@ -18,11 +19,11 @@ public class RealTimeService(
 {
   private readonly ISubscriber _subscriber = redisConnection.GetSubscriber();
 
-  private readonly ConcurrentDictionary<string, ConcurrentBag<Action<AutoTaskUpdateContract>>> autoTaskUpdateHandlers = [];
+  private readonly ConcurrentDictionary<string, ConcurrentBag<Action<AutoTaskUpdate>>> autoTaskUpdateHandlers = [];
 
-  public async Task SubscribeToTaskUpdateQueueAsync(int realmId, Action<AutoTaskUpdateContract> handler)
+  public async Task SubscribeToTaskUpdateQueueAsync(int realmId, Action<AutoTaskUpdate> handler)
   {
-    var queueName = $"autoTaskUpdate:{realmId}";
+    var queueName = RedisHelper.GetAutoTaskUpdateQueue(realmId);
     var handlers = autoTaskUpdateHandlers.GetOrAdd(queueName, _ => []);
     handlers.Add(handler);
 
@@ -33,7 +34,7 @@ public class RealTimeService(
       {
         if (autoTaskUpdateHandlers.TryGetValue(queueName, out var hd))
         {
-          var update = JsonSerializer.Deserialize<AutoTaskUpdateContract>(value!);
+          var update = JsonSerializer.Deserialize<AutoTaskUpdate>(value!);
           foreach (var h in hd)
           {
             // invoke all handlers
@@ -44,12 +45,12 @@ public class RealTimeService(
     }
   }
 
-  public async Task UnsubscribeToTaskUpdateQueueAsync(int realmId, Action<AutoTaskUpdateContract> handler)
+  public async Task UnsubscribeToTaskUpdateQueueAsync(int realmId, Action<AutoTaskUpdate> handler)
   {
-    var queueName = $"autoTaskUpdate:{realmId}";
+    var queueName = RedisHelper.GetAutoTaskUpdateQueue(realmId);
     if (autoTaskUpdateHandlers.TryGetValue(queueName, out var handlers))
     {
-      var updatedHandlers = new ConcurrentBag<Action<AutoTaskUpdateContract>>(handlers.Where(h => h != handler));
+      var updatedHandlers = new ConcurrentBag<Action<AutoTaskUpdate>>(handlers.Where(h => h != handler));
       if (updatedHandlers.IsEmpty)
       {
         autoTaskUpdateHandlers.TryRemove(queueName, out _);

@@ -1,4 +1,5 @@
 using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Constants;
@@ -46,7 +47,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
   private Timer? Timer = null;
   private DotNetObjectReference<Slam> ObjectReference = null!;
   private Guid SelectedRobotId { get; set; } = Guid.Empty;
-  private RobotDataContract? SelectedRobot { get; set; }
+  private RobotData? SelectedRobot { get; set; }
   private SlamStatus SlamStatus { get; set; } = SlamStatus.Idle;
   private SlamMode SlamMode { get; set; } = SlamMode.Normal;
   private SlamMapMetadata SlamMapMetadata { get; set; } = new SlamMapMetadata();
@@ -130,7 +131,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
     NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index + $"/{Id}");
   }
 
-  private async Task OnUpdateSlamMap(SlamDataContract slamData)
+  private async Task OnUpdateSlamMap(SlamData slamData)
   {
     try
     {
@@ -153,7 +154,7 @@ public sealed partial class Slam : ComponentBase, IDisposable
     }
   }
 
-  private async Task OnRobotDataUpdated(Guid robotId, RobotDataContract robotData)
+  private async Task OnRobotDataUpdated(Guid robotId, RobotData robotData)
   {
     try
     {

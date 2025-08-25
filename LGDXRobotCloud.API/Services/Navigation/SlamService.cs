@@ -1,5 +1,5 @@
 using LGDXRobotCloud.API.Repositories;
-using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
 using MassTransit;
@@ -73,7 +73,7 @@ public class SlamService(
         Data = [.. mapData.Data.Select(x => (short)x)]
       };
     }
-    var data = new SlamDataContract
+    var data = new SlamData
     {
       RobotId = robotId,
       RealmId = realmId,

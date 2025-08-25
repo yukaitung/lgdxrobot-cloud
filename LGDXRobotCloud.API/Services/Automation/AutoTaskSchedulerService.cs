@@ -1,16 +1,13 @@
-using System.Text.Json;
 using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
-using StackExchange.Redis;
-using static StackExchange.Redis.RedisChannel;
 
 namespace LGDXRobotCloud.API.Services.Automation;
 
@@ -26,26 +23,22 @@ public interface IAutoTaskSchedulerService
   Task<bool> AutoTaskAbortApiAsync(int taskId);
   Task AutoTaskNextAsync(Guid robotId, int taskId, string token);
   Task<bool> AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
-
-  Task UpdateAutoTaskQueue(int realmId, AutoTaskUpdateContract autoTaskUpdateContract);
 }
 
 public class AutoTaskSchedulerService(
     IAutoTaskPathPlannerService autoTaskPathPlanner,
-    IConnectionMultiplexer redisConnection,
+    IAutoTaskRepository autoTaskRepository,
     IEmailService emailService,
     IOnlineRobotsService onlineRobotsService,
-    IRobotDataRepository robotDataRepository,
     IRobotService robotService,
     ITriggerService triggerService,
     LgdxContext context
   ) : IAutoTaskSchedulerService
 {
   private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner;
-  private readonly IConnectionMultiplexer _redisConnection = redisConnection;
+  private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository;
   private readonly IEmailService _emailService = emailService;
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService;
-  private readonly IRobotDataRepository _robotDataRepository = robotDataRepository;
   private readonly IRobotService _robotService = robotService;
   private readonly ITriggerService _triggerService = triggerService;
   private readonly LgdxContext _context = context;
@@ -84,7 +77,7 @@ public class AutoTaskSchedulerService(
       }
 
       // Send the updated to the Redis queue
-      var data = new AutoTaskUpdateContract
+      var data = new AutoTaskUpdate
       {
         Id = task.Id,
         Name = task.Name,
@@ -97,7 +90,7 @@ public class AutoTaskSchedulerService(
         CurrentProgressId = task.CurrentProgressId,
         CurrentProgressName = progress!.Name,
       };
-      await UpdateAutoTaskQueue(task.RealmId, data);
+      await _autoTaskRepository.AutoTaskHasUpdateAsync(task.RealmId, data);
     }
 
     if (task.CurrentProgressId == (int)ProgressState.Completed || task.CurrentProgressId == (int)ProgressState.Aborted)
@@ -159,7 +152,7 @@ public class AutoTaskSchedulerService(
     // Find any robot that is idle
     if (robotId == null)
     {
-      robotId = await _robotDataRepository.SchedulerHoldAnyRobotAsync(realmId);
+      robotId = await _autoTaskRepository.SchedulerHoldAnyRobotAsync(realmId);
       if (robotId != null)
       {
         await RunSchedulerRobotReadyAsync(robotId.Value);
@@ -168,7 +161,7 @@ public class AutoTaskSchedulerService(
     }
     else
     {
-      if (await _robotDataRepository.SchedulerHoldRobotAsync(realmId, robotId.Value))
+      if (await _autoTaskRepository.SchedulerHoldRobotAsync(realmId, robotId.Value))
       {
         await RunSchedulerRobotReadyAsync(robotId.Value);
         // Release the robot when it obtains the task
@@ -203,7 +196,7 @@ public class AutoTaskSchedulerService(
       if (task != null)
       {
         var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-        await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, task);
+        await _autoTaskRepository.AddAutoTaskAsync(realmId, robotId, task);
       }
       return;
     }
@@ -272,7 +265,7 @@ public class AutoTaskSchedulerService(
       var task = await GenerateTaskDetail(newTask);
       if (task != null)
       {
-        await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, task);
+        await _autoTaskRepository.AddAutoTaskAsync(realmId, robotId, task);
       }
       // Has new task
       return true;
@@ -283,7 +276,7 @@ public class AutoTaskSchedulerService(
   public async Task ReleaseRobotAsync(Guid robotId)
   {
     var realmId = _robotService.GetRobotRealmIdAsync(robotId).Result ?? 0;
-    await _robotDataRepository.SchedulerReleaseRobotAsync(realmId, robotId);
+    await _autoTaskRepository.SchedulerReleaseRobotAsync(realmId, robotId);
   }
 
   private async Task<AutoTask?> AutoTaskAbortSqlAsync(int taskId, Guid? robotId = null, string? token = null)
@@ -357,7 +350,7 @@ public class AutoTaskSchedulerService(
       if (sendTask != null)
       {
         var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-        await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
+        await _autoTaskRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
       }
     }
   }
@@ -381,7 +374,7 @@ public class AutoTaskSchedulerService(
       if (sendTask != null)
       {
         var realmId = await _robotService.GetRobotRealmIdAsync(task.AssignedRobotId!.Value) ?? 0;
-        await _robotDataRepository.AddAutoTaskAsync(realmId, task.AssignedRobotId!.Value, sendTask);
+        await _autoTaskRepository.AddAutoTaskAsync(realmId, task.AssignedRobotId!.Value, sendTask);
       }
     }
     return true;
@@ -462,7 +455,7 @@ public class AutoTaskSchedulerService(
     if (sendTask != null)
     {
       var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-      await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
+      await _autoTaskRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
     }
   }
 
@@ -488,15 +481,8 @@ public class AutoTaskSchedulerService(
     if (sendTask != null)
     {
       var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-      await _robotDataRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
+      await _autoTaskRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
     }
     return true;
-  }
-
-  public async Task UpdateAutoTaskQueue(int realmId, AutoTaskUpdateContract autoTaskUpdateContract)
-  {
-    var subscriber = _redisConnection.GetSubscriber();
-    var json = JsonSerializer.Serialize(autoTaskUpdateContract);
-    await subscriber.PublishAsync(new RedisChannel($"autoTaskUpdate:{realmId}", PatternMode.Literal), json);
   }
 }

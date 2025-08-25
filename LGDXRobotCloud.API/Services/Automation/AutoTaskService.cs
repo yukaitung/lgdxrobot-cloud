@@ -1,4 +1,5 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Data.DbContexts;
@@ -31,6 +32,7 @@ public interface IAutoTaskService
 
 public class AutoTaskService(
     IActivityLogService activityLogService,
+    IAutoTaskRepository autoTaskRepository,
     IAutoTaskSchedulerService autoTaskSchedulerService,
     IMemoryCache memoryCache,
     IOnlineRobotsService onlineRobotsService,
@@ -38,6 +40,7 @@ public class AutoTaskService(
   ) : IAutoTaskService
 {
   private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
+  private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
@@ -307,7 +310,7 @@ public class AutoTaskService(
       };
       await _context.AutoTasksJourney.AddAsync(autoTaskJourney);
       await _context.SaveChangesAsync();
-      await _autoTaskSchedulerService.UpdateAutoTaskQueue(autoTask.RealmId, autoTaskBusinessModel.ToContract());
+      await _autoTaskRepository.AutoTaskHasUpdateAsync(autoTask.RealmId, autoTaskBusinessModel.ToContract());
       await _autoTaskSchedulerService.RunSchedulerNewAutoTaskAsync(autoTask.RealmId, autoTask.AssignedRobotId);
     }
 

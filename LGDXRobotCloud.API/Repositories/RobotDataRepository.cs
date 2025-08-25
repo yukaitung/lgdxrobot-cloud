@@ -1,6 +1,5 @@
-using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.Protos;
-using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
@@ -16,20 +15,15 @@ public interface IRobotDataRepository
   Task StartExchangeAsync(int realmId, Guid robotId);
   Task StopExchangeAsync(int realmId, Guid robotId);
 
-  Task<RobotDataContract?> GetRobotDataAsync(int realmId, Guid robotId);
-  Task<bool> SetRobotDataAsync(int realmId, Guid robotId, RobotDataContract data);
-
-  Task<Guid?> SchedulerHoldAnyRobotAsync(int realmId);
-  Task<bool> SchedulerHoldRobotAsync(int realmId, Guid robotId);
-  Task SchedulerReleaseRobotAsync(int realmId, Guid robotId);
+  Task<RobotData?> GetRobotDataAsync(int realmId, Guid robotId);
+  Task<bool> SetRobotDataAsync(int realmId, Guid robotId, RobotData data);
 
   Task<bool> AddRobotCommandAsync(int realmId, Guid robotId, RobotClientsRobotCommands cmd);
-  Task<bool> AddAutoTaskAsync(int realmId, Guid robotId, RobotClientsAutoTask autoTask);
-
+  
   // Slam
   Task<bool> StartSlamAsync(int realmId, Guid robotId);
   Task StopSlamAsync(int realmId, Guid robotId);
-  Task<bool> SetSlamExchangeAsync(int realmId, SlamDataContract exchange);
+  Task<bool> SetSlamExchangeAsync(int realmId, SlamData exchange);
 
   Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands);
 }
@@ -63,17 +57,17 @@ public class RobotDataRepository(
     var db = _redisConnection.GetDatabase();
 
     // Create index
-    if (!await IndexExistsAsync($"idxRobotClientData:{realmId}"))
+    if (!await IndexExistsAsync(RedisHelper.GetRobotDataIndex(realmId)))
     {
       try
       {
-        await db.FT().CreateAsync($"idxRobotClientData:{realmId}",
+        await db.FT().CreateAsync(RedisHelper.GetRobotDataIndex(realmId),
           new FTCreateParams()
             .On(IndexDataType.JSON)
-            .Prefix($"robotClientData:{realmId}:"),
+            .Prefix(RedisHelper.GetRobotDataPrefix(realmId)),
           new Schema()
-          .AddNumericField(new FieldName($"$.{nameof(RobotDataContract.RobotStatus)}", $"{nameof(RobotDataContract.RobotStatus)}"))
-          .AddTagField(new FieldName($"$.{nameof(RobotDataContract.PauseTaskAssignment)}", $"{nameof(RobotDataContract.PauseTaskAssignment)}")));
+          .AddNumericField(new FieldName($"$.{nameof(RobotData.RobotStatus)}", $"{nameof(RobotData.RobotStatus)}"))
+          .AddTagField(new FieldName($"$.{nameof(RobotData.PauseTaskAssignment)}", $"{nameof(RobotData.PauseTaskAssignment)}")));
       }
       catch (Exception ex)
       {
@@ -84,93 +78,44 @@ public class RobotDataRepository(
       }
     }
 
-    await db.JSON().SetAsync($"robotClientData:{realmId}:{robotId}", "$", new RobotDataContract());
+    await db.JSON().SetAsync(RedisHelper.GetRobotData(realmId, robotId), "$", new RobotData());
   }
 
   public async Task StopExchangeAsync(int realmId, Guid robotId)
   {
     var db = _redisConnection.GetDatabase();
-    await db.KeyDeleteAsync($"robotClientData:{realmId}:{robotId}");
+    await db.KeyDeleteAsync(RedisHelper.GetRobotData(realmId, robotId));
   }
 
-  public async Task<RobotDataContract?> GetRobotDataAsync(int realmId, Guid robotId)
+  public async Task<RobotData?> GetRobotDataAsync(int realmId, Guid robotId)
   {
     var db = _redisConnection.GetDatabase();
-    return await db.JSON().GetAsync<RobotDataContract>($"robotClientData:{realmId}:{robotId}");
+    return await db.JSON().GetAsync<RobotData>(RedisHelper.GetRobotData(realmId, robotId));
   }
 
-  public async Task<bool> SetRobotDataAsync(int realmId, Guid robotId, RobotDataContract data)
+  public async Task<bool> SetRobotDataAsync(int realmId, Guid robotId, RobotData data)
   {
     var db = _redisConnection.GetDatabase();
-    return await db.JSON().SetAsync($"robotClientData:{realmId}:{robotId}", "$", data);
-  }
-
-  public async Task<Guid?> SchedulerHoldAnyRobotAsync(int realmId)
-  {
-    var db = _redisConnection.GetDatabase();
-    int robotStatus = (int)RobotStatus.Idle;
-    var search = await db.FT().SearchAsync($"idxRobotClientData:{realmId}",
-      new Query($"@{nameof(RobotDataContract.RobotStatus)}:[{robotStatus} {robotStatus}] @{nameof(RobotDataContract.PauseTaskAssignment)}:{{false}}")
-        .Limit(0, 1)
-        .ReturnFields(["__key"]));
-    string? robotId = search.Documents.FirstOrDefault()?.Id.Replace($"robotClientData:{realmId}:", string.Empty);
-    if (robotId == null)
-    {
-      return null;
-    }
-    bool result = await db.HashSetAsync($"schedulerHold:{realmId}:{robotId}", "Value", "1", When.NotExists);
-    return result ? Guid.Parse(robotId) : null;
-  }
-
-  public async Task<bool> SchedulerHoldRobotAsync(int realmId, Guid robotId)
-  {
-    var robotData = await GetRobotDataAsync(realmId, robotId);
-    if (robotData == null ||
-        robotData.RobotStatus != RobotStatus.Idle ||
-        robotData.PauseTaskAssignment == true)
-    {
-      return false;
-    }
-    var db = _redisConnection.GetDatabase();
-    return await db.HashSetAsync($"schedulerHold:{realmId}:{robotId}", "Value", "1", When.NotExists);
-  }
-
-  public async Task SchedulerReleaseRobotAsync(int realmId, Guid robotId)
-  {
-    var db = _redisConnection.GetDatabase();
-    await db.KeyDeleteAsync($"schedulerHold:{realmId}:{robotId}");
+    return await db.JSON().SetAsync(RedisHelper.GetRobotData(realmId, robotId), "$", data);
   }
 
   public async Task<bool> AddRobotCommandAsync(int realmId, Guid robotId, RobotClientsRobotCommands cmd)
   {
     var db = _redisConnection.GetDatabase();
-    if (!await db.KeyExistsAsync($"robotClientData:{realmId}:{robotId}"))
+    if (!await db.KeyExistsAsync(RedisHelper.GetRobotData(realmId, robotId)))
       return false;
 
     var subscriber = _redisConnection.GetSubscriber();
     var data = new RobotClientsResponse { Commands = cmd };
     var base64 = SerialiserHelper.ToBase64(data);
-    await subscriber.PublishAsync(new RedisChannel($"robotExchangeQueue:{robotId}", PatternMode.Literal), base64);
-    return true;
-  }
-
-  public async Task<bool> AddAutoTaskAsync(int realmId, Guid robotId, RobotClientsAutoTask autoTask)
-  {
-    var db = _redisConnection.GetDatabase();
-    if (!await db.KeyExistsAsync($"robotClientData:{realmId}:{robotId}"))
-      return false;
-
-    var subscriber = _redisConnection.GetSubscriber();
-    var data = new RobotClientsResponse { Task = autoTask };
-    var base64 = SerialiserHelper.ToBase64(data);
-    await subscriber.PublishAsync(new RedisChannel($"robotExchangeQueue:{robotId}", PatternMode.Literal), base64);
+    await subscriber.PublishAsync(new RedisChannel(RedisHelper.GetRobotExchangeQueue(robotId), PatternMode.Literal), base64);
     return true;
   }
 
   public async Task<bool> StartSlamAsync(int realmId, Guid robotId)
   {
     var db = _redisConnection.GetDatabase();
-    bool result = await db.HashSetAsync($"slamRobot:{realmId}", "RobotId", robotId.ToString(), When.NotExists);
+    bool result = await db.HashSetAsync(RedisHelper.GetSlamRobot(realmId), "RobotId", robotId.ToString(), When.NotExists);
     if (!result)
     {
       // Only one robot can running SLAM at a time
@@ -183,26 +128,26 @@ public class RobotDataRepository(
   public async Task StopSlamAsync(int realmId, Guid robotId)
   {
     var db = _redisConnection.GetDatabase();
-    await db.KeyDeleteAsync($"slamRobot:{realmId}");
+    await db.KeyDeleteAsync(RedisHelper.GetSlamRobot(realmId));
     await StopExchangeAsync(realmId, robotId);
   }
 
-  public async Task<bool> SetSlamExchangeAsync(int realmId, SlamDataContract exchange)
+  public async Task<bool> SetSlamExchangeAsync(int realmId, SlamData exchange)
   {
     var db = _redisConnection.GetDatabase();
-    if (!await db.KeyExistsAsync($"slamRobot:{realmId}"))
+    if (!await db.KeyExistsAsync(RedisHelper.GetSlamRobot(realmId)))
       return false;
-    return await db.JSON().SetAsync($"robotClientSlamData:{realmId}", "$", exchange);
+    return await db.JSON().SetAsync(RedisHelper.GetSlamData(realmId), "$", exchange);
   }
 
   public async Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands)
   {
     var db = _redisConnection.GetDatabase();
-    if (!await db.KeyExistsAsync($"slamRobot:{realmId}"))
+    if (!await db.KeyExistsAsync(RedisHelper.GetSlamRobot(realmId)))
       return false;
     var subscriber = _redisConnection.GetSubscriber();
     var base64 = SerialiserHelper.ToBase64(commands);
-    await subscriber.PublishAsync(new RedisChannel($"robotSlamExchangeQueue:{realmId}", PatternMode.Literal), base64);
+    await subscriber.PublishAsync(new RedisChannel(RedisHelper.GetSlamExchangeQueue(realmId), PatternMode.Literal), base64);
     return true;
   }
 }

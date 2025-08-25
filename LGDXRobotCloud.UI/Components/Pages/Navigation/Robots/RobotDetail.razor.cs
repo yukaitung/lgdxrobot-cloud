@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Constants;
@@ -50,7 +51,7 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
   private RobotSystemInfoDto? RobotSystemInfoDto { get; set; } = null!;
   private RobotChassisInfoViewModel RobotChassisInfoViewModel { get; set; } = new();
   private List<AutoTaskListDto>? AutoTasks { get; set; }
-  private RobotDataContract? RobotData { get; set; }
+  private RobotData? RobotData { get; set; }
 
   private Timer? Timer = null;
 
@@ -132,54 +133,54 @@ public sealed partial class RobotDetail : ComponentBase, IDisposable
     TimerStart();
   }
 
-  private AutoTaskListDto ToAutoTaskListDto(AutoTaskUpdateContract autoTaskUpdateContract)
+  private AutoTaskListDto ToAutoTaskListDto(AutoTaskUpdate autoTaskUpdate)
   {
     return new AutoTaskListDto{
-      Id = autoTaskUpdateContract.Id,
-      Name = autoTaskUpdateContract.Name,
-      Priority = autoTaskUpdateContract.Priority,
+      Id = autoTaskUpdate.Id,
+      Name = autoTaskUpdate.Name,
+      Priority = autoTaskUpdate.Priority,
       Flow = new FlowSearchDto {
-        Id = autoTaskUpdateContract.FlowId,
-        Name = autoTaskUpdateContract.FlowName
+        Id = autoTaskUpdate.FlowId,
+        Name = autoTaskUpdate.FlowName
       },
       Realm = new RealmSearchDto {
-        Id = autoTaskUpdateContract.RealmId,
+        Id = autoTaskUpdate.RealmId,
         Name = RealmName
       },
       AssignedRobot = new RobotSearchDto2 {
-        Id = autoTaskUpdateContract.AssignedRobotId,
-        Name = autoTaskUpdateContract.AssignedRobotName
+        Id = autoTaskUpdate.AssignedRobotId,
+        Name = autoTaskUpdate.AssignedRobotName
       },
       CurrentProgress = new ProgressSearchDto {
-        Id = autoTaskUpdateContract.CurrentProgressId,
-        Name = autoTaskUpdateContract.CurrentProgressName
+        Id = autoTaskUpdate.CurrentProgressId,
+        Name = autoTaskUpdate.CurrentProgressName
       }
     };
   }
 
-  private async void OnAutoTaskUpdated(AutoTaskUpdateContract autoTaskUpdateContract)
+  private async void OnAutoTaskUpdated(AutoTaskUpdate autoTaskUpdate)
   {
     if (AutoTasks == null)
       return;
-    if (autoTaskUpdateContract.AssignedRobotId.ToString() != Id)
+    if (autoTaskUpdate.AssignedRobotId.ToString() != Id)
       return;
 
     // Update for running auto tasks
-    if (!LgdxHelper.AutoTaskStaticStates.Contains(autoTaskUpdateContract.CurrentProgressId))
+    if (!LgdxHelper.AutoTaskStaticStates.Contains(autoTaskUpdate.CurrentProgressId))
     {
       if (AutoTasks.Select(x => x.Id).Any())
       {
-        AutoTasks.RemoveAll(x => x.Id == autoTaskUpdateContract.Id);
+        AutoTasks.RemoveAll(x => x.Id == autoTaskUpdate.Id);
       }
-      AutoTasks.Add(ToAutoTaskListDto(autoTaskUpdateContract));
+      AutoTasks.Add(ToAutoTaskListDto(autoTaskUpdate));
     }
-    else if (autoTaskUpdateContract.CurrentProgressId == (int)ProgressState.Completed || autoTaskUpdateContract.CurrentProgressId == (int)ProgressState.Aborted)
+    else if (autoTaskUpdate.CurrentProgressId == (int)ProgressState.Completed || autoTaskUpdate.CurrentProgressId == (int)ProgressState.Aborted)
     {
-      AutoTasks.RemoveAll(x => x.Id == autoTaskUpdateContract.Id);
+      AutoTasks.RemoveAll(x => x.Id == autoTaskUpdate.Id);
     }
-    else if (autoTaskUpdateContract.CurrentProgressId == (int)ProgressState.Waiting)
+    else if (autoTaskUpdate.CurrentProgressId == (int)ProgressState.Waiting)
     {
-      AutoTasks.Add(ToAutoTaskListDto(autoTaskUpdateContract));
+      AutoTasks.Add(ToAutoTaskListDto(autoTaskUpdate));
     }
     AutoTasks = AutoTasks.OrderByDescending(x => x.CurrentProgress?.Id)
       .OrderByDescending(x => x.Priority)

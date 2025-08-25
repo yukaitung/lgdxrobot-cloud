@@ -1,9 +1,9 @@
 using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Common;
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
 using MassTransit;
@@ -76,7 +76,7 @@ public class OnlineRobotsService(
     _memoryCache.Set($"OnlineRobotsService_RobotData_Pause_{robotId}", true, TimeSpan.FromMilliseconds(100));
 
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    await _robotDataRepository.SetRobotDataAsync(realmId, robotId, new RobotDataContract
+    await _robotDataRepository.SetRobotDataAsync(realmId, robotId, new RobotData
     {
       RobotStatus = ConvertRobotStatus(data.RobotStatus),
       CriticalStatus = new RobotCriticalStatus

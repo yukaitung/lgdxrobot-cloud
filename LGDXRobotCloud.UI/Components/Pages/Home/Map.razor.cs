@@ -1,4 +1,5 @@
 using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Constants;
@@ -41,10 +42,10 @@ public sealed partial class Map : ComponentBase, IDisposable
   private DotNetObjectReference<Map> ObjectReference = null!;
 
   private RealmDto Realm { get; set; } = null!;
-  private RobotDataContract? SelectedRobot { get; set; }
+  private RobotData? SelectedRobot { get; set; }
   private string SelectedRobotName { get; set; } = string.Empty;
   private Guid SelectedRobotId { get; set; } = Guid.Empty;
-  private Dictionary<Guid, RobotDataContract> RobotsData { get; set; } = [];
+  private Dictionary<Guid, RobotData> RobotsData { get; set; } = [];
   private AutoTaskListDto? CurrentTask { get; set; }
 
   private void TimerStart()
@@ -74,7 +75,7 @@ public sealed partial class Map : ComponentBase, IDisposable
       }
       CurrentTask = await LgdxApiClient.Automation.AutoTasks.RobotCurrentTask[newRobotId].GetAsync();
     }
-    SelectedRobot = RobotsData.TryGetValue(newRobotId, out RobotDataContract? value) ? value : null;
+    SelectedRobot = RobotsData.TryGetValue(newRobotId, out RobotData? value) ? value : null;
     StateHasChanged();
     SelectedRobotId = newRobotId;
   }
@@ -89,25 +90,25 @@ public sealed partial class Map : ComponentBase, IDisposable
     NavigationManager.NavigateTo(AppRoutes.Automation.AutoTasks.Index + $"/{taskId}?ReturnUrl=/?tab=1");
   }
 
-  private async void OnAutoTaskUpdated(AutoTaskUpdateContract autoTaskUpdateContract)
+  private async void OnAutoTaskUpdated(AutoTaskUpdate autoTaskUpdate)
   {
     if (CurrentTask == null)
       return;
-    if (autoTaskUpdateContract.AssignedRobotId != SelectedRobotId)
+    if (autoTaskUpdate.AssignedRobotId != SelectedRobotId)
       return;
 
     // Update for running auto tasks
-    if (!LgdxHelper.AutoTaskStaticStates.Contains(autoTaskUpdateContract.CurrentProgressId))
+    if (!LgdxHelper.AutoTaskStaticStates.Contains(autoTaskUpdate.CurrentProgressId))
     {
-      CurrentTask.Id = autoTaskUpdateContract.Id;
-      CurrentTask.Name = autoTaskUpdateContract.Name;
-      CurrentTask.Priority = autoTaskUpdateContract.Priority;
-      CurrentTask.Flow!.Id = autoTaskUpdateContract.FlowId;
-      CurrentTask.Flow!.Name = autoTaskUpdateContract.FlowName;
-      CurrentTask.CurrentProgress!.Id = autoTaskUpdateContract.CurrentProgressId;
-      CurrentTask.CurrentProgress!.Name = autoTaskUpdateContract.CurrentProgressName;
+      CurrentTask.Id = autoTaskUpdate.Id;
+      CurrentTask.Name = autoTaskUpdate.Name;
+      CurrentTask.Priority = autoTaskUpdate.Priority;
+      CurrentTask.Flow!.Id = autoTaskUpdate.FlowId;
+      CurrentTask.Flow!.Name = autoTaskUpdate.FlowName;
+      CurrentTask.CurrentProgress!.Id = autoTaskUpdate.CurrentProgressId;
+      CurrentTask.CurrentProgress!.Name = autoTaskUpdate.CurrentProgressName;
     }
-    else if (autoTaskUpdateContract.CurrentProgressId == (int)ProgressState.Completed || autoTaskUpdateContract.CurrentProgressId == (int)ProgressState.Aborted)
+    else if (autoTaskUpdate.CurrentProgressId == (int)ProgressState.Completed || autoTaskUpdate.CurrentProgressId == (int)ProgressState.Aborted)
     {
       CurrentTask = null;
     }

@@ -225,6 +225,8 @@ builder.Services.AddScoped<IRobotService, RobotService>();
 builder.Services.AddScoped<ISlamService, SlamService>();
 builder.Services.AddScoped<IWaypointService, WaypointService>();
 builder.Services.AddSingleton<IRobotDataRepository, RobotDataRepository>();
+builder.Services.AddSingleton<ISlamDataRepository, SlamDataRepository>();
+builder.Services.AddSingleton<IAutoTaskRepository, AutoTaskRepository>();
 
 // Custom Services
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();

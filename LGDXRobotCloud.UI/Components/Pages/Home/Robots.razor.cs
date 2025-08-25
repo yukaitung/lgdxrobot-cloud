@@ -1,4 +1,5 @@
 using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Helpers;
@@ -29,7 +30,7 @@ public sealed partial class Robots : ComponentBase, IDisposable
   private Timer? Timer = null;
   private int RealmId { get; set; }
   private List<RobotListDto>? RobotsList { get; set; }
-  private Dictionary<Guid, RobotDataContract?> RobotsData { get; set; } = [];
+  private Dictionary<Guid, RobotData?> RobotsData { get; set; } = [];
 
   private PaginationHelper? PaginationHelper { get; set; }
   private int CurrentPage { get; set; } = 1;
