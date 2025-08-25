@@ -11,7 +11,7 @@ using Microsoft.JSInterop;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home;
 
-public sealed partial class Map : ComponentBase, IAsyncDisposable
+public partial class Map : ComponentBase, IAsyncDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

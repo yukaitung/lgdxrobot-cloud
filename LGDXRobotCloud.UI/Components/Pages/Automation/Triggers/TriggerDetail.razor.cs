@@ -11,7 +11,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.Triggers;
 
-public sealed partial class TriggerDetail : ComponentBase, IDisposable
+public partial class TriggerDetail : ComponentBase, IDisposable
 {
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;

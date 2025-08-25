@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Robots;
-public sealed partial class RobotDetail : ComponentBase, IAsyncDisposable
+public partial class RobotDetail : ComponentBase, IAsyncDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

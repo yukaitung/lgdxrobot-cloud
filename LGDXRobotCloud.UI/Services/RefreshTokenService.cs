@@ -11,7 +11,7 @@ public interface IRefreshTokenService
   Task<RefreshTokenResponseDto?> RefreshTokenAsync(ClaimsPrincipal user, string refreshToken);
 }
 
-public sealed class RefreshTokenService(HttpClient httpClient) : IRefreshTokenService
+public class RefreshTokenService(HttpClient httpClient) : IRefreshTokenService
 {
   private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
   private readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };

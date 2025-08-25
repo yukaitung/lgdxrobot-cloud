@@ -21,7 +21,7 @@ public interface IEmailService
   Task SendAutoTaskAbortEmailAsync(int taskId, AutoTaskAbortReason autoTaskAbortReason);
 }
 
-public sealed class EmailService(
+public class EmailService(
     IMessageBus bus,
     LgdxContext context
   ) : IEmailService

@@ -9,7 +9,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.ApiKeys;
 
-public sealed partial class ApiKeyDetail
+public partial class ApiKeyDetail
 {
   [Inject]
   public NavigationManager NavigationManager { get; set; } = default!;

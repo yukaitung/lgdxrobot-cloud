@@ -27,7 +27,7 @@ public partial class RobotDataRepository(
     ILogger<RobotDataRepository> logger
   ) : IRobotDataRepository
 {
-  private readonly IConnectionMultiplexer _redisConnection = redisConnection;
+  private readonly IConnectionMultiplexer _redisConnection = redisConnection ?? throw new ArgumentNullException(nameof(redisConnection));
 
   [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "{Msg}")]
   public partial void LogException(string msg);

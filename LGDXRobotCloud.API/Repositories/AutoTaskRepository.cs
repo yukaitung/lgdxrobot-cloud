@@ -25,8 +25,8 @@ public partial class AutoTaskRepository(
     IRobotDataRepository robotDataRepository
   ) : IAutoTaskRepository
 {
-  private readonly IConnectionMultiplexer _redisConnection = redisConnection;
-  private readonly IRobotDataRepository _robotDataRepository = robotDataRepository;
+  private readonly IConnectionMultiplexer _redisConnection = redisConnection ?? throw new ArgumentNullException(nameof(redisConnection));
+  private readonly IRobotDataRepository _robotDataRepository = robotDataRepository ?? throw new ArgumentNullException(nameof(robotDataRepository));
 
   [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "{Msg}")]
   public partial void LogException(string msg);

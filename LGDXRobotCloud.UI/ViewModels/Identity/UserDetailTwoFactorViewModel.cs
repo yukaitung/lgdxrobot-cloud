@@ -3,7 +3,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Identity;
 
-public sealed class UserDetailTwoFactorViewModel : FormViewModel
+public class UserDetailTwoFactorViewModel : FormViewModel
 {
   [Required (ErrorMessage = "Please enter a verification code.")]
   public string VerficationCode { get; set; } = null!;

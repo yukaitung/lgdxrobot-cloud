@@ -28,7 +28,7 @@ public enum MapEditorError
   HasTraffic = 2,
 }
 
-public sealed partial class MapEditor : ComponentBase, IDisposable
+public partial class MapEditor : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

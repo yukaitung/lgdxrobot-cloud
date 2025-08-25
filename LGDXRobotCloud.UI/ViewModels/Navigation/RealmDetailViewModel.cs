@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace LGDXRobotCloud.UI.ViewModels.Navigation;
 
-public sealed class RealmDetailViewModel : FormViewModel
+public class RealmDetailViewModel : FormViewModel
 {
   public int? Id { get; set; } = null;
 

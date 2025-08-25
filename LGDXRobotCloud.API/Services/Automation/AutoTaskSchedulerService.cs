@@ -35,13 +35,13 @@ public class AutoTaskSchedulerService(
     LgdxContext context
   ) : IAutoTaskSchedulerService
 {
-  private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner;
-  private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository;
-  private readonly IEmailService _emailService = emailService;
-  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService;
-  private readonly IRobotService _robotService = robotService;
-  private readonly ITriggerService _triggerService = triggerService;
-  private readonly LgdxContext _context = context;
+  private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner ?? throw new ArgumentNullException(nameof(autoTaskPathPlanner));
+  private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
+  private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
+  private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
+  private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
+  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   private async Task AddAutoTaskJourney(AutoTask autoTask)
   {

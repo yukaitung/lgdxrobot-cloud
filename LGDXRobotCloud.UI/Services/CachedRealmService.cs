@@ -17,7 +17,7 @@ public interface ICachedRealmService
   Task<bool> GetHasWaypointTrafficControlAsync(int realmId);
 }
 
-public sealed class CachedRealmService (
+public class CachedRealmService (
     LgdxApiClient LgdxApiClient,
     IMemoryCache memoryCache,
     NavigationManager navigationManager

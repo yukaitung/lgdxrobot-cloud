@@ -7,7 +7,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Identity.ForgotPassword;
 
-public sealed partial class ForgotPassword : ComponentBase
+public partial class ForgotPassword : ComponentBase
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

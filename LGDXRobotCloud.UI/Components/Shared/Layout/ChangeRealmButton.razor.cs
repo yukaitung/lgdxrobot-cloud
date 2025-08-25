@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobotCloud.UI.Components.Shared.Layout;
 
-public sealed partial class ChangeRealmButton : ComponentBase
+public partial class ChangeRealmButton : ComponentBase
 {
   [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }

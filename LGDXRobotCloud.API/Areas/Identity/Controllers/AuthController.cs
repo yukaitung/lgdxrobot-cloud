@@ -13,7 +13,7 @@ namespace LGDXRobotCloud.API.Areas.Identity.Controllers;
 [Area("Identity")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificateScheme)]
-public sealed class AuthController(
+public class AuthController(
     IAuthService authService
   ) : ControllerBase
 {

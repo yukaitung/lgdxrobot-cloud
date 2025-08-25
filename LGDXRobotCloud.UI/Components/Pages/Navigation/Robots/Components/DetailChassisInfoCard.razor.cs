@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components;
 
-public sealed partial class DetailChassisInfoCard
+public partial class DetailChassisInfoCard
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

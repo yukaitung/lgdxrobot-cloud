@@ -28,7 +28,7 @@ public interface ITriggerService
   Task<bool> RetryTriggerAsync(AutoTask autoTask, Trigger trigger, string body);
 }
 
-public sealed class TriggerService (
+public class TriggerService (
   IActivityLogService activityService,
   IApiKeyService apiKeyService,
   IMessageBus bus,

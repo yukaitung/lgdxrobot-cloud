@@ -8,7 +8,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home;
 
-public sealed partial class Tasks : ComponentBase, IDisposable
+public partial class Tasks : ComponentBase, IDisposable
 {
   [Inject]
   public required ICachedRealmService CachedRealmService { get; set; }

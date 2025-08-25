@@ -11,7 +11,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.Flows;
 
-public sealed partial class FlowDetail : ComponentBase, IDisposable
+public partial class FlowDetail : ComponentBase, IDisposable
 {
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;

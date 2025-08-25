@@ -2,7 +2,7 @@ using LGDXRobotCloud.Data.Models.Business.Identity;
 
 namespace LGDXRobotCloud.Data.Models.DTOs.V1.Requests;
 
-public sealed record RefreshTokenRequestDto
+public record RefreshTokenRequestDto
 {
   public required string RefreshToken { get; set; }
 }

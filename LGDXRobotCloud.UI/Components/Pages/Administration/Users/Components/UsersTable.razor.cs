@@ -7,7 +7,7 @@ using static LGDXRobotCloud.UI.Client.Administration.Users.UsersRequestBuilder;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.Users.Components;
 
-public sealed partial class UsersTable : AbstractTable
+public partial class UsersTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

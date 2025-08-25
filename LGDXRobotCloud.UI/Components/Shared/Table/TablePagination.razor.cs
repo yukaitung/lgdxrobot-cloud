@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobotCloud.UI.Components.Shared.Table;
 
-public sealed partial class TablePagination
+public partial class TablePagination
 {
   [Parameter]
   public required PaginationHelper PaginationHelper { get; set; }

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Server;
 
 namespace LGDXRobotCloud.UI.Authorisation;
 
-internal sealed class LgdxAuthenticationStateProvider(
+internal class LgdxAuthenticationStateProvider(
     ILoggerFactory loggerFactory, 
     IRefreshTokenService refreshTokenService,
     ITokenService tokenService, 

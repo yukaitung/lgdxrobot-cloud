@@ -7,7 +7,7 @@ using Microsoft.JSInterop;
 
 namespace LGDXRobotCloud.UI.Components.Shared.Layout;
 
-public sealed partial class ChangeRealmModal : ComponentBase, IDisposable
+public partial class ChangeRealmModal : ComponentBase, IDisposable
 {
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }

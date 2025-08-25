@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.Progresses.Components;
 
-public sealed partial class ProgressesTable : AbstractTable
+public partial class ProgressesTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

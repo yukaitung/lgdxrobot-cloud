@@ -267,7 +267,7 @@ app.UseLgdxExpectionHandling();
 
 app.Run();
 
-internal sealed class BearerSecuritySchemeTransformer(
+internal class BearerSecuritySchemeTransformer(
 	IAuthenticationSchemeProvider authenticationSchemeProvider,
 	IServer server
 ) : IOpenApiDocumentTransformer

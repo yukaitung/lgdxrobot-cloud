@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.Client;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Realms.Components;
 
-public sealed partial class SoftwareEmergencyStopModel
+public partial class SoftwareEmergencyStopModel
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

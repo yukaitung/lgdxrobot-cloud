@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Realms;
-public sealed partial class RealmDetail : ComponentBase
+public partial class RealmDetail : ComponentBase
 {
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;

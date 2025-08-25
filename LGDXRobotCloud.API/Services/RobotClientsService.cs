@@ -28,12 +28,12 @@ public class RobotClientsService(
     ISlamService slamService
   ) : RobotClientsServiceBase
 {
-  private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService;
-  private readonly IConnectionMultiplexer _redisConnection = redisConnection;
-  private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService;
-  private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value;
-  private readonly IRobotService _robotService = robotService;
-  private readonly ISlamService _slamService = slamService;
+  private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
+  private readonly IConnectionMultiplexer _redisConnection = redisConnection ?? throw new ArgumentNullException(nameof(redisConnection));
+  private readonly IOnlineRobotsService _onlineRobotsService = OnlineRobotsService ?? throw new ArgumentNullException(nameof(OnlineRobotsService));
+  private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobotCloudSecretConfiguration));
+  private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
+  private readonly ISlamService _slamService = slamService ?? throw new ArgumentNullException(nameof(slamService));
 
   private bool pauseAutoTaskAssignmentEffective = false;
 

@@ -17,7 +17,6 @@ public class ApiKeyAuthenticationSchemeHandler(
   private readonly IApiKeyService _apiKeyService = apiKeyService ?? throw new ArgumentNullException(nameof(apiKeyService));
   private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment ?? throw new ArgumentNullException(nameof(webHostEnvironment));
 
-
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync() 
   {
     string? apiKey = Context.Request.Headers["X-API-KEY"];

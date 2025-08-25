@@ -11,7 +11,7 @@ using static LGDXRobotCloud.UI.Client.Automation.AutoTasks.AutoTasksRequestBuild
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home.Components;
 
-public sealed partial class RealtimeAutoTasksTable : IAsyncDisposable
+public partial class RealtimeAutoTasksTable : IAsyncDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

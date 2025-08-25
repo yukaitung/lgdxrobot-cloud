@@ -19,7 +19,7 @@ namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificateScheme)]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
-public sealed class WaypointsController(
+public class WaypointsController(
     IWaypointService waypointService,
     IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration
   ) : ControllerBase

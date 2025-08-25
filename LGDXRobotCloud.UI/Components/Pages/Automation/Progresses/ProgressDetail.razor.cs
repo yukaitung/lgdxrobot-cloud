@@ -9,7 +9,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.Progresses;
 
-public sealed partial class ProgressDetail : ComponentBase
+public partial class ProgressDetail : ComponentBase
 {
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;

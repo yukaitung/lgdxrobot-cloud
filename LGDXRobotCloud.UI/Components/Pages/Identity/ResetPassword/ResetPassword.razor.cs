@@ -9,7 +9,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Identity.ResetPassword;
 
-public sealed partial class ResetPassword : ComponentBase
+public partial class ResetPassword : ComponentBase
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

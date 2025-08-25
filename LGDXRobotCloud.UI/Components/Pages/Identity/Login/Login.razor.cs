@@ -13,7 +13,7 @@ using System.Security.Claims;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Identity.Login;
 
-public sealed partial class Login : ComponentBase
+public partial class Login : ComponentBase
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

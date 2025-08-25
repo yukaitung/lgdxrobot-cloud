@@ -25,8 +25,8 @@ public class RealmsController(
   ISlamService slamService
 ) : ControllerBase
 {
-  private readonly IRealmService _realmService = realmService;
-  private readonly ISlamService _slamService = slamService;
+  private readonly IRealmService _realmService = realmService ?? throw new ArgumentNullException(nameof(realmService));
+  private readonly ISlamService _slamService = slamService ?? throw new ArgumentNullException(nameof(slamService));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<RealmListDto>), StatusCodes.Status200OK)]

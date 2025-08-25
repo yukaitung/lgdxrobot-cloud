@@ -23,7 +23,7 @@ public record SlamMapMetadata
   public double OriginRotation { get; set; }
 }
 
-public sealed partial class Slam : ComponentBase, IDisposable
+public partial class Slam : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

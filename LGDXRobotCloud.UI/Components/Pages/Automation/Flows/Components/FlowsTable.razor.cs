@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.Flows.Components;
 
-public sealed partial class FlowsTable : AbstractTable
+public partial class FlowsTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

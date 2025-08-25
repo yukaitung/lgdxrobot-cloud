@@ -9,7 +9,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.RobotCertificates;
 
-public sealed partial class RobotCertificateRenew
+public partial class RobotCertificateRenew
 {
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;

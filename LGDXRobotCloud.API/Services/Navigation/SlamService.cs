@@ -22,8 +22,8 @@ public class SlamService(
   IRobotService robotService
 ) : ISlamService
 {
-  private readonly ISlamDataRepository _slamDataRepository = slamDataRepository;
-  private readonly IRobotService _robotService = robotService;
+  private readonly ISlamDataRepository _slamDataRepository = slamDataRepository ?? throw new ArgumentNullException(nameof(slamDataRepository));
+  private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
 
   public async Task<bool> StartSlamAsync(Guid robotId)
   {

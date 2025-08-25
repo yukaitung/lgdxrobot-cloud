@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Identity;
 
-public sealed class UserDetailPasswordViewModel : FormViewModel, IValidatableObject
+public class UserDetailPasswordViewModel : FormViewModel, IValidatableObject
 {
   [Required (ErrorMessage = "Please enter a current password.")]
   public string CurrentPassword { get; set; } = null!;

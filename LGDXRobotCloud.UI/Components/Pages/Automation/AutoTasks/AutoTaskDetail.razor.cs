@@ -14,7 +14,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.AutoTasks;
 
-public sealed partial class AutoTaskDetail : ComponentBase, IDisposable
+public partial class AutoTaskDetail : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

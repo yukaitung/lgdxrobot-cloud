@@ -7,7 +7,7 @@ using static LGDXRobotCloud.UI.Client.Administration.Roles.RolesRequestBuilder;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.Roles.Components;
 
-public sealed partial class RolesTable : AbstractTable
+public partial class RolesTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

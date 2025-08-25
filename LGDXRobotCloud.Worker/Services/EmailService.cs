@@ -14,7 +14,7 @@ public interface IEmailService
   Task SendEmailAsync(EmailContract emailContract);
 }
 
-public sealed class EmailService (
+public class EmailService (
     IActivityLogService activityLogService,
     IOptionsSnapshot<EmailConfiguration> emailConfiguration,
     IOptionsSnapshot<EmailLinksConfiguration> emailLinksConfiguration,

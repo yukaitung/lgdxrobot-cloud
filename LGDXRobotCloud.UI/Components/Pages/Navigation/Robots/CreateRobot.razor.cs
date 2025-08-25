@@ -9,7 +9,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Robots;
 
-public sealed partial class CreateRobot
+public partial class CreateRobot
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

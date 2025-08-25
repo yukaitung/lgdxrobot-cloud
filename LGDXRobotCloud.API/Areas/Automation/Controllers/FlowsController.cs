@@ -19,13 +19,13 @@ namespace LGDXRobotCloud.API.Areas.Automation.Controllers;
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificateScheme)]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
-public sealed class FlowsController(
+public class FlowsController(
     IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration,
     IFlowService flowService
   ) : ControllerBase
 {
-  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value;
-  private readonly IFlowService _flowService = flowService;
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = lgdxRobotCloudConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobotCloudConfiguration));
+  private readonly IFlowService _flowService = flowService ?? throw new ArgumentNullException(nameof(flowService));
 
   [HttpGet("")]
   [ProducesResponseType(typeof(IEnumerable<FlowListDto>), StatusCodes.Status200OK)]
