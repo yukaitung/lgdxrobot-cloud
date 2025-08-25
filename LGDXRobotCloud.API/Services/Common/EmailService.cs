@@ -46,7 +46,7 @@ public sealed class EmailService(
 
   public async Task SendWelcomeEmailAsync(string recipientEmail, string recipientName, string userName)
   {
-    var EmailRequest = new EmailRequest
+    var EmailContract = new EmailContract
     {
       EmailType = EmailType.Welcome,
       Recipients = [new EmailRecipient
@@ -58,12 +58,12 @@ public sealed class EmailService(
         UserName = userName
       })
     };
-    await _bus.PublishAsync(EmailRequest);
+    await _bus.PublishAsync(EmailContract);
   }
 
   public async Task SendWellcomePasswordSetEmailAsync(string recipientEmail, string recipientName, string userName, string token)
   {
-    var EmailRequest = new EmailRequest
+    var EmailContract = new EmailContract
     {
       EmailType = EmailType.WelcomePasswordSet,
       Recipients = [new EmailRecipient
@@ -77,12 +77,12 @@ public sealed class EmailService(
         Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
       })
     };
-    await _bus.PublishAsync(EmailRequest);
+    await _bus.PublishAsync(EmailContract);
   }
 
   public async Task SendPasswordResetEmailAsync(string recipientEmail, string recipientName, string userName, string token)
   {
-    var EmailRequest = new EmailRequest
+    var EmailContract = new EmailContract
     {
       EmailType = EmailType.PasswordReset,
       Recipients = [new EmailRecipient
@@ -96,13 +96,13 @@ public sealed class EmailService(
         Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
       })
     };
-    await _bus.PublishAsync(EmailRequest);
+    await _bus.PublishAsync(EmailContract);
   }
 
   public async Task SendPasswordUpdateEmailAsync(string recipientEmail, string recipientName, string userName)
   {
     string currentTime = DateTime.Now.ToString(CultureInfo.CurrentCulture);
-    var EmailRequest = new EmailRequest
+    var EmailContract = new EmailContract
     {
       EmailType = EmailType.PasswordUpdate,
       Recipients = [new EmailRecipient
@@ -115,7 +115,7 @@ public sealed class EmailService(
         Time = currentTime
       })
     };
-    await _bus.PublishAsync(EmailRequest);
+    await _bus.PublishAsync(EmailContract);
   }
 
   public async Task SendRobotStuckEmailAsync(Guid robotId, double x, double y)
@@ -141,13 +141,13 @@ public sealed class EmailService(
       .FirstOrDefaultAsync();
     if (viewModel != null)
     {
-      var EmailRequest = new EmailRequest
+      var EmailContract = new EmailContract
       {
         EmailType = EmailType.RobotStuck,
         Recipients = recipients,
         Metadata = JsonSerializer.Serialize(viewModel)
       };
-      await _bus.PublishAsync(EmailRequest);
+      await _bus.PublishAsync(EmailContract);
     }
   }
 
@@ -176,13 +176,13 @@ public sealed class EmailService(
       .FirstOrDefaultAsync();
       if (viewModel != null)
       {
-        var EmailRequest = new EmailRequest
+        var EmailContract = new EmailContract
         {
           EmailType = EmailType.AutoTaskAbort,
           Recipients = recipients,
           Metadata = JsonSerializer.Serialize(viewModel)
         };
-        await _bus.PublishAsync(EmailRequest);
+        await _bus.PublishAsync(EmailContract);
       }
   }
 }

@@ -11,7 +11,7 @@ namespace LGDXRobotCloud.Worker.Services;
 
 public interface IEmailService
 {
-  Task SendEmailAsync(EmailRequest emailContract);
+  Task SendEmailAsync(EmailContract emailContract);
 }
 
 public sealed class EmailService (
@@ -26,7 +26,7 @@ public sealed class EmailService (
   private readonly EmailLinksConfiguration _emailLinksConfiguration = emailLinksConfiguration.Value ?? throw new ArgumentNullException(nameof(_emailLinksConfiguration));
   private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
 
-  private IEmailStrategy CreateEmailStrategy(EmailRequest emailContract)
+  private IEmailStrategy CreateEmailStrategy(EmailContract emailContract)
   {
     return emailContract.EmailType switch
     {
@@ -41,7 +41,7 @@ public sealed class EmailService (
     };
   }
 
-  public async Task SendEmailAsync(EmailRequest emailContract)
+  public async Task SendEmailAsync(EmailContract emailContract)
   {
     using var client = new SmtpClient();
     await client.ConnectAsync(_emailConfiguration.Host, _emailConfiguration.Port, _emailConfiguration.SecureSocketOptions);
@@ -54,7 +54,7 @@ public sealed class EmailService (
       await client.SendAsync(message);
     }
     await client.DisconnectAsync(true);
-    await _activityLogService.CreateActivityLogAsync(new ActivityLogRequest
+    await _activityLogService.CreateActivityLogAsync(new ActivityLogContract
     {
       EntityName = "Email",
       EntityId = ((int)emailContract.EmailType).ToString(),

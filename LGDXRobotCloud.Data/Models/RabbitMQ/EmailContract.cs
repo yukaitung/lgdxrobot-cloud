@@ -8,7 +8,7 @@ public record EmailRecipient
   public required string Name { get; set; }
 }
 
-public record EmailRequest
+public record EmailContract
 {
   public required EmailType EmailType { get; set; }
   public required IEnumerable<EmailRecipient> Recipients { get; set; }

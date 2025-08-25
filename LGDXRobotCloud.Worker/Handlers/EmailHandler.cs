@@ -7,7 +7,7 @@ public class EmailHandler(IEmailService emailService)
 {
   private readonly IEmailService _emailService = emailService;
 
-  public async ValueTask Handle(EmailRequest emailRequest)
+  public async ValueTask Handle(EmailContract emailRequest)
   {
     await _emailService.SendEmailAsync(emailRequest);
   }

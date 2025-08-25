@@ -262,7 +262,7 @@ public sealed class TriggerService (
         bodyDictionary.Add("NextToken", autoTask.NextToken);
       }
 
-      await _bus.PublishAsync(new AutoTaskTriggerRequest
+      await _bus.PublishAsync(new AutoTaskTriggerContract
       {
         Trigger = trigger,
         Body = bodyDictionary,
@@ -288,7 +288,7 @@ public sealed class TriggerService (
     var bodyDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(body ?? "{}");
     if (bodyDictionary != null)
     {
-      await _bus.PublishAsync(new AutoTaskTriggerRequest {
+      await _bus.PublishAsync(new AutoTaskTriggerContract {
         Trigger = trigger,
         Body = bodyDictionary,
         AutoTaskId = autoTask.Id,

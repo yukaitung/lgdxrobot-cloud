@@ -374,7 +374,7 @@ public class TriggerServiceTests
     };
     var flowDetail = flowDetails.Where(t => t.Id == 1).FirstOrDefault();
     var triggerService = new TriggerService(mockActivityLogService.Object, mockApiKeyService.Object, mockBus.Object, lgdxContext);
-    var busParam = new List<AutoTaskTriggerRequest>();
+    var busParam = new List<AutoTaskTriggerContract>();
     //mockBus.Setup(m => m.PublishAsync(Capture.In(busParam), It.IsAny<CancellationToken>()));
     Dictionary<string, string> expected = new() {
       { "AutoTaskId", task.Id.ToString() },
@@ -392,7 +392,7 @@ public class TriggerServiceTests
     await triggerService.InitialiseTriggerAsync(task!, flowDetail!);
 
     // Assert
-    //mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskTriggerRequest>(), It.IsAny<CancellationToken>()), Times.Once());
+    //mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskTriggerContract>(), It.IsAny<CancellationToken>()), Times.Once());
     Assert.Single(busParam);
     Assert.All(busParam[0].Body, a => {
       Assert.True(expected.ContainsKey(a.Key));
@@ -423,7 +423,7 @@ public class TriggerServiceTests
     await triggerService.InitialiseTriggerAsync(task!, flowDetail!);
 
     // Assert
-    mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskTriggerRequest>(), It.IsAny<CancellationToken>()), Times.Never());
+    mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskTriggerContract>(), It.IsAny<CancellationToken>()), Times.Never());
   }
 
   [Fact]
@@ -443,6 +443,6 @@ public class TriggerServiceTests
     await triggerService.RetryTriggerAsync(task!, trigger!, "{}");
 
     // Assert
-    mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskTriggerRequest>(), It.IsAny<CancellationToken>()), Times.Once());
+    mockBus.Verify(m => m.Publish(It.IsAny<AutoTaskTriggerContract>(), It.IsAny<CancellationToken>()), Times.Once());
   }*/
 }

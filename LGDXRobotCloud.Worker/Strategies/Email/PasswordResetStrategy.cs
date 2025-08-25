@@ -9,12 +9,12 @@ using MimeKit;
 namespace LGDXRobotCloud.Worker.Strategies.Email;
 
 public class PasswordResetStrategy(
-    EmailRequest emailContract,
+    EmailContract emailContract,
     EmailLinksConfiguration emailLinksConfiguration,
     HtmlRenderer htmlRenderer
   ) : IEmailStrategy
 {
-  private readonly EmailRequest _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
+  private readonly EmailContract _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
   private readonly EmailLinksConfiguration _emailLinksConfiguration = emailLinksConfiguration ?? throw new ArgumentNullException(nameof(emailLinksConfiguration));
   private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
   protected readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };

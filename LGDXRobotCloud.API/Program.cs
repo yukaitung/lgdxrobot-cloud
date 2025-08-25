@@ -62,15 +62,15 @@ builder.UseWolverine(cfg =>
 	cfg.UseRabbitMq(new Uri(builder.Configuration["RabbitMq:ConnectionString"]!))
 		.UseSenderConnectionOnly()
 		.AutoProvision();
-	cfg.PublishMessage<ActivityLogRequest>().ToRabbitExchange("activity-logs-exchange", e =>
+	cfg.PublishMessage<ActivityLogContract>().ToRabbitExchange("activity-logs-exchange", e =>
 	{
 		e.BindQueue("activity-logs-queue", "activity-exchange-queue");
 	});
-	cfg.PublishMessage<EmailRequest>().ToRabbitExchange("email-exchange", e =>
+	cfg.PublishMessage<EmailContract>().ToRabbitExchange("email-exchange", e =>
 	{
 		e.BindQueue("email-queue", "email-exchange-queue");
 	});
-	cfg.PublishMessage<AutoTaskTriggerRequest>().ToRabbitExchange("auto-task-trigger-exchange", e =>
+	cfg.PublishMessage<AutoTaskTriggerContract>().ToRabbitExchange("auto-task-trigger-exchange", e =>
 	{
 		e.BindQueue("auto-task-trigger-queue", "auto-task-trigger-exchange-queue");
 	});

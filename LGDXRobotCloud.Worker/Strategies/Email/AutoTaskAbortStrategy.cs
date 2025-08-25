@@ -8,11 +8,11 @@ using MimeKit;
 namespace LGDXRobotCloud.Worker.Strategies.Email;
 
 public class AutoTaskAbortStrategy(
-    EmailRequest emailContract,
+    EmailContract emailContract,
     HtmlRenderer htmlRenderer
   ) : IEmailStrategy
 {
-  private readonly EmailRequest _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
+  private readonly EmailContract _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
   private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
   protected readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
 

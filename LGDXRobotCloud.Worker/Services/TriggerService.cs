@@ -12,7 +12,7 @@ namespace LGDXRobotCloud.Worker.Services;
 
 public interface ITriggerService
 {
-  Task TriggerAsync(AutoTaskTriggerRequest autoTaskTriggerContract);
+  Task TriggerAsync(AutoTaskTriggerContract autoTaskTriggerContract);
 }
 
 public class TriggerService(
@@ -26,7 +26,7 @@ public class TriggerService(
   private readonly HttpClient _httpClient = httpClient;
 
   // Do not add to activity log, this will generate a lot of logs
-  public async Task TriggerAsync(AutoTaskTriggerRequest autoTaskTriggerContract)
+  public async Task TriggerAsync(AutoTaskTriggerContract autoTaskTriggerContract)
   {
     var trigger = autoTaskTriggerContract.Trigger;
     var body = autoTaskTriggerContract.Body;
@@ -108,7 +108,7 @@ public class TriggerService(
         .ToListAsync();
       if (recipients != null && recipients.Count >= 0)
       {
-        await _emailService.SendEmailAsync(new EmailRequest
+        await _emailService.SendEmailAsync(new EmailContract
         {
           EmailType = EmailType.TriggerFailed,
           Recipients = recipients,

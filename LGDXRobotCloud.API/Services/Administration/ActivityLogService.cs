@@ -123,7 +123,7 @@ public class ActivityLogService(
     var httpContext = _httpContextAccessor.HttpContext;
     var userId = httpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     var apiKeyId = httpContext?.Items["ApiKeyId"] as int?;
-    await _bus.PublishAsync(new ActivityLogRequest
+    await _bus.PublishAsync(new ActivityLogContract
     {
       EntityName = activityLogCreateBusinessModel.EntityName,
       EntityId = activityLogCreateBusinessModel.EntityId,

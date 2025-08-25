@@ -7,7 +7,7 @@ public class AutoTaskTriggerHandler(ITriggerService triggerService)
 {
   private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
 
-  public async Task Handle(AutoTaskTriggerRequest autoTaskTriggerRequest)
+  public async Task Handle(AutoTaskTriggerContract autoTaskTriggerRequest)
   {
     await _triggerService.TriggerAsync(autoTaskTriggerRequest);
   }
