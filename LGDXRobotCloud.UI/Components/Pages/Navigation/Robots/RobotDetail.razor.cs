@@ -113,6 +113,11 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
     Timer?.Change(0, 500);
   }
 
+  private void TimerStartLong()
+  {
+    Timer?.Change(0, 3000);
+  }
+
   private void TimerStop()
   {
     Timer?.Change(Timeout.Infinite, Timeout.Infinite);
@@ -127,8 +132,12 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
     {
       RobotData = rd;
       await InvokeAsync(StateHasChanged);
+      TimerStart();
     }
-    TimerStart();
+    else
+    {
+      TimerStartLong();
+    }
   }
 
   private async void OnAutoTaskUpdated(AutoTaskUpdate autoTaskUpdate)

@@ -42,6 +42,11 @@ public partial class Robots : ComponentBase, IDisposable
     Timer?.Change(0, 500);
   }
 
+  private void TimerStartLong()
+  {
+    Timer?.Change(0, 3000);
+  }
+
   private void TimerStop()
   {
     Timer?.Change(Timeout.Infinite, Timeout.Infinite);
@@ -134,7 +139,14 @@ public partial class Robots : ComponentBase, IDisposable
     List<Guid> robotIds = [.. RobotsList.Where(x => x.Id != null).Select(x => x.Id!.Value)];
     RobotsData = await RobotDataService.GetRobotDataFromListAsync(RealmId, robotIds);
     await InvokeAsync(StateHasChanged);
-    TimerStart();
+    if (RobotsList.Count > 0)
+    {
+      TimerStart();
+    }
+    else
+    {
+      TimerStartLong();
+    }
   }
 
   protected override async Task OnInitializedAsync()

@@ -52,6 +52,11 @@ public partial class Map : ComponentBase, IAsyncDisposable
     Timer?.Change(0, 500);
   }
 
+  private void TimerStartLong()
+  {
+    Timer?.Change(0, 3000);
+  }
+
   private void TimerStop()
   {
     Timer?.Change(Timeout.Infinite, Timeout.Infinite);
@@ -159,8 +164,12 @@ public partial class Map : ComponentBase, IAsyncDisposable
       {
         // Ignore
       }
+      TimerStart();
     }
-    TimerStart();
+    else
+    {
+      TimerStartLong();
+    }
   }
 
   protected override async Task OnInitializedAsync() 
