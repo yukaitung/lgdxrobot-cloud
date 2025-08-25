@@ -39,7 +39,7 @@ public partial class RobotDataService(
     }
     catch (Exception ex)
     {
-      if (!ex.Message.Contains("Unknown index name", StringComparison.CurrentCultureIgnoreCase))
+      if (!ex.Message.Contains("No such index", StringComparison.CurrentCultureIgnoreCase))
       {
         LogException(ex.Message);
       }

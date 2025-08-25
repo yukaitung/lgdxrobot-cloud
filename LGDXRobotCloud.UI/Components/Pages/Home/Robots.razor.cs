@@ -37,14 +37,14 @@ public partial class Robots : ComponentBase, IDisposable
   private string DataSearch { get; set; } = string.Empty;
   private string LastDataSearch { get; set; } = string.Empty;
 
-  private void TimerStart()
+  private void TimerStart(int delay = 500)
   {
-    Timer?.Change(0, 500);
+    Timer?.Change(delay, 500);
   }
 
   private void TimerStartLong()
   {
-    Timer?.Change(0, 3000);
+    Timer?.Change(3000, 3000);
   }
 
   private void TimerStop()
@@ -127,7 +127,7 @@ public partial class Robots : ComponentBase, IDisposable
     });
     RobotsList = robots;
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
-    TimerStart();
+    TimerStart(0);
   }
 
   private async Task OnRobotDataUpdated()

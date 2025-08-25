@@ -45,7 +45,7 @@ services:
       - ./certs/app.pfx:/App/app.pfx
       - ./certs/rootCA.crt:/etc/ssl/certs/rootCA.crt
       - ./certs/rootCA.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/rootCA.pfx
-      - ./certs/redis_client.crt:/root/.dotnet/corefx/cryptography/x509stores/my/redis_client.pfx
+      - ./certs/redis_client.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/redis_client.pfx
     depends_on:
       - postgres
       - rabbitmq
@@ -63,7 +63,7 @@ services:
     volumes:
       - ./appsettings.ui.json:/App/appsettings.json
       - ./certs/ui.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/ui.pfx
-      - ./certs/redis_client.crt:/root/.dotnet/corefx/cryptography/x509stores/my/redis_client.pfx
+      - ./certs/redis_client.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/redis_client.pfx
       - ./certs/app.pfx:/App/app.pfx
       - ./certs/rootCA.crt:/etc/ssl/certs/rootCA.crt
     depends_on:

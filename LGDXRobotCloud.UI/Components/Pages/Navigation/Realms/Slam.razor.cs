@@ -51,9 +51,9 @@ public partial class Slam : ComponentBase, IDisposable
   private SlamMode SlamMode { get; set; } = SlamMode.Normal;
   private SlamMapMetadata SlamMapMetadata { get; set; } = new SlamMapMetadata();
 
-  private void TimerStart()
+  private void TimerStart(int delay = 200)
   {
-    Timer?.Change(0, 200);
+    Timer?.Change(delay, 200);
   }
 
   private void TimerStop()
@@ -210,7 +210,7 @@ public partial class Slam : ComponentBase, IDisposable
           }
           TimerStart();
         }, null, Timeout.Infinite, Timeout.Infinite);
-        TimerStart();
+        TimerStart(0);
       }
     }
     await base.OnAfterRenderAsync(firstRender);

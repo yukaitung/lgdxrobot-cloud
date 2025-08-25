@@ -47,14 +47,14 @@ public partial class Map : ComponentBase, IAsyncDisposable
   private Dictionary<Guid, RobotData> RobotsData { get; set; } = [];
   private AutoTaskListDto? CurrentTask { get; set; }
 
-  private void TimerStart()
+  private void TimerStart(int delay = 500)
   {
-    Timer?.Change(0, 500);
+    Timer?.Change(delay, 500);
   }
 
   private void TimerStartLong()
   {
-    Timer?.Change(0, 3000);
+    Timer?.Change(3000, 3000);
   }
 
   private void TimerStop()
@@ -166,10 +166,7 @@ public partial class Map : ComponentBase, IAsyncDisposable
       }
       TimerStart();
     }
-    else
-    {
-      TimerStartLong();
-    }
+    TimerStartLong();
   }
 
   protected override async Task OnInitializedAsync() 
@@ -193,7 +190,7 @@ public partial class Map : ComponentBase, IAsyncDisposable
       {
         await OnRobotDataUpdated();
       }, null, Timeout.Infinite, Timeout.Infinite);
-      TimerStart();
+      TimerStart(0);
     }
     await base.OnAfterRenderAsync(firstRender);
   }
