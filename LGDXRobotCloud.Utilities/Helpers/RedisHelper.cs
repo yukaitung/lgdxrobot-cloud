@@ -32,11 +32,6 @@ public static class RedisHelper
     return $"robotExchangeQueue:{robotId}";
   }
 
-  public static string GetSlamRobot(int realmId)
-  {
-    return $"slamRobot:{realmId}";
-  }
-
   public static string GetSlamData(int realmId)
   {
     return $"robotSlamData:{realmId}";

@@ -15,7 +15,7 @@ public interface IAutoTaskRepository
   Task<Guid?> SchedulerHoldAnyRobotAsync(int realmId);
   Task<bool> SchedulerHoldRobotAsync(int realmId, Guid robotId);
   Task SchedulerReleaseRobotAsync(int realmId, Guid robotId);
-  Task<bool> AddAutoTaskAsync(int realmId, Guid robotId, RobotClientsAutoTask autoTask);
+  Task AddAutoTaskAsync(int realmId, Guid robotId, RobotClientsAutoTask autoTask);
   Task AutoTaskHasUpdateAsync(int realmId, AutoTaskUpdate autoTaskUpdate);
 }
 
@@ -63,17 +63,12 @@ public class AutoTaskRepository(
     await db.KeyDeleteAsync(RedisHelper.GetSchedulerHold(realmId, robotId));
   }
 
-  public async Task<bool> AddAutoTaskAsync(int realmId, Guid robotId, RobotClientsAutoTask autoTask)
+  public async Task AddAutoTaskAsync(int realmId, Guid robotId, RobotClientsAutoTask autoTask)
   {
-    var db = _redisConnection.GetDatabase();
-    if (!await db.KeyExistsAsync(RedisHelper.GetRobotData(realmId, robotId)))
-      return false;
-
     var subscriber = _redisConnection.GetSubscriber();
     var data = new RobotClientsResponse { Task = autoTask };
     var base64 = SerialiserHelper.ToBase64(data);
     await subscriber.PublishAsync(new RedisChannel(RedisHelper.GetRobotExchangeQueue(robotId), PatternMode.Literal), base64);
-    return true;
   }
 
   public async Task AutoTaskHasUpdateAsync(int realmId, AutoTaskUpdate autoTaskUpdate)

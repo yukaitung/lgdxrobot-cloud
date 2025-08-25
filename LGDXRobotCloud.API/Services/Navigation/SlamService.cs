@@ -20,12 +20,12 @@ public interface ISlamService
 
 public class SlamService(
   IBus bus,
-  IRobotDataRepository robotDataRepository,
+  ISlamDataRepository slamDataRepository,
   IRobotService robotService
 ) : ISlamService
 {
   private readonly IBus _bus = bus;
-  private readonly IRobotDataRepository _robotDataRepository = robotDataRepository;
+  private readonly ISlamDataRepository _slamDataRepository = slamDataRepository;
   private readonly IRobotService _robotService = robotService;
 
   static SlamStatus ConvertSlamStatus(RobotClientsSlamStatus slamStatus)
@@ -43,13 +43,13 @@ public class SlamService(
   public async Task<bool> StartSlamAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    return await _robotDataRepository.StartSlamAsync(realmId, robotId);
+    return await _slamDataRepository.StartSlamAsync(realmId, robotId);
   }
 
   public async Task StopSlamAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    await _robotDataRepository.StopSlamAsync(realmId, robotId);
+    await _slamDataRepository.StopSlamAsync(realmId, robotId);
   }
 
   public async Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData? mapData)
@@ -80,11 +80,11 @@ public class SlamService(
       SlamStatus = slamStatus,
       MapData = map
     };
-    await _robotDataRepository.SetSlamExchangeAsync(realmId, data);
+    await _slamDataRepository.SetSlamExchangeAsync(realmId, data);
   }
 
   public async Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands)
   {
-    return await _robotDataRepository.AddSlamCommandAsync(realmId, commands);
+    return await _slamDataRepository.AddSlamCommandAsync(realmId, commands);
   }
 }

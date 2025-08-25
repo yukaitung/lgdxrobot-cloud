@@ -1,6 +1,7 @@
 using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Helpers;
+using NRedisStack;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Literals.Enums;
@@ -16,16 +17,9 @@ public interface IRobotDataRepository
   Task StopExchangeAsync(int realmId, Guid robotId);
 
   Task<RobotData?> GetRobotDataAsync(int realmId, Guid robotId);
-  Task<bool> SetRobotDataAsync(int realmId, Guid robotId, RobotData data);
+  Task SetRobotDataAsync(int realmId, Guid robotId, RobotData data);
 
   Task<bool> AddRobotCommandAsync(int realmId, Guid robotId, RobotClientsRobotCommands cmd);
-  
-  // Slam
-  Task<bool> StartSlamAsync(int realmId, Guid robotId);
-  Task StopSlamAsync(int realmId, Guid robotId);
-  Task<bool> SetSlamExchangeAsync(int realmId, SlamData exchange);
-
-  Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands);
 }
 
 public class RobotDataRepository(
@@ -79,6 +73,7 @@ public class RobotDataRepository(
     }
 
     await db.JSON().SetAsync(RedisHelper.GetRobotData(realmId, robotId), "$", new RobotData());
+    await db.KeyExpireAsync(RedisHelper.GetRobotData(realmId, robotId), TimeSpan.FromMinutes(5));
   }
 
   public async Task StopExchangeAsync(int realmId, Guid robotId)
@@ -93,61 +88,23 @@ public class RobotDataRepository(
     return await db.JSON().GetAsync<RobotData>(RedisHelper.GetRobotData(realmId, robotId));
   }
 
-  public async Task<bool> SetRobotDataAsync(int realmId, Guid robotId, RobotData data)
+  public async Task SetRobotDataAsync(int realmId, Guid robotId, RobotData data)
   {
     var db = _redisConnection.GetDatabase();
-    return await db.JSON().SetAsync(RedisHelper.GetRobotData(realmId, robotId), "$", data);
+    var pipeline = new Pipeline(db);
+    List<Task> tasks = [];
+    tasks.Add(pipeline.Json.SetAsync(RedisHelper.GetRobotData(realmId, robotId), "$", data));
+    tasks.Add(db.KeyExpireAsync(RedisHelper.GetRobotData(realmId, robotId), TimeSpan.FromMinutes(5)));
+    pipeline.Execute();
+    await Task.WhenAll(tasks);
   }
 
   public async Task<bool> AddRobotCommandAsync(int realmId, Guid robotId, RobotClientsRobotCommands cmd)
   {
-    var db = _redisConnection.GetDatabase();
-    if (!await db.KeyExistsAsync(RedisHelper.GetRobotData(realmId, robotId)))
-      return false;
-
     var subscriber = _redisConnection.GetSubscriber();
     var data = new RobotClientsResponse { Commands = cmd };
     var base64 = SerialiserHelper.ToBase64(data);
     await subscriber.PublishAsync(new RedisChannel(RedisHelper.GetRobotExchangeQueue(robotId), PatternMode.Literal), base64);
-    return true;
-  }
-
-  public async Task<bool> StartSlamAsync(int realmId, Guid robotId)
-  {
-    var db = _redisConnection.GetDatabase();
-    bool result = await db.HashSetAsync(RedisHelper.GetSlamRobot(realmId), "RobotId", robotId.ToString(), When.NotExists);
-    if (!result)
-    {
-      // Only one robot can running SLAM at a time
-      return false;
-    }
-    await StartExchangeAsync(realmId, robotId);
-    return true;
-  }
-
-  public async Task StopSlamAsync(int realmId, Guid robotId)
-  {
-    var db = _redisConnection.GetDatabase();
-    await db.KeyDeleteAsync(RedisHelper.GetSlamRobot(realmId));
-    await StopExchangeAsync(realmId, robotId);
-  }
-
-  public async Task<bool> SetSlamExchangeAsync(int realmId, SlamData exchange)
-  {
-    var db = _redisConnection.GetDatabase();
-    if (!await db.KeyExistsAsync(RedisHelper.GetSlamRobot(realmId)))
-      return false;
-    return await db.JSON().SetAsync(RedisHelper.GetSlamData(realmId), "$", exchange);
-  }
-
-  public async Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands)
-  {
-    var db = _redisConnection.GetDatabase();
-    if (!await db.KeyExistsAsync(RedisHelper.GetSlamRobot(realmId)))
-      return false;
-    var subscriber = _redisConnection.GetSubscriber();
-    var base64 = SerialiserHelper.ToBase64(commands);
-    await subscriber.PublishAsync(new RedisChannel(RedisHelper.GetSlamExchangeQueue(realmId), PatternMode.Literal), base64);
     return true;
   }
 }
