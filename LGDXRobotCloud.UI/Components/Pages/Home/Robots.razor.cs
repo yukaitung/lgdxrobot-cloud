@@ -1,4 +1,4 @@
-using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
 using LGDXRobotCloud.UI.Helpers;
@@ -9,16 +9,16 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home;
 
-public sealed partial class Robots : ComponentBase, IDisposable
+public partial class Robots : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Inject]
-  public required IRealTimeService RealTimeService { get; set; }
+  public required ICachedRealmService CachedRealmService { get; set; }
 
   [Inject]
-  public required ICachedRealmService CachedRealmService { get; set; }
+  public required IRobotDataService RobotDataService { get; set; }
 
   [Inject]
   public required ITokenService TokenService { get; set; }
@@ -26,13 +26,10 @@ public sealed partial class Robots : ComponentBase, IDisposable
   [Inject]
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
-  [Inject]
-  public required IRobotDataService RobotDataService { get; set; }
-
+  private Timer? Timer = null;
   private int RealmId { get; set; }
-  private string RealmName { get; set; } = string.Empty;
   private List<RobotListDto>? RobotsList { get; set; }
-  private Dictionary<Guid, RobotDataContract?> RobotsData { get; set; } = [];
+  private Dictionary<Guid, RobotData?> RobotsData { get; set; } = [];
 
   private PaginationHelper? PaginationHelper { get; set; }
   private int CurrentPage { get; set; } = 1;
@@ -40,30 +37,19 @@ public sealed partial class Robots : ComponentBase, IDisposable
   private string DataSearch { get; set; } = string.Empty;
   private string LastDataSearch { get; set; } = string.Empty;
 
-  private void SetRobotsData(IEnumerable<RobotListDto>? robots)
+  private void TimerStart()
   {
-    RobotsData.Clear();
-    if (robots == null)
-    {
-      return;
-    }
-    foreach (var robot in robots)
-    {
-      Guid robotId = (Guid)robot.Id!;
-      var robotData = RobotDataService.GetRobotData(robotId, RealmId);
-      if (robotData != null)
-      {
-        RobotsData[robotId] = robotData;
-      }
-      else
-      {
-        RobotsData[robotId] = new RobotDataContract
-        {
-          RobotId = robotId,
-          RealmId = RealmId
-        };
-      }
-    }
+    Timer?.Change(0, 500);
+  }
+
+  private void TimerStartLong()
+  {
+    Timer?.Change(0, 3000);
+  }
+
+  private void TimerStop()
+  {
+    Timer?.Change(Timeout.Infinite, Timeout.Infinite);
   }
 
   public async Task HandleSearch()
@@ -83,7 +69,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
         PageSize = PageSize
       };
     });
-    SetRobotsData(robots);
     RobotsList = robots;
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
     LastDataSearch = DataSearch;
@@ -118,7 +103,6 @@ public sealed partial class Robots : ComponentBase, IDisposable
         PageSize = PageSize
       };
     });
-    SetRobotsData(robots);
     RobotsList = robots;
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
   }
@@ -128,6 +112,7 @@ public sealed partial class Robots : ComponentBase, IDisposable
     if (deleteOpt && CurrentPage > 1 && RobotsList?.Count == 1)
       CurrentPage--;
 
+    TimerStop();
     var headersInspectionHandlerOption = HeaderHelper.GenrateHeadersInspectionHandlerOption();
     var robots = await LgdxApiClient.Navigation.Robots.GetAsync(x =>
     {
@@ -140,25 +125,27 @@ public sealed partial class Robots : ComponentBase, IDisposable
         PageSize = PageSize
       };
     });
-    SetRobotsData(robots);
     RobotsList = robots;
     PaginationHelper = HeaderHelper.GetPaginationHelper(headersInspectionHandlerOption);
+    TimerStart();
   }
 
-  private async void OnRobotDataUpdated(object? sender, RobotUpdatEventArgs updatEventArgs)
+  private async Task OnRobotDataUpdated()
   {
-    var robotId = updatEventArgs.RobotId;
-    if (updatEventArgs.RealmId != RealmId && !RobotsData.ContainsKey(robotId))
+    if (RobotsList == null)
       return;
 
-    var robotData = RobotDataService.GetRobotData(robotId, RealmId);
-    if (robotData != null)
+    TimerStop();
+    List<Guid> robotIds = [.. RobotsList.Where(x => x.Id != null).Select(x => x.Id!.Value)];
+    RobotsData = await RobotDataService.GetRobotDataFromListAsync(RealmId, robotIds);
+    await InvokeAsync(StateHasChanged);
+    if (RobotsList.Count > 0)
     {
-      RobotsData[robotId] = robotData;
-      await InvokeAsync(() =>
-      {
-        StateHasChanged();
-      });
+      TimerStart();
+    }
+    else
+    {
+      TimerStartLong();
     }
   }
 
@@ -167,15 +154,17 @@ public sealed partial class Robots : ComponentBase, IDisposable
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     RealmId = settings.CurrentRealmId;
-    RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    Timer = new Timer(async (state) =>
+    {
+      await OnRobotDataUpdated();
+    }, null, Timeout.Infinite, Timeout.Infinite);
     await Refresh();
-    RealTimeService.RobotDataUpdated += OnRobotDataUpdated;
     await base.OnInitializedAsync();
   }
 
   public void Dispose()
   {
-    RealTimeService.RobotDataUpdated -= OnRobotDataUpdated;
+    Timer?.Dispose();
     GC.SuppressFinalize(this);
   }
 }

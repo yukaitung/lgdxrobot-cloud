@@ -1,7 +1,7 @@
 using System.Text.Json;
-using LGDXRobotCloud.Data.Contracts;
-using LGDXRobotCloud.Worker.Configurations;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Worker.Components;
+using LGDXRobotCloud.Worker.Configurations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MimeKit;

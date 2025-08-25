@@ -11,7 +11,7 @@ public enum LoginViewModelState
   TwoFactorRecoveryCode = 2,
 }
 
-public sealed class LoginViewModel : FormViewModel, IValidatableObject
+public class LoginViewModel : FormViewModel, IValidatableObject
 {
   private const int _twoFactorCodeLength = 6;
 

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components;
 
-public sealed partial class RobotsTable : AbstractTable
+public partial class RobotsTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

@@ -7,7 +7,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.TriggerRetries;
 
-public sealed partial class TriggerRetryDetail : ComponentBase
+public partial class TriggerRetryDetail : ComponentBase
 {
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;

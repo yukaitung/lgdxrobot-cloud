@@ -1,6 +1,6 @@
 using LGDXRobotCloud.Data.Entities;
 
-namespace LGDXRobotCloud.Data.Contracts;
+namespace LGDXRobotCloud.Data.Models.RabbitMQ;
 
 public record AutoTaskTriggerContract
 {

@@ -11,7 +11,7 @@ using Net.Codecrete.QrCodeGenerator;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Identity.User;
 
-public sealed partial class UserDetail : ComponentBase
+public partial class UserDetail : ComponentBase
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

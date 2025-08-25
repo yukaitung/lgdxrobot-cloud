@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   postgres:
     image: postgres:latest
@@ -19,6 +18,18 @@ services:
       - 15672:15672
     restart: always
 
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    restart: always
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./certs/rootCA.crt:/certs/rootCA.crt
+      - ./certs/redis_server.crt:/certs/redis_server.crt
+      - ./certs/redis_server.key:/certs/redis_server.key
+
   api:
     image: yukaitung/lgdxrobotcloud.api
     ports:
@@ -34,9 +45,11 @@ services:
       - ./certs/app.pfx:/App/app.pfx
       - ./certs/rootCA.crt:/etc/ssl/certs/rootCA.crt
       - ./certs/rootCA.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/rootCA.pfx
+      - ./certs/redis_client.crt:/root/.dotnet/corefx/cryptography/x509stores/my/redis_client.pfx
     depends_on:
       - postgres
       - rabbitmq
+      - redis
 
   ui:
     image: yukaitung/lgdxrobotcloud.ui
@@ -50,11 +63,13 @@ services:
     volumes:
       - ./appsettings.ui.json:/App/appsettings.json
       - ./certs/ui.pfx:/root/.dotnet/corefx/cryptography/x509stores/my/ui.pfx
+      - ./certs/redis_client.crt:/root/.dotnet/corefx/cryptography/x509stores/my/redis_client.pfx
       - ./certs/app.pfx:/App/app.pfx
       - ./certs/rootCA.crt:/etc/ssl/certs/rootCA.crt
     depends_on:
       - api
       - rabbitmq
+      - redis
 
   worker:
     image: yukaitung/lgdxrobotcloud.worker

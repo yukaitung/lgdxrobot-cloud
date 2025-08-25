@@ -10,7 +10,7 @@ using static LGDXRobotCloud.UI.Client.Administration.ActivityLogs.ActivityLogsRe
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components;
 
-public sealed partial class ActivityLogsTable : AbstractTable
+public partial class ActivityLogsTable : AbstractTable
 {
   [Inject]
   public required ITokenService TokenService { get; set; }

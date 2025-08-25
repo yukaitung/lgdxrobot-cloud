@@ -1,12 +1,12 @@
+using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace LGDXRobotCloud.API.Services.Automation;
@@ -17,7 +17,7 @@ public interface IAutoTaskSchedulerService
   Task RunSchedulerRobotNewJoinAsync(Guid robotId);
   Task<bool> RunSchedulerRobotReadyAsync(Guid robotId);
 
-  void ReleaseRobot(Guid robotId);
+  Task ReleaseRobotAsync(Guid robotId);
 
   Task AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason);
   Task<bool> AutoTaskAbortApiAsync(int taskId);
@@ -27,25 +27,21 @@ public interface IAutoTaskSchedulerService
 
 public class AutoTaskSchedulerService(
     IAutoTaskPathPlannerService autoTaskPathPlanner,
-    IBus bus,
+    IAutoTaskRepository autoTaskRepository,
     IEmailService emailService,
-    IEventService eventService,
     IOnlineRobotsService onlineRobotsService,
-    IRobotDataService robotDataService,
     IRobotService robotService,
     ITriggerService triggerService,
     LgdxContext context
   ) : IAutoTaskSchedulerService
 {
-  private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner;
-  private readonly IBus _bus = bus;
-  private readonly IEmailService _emailService = emailService;
-  private readonly IEventService _eventService = eventService;
-  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService;
-  private readonly IRobotDataService _robotDataService = robotDataService;
-  private readonly IRobotService _robotService = robotService;
-  private readonly ITriggerService _triggerService = triggerService;
-  private readonly LgdxContext _context = context;
+  private readonly IAutoTaskPathPlannerService _autoTaskPathPlanner = autoTaskPathPlanner ?? throw new ArgumentNullException(nameof(autoTaskPathPlanner));
+  private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
+  private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+  private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
+  private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
+  private readonly ITriggerService _triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
+  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   private async Task AddAutoTaskJourney(AutoTask autoTask)
   {
@@ -79,7 +75,9 @@ public class AutoTaskSchedulerService(
           .Select(r => r.Name)
           .FirstOrDefaultAsync();
       }
-      await _bus.Publish(new AutoTaskUpdateContract
+
+      // Send the updated to the Redis queue
+      var data = new AutoTaskUpdate
       {
         Id = task.Id,
         Name = task.Name,
@@ -91,7 +89,8 @@ public class AutoTaskSchedulerService(
         AssignedRobotName = robotName,
         CurrentProgressId = task.CurrentProgressId,
         CurrentProgressName = progress!.Name,
-      });
+      };
+      await _autoTaskRepository.AutoTaskHasUpdateAsync(task.RealmId, data);
     }
 
     if (task.CurrentProgressId == (int)ProgressState.Completed || task.CurrentProgressId == (int)ProgressState.Aborted)
@@ -148,84 +147,28 @@ public class AutoTaskSchedulerService(
     };
   }
 
-  private void SetAutoTask(Guid robotId, RobotClientsAutoTask autoTask)
-  {
-    _robotDataService.SetAutoTasks(robotId, autoTask);
-    _eventService.RobotHasNextTaskTriggered(robotId);
-  }
-
-  private async Task FindRobotLoop(int realmId)
-  {
-    var onlineRobotsIds = _robotDataService.GetOnlineRobots(realmId);
-    // Find any robot that is idle
-    foreach (var robotId in onlineRobotsIds)
-    {
-      if (_robotDataService.AutoTaskSchedulerHoldRobot(realmId, robotId))
-      {
-        var robotData = _robotDataService.GetRobotData(robotId);
-        if (robotData != null)
-        {
-          if (robotData.RobotStatus == RobotClientsRobotStatus.Idle &&
-                !_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
-          {
-            // A robot is available for the task, ask it to obatin the task
-            await RunSchedulerRobotReadyAsync(robotId);
-            // Release the robot when it obtains the task
-            return;
-          }
-          else
-          {
-            // The robot is paused, release it and continue
-            _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
-          }
-        }
-      }
-    }
-  }
-
-  private async Task FindRobotSingle(int realmId, Guid robotId)
-  {
-    var onlineRobotsIds = _robotDataService.GetOnlineRobots(realmId);
-    if (!onlineRobotsIds.Contains(robotId))
-    {
-      // The specified robot is offline, stop the scheduler
-      return;
-    }
-    
-    if (_robotDataService.AutoTaskSchedulerHoldRobot(realmId, robotId))
-    {
-      var robotData = _robotDataService.GetRobotData(robotId);
-      if (robotData != null)
-      {
-        if (robotData.RobotStatus == RobotClientsRobotStatus.Idle &&
-              !_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
-        {
-          // A robot is available for the task, ask it to obatin the task
-          await RunSchedulerRobotReadyAsync(robotId);
-          // Release the robot when it obtains the task
-          return;
-        }
-        else
-        {
-          // The robot is paused, release it and continue
-          _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
-        }
-      }
-    }
-  }
-
   public async Task RunSchedulerNewAutoTaskAsync(int realmId, Guid? robotId)
   {
-    if (robotId != null)
+    // Find any robot that is idle
+    if (robotId == null)
     {
-      await FindRobotSingle(realmId, robotId.Value);
+      robotId = await _autoTaskRepository.SchedulerHoldAnyRobotAsync(realmId);
+      if (robotId != null)
+      {
+        await RunSchedulerRobotReadyAsync(robotId.Value);
+        // Release the robot when it obtains the task
+      }
     }
     else
     {
-      await FindRobotLoop(realmId);
+      if (await _autoTaskRepository.SchedulerHoldRobotAsync(realmId, robotId.Value))
+      {
+        await RunSchedulerRobotReadyAsync(robotId.Value);
+        // Release the robot when it obtains the task
+      }
     }
   }
-  
+
   private async Task<AutoTask?> GetRunningAutoTaskSqlAsync(Guid robotId)
   {
     return await _context.AutoTasks.AsNoTracking()
@@ -240,7 +183,7 @@ public class AutoTaskSchedulerService(
 
   public async Task RunSchedulerRobotNewJoinAsync(Guid robotId)
   {
-    if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+    if (await _onlineRobotsService.GetPauseAutoTaskAssignmentAsync(robotId))
     {
       return;
     }
@@ -252,7 +195,8 @@ public class AutoTaskSchedulerService(
       var task = await GenerateTaskDetail(runningAutoTask, true);
       if (task != null)
       {
-        SetAutoTask(robotId, task);
+        var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+        await _autoTaskRepository.AddAutoTaskAsync(realmId, robotId, task);
       }
       return;
     }
@@ -281,9 +225,10 @@ public class AutoTaskSchedulerService(
       // Get flow detail
       var flowDetail = await _context.FlowDetails
         .Where(f => f.FlowId == task!.FlowId)
-        .Select(f => new { 
-          f.ProgressId, 
-          f.Order 
+        .Select(f => new
+        {
+          f.ProgressId,
+          f.Order
         })
         .OrderBy(f => f.Order)
         .FirstOrDefaultAsync();
@@ -306,7 +251,7 @@ public class AutoTaskSchedulerService(
 
   public async Task<bool> RunSchedulerRobotReadyAsync(Guid robotId)
   {
-    if (_onlineRobotsService.GetPauseAutoTaskAssignment(robotId))
+    if (await _onlineRobotsService.GetPauseAutoTaskAssignmentAsync(robotId))
     {
       return false;
     }
@@ -320,7 +265,7 @@ public class AutoTaskSchedulerService(
       var task = await GenerateTaskDetail(newTask);
       if (task != null)
       {
-        SetAutoTask(robotId, task);
+        await _autoTaskRepository.AddAutoTaskAsync(realmId, robotId, task);
       }
       // Has new task
       return true;
@@ -328,10 +273,10 @@ public class AutoTaskSchedulerService(
     return false;
   }
 
-  public void ReleaseRobot(Guid robotId)
+  public async Task ReleaseRobotAsync(Guid robotId)
   {
     var realmId = _robotService.GetRobotRealmIdAsync(robotId).Result ?? 0;
-    _robotDataService.AutoTaskScheduleReleaseRobot(realmId, robotId);
+    await _autoTaskRepository.SchedulerReleaseRobotAsync(realmId, robotId);
   }
 
   private async Task<AutoTask?> AutoTaskAbortSqlAsync(int taskId, Guid? robotId = null, string? token = null)
@@ -404,7 +349,8 @@ public class AutoTaskSchedulerService(
       // No new task, send the aborted task to idle the robot
       if (sendTask != null)
       {
-        SetAutoTask(robotId, sendTask);
+        var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+        await _autoTaskRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
       }
     }
   }
@@ -416,7 +362,7 @@ public class AutoTaskSchedulerService(
     {
       return false;
     }
-      
+
     await DeleteTriggerRetries(taskId);
     await _emailService.SendAutoTaskAbortEmailAsync(taskId, AutoTaskAbortReason.UserApi);
     await AddAutoTaskJourney(task);
@@ -427,7 +373,8 @@ public class AutoTaskSchedulerService(
       // No new task, send the aborted task to idle the robot
       if (sendTask != null)
       {
-        SetAutoTask(task.AssignedRobotId!.Value, sendTask);
+        var realmId = await _robotService.GetRobotRealmIdAsync(task.AssignedRobotId!.Value) ?? 0;
+        await _autoTaskRepository.AddAutoTaskAsync(realmId, task.AssignedRobotId!.Value, sendTask);
       }
     }
     return true;
@@ -454,9 +401,10 @@ public class AutoTaskSchedulerService(
       var flowDetail = await _context.FlowDetails.AsNoTracking()
         .Where(f => f.FlowId == task!.FlowId)
         .Where(f => f.Order > task!.CurrentProgressOrder)
-        .Select(f => new { 
-          f.ProgressId, 
-          f.Order 
+        .Select(f => new
+        {
+          f.ProgressId,
+          f.Order
         })
         .OrderBy(f => f.Order)
         .FirstOrDefaultAsync();
@@ -474,7 +422,7 @@ public class AutoTaskSchedulerService(
         task.CurrentProgressOrder = null;
         task.NextToken = null;
       }
-      
+
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
     }
@@ -506,7 +454,8 @@ public class AutoTaskSchedulerService(
     var sendTask = await GenerateTaskDetail(task);
     if (sendTask != null)
     {
-      SetAutoTask(robotId, sendTask);
+      var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+      await _autoTaskRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
     }
   }
 
@@ -517,7 +466,7 @@ public class AutoTaskSchedulerService(
     {
       return false;
     }
-    
+
     await AddAutoTaskJourney(task);
     if (task.CurrentProgressId == (int)ProgressState.Completed && await RunSchedulerRobotReadyAsync(robotId))
     {
@@ -531,7 +480,8 @@ public class AutoTaskSchedulerService(
     var sendTask = await GenerateTaskDetail(task);
     if (sendTask != null)
     {
-      SetAutoTask(robotId, sendTask);
+      var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
+      await _autoTaskRepository.AddAutoTaskAsync(realmId, robotId, sendTask);
     }
     return true;
   }

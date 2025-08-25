@@ -1,9 +1,8 @@
-using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Worker.Configurations;
 using LGDXRobotCloud.Worker.Strategies.Email;
 using MailKit.Net.Smtp;
-using MailKit.Security;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -15,7 +14,7 @@ public interface IEmailService
   Task SendEmailAsync(EmailContract emailContract);
 }
 
-public sealed class EmailService (
+public class EmailService (
     IActivityLogService activityLogService,
     IOptionsSnapshot<EmailConfiguration> emailConfiguration,
     IOptionsSnapshot<EmailLinksConfiguration> emailLinksConfiguration,

@@ -1,8 +1,7 @@
-using LGDXRobotCloud.API.Services.Common;
-using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.API.Repositories;
+using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.Protos;
 using LGDXRobotCloud.Utilities.Enums;
-using MassTransit;
 
 namespace LGDXRobotCloud.API.Services.Navigation;
 
@@ -15,58 +14,32 @@ public interface ISlamService
   Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData? mapData);
 
   // Server to Client
-  IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId);
-  bool SetSlamCommands(int realmId, RobotClientsSlamCommands commands);
+  Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands);
 }
 
 public class SlamService(
-  IBus bus,
-  IEventService eventService,
-  IRobotDataService robotDataService,
+  ISlamDataRepository slamDataRepository,
   IRobotService robotService
 ) : ISlamService
 {
-  private readonly IBus _bus = bus;
-  private readonly IEventService _eventService = eventService;
-  private readonly IRobotDataService _robotDataService = robotDataService;
-  private readonly IRobotService _robotService = robotService;
-
-  static SlamStatus ConvertSlamStatus(RobotClientsSlamStatus slamStatus)
-  {
-    return slamStatus switch
-    {
-      RobotClientsSlamStatus.SlamIdle => SlamStatus.Idle,
-      RobotClientsSlamStatus.SlamRunning => SlamStatus.Running,
-      RobotClientsSlamStatus.SlamSuccess => SlamStatus.Success,
-      RobotClientsSlamStatus.SlamAborted => SlamStatus.Aborted,
-      _ => SlamStatus.Idle,
-    };
-  }
+  private readonly ISlamDataRepository _slamDataRepository = slamDataRepository ?? throw new ArgumentNullException(nameof(slamDataRepository));
+  private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
 
   public async Task<bool> StartSlamAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    return _robotDataService.StartSlam(realmId, robotId);
+    return await _slamDataRepository.StartSlamAsync(realmId, robotId);
   }
 
   public async Task StopSlamAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    _robotDataService.StopSlam(realmId);
-
-    // Publish the robot is offline
-    await _bus.Publish(new RobotDataContract
-    {
-      RobotId = robotId,
-      RealmId = realmId,
-      RobotStatus = RobotStatus.Offline
-    });
+    await _slamDataRepository.StopSlamAsync(realmId, robotId);
   }
 
   public async Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData? mapData)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    var slamStatus = ConvertSlamStatus(status);
     MapData? map = null;
     if (mapData != null && mapData.Data.Count > 0)
     {
@@ -84,30 +57,18 @@ public class SlamService(
         Data = [.. mapData.Data.Select(x => (short)x)]
       };
     }
-    var data = new SlamDataContract
+    var data = new SlamData
     {
       RobotId = robotId,
       RealmId = realmId,
-      SlamStatus = slamStatus,
+      SlamStatus = (SlamStatus)status,
       MapData = map
     };
-    await _bus.Publish(data);
+    await _slamDataRepository.SetSlamExchangeAsync(realmId, data);
   }
 
-  public IReadOnlyList<RobotClientsSlamCommands> GetSlamCommands(Guid robotId)
+  public async Task<bool> AddSlamCommandAsync(int realmId, RobotClientsSlamCommands commands)
   {
-    return _robotDataService.GetSlamCommands(robotId);
-  }
-
-  public bool SetSlamCommands(int realmId, RobotClientsSlamCommands commands)
-  {
-    var robotId = _robotDataService.GetRunningSlamRobotId(realmId);
-    if (robotId == null)
-    {
-      return false;
-    }
-    _robotDataService.SetSlamCommands(realmId, commands);
-    _eventService.SlamCommandsHasUpdated(robotId.Value);
-    return true;
+    return await _slamDataRepository.AddSlamCommandAsync(realmId, commands);
   }
 }

@@ -1,6 +1,6 @@
 using LGDXRobotCloud.Utilities.Enums;
 
-namespace LGDXRobotCloud.Data.Contracts;
+namespace LGDXRobotCloud.Data.Models.RabbitMQ;
 
 public record ActivityLogContract
 {

@@ -1,60 +1,91 @@
-using LGDXRobotCloud.Data.Contracts;
-using LGDXRobotCloud.Utilities.Enums;
-using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
+using LGDXRobotCloud.Data.Models.Redis;
+using LGDXRobotCloud.Utilities.Helpers;
+using NRedisStack.RedisStackCommands;
+using NRedisStack.Search;
+using StackExchange.Redis;
 
 namespace LGDXRobotCloud.UI.Services;
 
 public interface IRobotDataService
 {
-  HashSet<Guid> GetOnlineRobots(int realmId);
-
-  RobotDataContract? GetRobotData(Guid robotId, int realmId);
-  void UpdateRobotData(RobotDataContract robotData);
+  Task<Dictionary<Guid, RobotData>> GetRobotDataFromRealmAsync(int realmId);
+  Task<Dictionary<Guid, RobotData?>> GetRobotDataFromListAsync(int realmId, List<Guid> robotIds);
 }
 
-public sealed class RobotDataService(
-    IMemoryCache memoryCache,
-    IRealTimeService realTimeService
+public partial class RobotDataService(
+    IConnectionMultiplexer redisConnection,
+    ILogger<RobotDataService> logger
   ) : IRobotDataService
 {
-  private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-  private readonly IRealTimeService _realTimeService = realTimeService ?? throw new ArgumentNullException(nameof(realTimeService));
-  private static string GetRobotDataKey(Guid robotId) => $"RobotDataService_RobotData_{robotId}";
-  private static string GetOnlineRobotsKey(int realmId) => $"RobotDataService_OnlineRobots_{realmId}";
+  private readonly IConnectionMultiplexer _redisConnection = redisConnection;
 
-  public HashSet<Guid> GetOnlineRobots(int realmId)
+  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "{Msg}")]
+  public partial void LogException(string msg);
+
+  public async Task<Dictionary<Guid, RobotData>> GetRobotDataFromRealmAsync(int realmId)
   {
-    return _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId)) ?? [];
+    Dictionary<Guid, RobotData> robotData = [];
+    var db = _redisConnection.GetDatabase();
+    try
+    {
+      var search = await db.FT().SearchAsync(RedisHelper.GetRobotDataIndex(realmId), new Query($"*"));
+      foreach (var item in search.Documents)
+      {
+        var data = JsonSerializer.Deserialize<RobotData>(item["json"]!);
+        Guid id = Guid.Parse(item.Id.Replace(RedisHelper.GetRobotDataPrefix(realmId), string.Empty));
+        robotData.Add(id, data!);
+      }
+    }
+    catch (Exception ex)
+    {
+      if (!ex.Message.Contains("Unknown index name", StringComparison.CurrentCultureIgnoreCase))
+      {
+        LogException(ex.Message);
+      }
+    }
+    return robotData;
   }
 
-  public RobotDataContract? GetRobotData(Guid robotId, int realmId)
+  public async Task<Dictionary<Guid, RobotData?>> GetRobotDataFromListAsync(int realmId, List<Guid> robotIds)
   {
-    if (_memoryCache.TryGetValue(GetRobotDataKey(robotId), out RobotDataContract? robotData))
-    {
-      return robotData;
-    }
-    return null;
-  }
+    if (robotIds.Count == 0)
+      return [];
 
-  public void UpdateRobotData(RobotDataContract robotData)
-  {
-    var robotId = robotData.RobotId;
-    var realmId = robotData.RealmId;
-    if (!_memoryCache.TryGetValue(GetRobotDataKey(robotId), out var _) && robotData.RobotStatus != RobotStatus.Offline)
+    RedisKey[] keys = new RedisKey[robotIds.Count];
+    for (int i = 0; i < robotIds.Count; i++)
     {
-      // Register the robot data in the cache
-      var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId)) ?? [];
-      OnlineRobotsIds.Add(robotId);
-      memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
+      keys[i] = RedisHelper.GetRobotData(realmId, robotIds[i]);
     }
-    else if (robotData.RobotStatus == RobotStatus.Offline)
+    var db = _redisConnection.GetDatabase();
+    RedisResult[] result = [];
+    try
     {
-      // Remove the robot data from the cache
-      var OnlineRobotsIds = _memoryCache.Get<HashSet<Guid>>(GetOnlineRobotsKey(realmId)) ?? [];
-      OnlineRobotsIds.Remove(robotId);
-      memoryCache.Set(GetOnlineRobotsKey(realmId), OnlineRobotsIds);
+      result = await db.JSON().MGetAsync(keys, "$");
     }
-    _memoryCache.Set(GetRobotDataKey(robotId), robotData);
-    _realTimeService.RobotDataHasUpdated(new RobotUpdatEventArgs { RobotId = robotId, RealmId = realmId });
+    catch (Exception ex)
+    {
+      LogException(ex.Message);
+    }
+
+    Dictionary<Guid, RobotData?> robotData = [];
+    for (int i = 0; i < result.Length; i++)
+    {
+      var str = result[i].ToString();
+      if (string.IsNullOrEmpty(str))
+      {
+        robotData.Add(robotIds[i], null);
+      }
+      else
+      {
+        if (str.StartsWith('['))
+        {
+          str = str[1..^1];
+        }
+        var data = JsonSerializer.Deserialize<RobotData>(str);
+        robotData.Add(robotIds[i], data);
+      }
+    }
+    return robotData;
   }
 }

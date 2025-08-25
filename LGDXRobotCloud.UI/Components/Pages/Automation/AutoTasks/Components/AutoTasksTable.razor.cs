@@ -11,7 +11,7 @@ using static LGDXRobotCloud.UI.Client.Automation.AutoTasks.AutoTasksRequestBuild
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.AutoTasks.Components;
 
-public sealed partial class AutoTasksTable : AbstractTable
+public partial class AutoTasksTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using static LGDXRobotCloud.UI.Client.Administration.RobotCertificates.RobotCertificatesRequestBuilder;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.RobotCertificates.Components;
-public sealed partial class RobotCertificatesTable : AbstractTable
+public partial class RobotCertificatesTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

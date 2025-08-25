@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components;
 using static LGDXRobotCloud.UI.Client.Administration.ApiKeys.ApiKeysRequestBuilder;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.ApiKeys.Components;
-public sealed partial class LgdxApiTable : AbstractTable
+public partial class LgdxApiTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

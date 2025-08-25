@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components;
 
-public sealed partial class RobotInfoForm : ComponentBase
+public partial class RobotInfoForm : ComponentBase
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

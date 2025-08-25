@@ -10,7 +10,7 @@ namespace LGDXRobotCloud.API.Areas.Automation.Controllers;
 [Area("Automation")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificateScheme)]
-public sealed class AutoTasksNextController(
+public class AutoTasksNextController(
     IAutoTaskService autoTaskService
   ) : ControllerBase
 {

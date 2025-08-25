@@ -8,7 +8,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.Roles;
 
-public sealed partial class RoleDetail : ComponentBase
+public partial class RoleDetail : ComponentBase
 {
   [Inject]
   public NavigationManager NavigationManager { get; set; } = default!;

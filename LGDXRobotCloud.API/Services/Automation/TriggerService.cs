@@ -1,15 +1,15 @@
 using System.Text.Json;
 using LGDXRobotCloud.API.Exceptions;
 using LGDXRobotCloud.API.Services.Administration;
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
 using LGDXRobotCloud.Data.Models.Business.Automation;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Wolverine;
 
 namespace LGDXRobotCloud.API.Services.Automation;
 
@@ -28,16 +28,16 @@ public interface ITriggerService
   Task<bool> RetryTriggerAsync(AutoTask autoTask, Trigger trigger, string body);
 }
 
-public sealed class TriggerService (
+public class TriggerService (
   IActivityLogService activityService,
   IApiKeyService apiKeyService,
-  IBus bus,
+  IMessageBus bus,
   LgdxContext context
 ) : ITriggerService
 {
   private readonly IActivityLogService _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
   private readonly IApiKeyService _apiKeyService = apiKeyService ?? throw new ArgumentNullException(nameof(apiKeyService));
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+  private readonly IMessageBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
   public async Task<(IEnumerable<TriggerListBusinessModel>, PaginationHelper)> GetTriggersAsync(string? name, int pageNumber, int pageSize)
@@ -262,7 +262,7 @@ public sealed class TriggerService (
         bodyDictionary.Add("NextToken", autoTask.NextToken);
       }
 
-      await _bus.Publish(new AutoTaskTriggerContract
+      await _bus.PublishAsync(new AutoTaskTriggerContract
       {
         Trigger = trigger,
         Body = bodyDictionary,
@@ -288,7 +288,7 @@ public sealed class TriggerService (
     var bodyDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(body ?? "{}");
     if (bodyDictionary != null)
     {
-      await _bus.Publish(new AutoTaskTriggerContract {
+      await _bus.PublishAsync(new AutoTaskTriggerContract {
         Trigger = trigger,
         Body = bodyDictionary,
         AutoTaskId = autoTask.Id,

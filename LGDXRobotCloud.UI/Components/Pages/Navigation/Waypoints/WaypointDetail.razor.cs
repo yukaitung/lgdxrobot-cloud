@@ -11,7 +11,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Waypoints;
 
-public sealed partial class WaypointDetail : ComponentBase
+public partial class WaypointDetail : ComponentBase
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

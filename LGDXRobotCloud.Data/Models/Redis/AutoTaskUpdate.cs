@@ -1,6 +1,6 @@
-namespace LGDXRobotCloud.Data.Contracts;
+namespace LGDXRobotCloud.Data.Models.Redis;
 
-public record AutoTaskUpdateContract
+public record AutoTaskUpdate
 {
   public required int Id { get; set; }
 

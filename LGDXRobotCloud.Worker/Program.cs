@@ -1,10 +1,10 @@
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Worker.Configurations;
 using LGDXRobotCloud.Worker.Services;
-using MassTransit;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
+using Wolverine;
+using Wolverine.RabbitMQ;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
@@ -46,20 +46,14 @@ else
 		cfg.UseNpgsql(builder.Configuration.GetConnectionString("Activity"))
 	);
 }
-builder.Services.AddMassTransit(cfg =>
+builder.UseWolverine(cfg =>
 {
-  var entryAssembly = Assembly.GetEntryAssembly();
-  cfg.AddConsumers(entryAssembly);
-
-	cfg.UsingRabbitMq((context, cfg) =>
-	{
-		cfg.Host(builder.Configuration["RabbitMq:Host"], builder.Configuration["RabbitMq:VirtualHost"], h =>
-		{
-			h.Username(builder.Configuration["RabbitMq:Username"] ?? string.Empty);
-			h.Password(builder.Configuration["RabbitMq:Password"] ?? string.Empty);
-		});
-		cfg.ConfigureEndpoints(context);
-	});
+	cfg.UseRabbitMq(new Uri(builder.Configuration["RabbitMq:ConnectionString"]!))
+		.UseListenerConnectionOnly()
+		.AutoProvision();
+	cfg.ListenToRabbitQueue("activity-logs-queue");
+	cfg.ListenToRabbitQueue("email-queue");
+	cfg.ListenToRabbitQueue("auto-task-trigger-queue");
 });
 
 /*

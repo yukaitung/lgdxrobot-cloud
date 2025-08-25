@@ -1,6 +1,6 @@
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 
 namespace LGDXRobotCloud.Worker.Services;
 

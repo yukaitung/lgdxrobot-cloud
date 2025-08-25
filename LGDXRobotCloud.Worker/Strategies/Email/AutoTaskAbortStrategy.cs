@@ -1,5 +1,5 @@
 using System.Text.Json;
-using LGDXRobotCloud.Data.Contracts;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Worker.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;

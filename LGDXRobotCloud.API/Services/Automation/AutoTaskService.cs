@@ -1,4 +1,5 @@
 using LGDXRobotCloud.API.Exceptions;
+using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Data.DbContexts;
@@ -8,7 +9,6 @@ using LGDXRobotCloud.Data.Models.Business.Automation;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.Utilities.Enums;
 using LGDXRobotCloud.Utilities.Helpers;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -31,16 +31,16 @@ public interface IAutoTaskService
 
 public class AutoTaskService(
     IActivityLogService activityLogService,
+    IAutoTaskRepository autoTaskRepository,
     IAutoTaskSchedulerService autoTaskSchedulerService,
-    IBus bus,
     IMemoryCache memoryCache,
     IOnlineRobotsService onlineRobotsService,
     LgdxContext context
   ) : IAutoTaskService
 {
   private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
+  private readonly IAutoTaskRepository _autoTaskRepository = autoTaskRepository ?? throw new ArgumentNullException(nameof(autoTaskRepository));
   private readonly IAutoTaskSchedulerService _autoTaskSchedulerService = autoTaskSchedulerService ?? throw new ArgumentNullException(nameof(autoTaskSchedulerService));
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
   private readonly IOnlineRobotsService _onlineRobotsService = onlineRobotsService ?? throw new ArgumentNullException(nameof(onlineRobotsService));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -309,7 +309,7 @@ public class AutoTaskService(
       };
       await _context.AutoTasksJourney.AddAsync(autoTaskJourney);
       await _context.SaveChangesAsync();
-      await _bus.Publish(autoTaskBusinessModel.ToContract());
+      await _autoTaskRepository.AutoTaskHasUpdateAsync(autoTask.RealmId, autoTaskBusinessModel.ToContract());
       await _autoTaskSchedulerService.RunSchedulerNewAutoTaskAsync(autoTask.RealmId, autoTask.AssignedRobotId);
     }
 
@@ -441,7 +441,7 @@ public class AutoTaskService(
 
     if (autoTask.CurrentProgressId != (int)ProgressState.Waiting &&
         autoTask.AssignedRobotId != null &&
-        _onlineRobotsService.SetAbortTask((Guid)autoTask.AssignedRobotId!))
+        await _onlineRobotsService.SetAbortTaskAsync((Guid)autoTask.AssignedRobotId!))
     {
       // If the robot is online, abort the task from the robot
       return;

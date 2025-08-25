@@ -2,6 +2,7 @@ using LGDXRobotCloud.API.Authentication;
 using LGDXRobotCloud.API.Authorisation;
 using LGDXRobotCloud.API.Configurations;
 using LGDXRobotCloud.API.Middleware;
+using LGDXRobotCloud.API.Repositories;
 using LGDXRobotCloud.API.Services;
 using LGDXRobotCloud.API.Services.Administration;
 using LGDXRobotCloud.API.Services.Automation;
@@ -10,8 +11,8 @@ using LGDXRobotCloud.API.Services.Identity;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Utilities.Constants;
-using MassTransit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -28,6 +29,8 @@ using Scalar.AspNetCore;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Wolverine;
+using Wolverine.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(cfg =>
@@ -51,15 +54,49 @@ builder.Services.Configure<LgdxRobotCloudSecretConfiguration>(
  */
 builder.Services.AddLogging(builder => builder.AddConsole());
 
-builder.Services.AddMassTransit(cfg =>
+var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+store.Open(OpenFlags.ReadOnly);
+var redisOptions = StackExchange.Redis.ConfigurationOptions.Parse(builder.Configuration["Redis:ConnectionString"]!);
+redisOptions.Ssl = true;
+redisOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+redisOptions.AbortOnConnectFail = false;
+redisOptions.CertificateSelection += delegate
 {
-	cfg.UsingRabbitMq((context, cfg) =>
+	var certificate = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["Redis:CertificateSN"]!));
+	return certificate;
+};
+redisOptions.CertificateValidation += (sender, cert, chain, errors) =>
+{
+	if (cert == null)
 	{
-		cfg.Host(builder.Configuration["RabbitMq:Host"], builder.Configuration["RabbitMq:VirtualHost"], h =>
-		{
-			h.Username(builder.Configuration["RabbitMq:Username"] ?? string.Empty);
-			h.Password(builder.Configuration["RabbitMq:Password"] ?? string.Empty);
-		});
+		return false;
+	}
+	var myCert = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["Redis:CertificateSN"]!));
+	if (myCert.Issuer == cert.Issuer)
+	{
+		return true;
+	}
+	return false;
+};
+var redis = StackExchange.Redis.ConnectionMultiplexer.Connect(redisOptions);
+builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(redis);
+
+builder.UseWolverine(cfg =>
+{
+	cfg.UseRabbitMq(new Uri(builder.Configuration["RabbitMq:ConnectionString"]!))
+		.UseSenderConnectionOnly()
+		.AutoProvision();
+	cfg.PublishMessage<ActivityLogContract>().ToRabbitExchange("activity-logs-exchange", e =>
+	{
+		e.BindQueue("activity-logs-queue", "activity-exchange-queue");
+	});
+	cfg.PublishMessage<EmailContract>().ToRabbitExchange("email-exchange", e =>
+	{
+		e.BindQueue("email-queue", "email-exchange-queue");
+	});
+	cfg.PublishMessage<AutoTaskTriggerContract>().ToRabbitExchange("auto-task-trigger-exchange", e =>
+	{
+		e.BindQueue("auto-task-trigger-queue", "auto-task-trigger-exchange-queue");
 	});
 });
 builder.Services.AddMemoryCache();
@@ -220,13 +257,14 @@ builder.Services.AddScoped<IRealmService, RealmService>();
 builder.Services.AddScoped<IRobotService, RobotService>();
 builder.Services.AddScoped<ISlamService, SlamService>();
 builder.Services.AddScoped<IWaypointService, WaypointService>();
-builder.Services.AddSingleton<IRobotDataService, RobotDataService>();
+builder.Services.AddSingleton<IRobotDataRepository, RobotDataRepository>();
+builder.Services.AddSingleton<ISlamDataRepository, SlamDataRepository>();
+builder.Services.AddSingleton<IAutoTaskRepository, AutoTaskRepository>();
 
 // Custom Services
 builder.Services.AddScoped<ITriggerRetryService, TriggerRetryService>();
 builder.Services.AddScoped<ITriggerService, TriggerService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddSingleton<IEventService, EventService>();
 builder.Services.AddScoped<IAutoTaskSchedulerService, AutoTaskSchedulerService>();
 builder.Services.AddScoped<IOnlineRobotsService, OnlineRobotsService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -253,7 +291,7 @@ app.UseLgdxExpectionHandling();
 
 app.Run();
 
-internal sealed class BearerSecuritySchemeTransformer(
+internal class BearerSecuritySchemeTransformer(
 	IAuthenticationSchemeProvider authenticationSchemeProvider,
 	IServer server
 ) : IOpenApiDocumentTransformer

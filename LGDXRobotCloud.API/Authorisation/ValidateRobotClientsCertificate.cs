@@ -1,5 +1,4 @@
 using LGDXRobotCloud.Data.DbContexts;
-using MassTransit.Initializers;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography.X509Certificates;
 
@@ -12,11 +11,13 @@ public class ValidateRobotClientsCertificate(LgdxContext context)
   public async Task<bool> Validate(X509Certificate2 clientCertificate, Guid robotId)
   {
     var certificate = await _context.RobotCertificates.AsNoTracking()
-      .FirstOrDefaultAsync(c => c.RobotId == robotId)
+      .Where(c => c.RobotId == robotId)
       .Select(c => new {
+        c.RobotId,
         c!.Thumbprint,
         c.ThumbprintBackup
-      });
+      })
+      .FirstOrDefaultAsync();
 
     if (certificate == null)
       return false;

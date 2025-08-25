@@ -20,6 +20,16 @@ openssl req -newkey rsa:4096 -keyout ui.key -out ui.csr -config ui.conf -nodes
 openssl x509 -req -in ui.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out ui.crt -days 9999 -sha256 -extfile ui.conf -extensions req_ext
 openssl pkcs12 -export -out ui.pfx -inkey ui.key -in ui.crt -certfile rootCA.crt -passout pass:""
 
+# Generate Certificate for Redis Server
+openssl req -newkey rsa:4096 -keyout redis_server.key -out redis_server.csr -config redis_server.conf -nodes 
+openssl x509 -req -in redis_server.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out redis_server.crt -days 9999 -sha256 -extfile redis_server.conf -extensions req_ext
+openssl pkcs12 -export -out redis_server.pfx -inkey redis_server.key -in redis_server.crt -certfile rootCA.crt -passout pass:""
+
+# Generate Certificate for Redis Client
+openssl req -newkey rsa:4096 -keyout redis_client.key -out redis_client.csr -config redis_client.conf -nodes 
+openssl x509 -req -in redis_client.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out redis_client.crt -days 9999 -sha256 -extfile redis_client.conf -extensions req_ext
+openssl pkcs12 -export -out redis_client.pfx -inkey redis_client.key -in redis_client.crt -certfile rootCA.crt -passout pass:""
+
 echo "END"
 
 echo ""
@@ -37,3 +47,7 @@ echo ""
 echo "Copy to appsettings.ui.json -> CertificateSN"
 openssl x509 -in ui.crt -noout -serial
 
+echo ""
+
+echo "Copy to appsettings.ui.json -> CertificateSN"
+openssl x509 -in redis_client.crt -noout -serial

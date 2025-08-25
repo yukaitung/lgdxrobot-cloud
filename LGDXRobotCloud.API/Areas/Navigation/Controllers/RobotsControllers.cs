@@ -20,7 +20,7 @@ namespace LGDXRobotCloud.API.Areas.Navigation.Controllers;
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificateScheme)]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
-public sealed class RobotsController(
+public class RobotsController(
     IRobotService robotService,
     IOnlineRobotsService OnlineRobotsService,
     IOptionsSnapshot<LgdxRobotCloudConfiguration> options

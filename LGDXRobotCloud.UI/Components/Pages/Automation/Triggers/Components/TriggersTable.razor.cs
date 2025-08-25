@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.Triggers.Components;
 
-public sealed partial class TriggersTable : AbstractTable
+public partial class TriggersTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

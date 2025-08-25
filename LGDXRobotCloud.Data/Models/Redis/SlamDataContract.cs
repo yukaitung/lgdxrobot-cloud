@@ -1,6 +1,6 @@
 using LGDXRobotCloud.Utilities.Enums;
 
-namespace LGDXRobotCloud.Data.Contracts;
+namespace LGDXRobotCloud.Data.Models.Redis;
 
 public record MapData
 {
@@ -11,7 +11,7 @@ public record MapData
   public List<short> Data { get; set; } = [];
 }
 
-public record SlamDataContract
+public record SlamData
 {
   public Guid RobotId { get; set; }
   public int RealmId { get; set; }

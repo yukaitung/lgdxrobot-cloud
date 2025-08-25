@@ -1,6 +1,6 @@
 namespace LGDXRobotCloud.Data.Models.DTOs.V1.Responses;
 
-public sealed record RefreshTokenResponseDto
+public record RefreshTokenResponseDto
 {
   public required string AccessToken { get; set; }
 

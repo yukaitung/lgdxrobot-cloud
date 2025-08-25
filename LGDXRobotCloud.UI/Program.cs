@@ -1,56 +1,53 @@
-using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using LGDXRobotCloud.UI;
 using LGDXRobotCloud.UI.Authorisation;
 using LGDXRobotCloud.UI.Components;
 using LGDXRobotCloud.UI.Constants;
-using LGDXRobotCloud.UI.Consumers;
 using LGDXRobotCloud.UI.Services;
-using MassTransit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Kiota.Http.HttpClientLibrary.Middleware;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddMassTransit(cfg =>
-{
-	var entryAssembly = Assembly.GetEntryAssembly();
-  cfg.AddConsumers(entryAssembly);
-	cfg.UsingRabbitMq((context, cfg) =>
-	{
-		cfg.Host(builder.Configuration["RabbitMq:Host"], builder.Configuration["RabbitMq:VirtualHost"], h =>
-		{
-			h.Username(builder.Configuration["RabbitMq:Username"] ?? string.Empty);
-			h.Password(builder.Configuration["RabbitMq:Password"] ?? string.Empty);
-		});
-		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
-		{
-			e.ConfigureConsumer<RobotDataConsumer>(context);
-		});
-		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
-		{
-			e.ConfigureConsumer<AutoTaskUpdateConsumer>(context);
-		});
-		cfg.ReceiveEndpoint(new TemporaryEndpointDefinition(), e =>
-		{
-			e.ConfigureConsumer<SlamDataConsumer>(context);
-		});
-		cfg.ConfigureEndpoints(context);
-	});
-});
+builder.Services.AddLogging(builder => builder.AddConsole());
 builder.Services.AddMemoryCache();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add API
 var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
 store.Open(OpenFlags.ReadOnly);
+var redisOptions = ConfigurationOptions.Parse(builder.Configuration["Redis:ConnectionString"]!);
+redisOptions.Ssl = true;
+redisOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+redisOptions.AbortOnConnectFail = false;
+redisOptions.CertificateSelection += delegate
+{
+	return store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["Redis:CertificateSN"]!));
+};
+redisOptions.CertificateValidation += (sender, cert, chain, errors) =>
+{
+	if (cert == null)
+	{
+		return false;
+	}
+	var myCert = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["Redis:CertificateSN"]!));
+	if (myCert.Issuer == cert.Issuer)
+	{
+		return true;
+	}
+	return false;
+};
+var redis = ConnectionMultiplexer.Connect(redisOptions);
+builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
+
+// Add API
 var certificate = store.Certificates.First(cert => cert.SerialNumber.Contains(builder.Configuration["LGDXRobotCloudAPI:CertificateSN"]!));
-var url = new Uri(builder.Configuration["LGDXRobotCloudAPI:Url"] ?? string.Empty);
+var url = new Uri(builder.Configuration["LGDXRobotCloudAPI:Url"]!);
 
 builder.Services.AddKiotaHandlers();
 builder.Services.AddScoped<LgdxApiClientFactory>();
@@ -85,8 +82,8 @@ builder.Services.AddHttpClient<IRefreshTokenService, RefreshTokenService>(client
 	});
 builder.Services.AddScoped<ICachedRealmService, CachedRealmService>();
 builder.Services.AddScoped<IRobotDataService, RobotDataService>();
+builder.Services.AddScoped<ISlamDataService, SlamDataService>();
 builder.Services.AddSingleton<IRealTimeService, RealTimeService>();
-builder.Services.AddSingleton<ISlamService, SlamService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

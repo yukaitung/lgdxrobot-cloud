@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Realms.Components;
 
-public sealed partial class RealmsTable : AbstractTable
+public partial class RealmsTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

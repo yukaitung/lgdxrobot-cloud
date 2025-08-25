@@ -19,7 +19,7 @@ namespace LGDXRobotCloud.API.Areas.Administration.Controllers;
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificateScheme)]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ValidateLgdxUserAccess]
-public sealed class ApiKeysController(
+public class ApiKeysController(
     IApiKeyService apiKeyService,
     IOptionsSnapshot<LgdxRobotCloudConfiguration> lgdxRobotCloudConfiguration
   ) : ControllerBase

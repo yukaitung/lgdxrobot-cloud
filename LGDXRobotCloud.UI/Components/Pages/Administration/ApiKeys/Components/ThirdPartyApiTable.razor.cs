@@ -7,7 +7,7 @@ using static LGDXRobotCloud.UI.Client.Administration.ApiKeys.ApiKeysRequestBuild
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.ApiKeys.Components;
 
-public sealed partial class ThirdPartyApiTable : AbstractTable
+public partial class ThirdPartyApiTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

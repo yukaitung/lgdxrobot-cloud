@@ -1,5 +1,5 @@
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.Models.DTOs.V1.Responses;
+using LGDXRobotCloud.Data.Models.Redis;
 
 namespace LGDXRobotCloud.Data.Models.Business.Automation;
 
@@ -66,9 +66,9 @@ public static class AutoTaskBusinessModelExtensions
     };
   }
 
-  public static AutoTaskUpdateContract ToContract(this AutoTaskBusinessModel model)
+  public static AutoTaskUpdate ToContract(this AutoTaskBusinessModel model)
   {
-    return new AutoTaskUpdateContract {
+    return new AutoTaskUpdate {
       Id = model.Id,
       Name = model.Name,
       Priority = model.Priority,

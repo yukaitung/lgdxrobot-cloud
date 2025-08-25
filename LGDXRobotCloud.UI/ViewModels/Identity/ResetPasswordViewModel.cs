@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Identity;
 
-public sealed class ResetPasswordViewModel : FormViewModel, IValidatableObject
+public class ResetPasswordViewModel : FormViewModel, IValidatableObject
 {
   public string Email = null!;
 

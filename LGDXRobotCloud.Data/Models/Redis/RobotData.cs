@@ -1,6 +1,6 @@
 using LGDXRobotCloud.Utilities.Enums;
 
-namespace LGDXRobotCloud.Data.Contracts;
+namespace LGDXRobotCloud.Data.Models.Redis;
 
 public record AutoTaskNavProgress
 {
@@ -32,10 +32,8 @@ public record RobotCriticalStatus
   public List<int> MotorDamaged { get; set; } = [];
 }
 
-public record RobotDataContract
+public record RobotData
 {
-  public Guid RobotId { get; set; }
-  public int RealmId { get; set; }
   public RobotStatus RobotStatus { get; set; } = RobotStatus.Offline;
   public RobotCriticalStatus CriticalStatus { get; set; } = new();
   public List<double> Batteries { get; set; } = [];

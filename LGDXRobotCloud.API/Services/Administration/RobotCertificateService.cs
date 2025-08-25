@@ -28,9 +28,9 @@ public class RobotCertificateService(
     LgdxContext context
   ) : IRobotCertificateService
 {
-  private readonly IActivityLogService _activityLogService = activityLogService;
-  private readonly LgdxContext _context = context;
-  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = options.Value;
+  private readonly IActivityLogService _activityLogService = activityLogService ?? throw new ArgumentNullException(nameof(activityLogService));
+  private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private readonly LgdxRobotCloudConfiguration _lgdxRobotCloudConfiguration = options.Value ?? throw new ArgumentNullException(nameof(options));
 
   private record CertificateDetail 
   {

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Waypoints.Components;
 
-public sealed partial class WaypointsTable : AbstractTable
+public partial class WaypointsTable : AbstractTable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }

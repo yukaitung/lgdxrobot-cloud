@@ -1,12 +1,12 @@
 using System.Security.Claims;
 using LGDXRobotCloud.API.Exceptions;
-using LGDXRobotCloud.Data.Contracts;
 using LGDXRobotCloud.Data.DbContexts;
 using LGDXRobotCloud.Data.Entities;
 using LGDXRobotCloud.Data.Models.Business.Administration;
+using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Utilities.Helpers;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Wolverine;
 
 namespace LGDXRobotCloud.API.Services.Administration;
 
@@ -19,13 +19,13 @@ public interface IActivityLogService
 
 public class ActivityLogService(
     LgdxLogsContext LgdxLogsContext,
-    IBus bus,
+    IMessageBus bus,
     IHttpContextAccessor httpContextAccessor,
     LgdxContext lgdxContext
   ) : IActivityLogService
 {
   private readonly LgdxLogsContext _lgdxLogsContext = LgdxLogsContext ?? throw new ArgumentNullException(nameof(LgdxLogsContext));
-  private readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+  private readonly IMessageBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
   private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
   private readonly LgdxContext _lgdxContext = lgdxContext ?? throw new ArgumentNullException(nameof(lgdxContext));
 
@@ -123,7 +123,7 @@ public class ActivityLogService(
     var httpContext = _httpContextAccessor.HttpContext;
     var userId = httpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     var apiKeyId = httpContext?.Items["ApiKeyId"] as int?;
-    await _bus.Publish(new ActivityLogContract
+    await _bus.PublishAsync(new ActivityLogContract
     {
       EntityName = activityLogCreateBusinessModel.EntityName,
       EntityId = activityLogCreateBusinessModel.EntityId,

@@ -1,6 +1,5 @@
 using LGDXRobotCloud.API.Configurations;
 using LGDXRobotCloud.API.Services.Automation;
-using LGDXRobotCloud.API.Services.Common;
 using LGDXRobotCloud.API.Services.Navigation;
 using LGDXRobotCloud.Protos;
 using Grpc.Core.Testing;
@@ -12,8 +11,7 @@ using Grpc.Core;
 using System.Security.Claims;
 using LGDXRobotCloud.Data.Models.Business.Navigation;
 using LGDXRobotCloud.Data.Models.Business.Administration;
-using LGDXRobotCloud.Data.Entities;
-using LGDXRobotCloud.Utilities.Enums;
+using StackExchange.Redis;
 
 namespace LGDXRobotCloud.API.UnitTests.Services;
 
@@ -77,8 +75,8 @@ public class RobotClientsServiceTests
     NextToken = "NextToken"
   };
 
+  private readonly Mock<IConnectionMultiplexer> mockRedisConnection = new();
   private readonly Mock<IAutoTaskSchedulerService> mockAutoTaskSchedulerService = new();
-  private readonly Mock<IEventService> mockEventService = new();
   private readonly Mock<IOnlineRobotsService> mockOnlineRobotsService = new();
   private readonly Mock<IRobotService> mockRobotService = new();
   private readonly Mock<ISlamService> mockSlamService = new();
@@ -146,7 +144,7 @@ public class RobotClientsServiceTests
     var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
     mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robot);
     mockRobotService.Setup(m => m.GetRobotChassisInfoAsync(RobotGuid)).ReturnsAsync(robotClientsChassisInfo);
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockRedisConnection.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
 
     // Act
     var actural = await robotClientsService.Greet(robotClientsGreet, serverCallContext);
@@ -166,7 +164,7 @@ public class RobotClientsServiceTests
     // Arrange
     var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), "InvalidRobotId");
     mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robot);
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockRedisConnection.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
 
     // Act
     var actural = await robotClientsService.Greet(robotClientsGreet, serverCallContext);
@@ -187,7 +185,7 @@ public class RobotClientsServiceTests
     // Arrange
     var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), null);
     mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robot);
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockRedisConnection.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
 
     // Act
     var actural = await robotClientsService.Greet(robotClientsGreet, serverCallContext);
@@ -207,7 +205,7 @@ public class RobotClientsServiceTests
   {
     // Arrange
     var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockRedisConnection.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
 
     // Act
     var actural = await robotClientsService.Greet(robotClientsGreet, serverCallContext);
@@ -229,7 +227,7 @@ public class RobotClientsServiceTests
     var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
     mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robotWithSystemInfo);
     mockRobotService.Setup(m => m.GetRobotChassisInfoAsync(RobotGuid)).ReturnsAsync(robotClientsChassisInfo);
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockRedisConnection.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
 
     // Act
     var actural = await robotClientsService.Greet(robotClientsGreet, serverCallContext);
@@ -262,7 +260,7 @@ public class RobotClientsServiceTests
     };
     var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
     mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robotWithSystemInfo);
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockRedisConnection.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
 
     // Act
     var actural = await robotClientsService.Greet(localRobotClientsGreet, serverCallContext);
@@ -296,7 +294,7 @@ public class RobotClientsServiceTests
     };
     var serverCallContext = GenerateServerCallContext(nameof(RobotClientsService.Greet), RobotGuid.ToString());
     mockRobotService.Setup(m => m.GetRobotAsync(RobotGuid)).ReturnsAsync(robotWithSystemInfo);
-    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockEventService.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
+    var robotClientsService = new RobotClientsService(mockAutoTaskSchedulerService.Object, mockRedisConnection.Object, mockOnlineRobotsService.Object, mockConfiguration.Object, mockRobotService.Object, mockSlamService.Object);
 
     // Act
     var actural = await robotClientsService.Greet(localRobotClientsGreet, serverCallContext);

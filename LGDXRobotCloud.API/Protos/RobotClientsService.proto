@@ -24,14 +24,15 @@ message RobotClientsDof {
 }
 
 enum RobotClientsRobotStatus {
-  Idle = 0;
-  Running = 1;
-  Stuck = 2;
-  Aborting = 3;
-  Paused = 4;
-  Critical = 5;
-  Charging = 6;
-  Offline = 7;
+  RobotStatusReserved = 0;
+  Idle = 1;
+  Running = 2;
+  Stuck = 3;
+  Aborting = 4;
+  Paused = 5;
+  Critical = 6;
+  Charging = 7;
+  Offline = 8;
 }
 
 message RobotClientsRobotCriticalStatus {
@@ -109,7 +110,7 @@ message RobotClientsNextToken {
 }
 
 enum RobotClientsAbortReason {
-  Reserved = 0;
+  AbortReasonReserved = 0;
   UserApi = 1;
   Robot = 2;
   NavStack = 3;
@@ -161,10 +162,11 @@ message RobotClientsResponse {
 */
 
 enum RobotClientsSlamStatus {
-  SlamIdle = 0;
-  SlamRunning = 1;
-  SlamSuccess = 2;
-  SlamAborted = 3;
+  SlamStatusReserved = 0;
+  SlamIdle = 1;
+  SlamRunning = 2;
+  SlamSuccess = 3;
+  SlamAborted = 4;
 }
 
 message RobotClientsMapData {

@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Identity;
 
-public sealed class ForgotPasswordViewModel : FormViewModel
+public class ForgotPasswordViewModel : FormViewModel
 {
   [Required (ErrorMessage = "Please enter an email address.")]
   [EmailAddress (ErrorMessage = "Please enter a valid email address.")]
