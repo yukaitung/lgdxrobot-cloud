@@ -37,22 +37,6 @@ public class OnlineRobotsService(
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository ?? throw new ArgumentNullException(nameof(robotDataRepository));
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
 
-  private static RobotStatus ConvertRobotStatus(RobotClientsRobotStatus robotStatus)
-  {
-    return robotStatus switch
-    {
-      RobotClientsRobotStatus.Idle => RobotStatus.Idle,
-      RobotClientsRobotStatus.Running => RobotStatus.Running,
-      RobotClientsRobotStatus.Stuck => RobotStatus.Stuck,
-      RobotClientsRobotStatus.Aborting => RobotStatus.Aborting,
-      RobotClientsRobotStatus.Paused => RobotStatus.Paused,
-      RobotClientsRobotStatus.Critical => RobotStatus.Critical,
-      RobotClientsRobotStatus.Charging => RobotStatus.Charging,
-      RobotClientsRobotStatus.Offline => RobotStatus.Offline,
-      _ => RobotStatus.Offline,
-    };
-  }
-
   public async Task AddRobotAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
@@ -77,7 +61,7 @@ public class OnlineRobotsService(
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
     await _robotDataRepository.SetRobotDataAsync(realmId, robotId, new RobotData
     {
-      RobotStatus = ConvertRobotStatus(data.RobotStatus),
+      RobotStatus = (RobotStatus)data.RobotStatus,
       CriticalStatus = new RobotCriticalStatus
       {
         SoftwareEmergencyStop = data.CriticalStatus.SoftwareEmergencyStop,
@@ -103,7 +87,7 @@ public class OnlineRobotsService(
       PauseTaskAssignment = data.PauseTaskAssignment
     });
     
-    var robotStatus = ConvertRobotStatus(data.RobotStatus);
+    var robotStatus = (RobotStatus)data.RobotStatus;
     if (robotStatus == RobotStatus.Stuck)
     {
       if (!_memoryCache.TryGetValue<bool>($"OnlineRobotsService_RobotStuck_{robotId}", out var _))

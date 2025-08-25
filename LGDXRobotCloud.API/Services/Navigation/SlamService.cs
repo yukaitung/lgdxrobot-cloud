@@ -25,18 +25,6 @@ public class SlamService(
   private readonly ISlamDataRepository _slamDataRepository = slamDataRepository;
   private readonly IRobotService _robotService = robotService;
 
-  static SlamStatus ConvertSlamStatus(RobotClientsSlamStatus slamStatus)
-  {
-    return slamStatus switch
-    {
-      RobotClientsSlamStatus.SlamIdle => SlamStatus.Idle,
-      RobotClientsSlamStatus.SlamRunning => SlamStatus.Running,
-      RobotClientsSlamStatus.SlamSuccess => SlamStatus.Success,
-      RobotClientsSlamStatus.SlamAborted => SlamStatus.Aborted,
-      _ => SlamStatus.Idle,
-    };
-  }
-
   public async Task<bool> StartSlamAsync(Guid robotId)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
@@ -52,7 +40,6 @@ public class SlamService(
   public async Task UpdateSlamDataAsync(Guid robotId, RobotClientsSlamStatus status, RobotClientsMapData? mapData)
   {
     var realmId = await _robotService.GetRobotRealmIdAsync(robotId) ?? 0;
-    var slamStatus = ConvertSlamStatus(status);
     MapData? map = null;
     if (mapData != null && mapData.Data.Count > 0)
     {
@@ -74,7 +61,7 @@ public class SlamService(
     {
       RobotId = robotId,
       RealmId = realmId,
-      SlamStatus = slamStatus,
+      SlamStatus = (SlamStatus)status,
       MapData = map
     };
     await _slamDataRepository.SetSlamExchangeAsync(realmId, data);
