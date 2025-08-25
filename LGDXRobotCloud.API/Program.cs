@@ -31,6 +31,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Wolverine;
 using Wolverine.RabbitMQ;
+using Wolverine.RabbitMQ.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(cfg =>
@@ -81,9 +82,16 @@ redisOptions.CertificateValidation += (sender, cert, chain, errors) =>
 var redis = StackExchange.Redis.ConnectionMultiplexer.Connect(redisOptions);
 builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(redis);
 
-builder.UseWolverine(cfg =>
+builder.Host.UseWolverine(cfg =>
 {
-	cfg.UseRabbitMq(new Uri(builder.Configuration["RabbitMq:ConnectionString"]!))
+	cfg.UseRabbitMq(opt =>
+	{
+		opt.HostName = builder.Configuration["RabbitMq:HostName"]!;
+		opt.Port = int.Parse(builder.Configuration["RabbitMq:Port"]!);
+		opt.UserName = builder.Configuration["RabbitMq:UserName"]!;
+		opt.Password = builder.Configuration["RabbitMq:Password"]!;
+		opt.VirtualHost = builder.Configuration["RabbitMq:VirtualHost"]!;
+	})
 		.UseSenderConnectionOnly()
 		.AutoProvision();
 	cfg.PublishMessage<ActivityLogContract>().ToRabbitExchange("activity-logs-exchange", e =>
@@ -289,7 +297,31 @@ app.MapControllerRoute(
 app.MapGrpcService<RobotClientsService>();
 app.UseLgdxExpectionHandling();
 
+bool retry = false;
+await WaitForRabbitMq();
 app.Run();
+
+async Task WaitForRabbitMq()
+{
+	var delay = TimeSpan.FromSeconds(5);
+	while (true)
+	{
+		try
+		{
+			using var tcp = new System.Net.Sockets.TcpClient();
+			await tcp.ConnectAsync(builder.Configuration["RabbitMq:HostName"]!, int.Parse(builder.Configuration["RabbitMq:Port"]!));
+			if (retry)
+				await Task.Delay(delay); // wait for RabbitMQ to be ready
+			return;
+		}
+		catch
+		{
+			retry = true;
+			Console.WriteLine("Waiting for RabbitMQ...");
+			await Task.Delay(delay);
+		}
+	}
+}
 
 internal class BearerSecuritySchemeTransformer(
 	IAuthenticationSchemeProvider authenticationSchemeProvider,
@@ -333,8 +365,8 @@ internal class BearerSecuritySchemeTransformer(
 		var address = server.Features.Get<IServerAddressesFeature>()!.Addresses.LastOrDefault(); // HTTPS port must higher
 		address = address!.Replace("[::]", "localhost");
 		document.Servers =
-    [
-      new()
+		[
+			new()
 			{
 				Url = address,
 				Description = "Default Server"

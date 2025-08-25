@@ -44,10 +44,10 @@ openssl x509 -in rootCA.crt -noout -serial
 
 echo ""
 
-echo "Copy to appsettings.ui.json -> CertificateSN"
+echo "Copy to appsettings.ui.json -> LGDXRobotCloudAPI:CertificateSN"
 openssl x509 -in ui.crt -noout -serial
 
 echo ""
 
-echo "Copy to appsettings.ui.json -> CertificateSN"
+echo "Copy to appsettings.api.json -> Redis:CertificateSN; Copy to appsettings.ui.json -> Redis:CertificateSN"
 openssl x509 -in redis_client.crt -noout -serial
