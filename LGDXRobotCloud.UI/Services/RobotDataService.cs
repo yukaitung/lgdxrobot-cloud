@@ -20,7 +20,7 @@ public partial class RobotDataService(
 {
   private readonly IConnectionMultiplexer _redisConnection = redisConnection;
 
-  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "{Msg}")]
+  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "UI RobotDataService Redis Exception: {Msg}")]
   public partial void LogException(string msg);
 
   public async Task<Dictionary<Guid, RobotData>> GetRobotDataFromRealmAsync(int realmId)

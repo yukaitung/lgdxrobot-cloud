@@ -25,7 +25,7 @@ public partial class SlamDataRepository(
   private readonly IConnectionMultiplexer _redisConnection = redisConnection ?? throw new ArgumentNullException(nameof(redisConnection));
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository ?? throw new ArgumentNullException(nameof(robotDataRepository));
 
-  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "{Msg}")]
+  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Redis SlamDataRepository Exception: {Msg}")]
   public partial void LogException(string msg);
 
   public async Task<bool> StartSlamAsync(int realmId, Guid robotId)

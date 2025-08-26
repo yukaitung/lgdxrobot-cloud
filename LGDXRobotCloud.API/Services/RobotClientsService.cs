@@ -19,9 +19,10 @@ using LGDXRobotCloud.Utilities.Helpers;
 namespace LGDXRobotCloud.API.Services;
 
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.RobotClientsJwtScheme)]
-public class RobotClientsService(
+public partial class RobotClientsService(
     IAutoTaskSchedulerService autoTaskSchedulerService,
     IConnectionMultiplexer redisConnection,
+    ILogger<RobotClientsService> logger,
     IOnlineRobotsService OnlineRobotsService,
     IOptionsSnapshot<LgdxRobotCloudSecretConfiguration> lgdxRobotCloudSecretConfiguration,
     IRobotService robotService,
@@ -34,6 +35,9 @@ public class RobotClientsService(
   private readonly LgdxRobotCloudSecretConfiguration _lgdxRobotCloudSecretConfiguration = lgdxRobotCloudSecretConfiguration.Value ?? throw new ArgumentNullException(nameof(lgdxRobotCloudSecretConfiguration));
   private readonly IRobotService _robotService = robotService ?? throw new ArgumentNullException(nameof(robotService));
   private readonly ISlamService _slamService = slamService ?? throw new ArgumentNullException(nameof(slamService));
+
+  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "gRPC RobotClientsService Exception: {Msg}")]
+  public partial void LogException(string msg);
 
   private bool pauseAutoTaskAssignmentEffective = false;
 
@@ -187,6 +191,10 @@ public class RobotClientsService(
         }
       }
     }
+    catch (Exception ex)
+    {
+      LogException(ex.Message);
+    }
     finally
     {
       // The reading stream is completed, stop wirting task
@@ -242,6 +250,10 @@ public class RobotClientsService(
           await _onlineRobotsService.UpdateRobotDataAsync(robotId, request.RobotData);
         }
       }
+    }
+    catch (Exception ex)
+    {
+      LogException(ex.Message);
     }
     finally
     {

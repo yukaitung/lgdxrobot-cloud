@@ -28,7 +28,7 @@ public partial class AutoTaskRepository(
   private readonly IConnectionMultiplexer _redisConnection = redisConnection ?? throw new ArgumentNullException(nameof(redisConnection));
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository ?? throw new ArgumentNullException(nameof(robotDataRepository));
 
-  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "{Msg}")]
+  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Redis AutoTaskRepository Exception: {Msg}")]
   public partial void LogException(string msg);
 
   public async Task<Guid?> SchedulerHoldAnyRobotAsync(int realmId)

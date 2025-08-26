@@ -24,13 +24,13 @@ public partial class AutoTaskPathPlannerService(
   private readonly IRobotDataRepository _robotDataRepository = robotDataRepository ?? throw new ArgumentNullException(nameof(robotDataRepository));
   private readonly LgdxContext _context = context ?? throw new ArgumentNullException(nameof(context));
   
-  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Path planning: The task detail does not have waypoint.")]
+  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "AutoTaskPathPlannerService Path planning: The task detail does not have waypoint.")]
   public partial void TheTaskDetailDoesNotHaveWaypoint();
 
-  [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "Path planning: Unable to find the path. Start waypoint ID: {StartWaypointId}, End waypoint ID: {EndWaypointId}.")]
+  [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "AutoTaskPathPlannerService Path planning: Unable to find the path. Start waypoint ID: {StartWaypointId}, End waypoint ID: {EndWaypointId}.")]
   public partial void TheTaskDetailDoesNotHaveWaypoint(int startWaypointId, int endWaypointId);
 
-  [LoggerMessage(EventId = 2, Level = LogLevel.Error, Message = "Path planning: Robot data not found for robot ID: {RobotId}.")]
+  [LoggerMessage(EventId = 2, Level = LogLevel.Error, Message = "AutoTaskPathPlannerService Path planning: Robot data not found for robot ID: {RobotId}.")]
   public partial void RobotDataNotFoundForRobotId(Guid robotId);
 
   private static double EuclideanDistance(double x1, double y1, double x2, double y2)

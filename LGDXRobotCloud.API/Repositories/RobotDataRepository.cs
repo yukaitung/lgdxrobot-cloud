@@ -29,7 +29,7 @@ public partial class RobotDataRepository(
 {
   private readonly IConnectionMultiplexer _redisConnection = redisConnection ?? throw new ArgumentNullException(nameof(redisConnection));
 
-  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "{Msg}")]
+  [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "Redis RobotDataRepository Exception: {Msg}")]
   public partial void LogException(string msg);
 
   private async Task<bool> IndexExistsAsync(string indexName)

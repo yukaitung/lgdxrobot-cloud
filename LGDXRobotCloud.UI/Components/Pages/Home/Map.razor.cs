@@ -122,20 +122,21 @@ public partial class Map : ComponentBase, IAsyncDisposable
   private async Task OnRobotDataUpdated()
   {
     TimerStop();
-    var robotData = await RobotDataService.GetRobotDataFromRealmAsync(Realm.Id!.Value);
-    if (robotData.Count > 0)
+    var newRobotData = await RobotDataService.GetRobotDataFromRealmAsync(Realm.Id!.Value);
+    // Current robot offline Handle
+    if (newRobotData.Count > 0)
     {
       try
       {
         // Update map
-        foreach (var data in robotData)
+        foreach (var data in newRobotData)
         {
           var position = data.Value.Position;
           await JSRuntime.InvokeVoidAsync("MoveRobot", data.Key, position.X, position.Y, position.Rotation);
         }
 
         // Update current robot
-        if (SelectedRobot != null && robotData.TryGetValue(SelectedRobotId, out var rd))
+        if (SelectedRobot != null && newRobotData.TryGetValue(SelectedRobotId, out var rd))
         {
           SelectedRobot = rd;
           // Update Plan
@@ -150,14 +151,13 @@ public partial class Map : ComponentBase, IAsyncDisposable
 
         // Remove offline robots
         List<Guid> oldRobotIds = [.. RobotsData.Keys];
-        List<Guid> newRobotIds = [.. robotData.Keys];
+        List<Guid> newRobotIds = [.. newRobotData.Keys];
         List<Guid> removeRobotIds = [.. oldRobotIds.Except(newRobotIds)];
         foreach (var robotId in removeRobotIds)
         {
           await JSRuntime.InvokeVoidAsync("RemoveRobot", robotId);
         }
-
-        RobotsData = robotData;
+        RobotsData = newRobotData;
         await InvokeAsync(StateHasChanged);
       }
       catch (Exception)
@@ -168,6 +168,15 @@ public partial class Map : ComponentBase, IAsyncDisposable
     }
     else
     {
+      // Remove All robot because they are offline
+      List<Guid> oldRobotIds = [.. RobotsData.Keys];
+      if (oldRobotIds.Count > 0)
+      {
+        foreach (var robot in oldRobotIds)
+        {
+          await JSRuntime.InvokeVoidAsync("RemoveRobot", robot);
+        }
+      }
       TimerStartLong();
     }
   }
