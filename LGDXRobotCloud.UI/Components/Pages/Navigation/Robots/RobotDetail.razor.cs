@@ -110,12 +110,12 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
 
   private void TimerStart(int delay = 500)
   {
-    Timer?.Change(delay, 500);
+    Timer?.Change(delay, Timeout.Infinite);
   }
 
   private void TimerStartLong()
   {
-    Timer?.Change(3000, 3000);
+    Timer?.Change(3000, Timeout.Infinite);
   }
 
   private void TimerStop()

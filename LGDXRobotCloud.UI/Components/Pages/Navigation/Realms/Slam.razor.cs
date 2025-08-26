@@ -53,7 +53,7 @@ public partial class Slam : ComponentBase, IDisposable
 
   private void TimerStart(int delay = 200)
   {
-    Timer?.Change(delay, 200);
+    Timer?.Change(delay, Timeout.Infinite);
   }
 
   private void TimerStop()

@@ -8,6 +8,7 @@ using LGDXRobotCloud.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Home;
 
@@ -49,12 +50,12 @@ public partial class Map : ComponentBase, IAsyncDisposable
 
   private void TimerStart(int delay = 500)
   {
-    Timer?.Change(delay, 500);
+    Timer?.Change(delay, Timeout.Infinite);
   }
 
   private void TimerStartLong()
   {
-    Timer?.Change(3000, 3000);
+    Timer?.Change(3000, Timeout.Infinite);
   }
 
   private void TimerStop()
@@ -123,9 +124,9 @@ public partial class Map : ComponentBase, IAsyncDisposable
   {
     TimerStop();
     var newRobotData = await RobotDataService.GetRobotDataFromRealmAsync(Realm.Id!.Value);
-    // Current robot offline Handle
     if (newRobotData.Count > 0)
     {
+      // Robots are online
       try
       {
         // Update map
@@ -168,13 +169,21 @@ public partial class Map : ComponentBase, IAsyncDisposable
     }
     else
     {
+      // No robot online
       // Remove All robot because they are offline
       List<Guid> oldRobotIds = [.. RobotsData.Keys];
       if (oldRobotIds.Count > 0)
       {
-        foreach (var robot in oldRobotIds)
+        try
         {
-          await JSRuntime.InvokeVoidAsync("RemoveRobot", robot);
+          foreach (var robot in oldRobotIds)
+          {
+            await JSRuntime.InvokeVoidAsync("RemoveRobot", robot);
+          }
+        }
+        catch (Exception)
+        {
+          // Ignore
         }
       }
       TimerStartLong();
