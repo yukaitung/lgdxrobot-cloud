@@ -166,7 +166,10 @@ public partial class Map : ComponentBase, IAsyncDisposable
       }
       TimerStart();
     }
-    TimerStartLong();
+    else
+    {
+      TimerStartLong();
+    }
   }
 
   protected override async Task OnInitializedAsync() 
