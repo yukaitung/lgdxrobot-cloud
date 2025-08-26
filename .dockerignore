@@ -17,6 +17,6 @@ Tests/*
 .git/*
 .gitignore
 .gitlab-ci.yml
-img.png
+img/*
 LICENSE
 README.md

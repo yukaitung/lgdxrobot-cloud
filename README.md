@@ -1,8 +1,10 @@
 # LGDXRobot Cloud
 
-![IMG](img.png)
+![IMG](img/img1.png)
 
 > Please note that development is primarily done on GitLab: https://gitlab.com/yukaitung/lgdxrobot2-cloud
+
+## Overview
 
 LGDXRobot Cloud is a robot management system for Automated Guided Vehicles (AGVs), designed with a focus on flexibility and security. It can monitor the status of robots in real-time and manage automated tasks for transportation and logistics. The system is also designed to support easy integration with third-party services and workflows. It integrates seamlessly with the [LGDXRobot2](https://lgdxrobot.bristolgram.uk/lgdxrobot2/) robot, providing a solid foundation for a robotics solution.
 
@@ -11,30 +13,55 @@ LGDXRobot Cloud is a robot management system for Automated Guided Vehicles (AGVs
 
 ## Features
 
-- Real-time management of robots, including status monitoring and task automation
-- Multi-fleet management with waypoint and traffic control
-- Email notifications for incidents and alerts
-- Integration of third-party web services and hardware with customisable workflows
-- User management with role-based or fine-grained access control
-- Enhanced security:
-  - Two-factor authentication for users
-  - Certificate-based authentication for robots
-  - Optional hardware protection
-- API key management for third-party services
+- **Real-Time Management**: Manage robot statuses and task processes through a real-time web interface.
+- **United Solution Setup**: Generate maps with SLAM, register robots, and manage operations using the same system.
+- **Multi-Fleet Management**: Manage multiple fleets of robots with waypoint navigation and traffic control.
+- **Email Notifications**: Receive notifications for incidents and alerts, with customisable recipients.
+- **Seamless Integration**: Customisable workflows allow integration with third-party web services and hardware.
+- **User Management**: Create users and define permissions based on roles or fine-grained access control.
+- **Security Features**:
+  - Two-factor authentication with a mobile app for user login.
+  - Certificate-based authentication for robots.
+  - Optional hardware-level protection via serial number validation.
+- **API Key Management**: Manage API keys to control third-party service access to the system.
+
+## Screenshots
+
+Monitor robot locations on a map, highlighting the selected robot along with its status and planned path.
+
+![IMG](img/img2.png)
+
+Monitor robot statuses on a page.
+
+![IMG](img/img3.png)
+
+Generate maps using SLAM.
+
+![IMG](img/img4.png)
 
 ## Tech Stack
 
-The system is built using the .NET framework, with ASP.NET Web API for the backend and Blazor for the frontend. It also utilises RabbitMQ for message queuing and PostgreSQL for database management. Communication between the system and the robot is handled using gRPC. An example client can be found in [LGDXRobot2-ROS2](https://gitlab.com/yukaitung/lgdxrobot2-ros2).
+The system is built using the .NET framework, with ASP.NET Web API for the backend and Blazor for the frontend.
+
+It also utilises RabbitMQ for reliable message queuing to the worker service, Redis for robot data aggregation, and PostgreSQL for database management.
+
+Communication between the system and the robot is handled using gRPC. An example client can be found in [LGDXRobot2-ROS2](https://gitlab.com/yukaitung/lgdxrobot2-ros2).
 
 The solution consists of the following projects:
 
 - `LGDXRobotCloud.API`: Backend API for data management, task distribution, and access control
 - `LGDXRobotCloud.UI`: Frontend project providing a real-time user interface
-- `LGDXRobotCloud.Worker`: Background services for time-consuming tasks such as sending email notifications - or calling external APIs
+- `LGDXRobotCloud.Worker`: Background services for time-consuming tasks such as sending email notifications or calling external APIs
 - `LGDXRobotCloud.Data`: Contains database schema definitions and migrations, as well as Data Transfer Objects (DTOs) and internal models
 - `LGDXRobotCloud.Utilities`: Common functions and constants shared across other projects
 
-## Getting Started
+## Installation
+
+### Full Integration with LGDXRobot2
+
+[https://lgdxrobot.bristolgram.uk/get-started/](https://lgdxrobot.bristolgram.uk/get-started/)
+
+### Fast Setup
 
 LGDXRobot Cloud includes a `Docker/docker-compose` setup for easy deployment in development and testing environments. You will need Docker with Docker Compose, Git, and OpenSSL installed.
 
@@ -59,28 +86,9 @@ docker-compose up
 
 Wait for the console to display the message: `data-1 exited with code 0`. This indicates that the database has been initialised and the API is ready. Alternatively, you can check whether the `docker-compose-data-1` container has terminated.
 
-To access the frontend, open: [https://localhost:5103/](https://localhost:5103/)
+To access the frontend, open: [https://localhost:5103/](http://localhost:5102/)
 
 The default username and password is `admin` / `123456`.
-
-### Full Integration with LGDXRobot2 on Simulation
-
-[https://lgdxrobot.bristolgram.uk/get-started/](https://lgdxrobot.bristolgram.uk/get-started/)
-
-### Robot Integration (Testing with Postman)
-
-To test robot integration using Postman:
-
-1. Make sure a robot has been created and that you have saved its Root Certificate, Public Key, and Private Key.
-2. Import the `LGDXRobotCloud.API/Protos/RobotClientsService.proto` file into Postman.
-3. Add the certificate (targeting localhost:5162) to Postman.
-
-To authenticate the robot:
-
-1. Call the `greet` method with example data to receive a Bearer Token.
-2. Call the `exchange` method with the token and the following status `{ "RobotStatus": 0 }`.
-
-If successful, the robot will appear as online in the frontend.
 
 ## Notes About Docker
 
