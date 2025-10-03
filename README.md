@@ -57,6 +57,16 @@ The solution consists of the following projects:
 
 ## Installation
 
+There are several installation options for different use cases:
+
+- **Full Setup Instructions**: For users who want to set up and customise the system for their specific needs.
+- **Full Integration with LGDXRobot2**: For users who want to quickly try the system with full LGDXRobot2 integration.
+- **Fast Setup**: For users who want to get up and running quickly with the system only.
+
+### Full Setup Instructions
+
+[https://docs.lgdxrobot.bristolgram.uk/cloud/](https://docs.lgdxrobot.bristolgram.uk/cloud/)
+
 ### Full Integration with LGDXRobot2
 
 [https://lgdxrobot.bristolgram.uk/get-started/](https://lgdxrobot.bristolgram.uk/get-started/)
