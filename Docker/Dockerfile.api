@@ -1,4 +1,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0.301@sha256:b768b444028d3c531de90a356836047e48658cd1e26ba07a539a6f1a052a35d9 AS build
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends protobuf-compiler && \
+    rm -rf /var/lib/apt/lists/*
+ENV PROTOBUF_PROTOC=/usr/bin/protoc
 WORKDIR /App
 COPY . ./
 WORKDIR /App/LGDXRobotCloud.API
