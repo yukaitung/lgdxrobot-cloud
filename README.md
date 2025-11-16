@@ -67,10 +67,6 @@ There are several installation options for different use cases:
 
 [https://docs.lgdxrobot.bristolgram.uk/cloud/](https://docs.lgdxrobot.bristolgram.uk/cloud/)
 
-### Full Integration with LGDXRobot2
-
-[https://lgdxrobot.bristolgram.uk/get-started/](https://lgdxrobot.bristolgram.uk/get-started/)
-
 ### Fast Setup
 
 LGDXRobot Cloud includes a `Docker/docker-compose` setup for easy deployment in development and testing environments. You will need Docker with Docker Compose, Git, and OpenSSL installed.
