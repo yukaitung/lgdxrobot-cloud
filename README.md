@@ -2,7 +2,7 @@
 
 ![IMG](img/img1.png)
 
-> Please note that development is primarily done on GitLab: https://gitlab.com/yukaitung/lgdxrobot2-cloud
+> Please note that development is primarily done on GitLab: https://gitlab.com/lgdxrobotics/lgdxrobot-cloud
 
 ## Overview
 
