@@ -43,8 +43,6 @@ prepare:
       when: never 
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   image: alpine:latest
-  tags:
-    - lgdx-amd64
   script:
     - apk add libxml2-utils
     - echo "APP_VERSION=$(xmllint --xpath "//Project/PropertyGroup/Version/text()" version.xml)" >> variables.env
@@ -55,8 +53,6 @@ prepare:
 build:
   stage: build-1
   image: mcr.microsoft.com/dotnet/sdk:9.0
-  tags:
-    - lgdx-amd64
   before_script:
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
@@ -65,8 +61,6 @@ build:
 unit-test:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:9.0
-  tags:
-    - lgdx-amd64
   before_script:
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
@@ -94,8 +88,6 @@ unit-test-page:
   only:
     - main
   image: alpine:latest
-  tags:
-    - lgdx-amd64
   script:
     # Copy coverage report
     - 'rm coveragereport/Cobertura.xml'
@@ -117,7 +109,7 @@ build-amd64:
   image: docker:24.0.5-git
   dependencies: []
   tags:
-    - lgdx-amd64
+    - saas-linux-small-amd64
   services:
     - docker:24.0.5-dind
   script:
@@ -182,8 +174,6 @@ release_job:
     - if: $CI_COMMIT_TAG
       when: never 
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  tags:
-    - lgdx-amd64
   needs:
     - job: prepare
       artifacts: true
