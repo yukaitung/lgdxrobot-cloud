@@ -1,4 +1,9 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0.301@sha256:b768b444028d3c531de90a356836047e48658cd1e26ba07a539a6f1a052a35d9 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0.307@sha256:1ea5b7f2154cbd1e20a336cb56957dba30a7ce30ef5c1c032a37c42801594713 AS build
+
+#
+# Build
+#
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends protobuf-compiler && \
     rm -rf /var/lib/apt/lists/*
@@ -9,8 +14,11 @@ WORKDIR /App/LGDXRobotCloud.API
 RUN dotnet restore
 RUN dotnet publish --property:PublishDir=./out
 
-# Build
-FROM mcr.microsoft.com/dotnet/aspnet:9.0.7
+#
+# Out
+#
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0.11
 WORKDIR /App
 COPY --from=build /App/LGDXRobotCloud.API/out .
 EXPOSE 5162

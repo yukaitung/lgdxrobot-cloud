@@ -31,7 +31,7 @@ services:
       - ./certs/redis_server.key:/certs/redis_server.key
 
   api:
-    image: yukaitung/lgdxrobotcloud.api
+    image: yukaitung/lgdxrobotcloud-api
     ports:
       - 5162:5162
       - 5163:5163
@@ -52,7 +52,7 @@ services:
       - redis
 
   ui:
-    image: yukaitung/lgdxrobotcloud.ui
+    image: yukaitung/lgdxrobotcloud-ui
     ports:
       - 5102:5102
       - 5103:5103
@@ -72,7 +72,7 @@ services:
       - redis
 
   worker:
-    image: yukaitung/lgdxrobotcloud.worker
+    image: yukaitung/lgdxrobotcloud-worker
     restart: always
     volumes:
       - ./appsettings.worker.json:/App/appsettings.json
@@ -82,7 +82,7 @@ services:
       - rabbitmq
 
   data:
-    image: yukaitung/lgdxrobotcloud.data
+    image: yukaitung/lgdxrobotcloud-data
     restart: "no"
     volumes:
       - ./appsettings.data.json:/App/appsettings.json
