@@ -41,7 +41,7 @@ Generate maps using SLAM.
 
 ## Tech Stack
 
-The system is built using the .NET framework, with ASP.NET Web API for the backend and Blazor for the frontend.
+The system is built using the .NET, with ASP.NET Web API for the backend and Blazor for the frontend.
 
 It also utilises RabbitMQ for reliable message queuing to the worker service, Redis for robot data aggregation, and PostgreSQL for database management.
 
@@ -55,19 +55,15 @@ The solution consists of the following projects:
 - `LGDXRobotCloud.Data`: Contains database schema definitions and migrations, as well as Data Transfer Objects (DTOs) and internal models
 - `LGDXRobotCloud.Utilities`: Common functions and constants shared across other projects
 
-## Installation
-
-There are several installation options for different use cases:
-
-- **Full Setup Instructions**: For users who want to set up and customise the system for their specific needs.
-- **Full Integration with LGDXRobot2**: For users who want to quickly try the system with full LGDXRobot2 integration.
-- **Fast Setup**: For users who want to get up and running quickly with the system only.
-
 ### Full Setup Instructions
+
+For users who want to set up and customise the system for their specific needs.
 
 [https://docs.lgdxrobot.bristolgram.uk/cloud/](https://docs.lgdxrobot.bristolgram.uk/cloud/)
 
 ### Fast Setup
+
+For users who want to get up and running quickly with the system only.
 
 LGDXRobot Cloud includes a `Docker/docker-compose` setup for easy deployment in development and testing environments. You will need Docker with Docker Compose, Git, and OpenSSL installed.
 
