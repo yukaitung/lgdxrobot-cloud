@@ -45,7 +45,7 @@ The system is built using the .NET, with ASP.NET Web API for the backend and Bla
 
 It also utilises RabbitMQ for reliable message queuing to the worker service, Redis for robot data aggregation, and PostgreSQL for database management.
 
-Communication between the system and the robot is handled using gRPC. An example client can be found in [LGDXRobot2-ROS2](https://gitlab.com/yukaitung/lgdxrobot2-ros2).
+Communication between the system and the robot is handled using gRPC. An example client can be found in [LGDXRobot2-ROS2](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2).
 
 The solution consists of the following projects:
 
@@ -94,7 +94,7 @@ The default username and password is `admin` / `123456`.
 
 ## Notes About Docker
 
-To pull the image from Docker Hub, you can either use the latest tag or specify a particular version number, such as 1.0.0. Please refer to the [releases](https://gitlab.com/yukaitung/lgdxrobot2-cloud/-/releases) page for the version history. All images support both amd64 and arm64 architectures.
+To pull the image from Docker Hub, you can either use the latest tag or specify a particular version number, such as 1.0.0. Please refer to the [Releases](https://gitlab.com/yukaitung/lgdxrobot2-cloud/-/releases) page for the version history. All images support both amd64 and arm64 architectures.
 
 ## License
 
