@@ -10,12 +10,10 @@
   <Import Project="..\version.xml" />
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
-    <PackageReference Include="Microsoft.Kiota.Bundle" Version="1.17.2" />
-    <PackageReference Include="Net.Codecrete.QrCodeGenerator" Version="2.0.6" />
-    <PackageReference Include="NRedisStack" Version="1.1.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
+    <PackageReference Include="Microsoft.Kiota.Bundle" Version="1.21.0" />
+    <PackageReference Include="Net.Codecrete.QrCodeGenerator" Version="2.0.7" />
+    <PackageReference Include="NRedisStack" Version="1.1.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
   </ItemGroup>
 
   <ItemGroup>

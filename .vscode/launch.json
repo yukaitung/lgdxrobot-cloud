@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch LGDXRobotCloud.API (.NET 9)",
+      "name": "Launch LGDXRobotCloud.API (.NET 10)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/LGDXRobotCloud.API/bin/Debug/net9.0/LGDXRobotCloud.API.dll",
+      "program": "${workspaceFolder}/LGDXRobotCloud.API/bin/Debug/net10.0/LGDXRobotCloud.API.dll",
       "args": [],
       "cwd": "${workspaceFolder}/LGDXRobotCloud.API",
       "stopAtEntry": false,
@@ -23,11 +23,11 @@
       }
     },
     {
-      "name": "Launch LGDXRobotCloud.UI (.NET 9)",
+      "name": "Launch LGDXRobotCloud.UI (.NET 10)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/LGDXRobotCloud.UI/bin/Debug/net9.0/LGDXRobotCloud.UI.dll",
+      "program": "${workspaceFolder}/LGDXRobotCloud.UI/bin/Debug/net10.0/LGDXRobotCloud.UI.dll",
       "args": [],
       "cwd": "${workspaceFolder}/LGDXRobotCloud.UI",
       "stopAtEntry": false,
@@ -44,11 +44,11 @@
       }
     },
     {
-      "name": "Launch LGDXRobotCloud.Worker (.NET 9)",
+      "name": "Launch LGDXRobotCloud.Worker (.NET 10)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/LGDXRobotCloud.Worker/bin/Debug/net9.0/LGDXRobotCloud.Worker.dll",
+      "program": "${workspaceFolder}/LGDXRobotCloud.Worker/bin/Debug/net10.0/LGDXRobotCloud.Worker.dll",
       "args": [],
       "cwd": "${workspaceFolder}/LGDXRobotCloud.Worker",
       "stopAtEntry": false,
@@ -69,9 +69,9 @@
     {
       "name": "Launch All",
       "configurations": [
-        "Launch LGDXRobotCloud.API (.NET 9)",
-        "Launch LGDXRobotCloud.UI (.NET 9)",
-        "Launch LGDXRobotCloud.Worker (.NET 9)"
+        "Launch LGDXRobotCloud.API (.NET 10)",
+        "Launch LGDXRobotCloud.UI (.NET 10)",
+        "Launch LGDXRobotCloud.Worker (.NET 10)"
       ],
       "stopAll": true,
     }
