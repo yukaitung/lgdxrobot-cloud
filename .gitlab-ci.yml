@@ -56,7 +56,7 @@ prepare:
 
 build:
   stage: build-1
-  image: mcr.microsoft.com/dotnet/sdk:9.0.301
+  image: mcr.microsoft.com/dotnet/sdk:10.0
   before_script:
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:
@@ -64,7 +64,7 @@ build:
 
 unit-test:
   stage: test
-  image: mcr.microsoft.com/dotnet/sdk:9.0.301
+  image: mcr.microsoft.com/dotnet/sdk:10.0
   before_script:
     - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
   script:

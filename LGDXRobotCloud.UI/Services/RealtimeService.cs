@@ -34,7 +34,7 @@ public class RealTimeService(
       {
         if (autoTaskUpdateHandlers.TryGetValue(queueName, out var hd))
         {
-          var update = JsonSerializer.Deserialize<AutoTaskUpdate>(value!);
+          var update = JsonSerializer.Deserialize<AutoTaskUpdate>((string)value!);
           foreach (var h in hd)
           {
             // invoke all handlers

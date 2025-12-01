@@ -34,13 +34,14 @@ public partial class Login : ComponentBase
   private string? ReturnUrl { get; set; }
 
   [SupplyParameterFromForm]
-  private LoginViewModel LoginViewModel { get; set; } = new();
+  private LoginViewModel? LoginViewModel { get; set; }
 
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
   protected override Task OnInitializedAsync()
   {
+    LoginViewModel ??= new LoginViewModel();
     _editContext = new EditContext(LoginViewModel);
     _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
     return base.OnInitializedAsync();
@@ -48,7 +49,7 @@ public partial class Login : ComponentBase
 
   public async Task HandleLogin()
   {
-    if (LoginViewModel.State == LoginViewModelState.TwoFactorCode && LoginViewModel.InputRecoveryCode)
+    if (LoginViewModel!.State == LoginViewModelState.TwoFactorCode && LoginViewModel.InputRecoveryCode)
     {
       LoginViewModel.State = LoginViewModelState.TwoFactorRecoveryCode;
       return;

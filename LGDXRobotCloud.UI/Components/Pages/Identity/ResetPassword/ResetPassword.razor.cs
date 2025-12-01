@@ -27,7 +27,7 @@ public partial class ResetPassword : ComponentBase
   private bool NewUser { get; set; } = false;
 
   [SupplyParameterFromForm]
-  public ResetPasswordViewModel ResetPasswordViewModel { get; set; } = new();
+  public ResetPasswordViewModel? ResetPasswordViewModel { get; set; }
 
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
@@ -36,17 +36,18 @@ public partial class ResetPassword : ComponentBase
   {
     try
     {
-      await LgdxApiClient.Identity.Auth.ResetPassword.PostAsync(ResetPasswordViewModel.ToResetPasswordRequestDto());
-      ResetPasswordViewModel.IsSuccess = true;
+      await LgdxApiClient.Identity.Auth.ResetPassword.PostAsync(ResetPasswordViewModel!.ToResetPasswordRequestDto());
+      ResetPasswordViewModel!.IsSuccess = true;
     }
     catch (ApiException ex)
     {
-      ResetPasswordViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      ResetPasswordViewModel!.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
   protected override Task OnInitializedAsync()
   {
+    ResetPasswordViewModel ??= new ResetPasswordViewModel();
     if (Email == null || Token == null)
     {
       NavigationManager.NavigateTo(AppRoutes.Identity.Login);

@@ -32,7 +32,7 @@ public partial class RobotDataService(
       var search = await db.FT().SearchAsync(RedisHelper.GetRobotDataIndex(realmId), new Query($"*"));
       foreach (var item in search.Documents)
       {
-        var data = JsonSerializer.Deserialize<RobotData>(item["json"]!);
+        var data = JsonSerializer.Deserialize<RobotData>((ReadOnlySpan<byte>)item["json"]!);
         Guid id = Guid.Parse(item.Id.Replace(RedisHelper.GetRobotDataPrefix(realmId), string.Empty));
         robotData.Add(id, data!);
       }

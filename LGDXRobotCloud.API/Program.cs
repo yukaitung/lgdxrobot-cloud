@@ -24,14 +24,13 @@ using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Wolverine;
 using Wolverine.RabbitMQ;
-using Wolverine.RabbitMQ.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(cfg =>
@@ -333,7 +332,7 @@ internal class BearerSecuritySchemeTransformer(
 		var authenticationSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();
 		if (authenticationSchemes.Any(authScheme => authScheme.Name == JwtBearerDefaults.AuthenticationScheme))
 		{
-			var requirements = new Dictionary<string, OpenApiSecurityScheme>
+			var requirements = new Dictionary<string, IOpenApiSecurityScheme>
 			{
 				["Bearer"] = new OpenApiSecurityScheme
 				{
@@ -344,7 +343,7 @@ internal class BearerSecuritySchemeTransformer(
 				}
 			};
 			document.Components ??= new OpenApiComponents();
-			document.Components.SecuritySchemes = requirements;
+			document.Components.SecuritySchemes = (IDictionary<string, IOpenApiSecurityScheme>?)requirements;
 		}
 		document.Info = new()
 		{

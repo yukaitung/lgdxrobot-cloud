@@ -13,7 +13,7 @@ public partial class ForgotPassword : ComponentBase
   public required LgdxApiClient LgdxApiClient { get; set; }
   
   [SupplyParameterFromForm]
-  private ForgotPasswordViewModel ForgotPasswordViewModel { get; set; } = new();
+  private ForgotPasswordViewModel? ForgotPasswordViewModel { get; set; }
 
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
@@ -22,17 +22,18 @@ public partial class ForgotPassword : ComponentBase
   {
     try
     {
-      await LgdxApiClient.Identity.Auth.ForgotPassword.PostAsync(ForgotPasswordViewModel.ToForgotPasswordRequestDto());
-      ForgotPasswordViewModel.IsSuccess = true;
+      await LgdxApiClient.Identity.Auth.ForgotPassword.PostAsync(ForgotPasswordViewModel!.ToForgotPasswordRequestDto());
+      ForgotPasswordViewModel!.IsSuccess = true;
     }
     catch (ApiException ex)
     {
-      ForgotPasswordViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      ForgotPasswordViewModel!.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
   protected override Task OnInitializedAsync()
   {
+    ForgotPasswordViewModel ??= new ForgotPasswordViewModel();
     _editContext = new EditContext(ForgotPasswordViewModel);
     _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
     return base.OnInitializedAsync();

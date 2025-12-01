@@ -24,6 +24,17 @@
 					"kind": "test",
 					"isDefault": true
 			}
-		}
+		},
+		{
+      "label": "delay",
+      "type": "shell",
+      "command": "sleep 1",
+      "problemMatcher": []
+    },
+		{
+      "label": "build-delay",
+      "dependsOn": ["build", "delay"],
+      "dependsOrder": "sequence"
+    }
 	]
 }

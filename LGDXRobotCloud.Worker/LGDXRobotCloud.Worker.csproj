@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>6c08366b-11f5-456d-a836-d089b7d40280</UserSecretsId>
@@ -10,8 +10,8 @@
   <Import Project="..\version.xml" />
 
   <ItemGroup>
-    <PackageReference Include="WolverineFx.RabbitMQ" Version="4.10.0" />
-    <PackageReference Include="MailKit" Version="4.12.0" />
+    <PackageReference Include="WolverineFx.RabbitMQ" Version="5.4.0" />
+    <PackageReference Include="MailKit" Version="4.14.1" />
   </ItemGroup>
 
   <ItemGroup>
