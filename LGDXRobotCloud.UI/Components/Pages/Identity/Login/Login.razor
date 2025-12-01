@@ -9,7 +9,7 @@
 <h2 class="h2 text-center mb-4">Welcome</h2>
 <EditForm EditContext="_editContext" method="post" OnValidSubmit="HandleLogin" FormName="Login">
   <DataAnnotationsValidator />
-  <ApiErrorAlert Errors="LoginViewModel.Errors" />
+  <ApiErrorAlert Errors="LoginViewModel!.Errors" />
   <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
   <input type="hidden" id="@($"{nameof(LoginViewModel)}.{nameof(LoginViewModel.State)}")"
     name="@($"{nameof(LoginViewModel)}.{nameof(LoginViewModel.State)}")" value="@(LoginViewModel.State)" />
