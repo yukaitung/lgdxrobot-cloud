@@ -9,26 +9,20 @@
   <div class="card-body border-bottom py-3">
     <div class="d-flex">
       <div class="text-secondary">
-        <div class="row g-2">
-          <div class="col">
-            Show
-          </div>
-          <div class="col-auto">
-            <TablePageSizeSelect OnChange="HandlePageSizeChange" />
-          </div>
-          <div class="col-auto">
-            entries
-          </div>
+        Show
+        <div class="mx-2 d-inline-block">
+          <TablePageSizeSelect OnChange="HandlePageSizeChange" />
         </div>
+        entries
       </div>
       <div class="ms-auto text-secondary">
         Search:
-      </div>
-      <div class="text-secondary">
-        <div class="input-group">
-          <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
-          <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
-          <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
+        <div class="d-inline-block">
+          <div class="input-group">
+            <input type="text" class="form-control form-control-sm ms-2" @bind="DataSearch">
+            <button type="button" class="btn btn-sm" @onclick="HandleSearch">Search</button>
+            <button type="button" class="btn btn-sm" @onclick="HandleClearSearch">Clear</button>
+          </div>
         </div>
       </div>
     </div>
