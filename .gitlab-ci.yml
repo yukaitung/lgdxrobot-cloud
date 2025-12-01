@@ -142,8 +142,10 @@ build-arm64:
   tags:
     - saas-linux-small-arm64 
   services:
-    - docker:24.0.5-dind
+    - name: docker:24.0.5-dind
+      command: ["--mtu=1400"]
   variables:
+    DOCKER_TLS_CERTDIR: "/certs"
     ARCH: arm64
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
