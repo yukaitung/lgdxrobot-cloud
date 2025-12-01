@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:18
     ports:
       - 5432:5432
     restart: always
@@ -9,17 +9,17 @@ services:
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_DB: LGDXRobotCloud
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
 
   rabbitmq:
-    image: rabbitmq:4.0-management
+    image: rabbitmq:4
     ports:
       - 5672:5672
       - 15672:15672
     restart: always
 
   redis:
-    image: redis:latest
+    image: redis:8
     ports:
       - 6379:6379
     restart: always
