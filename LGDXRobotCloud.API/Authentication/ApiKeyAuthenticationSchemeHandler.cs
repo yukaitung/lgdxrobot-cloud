@@ -21,9 +21,10 @@ public class ApiKeyAuthenticationSchemeHandler(
   {
     string? apiKey = Context.Request.Headers["X-API-KEY"];
     var apiKeyId = await _apiKeyService.ValidateApiKeyAsync(apiKey);
-    if (!_webHostEnvironment.IsDevelopment() && apiKeyId == null)
+    if ((!_webHostEnvironment.IsDevelopment() && apiKeyId == null) || // API Key is invalid in production
+        (_webHostEnvironment.IsDevelopment() && !string.IsNullOrWhiteSpace(apiKey) && apiKeyId == null)) // API Key (if provided) is incorrect in development
     {
-      return AuthenticateResult.Fail("X-API-KEY is invalid");
+      return AuthenticateResult.Fail("The API Key is invalid");
     }
     
     Context.Items["ApiKeyId"] = apiKeyId;

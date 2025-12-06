@@ -242,6 +242,6 @@ public class ApiKeyService(
       _memoryCache.Set($"ValidateApiKeyAsync_{hashed}", true, TimeSpan.FromMinutes(5));
     }
 
-    return apiKeyId;
+    return apiKeyId == 0 ? null : apiKeyId;
   }
 }
