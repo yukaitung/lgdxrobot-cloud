@@ -274,12 +274,14 @@ public class TriggerService (
         RealmName = GetRealmName(autoTask.RealmId),
       });
       
+      /*
       await _activityService.CreateActivityLogAsync(new ActivityLogCreateBusinessModel
       {
         EntityName = nameof(Trigger),
         EntityId = trigger.Id.ToString(),
         Action = ActivityAction.TriggerExecute,
       });
+      */
     }
   }
 
