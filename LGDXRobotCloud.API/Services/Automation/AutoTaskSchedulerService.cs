@@ -20,7 +20,7 @@ public interface IAutoTaskSchedulerService
   Task ReleaseRobotAsync(Guid robotId);
 
   Task AutoTaskAbortAsync(Guid robotId, int taskId, string token, AutoTaskAbortReason autoTaskAbortReason);
-  Task<bool> AutoTaskAbortApiAsync(int taskId);
+  Task<bool> AutoTaskAbortUserAsync(int taskId);
   Task AutoTaskNextAsync(Guid robotId, int taskId, string token);
   Task<bool> AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
 }
@@ -355,7 +355,7 @@ public class AutoTaskSchedulerService(
     }
   }
 
-  public async Task<bool> AutoTaskAbortApiAsync(int taskId)
+  public async Task<bool> AutoTaskAbortUserAsync(int taskId)
   {
     var task = await AutoTaskAbortSqlAsync(taskId);
     if (task == null)
@@ -364,7 +364,7 @@ public class AutoTaskSchedulerService(
     }
 
     await DeleteTriggerRetries(taskId);
-    await _emailService.SendAutoTaskAbortEmailAsync(taskId, AutoTaskAbortReason.UserApi);
+    await _emailService.SendAutoTaskAbortEmailAsync(taskId, AutoTaskAbortReason.User);
     await AddAutoTaskJourney(task);
     // Allow update the task to rabbitmq
     var sendTask = await GenerateTaskDetail(task);

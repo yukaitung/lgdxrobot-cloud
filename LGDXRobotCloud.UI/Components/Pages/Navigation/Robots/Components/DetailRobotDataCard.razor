@@ -71,6 +71,12 @@
 
 @code
 {
-  [Parameter]
-  public RobotData? RobotData { get; set; }
+  // Assign the RobotData from Refresh to prevent full re-rendering 
+  private RobotData? RobotData { get; set; }
+
+  public async Task Refresh(RobotData? rd)
+  {
+    RobotData = rd;
+    await InvokeAsync(StateHasChanged);
+  }
 }

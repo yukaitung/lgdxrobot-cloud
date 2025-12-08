@@ -35,8 +35,8 @@ public class EmailService (
       EmailType.PasswordReset => new PasswordResetStrategy(emailContract, _emailLinksConfiguration, _htmlRenderer),
       EmailType.PasswordUpdate => new PasswordUpdateStrategy(emailContract, _htmlRenderer),
       EmailType.RobotStuck => new RobotStuckStrategy(emailContract, _htmlRenderer),
-      EmailType.TriggerFailed => new TriggerFailedStrategy(emailContract, _htmlRenderer),
-      EmailType.AutoTaskAbort => new AutoTaskAbortStrategy(emailContract, _htmlRenderer),
+      EmailType.TriggerFailed => new TriggerFailedStrategy(emailContract, _emailLinksConfiguration, _htmlRenderer),
+      EmailType.AutoTaskAbort => new AutoTaskAbortStrategy(emailContract, _emailLinksConfiguration, _htmlRenderer),
       _ => throw new ArgumentOutOfRangeException(nameof(emailContract.EmailType)),
     };
   }

@@ -10,18 +10,27 @@ namespace LGDXRobotCloud.API.Areas.Automation.Controllers;
 [Area("Automation")]
 [Route("[area]/[controller]")]
 [Authorize(AuthenticationSchemes = LgdxRobotCloudAuthenticationSchemes.ApiKeyOrCertificateScheme)]
-public class AutoTasksNextController(
+public class AutoTasksApiController(
     IAutoTaskService autoTaskService
   ) : ControllerBase
 {
   private readonly IAutoTaskService _autoTaskService = autoTaskService ?? throw new ArgumentNullException(nameof(autoTaskService));
 
-  [HttpPost("{id}")]
+  [HttpPost("/AutoTaskNext")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> AutoTaskNext(int id, AutoTaskNextDto autoTaskNextDto)
+  public async Task<IActionResult> AutoTaskNext(AutoTaskNextDto autoTaskNextDto)
   {
-    await _autoTaskService.AutoTaskNextApiAsync(autoTaskNextDto.RobotId, id, autoTaskNextDto.NextToken);
+    await _autoTaskService.AutoTaskNextApiAsync(autoTaskNextDto.RobotId, autoTaskNextDto.TaskId, autoTaskNextDto.NextToken);
+    return NoContent();
+  }
+
+  [HttpPost("/AutoTaskAbort")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+  public async Task<IActionResult> AutoTaskAbort(AutoTaskNextDto autoTaskNextDto)
+  {
+    await _autoTaskService.AbortAutoTaskApiAsync(autoTaskNextDto.RobotId, autoTaskNextDto.TaskId, autoTaskNextDto.NextToken);
     return NoContent();
   }
 }

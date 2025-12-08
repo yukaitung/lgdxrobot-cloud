@@ -1,6 +1,7 @@
 using LGDXRobotCloud.Data.Models.Redis;
 using LGDXRobotCloud.UI.Client;
 using LGDXRobotCloud.UI.Client.Models;
+using LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components;
 using LGDXRobotCloud.UI.Constants;
 using LGDXRobotCloud.UI.Helpers;
 using LGDXRobotCloud.UI.Services;
@@ -52,6 +53,8 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
   private RobotData? RobotData { get; set; }
 
   private Timer? Timer = null;
+  private DetailRobotDataCard? RobotDataCard;
+  private DetailHeader? Header;
 
   private Guid IdGuid { get; set; }
   private int RealmId { get; set; }
@@ -128,10 +131,11 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
     TimerStop();
     Guid robotId = Guid.Parse(Id);
     var robotData = await RobotDataService.GetRobotDataFromListAsync(RealmId, [IdGuid]);
-    if (robotData.TryGetValue(robotId, out var rd))
+    if (robotData.TryGetValue(robotId, out var rd) && rd != null)
     {
       RobotData = rd;
-      await InvokeAsync(StateHasChanged);
+      await Header!.Refresh(rd);
+      await RobotDataCard!.Refresh(rd);
       TimerStart();
     }
     else

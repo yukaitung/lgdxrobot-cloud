@@ -5,45 +5,7 @@
 @using LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components
 @using LGDXRobotCloud.Utilities.Enums
 
-<PageHeader Title="Robots">
-  <div class="row align-items-center">
-    <div class="col">
-      <ReturnLink HREF="@AppRoutes.Navigation.Robots.Index" ReturnUrl="@ReturnUrl" />
-      @if (RobotDetailViewModel != null)
-      {
-        <h2 class="page-title">
-          @RobotDetailViewModel.Name
-          &nbsp;
-          <RobotStatusBadge RobotStatus="@(RobotData != null ? RobotData.RobotStatus : RobotStatus.Offline)" />
-        </h2>
-      }
-      else
-      {
-        <div class="placeholder-glow">
-          <div class="placeholder col-2 placeholder-lg"></div>
-          <div class="text-secondary">
-            <div class="placeholder col-1"></div>
-          </div>
-        </div>
-      }
-    </div>
-    <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="Control">
-      @if (RobotData != null && RobotData.RobotStatus != RobotStatus.Offline)
-      {
-        <div class="col-md-auto ms-auto">
-          <div class="btn-list">
-            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssignment" style="width: 185px;">
-              @(RobotData.PauseTaskAssignment ? "Resume Task Assignment" : "Pause Task Assignment")
-            </a>
-            <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop" style="width: 160px;">
-              @(RobotData.CriticalStatus.SoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
-            </a>
-          </div>
-        </div>
-      }
-    </AuthorizeView>
-  </div>
-</PageHeader>
+<DetailHeader ReturnUrl="@ReturnUrl" RobotDetailViewModel="@RobotDetailViewModel" @ref="Header" />
 
 <PageBody>
   <div class="row row-cards">
@@ -51,7 +13,7 @@
       <DetailTasksCard AutoTasks="AutoTasks" />
     </div>
     <div class="col-12">
-      <DetailRobotDataCard RobotData="RobotData" />
+      <DetailRobotDataCard @ref="RobotDataCard" />
     </div>
     <div class="col-12">
       <ul class="nav nav-bordered mb-4">
@@ -132,14 +94,11 @@
   </div>
 </PageBody>
 
-@if (RobotData != null)
-{
-  <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ControlModel">
-    <PauseTaskAssignmentModel 
-      Enabled="RobotData.PauseTaskAssignment"
-      OnConfirm="HandlePauseTaskAssignment" />
-    <SoftwareEmergencyStopModel
-      Enabled="RobotData.CriticalStatus.SoftwareEmergencyStop"
-      OnConfirm="HandleEmergencyStop" />
-  </AuthorizeView>
-}
+<AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="ControlModel">
+  <PauseTaskAssignmentModel 
+    Enabled="RobotData == null ? false : RobotData.PauseTaskAssignment"
+    OnConfirm="HandlePauseTaskAssignment" />
+  <SoftwareEmergencyStopModel
+    Enabled="RobotData == null ? false : RobotData.CriticalStatus.SoftwareEmergencyStop"
+    OnConfirm="HandleEmergencyStop" />
+</AuthorizeView>
