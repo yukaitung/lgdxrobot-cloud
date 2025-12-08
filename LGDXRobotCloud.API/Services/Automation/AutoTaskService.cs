@@ -23,6 +23,7 @@ public interface IAutoTaskService
   Task<bool> DeleteAutoTaskAsync(int autoTaskId);
 
   Task AbortAutoTaskAsync(int autoTaskId);
+  Task AbortAutoTaskApiAsync(Guid robotId, int taskId, string token);
   Task AutoTaskNextApiAsync(Guid robotId, int taskId, string token);
 
   Task<AutoTaskStatisticsBusinessModel> GetAutoTaskStatisticsAsync(int realmId);
@@ -425,6 +426,12 @@ public class AutoTaskService(
       .FirstOrDefaultAsync()
       ?? throw new LgdxNotFound404Exception();
 
+    int autoTaskNextController = await _context.FlowDetails.AsNoTracking()
+      .Where(fd => fd.FlowId == autoTask.FlowId)
+      .Where(fd => fd.ProgressId == autoTask.CurrentProgressId)
+      .Select(fd => fd.AutoTaskNextControllerId)
+      .FirstOrDefaultAsync();
+
     if (autoTask.CurrentProgressId == (int)ProgressState.Template ||
         autoTask.CurrentProgressId == (int)ProgressState.Completed ||
         autoTask.CurrentProgressId == (int)ProgressState.Aborted)
@@ -441,15 +448,22 @@ public class AutoTaskService(
 
     if (autoTask.CurrentProgressId != (int)ProgressState.Waiting &&
         autoTask.AssignedRobotId != null &&
+        autoTaskNextController == (int)AutoTaskNextController.Robot &&
         await _onlineRobotsService.SetAbortTaskAsync((Guid)autoTask.AssignedRobotId!))
     {
-      // If the robot is online, abort the task from the robot
+      // If the robot is online and the next controller is robot, abort the task from the robot
       return;
     }
     else
     {
-      await _autoTaskSchedulerService.AutoTaskAbortApiAsync(autoTask.Id);
+      await _autoTaskSchedulerService.AutoTaskAbortUserAsync(autoTask.Id);
     }
+  }
+
+  public async Task AbortAutoTaskApiAsync(Guid robotId, int taskId, string token)
+  {
+    // Assume having the token means the API is the next controller
+    await _autoTaskSchedulerService.AutoTaskAbortAsync(robotId, taskId, token, AutoTaskAbortReason.Api);
   }
 
   public async Task AutoTaskNextApiAsync(Guid robotId, int taskId, string token)

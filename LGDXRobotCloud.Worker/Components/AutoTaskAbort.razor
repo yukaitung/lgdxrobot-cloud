@@ -53,14 +53,16 @@
     {
       switch (reason)
       {
-        case (int)AutoTaskAbortReason.UserApi:
-          return "Aborted by user / API";
+        case (int)AutoTaskAbortReason.User:
+          return "Aborted by the u";
         case (int)AutoTaskAbortReason.Robot:
-          return "Aborted by robot";
+          return "Aborted by the robot";
         case (int)AutoTaskAbortReason.NavStack:
-          return "Task rejected by NAV stack";
+          return "Task rejected by Nav stack";
         case (int)AutoTaskAbortReason.PathPlanner:
           return "Path planning failed";
+        case (int)AutoTaskAbortReason.Api:
+          return "Aborted by the API";
         default:
           return string.Empty;
       }
