@@ -19,13 +19,9 @@ public class ApiKeyDetailViewModel : FormViewModel, IValidatableObject
 
   public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
   {
-    if (IsThirdParty && string.IsNullOrWhiteSpace(Secret))
+    if (Id == 0 && IsThirdParty && string.IsNullOrWhiteSpace(Secret))
     {
       yield return new ValidationResult("Secret is required for Third-Party API Key.", [nameof(Secret)]);
-    }
-    if (!IsThirdParty && !string.IsNullOrWhiteSpace(Secret))
-    {
-      yield return new ValidationResult("LGDXRobot2 API Keys will be generated automatically.", [nameof(Secret)]);
     }
   }
 }
