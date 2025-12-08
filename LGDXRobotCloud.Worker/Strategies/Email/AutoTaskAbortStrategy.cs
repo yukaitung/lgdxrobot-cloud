@@ -1,6 +1,7 @@
 using System.Text.Json;
 using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Worker.Components;
+using LGDXRobotCloud.Worker.Configurations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MimeKit;
@@ -9,10 +10,12 @@ namespace LGDXRobotCloud.Worker.Strategies.Email;
 
 public class AutoTaskAbortStrategy(
     EmailContract emailContract,
+    EmailLinksConfiguration emailLinksConfiguration,
     HtmlRenderer htmlRenderer
   ) : IEmailStrategy
 {
   private readonly EmailContract _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
+  private readonly EmailLinksConfiguration _emailLinksConfiguration = emailLinksConfiguration ?? throw new ArgumentNullException(nameof(emailLinksConfiguration));
   private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
   protected readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
 
@@ -26,6 +29,7 @@ public class AutoTaskAbortStrategy(
       {
         dictionary.Add(data.Key, data.Value);
       }
+      dictionary.Add("Url", _emailLinksConfiguration.AccessUrl);
       var parameters = ParameterView.FromDictionary(dictionary);
       var output = await _htmlRenderer.RenderComponentAsync<AutoTaskAbort>(parameters);
       return output.ToHtmlString();

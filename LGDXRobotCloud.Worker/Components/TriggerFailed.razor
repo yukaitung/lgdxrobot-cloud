@@ -1,9 +1,9 @@
 @namespace LGDXRobotCloud.Worker.Components
 @using LGDXRobotCloud.Utilities.Enums
 <LayoutView Layout="@typeof(MainLayout)">
-  <h1>Action Needed: Trigger Failed for Task</h1>
+  <h1>Trigger Failed</h1>
   <p>
-    We encountered an issue while executing the API call trigger for your robot during its task.
+    An issue occurred while executing the API call trigger. Please visit <a href="@Url">@Url</a> to review the details.
   </p>
   <p>
     <table>
@@ -21,12 +21,12 @@
       <tr><td>Realm Name</td><td>@RealmName</td></tr>
     </table>
   </p>
-  <p>
-    This issue may impact the robot's operation.
-  </p>
 </LayoutView>
 
 @code {
+  [Parameter]
+  public string Url { get; set; } = string.Empty;
+
   [Parameter]
   public string TriggerId { get; set; } = string.Empty;
 

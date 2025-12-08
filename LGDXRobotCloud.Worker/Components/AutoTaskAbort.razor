@@ -3,7 +3,7 @@
 <LayoutView Layout="@typeof(MainLayout)">
   <h1>Task Aborted</h1>
   <p>
-    We wanted to inform you that the task assigned to your robot has been aborted.
+    An automation task has been aborted. Please visit <a href="@Url">@Url</a> to review the details.
   </p>
   <p>
     <table>
@@ -17,12 +17,12 @@
       <tr><td>Time</td><td>@Time</td></tr>
     </table>
   </p>
-  <p>
-    You can review the task details and take necessary actions on the UI.
-  </p>
 </LayoutView>
 
 @code {
+  [Parameter]
+  public string Url { get; set; } = string.Empty;
+
   [Parameter]
   public string AutoTaskId { get; set; } = string.Empty;
 
@@ -54,15 +54,15 @@
       switch (reason)
       {
         case (int)AutoTaskAbortReason.User:
-          return "Aborted by the u";
+          return "Aborted by the user.";
         case (int)AutoTaskAbortReason.Robot:
-          return "Aborted by the robot";
+          return "Aborted by the robot.";
         case (int)AutoTaskAbortReason.NavStack:
-          return "Task rejected by Nav stack";
+          return "Task rejected by Nav stack.";
         case (int)AutoTaskAbortReason.PathPlanner:
-          return "Path planning failed";
+          return "Path planning failed.";
         case (int)AutoTaskAbortReason.Api:
-          return "Aborted by the API";
+          return "Aborted by the API.";
         default:
           return string.Empty;
       }

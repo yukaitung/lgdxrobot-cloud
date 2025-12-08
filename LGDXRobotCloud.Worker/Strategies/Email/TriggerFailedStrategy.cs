@@ -1,6 +1,7 @@
 using System.Text.Json;
 using LGDXRobotCloud.Data.Models.RabbitMQ;
 using LGDXRobotCloud.Worker.Components;
+using LGDXRobotCloud.Worker.Configurations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MimeKit;
@@ -9,10 +10,12 @@ namespace LGDXRobotCloud.Worker.Strategies.Email;
 
 public class TriggerFailedStrategy(
     EmailContract emailContract,
+    EmailLinksConfiguration emailLinksConfiguration,
     HtmlRenderer htmlRenderer
   ) : IEmailStrategy
 {
   private readonly EmailContract _emailContract = emailContract ?? throw new ArgumentNullException(nameof(emailContract));
+  private readonly EmailLinksConfiguration _emailLinksConfiguration = emailLinksConfiguration ?? throw new ArgumentNullException(nameof(emailLinksConfiguration));
   private readonly HtmlRenderer _htmlRenderer = htmlRenderer ?? throw new ArgumentNullException(nameof(htmlRenderer));
   protected readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
 
@@ -26,6 +29,7 @@ public class TriggerFailedStrategy(
       {
         dictionary.Add(data.Key, data.Value);
       }
+      dictionary.Add("Url", _emailLinksConfiguration.AccessUrl);
       var parameters = ParameterView.FromDictionary(dictionary);
       var output = await _htmlRenderer.RenderComponentAsync<TriggerFailed>(parameters);
       return output.ToHtmlString();
@@ -36,7 +40,7 @@ public class TriggerFailedStrategy(
     {
       var message = new MimeMessage();
       message.To.Add(new MailboxAddress(to.Name, to.Email));
-      message.Subject = "Action Needed: Trigger Failed for Task";
+      message.Subject = "Trigger Failed";
       var emailBodyBuilder = new BodyBuilder
       {
         TextBody = html,

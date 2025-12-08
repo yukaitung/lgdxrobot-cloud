@@ -36,7 +36,7 @@ public class RobotStuckStrategy(
     {
       var message = new MimeMessage();
       message.To.Add(new MailboxAddress(to.Name, to.Email));
-      message.Subject = "Action Needed: Your Robot Encountered an Issue";
+      message.Subject = "A Robot Encountered an Issue";
       var emailBodyBuilder = new BodyBuilder
       {
         TextBody = html,
