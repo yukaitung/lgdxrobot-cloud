@@ -43,10 +43,16 @@
     <Tasks />
     break;
   case 1:
-    <Map />
+    <AuthorizeView Policy="@Permissions.Automation.AutoTasks.Write" Context="MapAutoTasks">
+      <AuthorizeView Policy="@Permissions.Navigation.Robots.Read" Context="MapRobots">
+       <Map />
+      </AuthorizeView>
+    </AuthorizeView>
     break;
   case 2:
-    <Robots />
+    <AuthorizeView Policy="@Permissions.Navigation.Robots.Read" Context="RobotsRobots">
+      <Robots />
+    </AuthorizeView>
     break;
 }
 
