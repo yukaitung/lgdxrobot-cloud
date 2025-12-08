@@ -16,7 +16,7 @@ public class AutoTasksApiController(
 {
   private readonly IAutoTaskService _autoTaskService = autoTaskService ?? throw new ArgumentNullException(nameof(autoTaskService));
 
-  [HttpPost("/AutoTaskNext")]
+  [HttpPost("AutoTaskNext")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> AutoTaskNext(AutoTaskNextDto autoTaskNextDto)
@@ -25,7 +25,7 @@ public class AutoTasksApiController(
     return NoContent();
   }
 
-  [HttpPost("/AutoTaskAbort")]
+  [HttpPost("AutoTaskAbort")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> AutoTaskAbort(AutoTaskNextDto autoTaskNextDto)

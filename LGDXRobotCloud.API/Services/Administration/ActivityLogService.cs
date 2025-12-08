@@ -71,9 +71,16 @@ public class ActivityLogService(
 
     foreach (var activityLog in activityLogs)
     {
-      if (activityLog.UserId != null)
+      if (activityLog.UserId != null && userNames.TryGetValue(activityLog.UserId.ToString()!, out var un))
       {
-        activityLog.UserName = userNames[activityLog.UserId.ToString()!];
+        if (string.IsNullOrWhiteSpace(un))
+        {
+          activityLog.UserName = "Deleted User";
+        }
+        else
+        {
+          activityLog.UserName = un;
+        }
       }
     }
 

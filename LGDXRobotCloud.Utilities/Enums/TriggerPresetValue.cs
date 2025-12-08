@@ -26,5 +26,8 @@ public enum TriggerPresetValue
   RealmId = 7,
 
   [EnumMember(Value = "Realm Name")]
-  RealmName = 8
+  RealmName = 8,
+
+  [EnumMember(Value = "Next Token")]
+  NextToken = 9
 }
