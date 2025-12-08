@@ -228,6 +228,7 @@ public class TriggerService (
       (int)TriggerPresetValue.RobotName => $"{GetRobotName((Guid)autoTask.AssignedRobotId!)}",
       (int)TriggerPresetValue.RealmId => $"{autoTask.RealmId}",
       (int)TriggerPresetValue.RealmName => $"{GetRealmName(autoTask.RealmId)}",
+      (int)TriggerPresetValue.NextToken => $"{autoTask.NextToken}", // Overriden value, don't check here
       _ => string.Empty,
     };
   }
@@ -240,6 +241,12 @@ public class TriggerService (
     if (trigger == null)
     {
       return;
+    }
+
+    // Remove the Next Token if the next controller is not API
+    if (flowDetail.AutoTaskNextControllerId != (int)AutoTaskNextController.API)
+    {
+      autoTask.NextToken = string.Empty;
     }
     
     var bodyDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(trigger.Body ?? "{}");
@@ -255,11 +262,6 @@ public class TriggerService (
             bodyDictionary[pair.Key] = GeneratePresetValue(p, autoTask);
           }
         }
-      }
-      // Add Next Token
-      if (flowDetail.AutoTaskNextControllerId != (int)AutoTaskNextController.Robot && autoTask.NextToken != null)
-      {
-        bodyDictionary.Add("NextToken", autoTask.NextToken);
       }
 
       await _bus.PublishAsync(new AutoTaskTriggerContract
