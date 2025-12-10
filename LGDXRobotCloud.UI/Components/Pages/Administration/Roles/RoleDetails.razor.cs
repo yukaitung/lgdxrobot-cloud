@@ -8,7 +8,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.Roles;
 
-public partial class RoleDetail : ComponentBase
+public partial class RoleDetails : ComponentBase
 {
   [Inject]
   public NavigationManager NavigationManager { get; set; } = default!;
@@ -19,28 +19,28 @@ public partial class RoleDetail : ComponentBase
   [Parameter]
   public string? Id { get; set; } = null;
 
-  private RolesDetailViewModel RolesDetailViewModel { get; set; } = new();
+  private RolesDetailsViewModel RolesDetailsViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
   public void ListAddScope()
   {
-    RolesDetailViewModel.Scopes.Add(new ScopeOption());
+    RolesDetailsViewModel.Scopes.Add(new ScopeOption());
   }
 
   public void ListRemoveScope(int i)
   {
-    if (RolesDetailViewModel.Scopes.Count <= 0)
+    if (RolesDetailsViewModel.Scopes.Count <= 0)
       return;
-    RolesDetailViewModel.Scopes.RemoveAt(i);
+    RolesDetailsViewModel.Scopes.RemoveAt(i);
   }
 
   public void HandleAreaChanged(int row, int value)
   {
-    if (row < 0 || row >= RolesDetailViewModel.Scopes.Count)
+    if (row < 0 || row >= RolesDetailsViewModel.Scopes.Count)
       return;
-    RolesDetailViewModel.Scopes[row].Area = value;
-    RolesDetailViewModel.Scopes[row].Controller = null;
+    RolesDetailsViewModel.Scopes[row].Area = value;
+    RolesDetailsViewModel.Scopes[row].Controller = null;
   }
 
   public async Task HandleValidSubmit()
@@ -50,18 +50,18 @@ public partial class RoleDetail : ComponentBase
       if (Id != null)
       {
         // Update
-        await LgdxApiClient.Administration.Roles[RolesDetailViewModel.Id].PutAsync(RolesDetailViewModel.ToUpdateDto());
+        await LgdxApiClient.Administration.Roles[RolesDetailsViewModel.Id].PutAsync(RolesDetailsViewModel.ToUpdateDto());
       }
       else
       {
         // Create
-        await LgdxApiClient.Administration.Roles.PostAsync(RolesDetailViewModel.ToCreateDto());
+        await LgdxApiClient.Administration.Roles.PostAsync(RolesDetailsViewModel.ToCreateDto());
       }
       NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
     }
     catch (ApiException ex)
     {
-      RolesDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      RolesDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -69,12 +69,12 @@ public partial class RoleDetail : ComponentBase
   {
     try
     {
-      await LgdxApiClient.Administration.Roles[RolesDetailViewModel.Id].DeleteAsync();
+      await LgdxApiClient.Administration.Roles[RolesDetailsViewModel.Id].DeleteAsync();
       NavigationManager.NavigateTo(AppRoutes.Administration.Roles.Index);
     }
     catch (ApiException ex)
     {
-      RolesDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      RolesDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -86,15 +86,15 @@ public partial class RoleDetail : ComponentBase
       if (Guid.TryParse(_id, out Guid _guid))
       {
         var role = await LgdxApiClient.Administration.Roles[_guid].GetAsync();
-        RolesDetailViewModel.FromDto(role!);
-        _editContext = new EditContext(RolesDetailViewModel);
+        RolesDetailsViewModel.FromDto(role!);
+        _editContext = new EditContext(RolesDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
     else
     {
-      RolesDetailViewModel.Scopes.Add(new ScopeOption());
-      _editContext = new EditContext(RolesDetailViewModel);
+      RolesDetailsViewModel.Scopes.Add(new ScopeOption());
+      _editContext = new EditContext(RolesDetailsViewModel);
       _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
     }
     await base.SetParametersAsync(ParameterView.Empty);

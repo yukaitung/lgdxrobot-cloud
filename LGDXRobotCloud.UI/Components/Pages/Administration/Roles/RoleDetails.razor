@@ -21,33 +21,33 @@
     <div class="col-12">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Role Detail</h3>
+          <h3 class="card-title">Role Details</h3>
         </div>
         <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
           <DataAnnotationsValidator />
           <div class="card-body">
-            <ApiErrorAlert Errors="RolesDetailViewModel.Errors" />
+            <ApiErrorAlert Errors="RolesDetailsViewModel.Errors" />
             <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
             @if (Id != null)
             {
               <div class="mb-3 row">
                 <label class="col-3 col-form-label">ID</label>
                 <div class="col">
-                  <div class="col form-control-plaintext">@RolesDetailViewModel.Id</div>
+                  <div class="col form-control-plaintext">@RolesDetailsViewModel.Id</div>
                 </div>
               </div>
             }
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(RolesDetailViewModel.Name)">Name</label>
+              <label class="col-3 col-form-label required" for="@nameof(RolesDetailsViewModel.Name)">Name</label>
               <div class="col">
-                <InputText id="@nameof(RolesDetailViewModel.Name)" type="text" class="form-control" @bind-Value="RolesDetailViewModel.Name" />
-                <ValidationMessage class="invalid-feedback" For="@(() => RolesDetailViewModel.Name)" />
+                <InputText id="@nameof(RolesDetailsViewModel.Name)" type="text" class="form-control" @bind-Value="RolesDetailsViewModel.Name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => RolesDetailsViewModel.Name)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label" for="@nameof(RolesDetailViewModel.Description)">Description</label>
+              <label class="col-3 col-form-label" for="@nameof(RolesDetailsViewModel.Description)">Description</label>
               <div class="col">
-                <InputTextArea id="@nameof(RolesDetailViewModel.Name)" class="form-control" rows="3" @bind-Value="RolesDetailViewModel.Description" />
+                <InputTextArea id="@nameof(RolesDetailsViewModel.Name)" class="form-control" rows="3" @bind-Value="RolesDetailsViewModel.Description" />
               </div>
             </div>
             <div class="mb-3 row">
@@ -65,10 +65,10 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (int i = 0; i < RolesDetailViewModel.Scopes.Count; i++)
+                    @for (int i = 0; i < RolesDetailsViewModel.Scopes.Count; i++)
                     {
                       var index = i;
-                      var scope = RolesDetailViewModel.Scopes[i];
+                      var scope = RolesDetailsViewModel.Scopes[i];
                       <tr>
                         <td>
                             @(index + 1)

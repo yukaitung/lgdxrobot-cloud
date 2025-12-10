@@ -24,7 +24,7 @@ public record ScopeOption
   public int? Permission { get; set; } = null;
 }
 
-public class RolesDetailViewModel : FormViewModel, IValidatableObject
+public class RolesDetailsViewModel : FormViewModel, IValidatableObject
 {
   public Guid Id { get; set; }
   
@@ -49,7 +49,7 @@ public class RolesDetailViewModel : FormViewModel, IValidatableObject
   }
 }
 
-public static class RolesDetailViewModelExtensions
+public static class RolesDetailsViewModelExtensions
 {
   private static List<ScopeOption> DtoToScopes(List<string> scopes)
   {
@@ -107,7 +107,7 @@ public static class RolesDetailViewModelExtensions
     return stringList;
   }
 
-  public static void FromDto(this RolesDetailViewModel roleDetailViewModel, LgdxRoleDto lgdxRoleDto)
+  public static void FromDto(this RolesDetailsViewModel roleDetailViewModel, LgdxRoleDto lgdxRoleDto)
   {
     roleDetailViewModel.Id = (Guid)lgdxRoleDto.Id!;
     roleDetailViewModel.Name = lgdxRoleDto.Name!;
@@ -115,7 +115,7 @@ public static class RolesDetailViewModelExtensions
     roleDetailViewModel.Scopes = DtoToScopes(lgdxRoleDto.Scopes!);
   }
 
-  public static LgdxRoleUpdateDto ToUpdateDto(this RolesDetailViewModel roleDetailViewModel)
+  public static LgdxRoleUpdateDto ToUpdateDto(this RolesDetailsViewModel roleDetailViewModel)
   {
     return new LgdxRoleUpdateDto {
       Name = roleDetailViewModel.Name,
@@ -124,7 +124,7 @@ public static class RolesDetailViewModelExtensions
     };
   }
 
-  public static LgdxRoleCreateDto ToCreateDto(this RolesDetailViewModel roleDetailViewModel)
+  public static LgdxRoleCreateDto ToCreateDto(this RolesDetailsViewModel roleDetailViewModel)
   {
     return new LgdxRoleCreateDto {
       Name = roleDetailViewModel.Name,
