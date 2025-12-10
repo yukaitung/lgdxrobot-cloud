@@ -25,7 +25,7 @@ public record TaskDetailBody : IValidatableObject
   {
     if (WaypointId == null && CustomX == null && CustomY == null && CustomRotation == null)
     {
-      yield return new ValidationResult("Please enter a waypoint or a custom coordinate.", [nameof(AutoTaskDetailViewModel.AutoTaskDetails)]);
+      yield return new ValidationResult("Please enter a waypoint or a custom coordinate.", [nameof(AutoTaskDetailsViewModel.AutoTaskDetails)]);
     }
   }
 }
@@ -41,7 +41,7 @@ public record AutoTaskJourney
   public DateTimeOffset? CreatedAt { get; set; }
 }
 
-public class AutoTaskDetailViewModel : FormViewModel, IValidatableObject
+public class AutoTaskDetailsViewModel : FormViewModel, IValidatableObject
 {
   public int Id { get; set; }
 
@@ -91,22 +91,22 @@ public class AutoTaskDetailViewModel : FormViewModel, IValidatableObject
   }
 }
 
-public static class AutoTaskDetailViewModelExtensions
+public static class AutoTaskDetailsViewModelExtensions
 {
-  public static void FromDto(this AutoTaskDetailViewModel autoTaskDetailViewModel, AutoTaskDto autoTaskDto)
+  public static void FromDto(this AutoTaskDetailsViewModel AutoTaskDetailsViewModel, AutoTaskDto autoTaskDto)
   {
-    autoTaskDetailViewModel.Id = (int)autoTaskDto.Id!;
-    autoTaskDetailViewModel.Name = autoTaskDto.Name!;
-    autoTaskDetailViewModel.Priority = (int)autoTaskDto.Priority!;
-    autoTaskDetailViewModel.FlowId = autoTaskDto.Flow!.Id;
-    autoTaskDetailViewModel.FlowName = autoTaskDto.Flow!.Name;
-    autoTaskDetailViewModel.RealmId = autoTaskDto.Realm!.Id;
-    autoTaskDetailViewModel.RealmName = autoTaskDto.Realm!.Name;
-    autoTaskDetailViewModel.AssignedRobotId = autoTaskDto.AssignedRobot?.Id;
-    autoTaskDetailViewModel.AssignedRobotName = autoTaskDto.AssignedRobot?.Name;
-    autoTaskDetailViewModel.CurrentProgressId = (int)autoTaskDto.CurrentProgress!.Id!;
-    autoTaskDetailViewModel.CurrentProgressName = autoTaskDto.CurrentProgress!.Name!;
-    autoTaskDetailViewModel.AutoTaskDetails = autoTaskDto.AutoTaskDetails!.Select(t => new TaskDetailBody
+    AutoTaskDetailsViewModel.Id = (int)autoTaskDto.Id!;
+    AutoTaskDetailsViewModel.Name = autoTaskDto.Name!;
+    AutoTaskDetailsViewModel.Priority = (int)autoTaskDto.Priority!;
+    AutoTaskDetailsViewModel.FlowId = autoTaskDto.Flow!.Id;
+    AutoTaskDetailsViewModel.FlowName = autoTaskDto.Flow!.Name;
+    AutoTaskDetailsViewModel.RealmId = autoTaskDto.Realm!.Id;
+    AutoTaskDetailsViewModel.RealmName = autoTaskDto.Realm!.Name;
+    AutoTaskDetailsViewModel.AssignedRobotId = autoTaskDto.AssignedRobot?.Id;
+    AutoTaskDetailsViewModel.AssignedRobotName = autoTaskDto.AssignedRobot?.Name;
+    AutoTaskDetailsViewModel.CurrentProgressId = (int)autoTaskDto.CurrentProgress!.Id!;
+    AutoTaskDetailsViewModel.CurrentProgressName = autoTaskDto.CurrentProgress!.Name!;
+    AutoTaskDetailsViewModel.AutoTaskDetails = autoTaskDto.AutoTaskDetails!.Select(t => new TaskDetailBody
     {
       Id = t.Id,
       CustomX = t.CustomX,
@@ -116,7 +116,7 @@ public static class AutoTaskDetailViewModelExtensions
       WaypointName = t.Waypoint?.Name,
       Order = (int)t.Order!
     }).ToList();
-    autoTaskDetailViewModel.AutoTaskJourneys = autoTaskDto.AutoTaskJourneys!.Select(t => new AutoTaskJourney {
+    AutoTaskDetailsViewModel.AutoTaskJourneys = autoTaskDto.AutoTaskJourneys!.Select(t => new AutoTaskJourney {
       Id = (int)t.Id!,
       CurrentProcessId = t.CurrentProcessId,
       CurrentProcessName = t.CurrentProcessName ?? "Deleted Process",
@@ -124,14 +124,14 @@ public static class AutoTaskDetailViewModelExtensions
     }).ToList();
   }
 
-  public static AutoTaskUpdateDto ToUpdateDto(this AutoTaskDetailViewModel autoTaskDetailViewModel)
+  public static AutoTaskUpdateDto ToUpdateDto(this AutoTaskDetailsViewModel AutoTaskDetailsViewModel)
   {
     return new AutoTaskUpdateDto {
-      Name = autoTaskDetailViewModel.Name,
-      Priority = autoTaskDetailViewModel.Priority,
-      FlowId = autoTaskDetailViewModel.FlowId,
-      AssignedRobotId = autoTaskDetailViewModel.AssignedRobotId,
-      AutoTaskDetails = autoTaskDetailViewModel.AutoTaskDetails.Select(t => new AutoTaskDetailUpdateDto{
+      Name = AutoTaskDetailsViewModel.Name,
+      Priority = AutoTaskDetailsViewModel.Priority,
+      FlowId = AutoTaskDetailsViewModel.FlowId,
+      AssignedRobotId = AutoTaskDetailsViewModel.AssignedRobotId,
+      AutoTaskDetails = AutoTaskDetailsViewModel.AutoTaskDetails.Select(t => new AutoTaskDetailUpdateDto{
         Id = t.Id,
         CustomX = t.CustomX,
         CustomY = t.CustomY,
@@ -142,16 +142,16 @@ public static class AutoTaskDetailViewModelExtensions
     };
   }
 
-  public static AutoTaskCreateDto ToCreateDto(this AutoTaskDetailViewModel autoTaskDetailViewModel)
+  public static AutoTaskCreateDto ToCreateDto(this AutoTaskDetailsViewModel AutoTaskDetailsViewModel)
   {
     return new AutoTaskCreateDto {
-      Name = autoTaskDetailViewModel.Name,
-      Priority = autoTaskDetailViewModel.Priority,
-      FlowId = autoTaskDetailViewModel.FlowId,
-      RealmId = autoTaskDetailViewModel.RealmId,
-      IsTemplate = autoTaskDetailViewModel.IsTemplate,
-      AssignedRobotId = autoTaskDetailViewModel.AssignedRobotId,
-      AutoTaskDetails = autoTaskDetailViewModel.AutoTaskDetails.Select(t => new AutoTaskDetailCreateDto{
+      Name = AutoTaskDetailsViewModel.Name,
+      Priority = AutoTaskDetailsViewModel.Priority,
+      FlowId = AutoTaskDetailsViewModel.FlowId,
+      RealmId = AutoTaskDetailsViewModel.RealmId,
+      IsTemplate = AutoTaskDetailsViewModel.IsTemplate,
+      AssignedRobotId = AutoTaskDetailsViewModel.AssignedRobotId,
+      AutoTaskDetails = AutoTaskDetailsViewModel.AutoTaskDetails.Select(t => new AutoTaskDetailCreateDto{
         CustomX = t.CustomX,
         CustomY = t.CustomY,
         CustomRotation = t.CustomRotation,

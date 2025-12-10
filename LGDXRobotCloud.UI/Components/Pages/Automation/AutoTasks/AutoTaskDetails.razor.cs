@@ -14,7 +14,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.AutoTasks;
 
-public partial class AutoTaskDetail : ComponentBase, IDisposable
+public partial class AutoTaskDetails : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
@@ -40,8 +40,8 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
   [SupplyParameterFromQuery]
   private string? ReturnUrl { get; set; }
 
-  private DotNetObjectReference<AutoTaskDetail> ObjectReference = null!;
-  private AutoTaskDetailViewModel AutoTaskDetailViewModel { get; set; } = new();
+  private DotNetObjectReference<AutoTaskDetails> ObjectReference = null!;
+  private AutoTaskDetailsViewModel AutoTaskDetailsViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -49,7 +49,7 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
   TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
 
   // Form helping variables
-  private readonly string[] AdvanceSelectElements = [$"{nameof(AutoTaskDetailViewModel.FlowId)}-", $"{nameof(AutoTaskDetailViewModel.AssignedRobotId)}-", $"{nameof(TaskDetailBody.WaypointId)}-"];
+  private readonly string[] AdvanceSelectElements = [$"{nameof(AutoTaskDetailsViewModel.FlowId)}-", $"{nameof(AutoTaskDetailsViewModel.AssignedRobotId)}-", $"{nameof(TaskDetailBody.WaypointId)}-"];
   private readonly string[] AdvanceSelectElementsDetail = [$"{nameof(TaskDetailBody.WaypointId)}-"];
   private int InitaisedAdvanceSelect { get; set; } = 0;
 
@@ -57,7 +57,7 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
   public bool IsEditable()
   {
     return Id == null 
-      || AutoTaskDetailViewModel.CurrentProgressId == (int)ProgressState.Template;
+      || AutoTaskDetailsViewModel.CurrentProgressId == (int)ProgressState.Template;
   }
 
   [JSInvokable("HandlSelectSearch")]
@@ -81,7 +81,7 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
     else if (element == AdvanceSelectElements[1])
     {
       var response = await LgdxApiClient.Navigation.Robots.Search.GetAsync(x => x.QueryParameters = new() {
-        RealmId = AutoTaskDetailViewModel.RealmId,
+        RealmId = AutoTaskDetailsViewModel.RealmId,
         Name = name
       });
       result = JsonSerializer.Serialize(response);
@@ -89,7 +89,7 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
     else if (element == AdvanceSelectElements[2])
     {
       var response = await LgdxApiClient.Navigation.Waypoints.Search.GetAsync(x => x.QueryParameters = new() {
-        RealmId = AutoTaskDetailViewModel.RealmId,
+        RealmId = AutoTaskDetailsViewModel.RealmId,
         Name = name
       });
       result = JsonSerializer.Serialize(response);
@@ -109,49 +109,49 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
     int order = int.Parse(elementId[(index + 1)..]);
     if (element == AdvanceSelectElements[0])
     {
-      AutoTaskDetailViewModel.FlowId = id != null ? int.Parse(id) : null;
-      AutoTaskDetailViewModel.FlowName = name;
+      AutoTaskDetailsViewModel.FlowId = id != null ? int.Parse(id) : null;
+      AutoTaskDetailsViewModel.FlowName = name;
     }
     else if (element == AdvanceSelectElements[1])
     {
-      AutoTaskDetailViewModel.AssignedRobotId = id != null ? Guid.Parse(id) : null;
-      AutoTaskDetailViewModel.AssignedRobotName = name;
+      AutoTaskDetailsViewModel.AssignedRobotId = id != null ? Guid.Parse(id) : null;
+      AutoTaskDetailsViewModel.AssignedRobotName = name;
     }
     else if (element == AdvanceSelectElements[2])
     {
-      AutoTaskDetailViewModel.AutoTaskDetails[order].WaypointId = id != null ? int.Parse(id) : null;
-      AutoTaskDetailViewModel.AutoTaskDetails[order].WaypointName = name;
+      AutoTaskDetailsViewModel.AutoTaskDetails[order].WaypointId = id != null ? int.Parse(id) : null;
+      AutoTaskDetailsViewModel.AutoTaskDetails[order].WaypointName = name;
     }
   }
 
   public void TaskAddStep()
   {
-    AutoTaskDetailViewModel.AutoTaskDetails.Add(new TaskDetailBody());
+    AutoTaskDetailsViewModel.AutoTaskDetails.Add(new TaskDetailBody());
   }
 
   public async Task TaskStepMoveUp(int i)
   {
     if (i < 1)
       return;
-    (AutoTaskDetailViewModel.AutoTaskDetails[i], AutoTaskDetailViewModel.AutoTaskDetails[i - 1]) = (AutoTaskDetailViewModel.AutoTaskDetails[i - 1], AutoTaskDetailViewModel.AutoTaskDetails[i]);
+    (AutoTaskDetailsViewModel.AutoTaskDetails[i], AutoTaskDetailsViewModel.AutoTaskDetails[i - 1]) = (AutoTaskDetailsViewModel.AutoTaskDetails[i - 1], AutoTaskDetailsViewModel.AutoTaskDetails[i]);
     await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i - 1, i);
   }
 
   public async Task TaskStepMoveDown(int i)
   {
-    if (i > AutoTaskDetailViewModel.AutoTaskDetails.Count - 1)
+    if (i > AutoTaskDetailsViewModel.AutoTaskDetails.Count - 1)
       return;
-    (AutoTaskDetailViewModel.AutoTaskDetails[i], AutoTaskDetailViewModel.AutoTaskDetails[i + 1]) = (AutoTaskDetailViewModel.AutoTaskDetails[i + 1], AutoTaskDetailViewModel.AutoTaskDetails[i]);
+    (AutoTaskDetailsViewModel.AutoTaskDetails[i], AutoTaskDetailsViewModel.AutoTaskDetails[i + 1]) = (AutoTaskDetailsViewModel.AutoTaskDetails[i + 1], AutoTaskDetailsViewModel.AutoTaskDetails[i]);
     await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i, i + 1);
   }
 
   public async Task TaskRemoveStep(int i)
   {
-    if (AutoTaskDetailViewModel.AutoTaskDetails.Count <= 0)
+    if (AutoTaskDetailsViewModel.AutoTaskDetails.Count <= 0)
       return;
-    if (i < AutoTaskDetailViewModel.AutoTaskDetails.Count - 1)
+    if (i < AutoTaskDetailsViewModel.AutoTaskDetails.Count - 1)
       await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElementsDetail, i, i + 1, true);
-    AutoTaskDetailViewModel.AutoTaskDetails.RemoveAt(i);
+    AutoTaskDetailsViewModel.AutoTaskDetails.RemoveAt(i);
     InitaisedAdvanceSelect--;
   }
 
@@ -170,26 +170,26 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
   public async Task HandleValidSubmit()
   {
     // Setup Order
-    for (int i = 0; i < AutoTaskDetailViewModel.AutoTaskDetails.Count; i++)
-      AutoTaskDetailViewModel.AutoTaskDetails[i].Order = i;
+    for (int i = 0; i < AutoTaskDetailsViewModel.AutoTaskDetails.Count; i++)
+      AutoTaskDetailsViewModel.AutoTaskDetails[i].Order = i;
 
     try
     {
       if (Id != null)
       {
         // Update
-        await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].PutAsync(AutoTaskDetailViewModel.ToUpdateDto());
+        await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailsViewModel.Id].PutAsync(AutoTaskDetailsViewModel.ToUpdateDto());
       }
       else
       {
         // Create
-        await LgdxApiClient.Automation.AutoTasks.PostAsync(AutoTaskDetailViewModel.ToCreateDto());
+        await LgdxApiClient.Automation.AutoTasks.PostAsync(AutoTaskDetailsViewModel.ToCreateDto());
       }
       Redirect();
     }
     catch (ApiException ex)
     {
-      AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      AutoTaskDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -197,12 +197,12 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
   {
     try
     {
-      await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].DeleteAsync();
+      await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailsViewModel.Id].DeleteAsync();
       Redirect();
     }
     catch (ApiException ex)
     {
-      AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      AutoTaskDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     
   }
@@ -211,12 +211,12 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
   {
     try
     {
-      await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailViewModel.Id].Abort.PostAsync();
+      await LgdxApiClient.Automation.AutoTasks[AutoTaskDetailsViewModel.Id].Abort.PostAsync();
       Redirect();
     }
     catch (ApiException ex)
     {
-      AutoTaskDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      AutoTaskDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -225,8 +225,8 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
     TimeZone = settings.TimeZone;
-    AutoTaskDetailViewModel.RealmId = settings.CurrentRealmId;
-    AutoTaskDetailViewModel.RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    AutoTaskDetailsViewModel.RealmId = settings.CurrentRealmId;
+    AutoTaskDetailsViewModel.RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     HasWaypointTrafficControl = await CachedRealmService.GetHasWaypointTrafficControlAsync(settings.CurrentRealmId);
     await base.OnInitializedAsync();
   }
@@ -240,22 +240,22 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
       {
         var task = await LgdxApiClient.Automation.AutoTasks[(int)_id].GetAsync();
         // Normal Assignment
-        AutoTaskDetailViewModel.FromDto(task!);
-        _editContext = new EditContext(AutoTaskDetailViewModel);
+        AutoTaskDetailsViewModel.FromDto(task!);
+        _editContext = new EditContext(AutoTaskDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
       else
       {
-        AutoTaskDetailViewModel = new AutoTaskDetailViewModel();
-        AutoTaskDetailViewModel.AutoTaskDetails.Add(new TaskDetailBody());
-        _editContext = new EditContext(AutoTaskDetailViewModel);
+        AutoTaskDetailsViewModel = new AutoTaskDetailsViewModel();
+        AutoTaskDetailsViewModel.AutoTaskDetails.Add(new TaskDetailBody());
+        _editContext = new EditContext(AutoTaskDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
 
       var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
       if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("Clone", out var param))
       {
-        AutoTaskDetailViewModel.IsClone = bool.Parse(param[0] ?? string.Empty);
+        AutoTaskDetailsViewModel.IsClone = bool.Parse(param[0] ?? string.Empty);
         Id = null;
       }
     }
@@ -270,13 +270,13 @@ public partial class AutoTaskDetail : ComponentBase, IDisposable
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitDotNet", ObjectReference);
     }
-    if (InitaisedAdvanceSelect < AutoTaskDetailViewModel.AutoTaskDetails.Count)
+    if (InitaisedAdvanceSelect < AutoTaskDetailsViewModel.AutoTaskDetails.Count)
     {
       await JSRuntime.InvokeVoidAsync("InitAdvancedSelectList", 
         AdvanceSelectElements,
         InitaisedAdvanceSelect,
-        AutoTaskDetailViewModel.AutoTaskDetails.Count - InitaisedAdvanceSelect);
-      InitaisedAdvanceSelect = AutoTaskDetailViewModel.AutoTaskDetails.Count;
+        AutoTaskDetailsViewModel.AutoTaskDetails.Count - InitaisedAdvanceSelect);
+      InitaisedAdvanceSelect = AutoTaskDetailsViewModel.AutoTaskDetails.Count;
     }
   }
 
