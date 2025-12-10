@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs;
 
-public partial class ActivityLogsDetail
+public partial class ActivityLogDetails
 {
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
