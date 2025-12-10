@@ -7,7 +7,7 @@ using Microsoft.JSInterop;
 
 namespace LGDXRobotCloud.UI.Components.Shared.Layout;
 
-public partial class ChangeRealmModal : ComponentBase, IDisposable
+public partial class SwitchRealmModal : ComponentBase, IDisposable
 {
   [Inject]
   public required IJSRuntime JSRuntime { get; set; }
@@ -30,8 +30,8 @@ public partial class ChangeRealmModal : ComponentBase, IDisposable
   public int RealmId { get; set; } = 0;
   public string? RealmName { get; set; }
 
-  private DotNetObjectReference<ChangeRealmModal> ObjectReference = null!;
-  private readonly string SelectId = "ChangeRealm";
+  private DotNetObjectReference<SwitchRealmModal> ObjectReference = null!;
+  private readonly string SelectId = "SwitchRealm";
 
   [JSInvokable("HandlSelectSearch")]
   public async Task HandlSelectSearch(string elementId, string name)
@@ -58,7 +58,7 @@ public partial class ChangeRealmModal : ComponentBase, IDisposable
     }
   }
 
-  public async Task HandleRealmChange()
+  public async Task HandleRealmSwitch()
   {
     await CachedRealmService.GetCurrrentRealmAsync(RealmId); // Preload the realm
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
@@ -85,7 +85,7 @@ public partial class ChangeRealmModal : ComponentBase, IDisposable
     if (firstRender)
     {
       ObjectReference = DotNetObjectReference.Create(this);
-      await JSRuntime.InvokeVoidAsync("InitChangeRealm", ObjectReference);
+      await JSRuntime.InvokeVoidAsync("InitSwitchRealm", ObjectReference);
       await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", SelectId);
     }
     await base.OnAfterRenderAsync(firstRender);

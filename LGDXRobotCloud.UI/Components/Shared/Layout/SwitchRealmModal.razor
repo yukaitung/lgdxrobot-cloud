@@ -1,4 +1,4 @@
-<div class="modal modal-blur fade" id="changeRealm" tabindex="-1">
+<div class="modal modal-blur fade" id="switchRealmModal" tabindex="-1">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
 
@@ -7,7 +7,7 @@
       <div class="modal-body py-4">
         <div class="text-center">
           <i class="ti ti-map-pin-filled mb-2" style="font-size: 48px;"></i>
-          <h3>Change Realm</h3>
+          <h3>Switch Realm</h3>
         </div>
         <InputSelect id="@SelectId" class="form-control" @bind-Value="RealmId">
           <option value="@RealmId">@RealmName</option>
@@ -23,7 +23,7 @@
               </a>
             </div>
             <div class="col">
-              <button type="submit" class="btn btn-blue w-100" data-bs-dismiss="modal" @onclick="HandleRealmChange">
+              <button type="submit" class="btn btn-blue w-100" data-bs-dismiss="modal" @onclick="HandleRealmSwitch">
                 Confirm
               </button>
             </div>
