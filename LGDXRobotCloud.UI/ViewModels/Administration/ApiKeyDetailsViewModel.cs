@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Administration;
 
-public class ApiKeyDetailViewModel : FormViewModel, IValidatableObject
+public class ApiKeyDetailsViewModel : FormViewModel, IValidatableObject
 {
   public int Id { get; set; }
 
@@ -26,28 +26,28 @@ public class ApiKeyDetailViewModel : FormViewModel, IValidatableObject
   }
 }
 
-public static class ApiKeyDetailViewModelExtensions
+public static class ApiKeyDetailsViewModelExtensions
 {
-  public static void FromDto(this ApiKeyDetailViewModel apiKeyDetailViewModel, ApiKeyDto apiKeyDto)
+  public static void FromDto(this ApiKeyDetailsViewModel ApiKeyDetailsViewModel, ApiKeyDto apiKeyDto)
   {
-    apiKeyDetailViewModel.Id = (int)apiKeyDto.Id!;
-    apiKeyDetailViewModel.Name = apiKeyDto.Name!;
-    apiKeyDetailViewModel.IsThirdParty = (bool)apiKeyDto.IsThirdParty!;
+    ApiKeyDetailsViewModel.Id = (int)apiKeyDto.Id!;
+    ApiKeyDetailsViewModel.Name = apiKeyDto.Name!;
+    ApiKeyDetailsViewModel.IsThirdParty = (bool)apiKeyDto.IsThirdParty!;
   }
 
-  public static ApiKeyUpdateDto ToUpdateDto(this ApiKeyDetailViewModel apiKeyDetailViewModel)
+  public static ApiKeyUpdateDto ToUpdateDto(this ApiKeyDetailsViewModel ApiKeyDetailsViewModel)
   {
     return new ApiKeyUpdateDto {
-      Name = apiKeyDetailViewModel.Name,
+      Name = ApiKeyDetailsViewModel.Name,
     };
   }
 
-  public static ApiKeyCreateDto ToCreateDto(this ApiKeyDetailViewModel apiKeyDetailViewModel)
+  public static ApiKeyCreateDto ToCreateDto(this ApiKeyDetailsViewModel ApiKeyDetailsViewModel)
   {
     return new ApiKeyCreateDto {
-      Name = apiKeyDetailViewModel.Name,
-      IsThirdParty = apiKeyDetailViewModel.IsThirdParty,
-      Secret = apiKeyDetailViewModel.IsThirdParty ? apiKeyDetailViewModel.Secret : string.Empty
+      Name = ApiKeyDetailsViewModel.Name,
+      IsThirdParty = ApiKeyDetailsViewModel.IsThirdParty,
+      Secret = ApiKeyDetailsViewModel.IsThirdParty ? ApiKeyDetailsViewModel.Secret : string.Empty
     };
   }
 }

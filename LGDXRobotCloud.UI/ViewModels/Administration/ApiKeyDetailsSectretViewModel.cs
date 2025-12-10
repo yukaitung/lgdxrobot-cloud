@@ -3,7 +3,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Administration;
 
-public class ApiKeyDetailSectretViewModel : FormViewModel
+public class ApiKeyDetailsSectretViewModel : FormViewModel
 {
   
   public string? Secret { get; set; } = null;

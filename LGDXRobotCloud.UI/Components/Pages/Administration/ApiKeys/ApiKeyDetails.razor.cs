@@ -9,7 +9,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.ApiKeys;
 
-public partial class ApiKeyDetail
+public partial class ApiKeyDetails
 {
   [Inject]
   public NavigationManager NavigationManager { get; set; } = default!;
@@ -20,8 +20,8 @@ public partial class ApiKeyDetail
   [Parameter]
   public int? Id { get; set; }
 
-  private ApiKeyDetailViewModel ApiKeyDetailViewModel { get; set; } = new();
-  private ApiKeyDetailSectretViewModel UpdateApiKeySecretViewModel { get; set; } = new();
+  private ApiKeyDetailsViewModel ApiKeyDetailsViewModel { get; set; } = new();
+  private ApiKeyDetailsSectretViewModel UpdateApiKeySecretViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private EditContext _editContextSecret = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
@@ -30,7 +30,7 @@ public partial class ApiKeyDetail
   public void HandleApiKeyKindChanged(object args)
   {
     if (bool.TryParse(args.ToString(), out bool result))      
-      ApiKeyDetailViewModel.IsThirdParty = result;
+      ApiKeyDetailsViewModel.IsThirdParty = result;
   }
 
   public async Task HandleValidSubmit()
@@ -40,17 +40,17 @@ public partial class ApiKeyDetail
       if (Id != null)
       {
         // Update
-        await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].PutAsync(ApiKeyDetailViewModel.ToUpdateDto());
+        await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailsViewModel.Id].PutAsync(ApiKeyDetailsViewModel.ToUpdateDto());
       }
       else
       {
         // Create
-        await LgdxApiClient.Administration.ApiKeys.PostAsync(ApiKeyDetailViewModel.ToCreateDto());
+        await LgdxApiClient.Administration.ApiKeys.PostAsync(ApiKeyDetailsViewModel.ToCreateDto());
       }
     }
     catch (ApiException ex)
     {
-      ApiKeyDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      ApiKeyDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Administration.ApiKeys.Index);
   }
@@ -59,11 +59,11 @@ public partial class ApiKeyDetail
   {
     try
     {
-      await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].DeleteAsync();
+      await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailsViewModel.Id].DeleteAsync();
     }
     catch (ApiException ex)
     {
-      ApiKeyDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      ApiKeyDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
     NavigationManager.NavigateTo(AppRoutes.Administration.ApiKeys.Index);
   }
@@ -72,7 +72,7 @@ public partial class ApiKeyDetail
   {
     try
     {
-      var response = await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].Secret.GetAsync();
+      var response = await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailsViewModel.Id].Secret.GetAsync();
       UpdateApiKeySecretViewModel.Secret = response!.Secret;
     }
     catch (ApiException ex)
@@ -87,7 +87,7 @@ public partial class ApiKeyDetail
     {
       if (Id != null)
       {
-        await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailViewModel.Id].Secret.PutAsync(new ApiKeySecretUpdateDto { Secret = UpdateApiKeySecretViewModel.UpdateSecret });
+        await LgdxApiClient.Administration.ApiKeys[ApiKeyDetailsViewModel.Id].Secret.PutAsync(new ApiKeySecretUpdateDto { Secret = UpdateApiKeySecretViewModel.UpdateSecret });
         NavigationManager.NavigateTo(AppRoutes.Administration.ApiKeys.Index);
       }
     }
@@ -103,15 +103,15 @@ public partial class ApiKeyDetail
     if (parameters.TryGetValue<int?>(nameof(Id), out var _id) && _id != null)
     {
       var apiKey = await LgdxApiClient.Administration.ApiKeys[(int)_id].GetAsync();
-      ApiKeyDetailViewModel.FromDto(apiKey!);
-      _editContext = new EditContext(ApiKeyDetailViewModel);
+      ApiKeyDetailsViewModel.FromDto(apiKey!);
+      _editContext = new EditContext(ApiKeyDetailsViewModel);
       _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       _editContextSecret = new EditContext(UpdateApiKeySecretViewModel);
       _editContextSecret.SetFieldCssClassProvider(_customFieldClassProvider);
     }
     else
     {
-      _editContext = new EditContext(ApiKeyDetailViewModel);
+      _editContext = new EditContext(ApiKeyDetailsViewModel);
       _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       _editContextSecret = new EditContext(UpdateApiKeySecretViewModel);
       _editContextSecret.SetFieldCssClassProvider(_customFieldClassProvider);
