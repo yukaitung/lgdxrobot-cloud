@@ -21,33 +21,33 @@
     <div class="col-12">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Flow Detail</h3>
+          <h3 class="card-title">Flow Details</h3>
         </div>
         <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
           <DataAnnotationsValidator />
           <div class="card-body">
-            <ApiErrorAlert Errors="FlowDetailViewModel.Errors" />
+            <ApiErrorAlert Errors="FlowDetailsViewModel.Errors" />
             <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
             @if (Id != null)
             {
               <div class="mb-3 row">
                 <label class="col-2 col-form-label">ID</label>
                 <div class="col">
-                  <div class="col form-control-plaintext">@FlowDetailViewModel.Id</div>
+                  <div class="col form-control-plaintext">@FlowDetailsViewModel.Id</div>
                 </div>
               </div>
             }
             <div class="mb-3 row">
-              <label class="col-2 col-form-label required" for="@nameof(FlowDetailViewModel.Name)">Name</label>
+              <label class="col-2 col-form-label required" for="@nameof(FlowDetailsViewModel.Name)">Name</label>
               <div class="col">
-                <InputText id="@nameof(FlowDetailViewModel.Name)"type="text" class="form-control"  @bind-Value="FlowDetailViewModel.Name" />
-                <ValidationMessage class="invalid-feedback" For="@(() => FlowDetailViewModel.Name)" />
+                <InputText id="@nameof(FlowDetailsViewModel.Name)"type="text" class="form-control"  @bind-Value="FlowDetailsViewModel.Name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => FlowDetailsViewModel.Name)" />
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-2 col-form-label required">Flow Detail</label>
               <div class="col d-flex flex-column">
-                <div class="invalid-feedback" style="display: block;">@_editContext.GetValidationMessages(() => FlowDetailViewModel.FlowDetails).FirstOrDefault()</div>
+                <div class="invalid-feedback" style="display: block;">@_editContext.GetValidationMessages(() => FlowDetailsViewModel.FlowDetails).FirstOrDefault()</div>
                 <InformationModal>
                   1. The 'Moving' progress should be included in the flow for the robot to navigate.<br />
                   2. An external API call is required when using 'API' as the proceed condition.
@@ -64,10 +64,10 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (int i = 0; i < FlowDetailViewModel.FlowDetails.Count(); i++)
+                    @for (int i = 0; i < FlowDetailsViewModel.FlowDetails.Count(); i++)
                     {
                       var index = i;
-                      var flowDetail = FlowDetailViewModel.FlowDetails[i];
+                      var flowDetail = FlowDetailsViewModel.FlowDetails[i];
                       <tr>
                         <td>
                           @if (flowDetail.Id != null) {
@@ -81,7 +81,7 @@
                           <button type="button" class="btn btn-ghost-secondary btn-icon" @onclick="e => FlowStepMoveUp(index)" disabled="@(i < 1)">
                             <i class="ti ti-arrow-up" style="font-size: 16px;"></i>
                           </button>
-                          <button type="button" class="btn btn-ghost-secondary btn-icon"  @onclick="e => FlowStepMoveDown(index)" disabled="@(i >= FlowDetailViewModel.FlowDetails.Count() - 1)">
+                          <button type="button" class="btn btn-ghost-secondary btn-icon"  @onclick="e => FlowStepMoveDown(index)" disabled="@(i >= FlowDetailsViewModel.FlowDetails.Count() - 1)">
                             <i class="ti ti-arrow-down" style="font-size: 16px;"></i>
                           </button>
                         </td>
@@ -110,7 +110,7 @@
                           </InputSelect>
                         </td>
                         <td>
-                          <button type="button" class="btn btn-ghost-danger btn-icon" @onclick="e => FlowRemoveStep(index)" disabled="@(FlowDetailViewModel.FlowDetails.Count() <= 1)">
+                          <button type="button" class="btn btn-ghost-danger btn-icon" @onclick="e => FlowRemoveStep(index)" disabled="@(FlowDetailsViewModel.FlowDetails.Count() <= 1)">
                             <i class="ti ti-trash" style="font-size: 16px;"></i>
                           </button>
                         </td>

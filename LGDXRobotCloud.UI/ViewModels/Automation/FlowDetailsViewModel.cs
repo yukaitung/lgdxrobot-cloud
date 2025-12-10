@@ -22,7 +22,7 @@ public record FlowDetailBody
   public string? TriggerName { get; set; } = null;
 }
 
-public class FlowDetailViewModel : FormViewModel, IValidatableObject
+public class FlowDetailsViewModel : FormViewModel, IValidatableObject
 {
   public int Id { get; set; }
 
@@ -46,13 +46,13 @@ public class FlowDetailViewModel : FormViewModel, IValidatableObject
   }
 }
 
-public static class FlowDetailViewModelExtensions
+public static class FlowDetailsViewModelExtensions
 {
-  public static void FromDto(this FlowDetailViewModel flowDetailViewModel, FlowDto flowDto)
+  public static void FromDto(this FlowDetailsViewModel FlowDetailsViewModel, FlowDto flowDto)
   {
-    flowDetailViewModel.Id = (int)flowDto.Id!;
-    flowDetailViewModel.Name = flowDto.Name!;
-    flowDetailViewModel.FlowDetails = flowDto.FlowDetails!.Select(t => new FlowDetailBody {
+    FlowDetailsViewModel.Id = (int)flowDto.Id!;
+    FlowDetailsViewModel.Name = flowDto.Name!;
+    FlowDetailsViewModel.FlowDetails = flowDto.FlowDetails!.Select(t => new FlowDetailBody {
       Id = t.Id,
       Order = (int)t.Order!,
       ProgressId = t.Progress!.Id,
@@ -63,11 +63,11 @@ public static class FlowDetailViewModelExtensions
     }).ToList();
   }
 
-  public static FlowUpdateDto ToUpdateDto(this FlowDetailViewModel flowDetailViewModel)
+  public static FlowUpdateDto ToUpdateDto(this FlowDetailsViewModel FlowDetailsViewModel)
   {
     return new FlowUpdateDto {
-      Name = flowDetailViewModel.Name,
-      FlowDetails = flowDetailViewModel.FlowDetails.Select(t => new FlowDetailUpdateDto {
+      Name = FlowDetailsViewModel.Name,
+      FlowDetails = FlowDetailsViewModel.FlowDetails.Select(t => new FlowDetailUpdateDto {
         Id = t.Id,
         Order = t.Order!,
         ProgressId = t.ProgressId,
@@ -77,11 +77,11 @@ public static class FlowDetailViewModelExtensions
     };
   }
 
-  public static FlowCreateDto ToCreateDto(this FlowDetailViewModel flowDetailViewModel)
+  public static FlowCreateDto ToCreateDto(this FlowDetailsViewModel FlowDetailsViewModel)
   {
     return new FlowCreateDto {
-      Name = flowDetailViewModel.Name,
-      FlowDetails = flowDetailViewModel.FlowDetails.Select(t => new FlowDetailCreateDto {
+      Name = FlowDetailsViewModel.Name,
+      FlowDetails = FlowDetailsViewModel.FlowDetails.Select(t => new FlowDetailCreateDto {
         Order = t.Order,
         ProgressId = t.ProgressId,
         TriggerId = t.TriggerId,
