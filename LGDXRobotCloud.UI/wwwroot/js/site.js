@@ -17,9 +17,9 @@ function InitDotNet(dotNetObject) {
   AdvancedSelectTimer = {};*/
 }
 
-var ChangeRealmObject = {}
-function InitChangeRealm(dotNetObject) {
-  ChangeRealmObject = dotNetObject;
+var SwitchRealmObject = {}
+function InitSwitchRealm(dotNetObject) {
+  SwitchRealmObject = dotNetObject;
 }
 
 /*
@@ -95,9 +95,9 @@ var AdvanceSelectEventHandler = function(elementId)
     {
       if (arguments[0].length == 0)
       {
-        if (elementId === "ChangeRealm")
+        if (elementId === "SwitchRealm")
         {
-          ChangeRealmObject.invokeMethodAsync('HandleSelectChange', elementId, null, null);
+          SwitchRealmObject.invokeMethodAsync('HandleSelectChange', elementId, null, null);
         }
         else
         {
@@ -115,9 +115,9 @@ var AdvanceSelectEventHandler = function(elementId)
         if (AdvancedSelectOptions[elementId] != undefined && AdvancedSelectOptions[elementId][optionId] != undefined) 
         {
           const optionName = AdvancedSelectOptions[elementId][optionId];
-          if (elementId === "ChangeRealm")
+          if (elementId === "SwitchRealm")
           {
-            ChangeRealmObject.invokeMethodAsync('HandleSelectChange', elementId, optionId, optionName);
+            SwitchRealmObject.invokeMethodAsync('HandleSelectChange', elementId, optionId, optionName);
           }
           else
           {
@@ -141,9 +141,10 @@ function AdvanceSelectInput(e) {
 
 function AdvanceSelectSearch(elementId) {
   var idShort = elementId.substring(0, (elementId.length - TS_CONTROL.length))
-  if (idShort === "ChangeRealm")
+  if (idShort === "SwitchRealm")
   {
-    ChangeRealmObject.invokeMethodAsync('HandlSelectSearch', idShort, AdvancedSelectBuffer[elementId]);
+    console.log("Search")
+    SwitchRealmObject.invokeMethodAsync('HandlSelectSearch', idShort, AdvancedSelectBuffer[elementId]);
   }
   else
   {

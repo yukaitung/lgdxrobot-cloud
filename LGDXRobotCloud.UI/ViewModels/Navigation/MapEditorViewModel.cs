@@ -10,7 +10,7 @@ public record WaypointTrafficDisplay
   public bool IsBothWaysTraffic { get; set; }
 }
 
-public class MapEditorViewModel : FormViewModel
+public class MapEditorViewModel : FormViewModelBase
 {
   public List<WaypointListDto> Waypoints { get; set; } = [];
 

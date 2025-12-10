@@ -3,7 +3,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Administration;
 
-public class RobotCertificateRenewViewModel : FormViewModel
+public class RobotCertificateRenewViewModel : FormViewModelBase
 {
   public bool RevokeOldCertificate { get; set; }
 }

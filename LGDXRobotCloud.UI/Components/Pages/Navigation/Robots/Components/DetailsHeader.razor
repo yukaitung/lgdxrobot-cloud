@@ -1,0 +1,59 @@
+@using LGDXRobotCloud.Data.Models.Redis
+@using LGDXRobotCloud.UI.ViewModels.Navigation
+@using LGDXRobotCloud.Utilities.Enums
+<PageHeader Title="Robots">
+  <div class="row align-items-center">
+    <div class="col">
+      <ReturnLink HREF="@AppRoutes.Navigation.Robots.Index" ReturnUrl="@ReturnUrl" />
+      @if (RobotDetailsViewModel != null)
+      {
+        <h2 class="page-title">
+          @RobotDetailsViewModel.Name
+          &nbsp;
+          <RobotStatusBadge RobotStatus="@(RobotData != null ? RobotData.RobotStatus : RobotStatus.Offline)" />
+        </h2>
+      }
+      else
+      {
+        <div class="placeholder-glow">
+          <div class="placeholder col-2 placeholder-lg"></div>
+          <div class="text-secondary">
+            <div class="placeholder col-1"></div>
+          </div>
+        </div>
+      }
+    </div>
+    <AuthorizeView Policy="@Permissions.Navigation.Robots.Write" Context="Control">
+      @if (RobotData != null && RobotData.RobotStatus != RobotStatus.Offline)
+      {
+        <div class="col-md-auto ms-auto">
+          <div class="btn-list">
+            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pauseTaskAssignment" style="width: 185px;">
+              @(RobotData.PauseTaskAssignment ? "Resume Task Assignment" : "Pause Task Assignment")
+            </a>
+            <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#softwareEmergencyStop" style="width: 160px;">
+              @(RobotData.CriticalStatus.SoftwareEmergencyStop ? "Resume This Robot" : "Stop This Robot")
+            </a>
+          </div>
+        </div>
+      }
+    </AuthorizeView>
+  </div>
+</PageHeader>
+
+@code {
+  [Parameter]
+  public required string ReturnUrl { get; set; }
+
+  [Parameter]
+  public required RobotDetailsViewModel RobotDetailsViewModel { get; set; }
+
+  // Assign the RobotData from Refresh to prevent full re-rendering 
+  private RobotData? RobotData { get; set; }
+
+  public async Task Refresh(RobotData? rd)
+  {
+    RobotData = rd;
+    await InvokeAsync(StateHasChanged);
+  }
+}

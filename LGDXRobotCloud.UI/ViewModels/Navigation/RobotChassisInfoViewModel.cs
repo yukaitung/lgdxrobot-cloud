@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Navigation;
 
-public class RobotChassisInfoViewModel : FormViewModel
+public class RobotChassisInfoViewModel : FormViewModelBase
 {
   [Required (ErrorMessage = "Please select a robot type.")]
   public int? RobotTypeId { get; set; } = null;

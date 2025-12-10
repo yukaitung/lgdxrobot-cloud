@@ -21,12 +21,12 @@ public partial class RobotInfoForm : ComponentBase
   public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
   [Parameter]
-  public RobotDetailViewModel? Robot { get; set; }
+  public RobotDetailsViewModel? Robot { get; set; }
 
   public override async Task SetParametersAsync(ParameterView parameters)
   {
     parameters.SetParameterProperties(this);
-    if (parameters.TryGetValue<RobotDetailViewModel?>(nameof(Robot), out var _robot))
+    if (parameters.TryGetValue<RobotDetailsViewModel?>(nameof(Robot), out var _robot))
     {
       if (_robot != null && _robot.RealmId == null)
       {

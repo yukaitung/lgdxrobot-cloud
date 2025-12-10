@@ -1,0 +1,177 @@
+@attribute [Route(AppRoutes.Administration.ApiKeys.Detail)]
+@attribute [Route(AppRoutes.Administration.ApiKeys.Create)]
+@attribute [Authorize (Policy = Permissions.Administration.ApiKeys.Read)]
+@using LGDXRobotCloud.Data.Entities
+@using LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components;
+
+<PageHeader Title="@(Id != null ? "Edit API Key" : "Create API Key")">
+  <div class="row align-items-center">
+    <div class="col">
+      <ReturnLink HREF="@AppRoutes.Administration.ApiKeys.Index" />
+      <h2 class="page-title">
+        @(Id != null ? "Edit API Key" : "Create API Key")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="row row-cards">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">API Key Details</h3>
+        </div>
+        <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+          <DataAnnotationsValidator />
+          <div class="card-body">
+            <ApiErrorAlert Errors="ApiKeyDetailsViewModel.Errors" />
+            <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
+            @if (Id != null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label">ID</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@ApiKeyDetailsViewModel.Id</div>
+                </div>
+              </div>
+            }
+            @if (Id == null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label required">API Key Category</label>
+                <div class="col">
+                  <select class="form-select" @onchange="@((e) => HandleApiKeyKindChanged(e.Value ?? string.Empty))">
+                    <option value="false">LGDXRobot Cloud API Key</option>
+                    <option value="true">Third-Party API Key</option>
+                  </select>
+                  <small class="form-hint">
+                    An LGDXRobot Cloud API Key grants access to LGDXRobot Cloud services for your services, 
+                    while a Third-Party API Key is for accessing Third-Party services for LGDXRobot Cloud services. 
+                    This choice is permanent once made.
+                  </small>
+                </div>
+              </div>
+            }
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="@nameof(ApiKeyDetailsViewModel.Name)">Name</label>
+              <div class="col">
+                <InputText id="@nameof(ApiKeyDetailsViewModel.Name)" type="text" class="form-control" @bind-Value="ApiKeyDetailsViewModel.Name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => ApiKeyDetailsViewModel.Name)" />
+              </div>
+            </div>
+            @if (Id == null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label @(ApiKeyDetailsViewModel.IsThirdParty ? "required" : "")" for="@nameof(ApiKeyDetailsViewModel.Secret)">Secret</label>
+                <div class="col">
+                  @if (ApiKeyDetailsViewModel.IsThirdParty)
+                  {
+                    <InputText id="@nameof(ApiKeyDetailsViewModel.Secret)" type="text" class="form-control" @bind-Value="ApiKeyDetailsViewModel.Secret" />
+                    <ValidationMessage class="invalid-feedback" For="@(() => ApiKeyDetailsViewModel.Secret)" />
+                  }
+                  else
+                  {
+                    <div class="col form-control-plaintext">Generated automatically</div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+          <div class="card-footer d-flex">
+            <AuthorizeView Policy=@Permissions.Administration.ApiKeys.Delete Context="DeleteButton">
+              @if (Id != null)
+              {
+                <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  Delete
+                </a>
+              }
+            </AuthorizeView>
+            <AuthorizeView Policy=@Permissions.Administration.ApiKeys.Write Context="Write">
+              <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+            </AuthorizeView>
+          </div>
+        </EditForm>
+      </div>
+    </div>
+    
+    @if (Id != null)
+    {
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">API Key Secret</h3>
+          </div>
+          <EditForm EditContext="@_editContextSecret" OnValidSubmit="HandleSetSecret">
+            <DataAnnotationsValidator />
+            <div class="card-body">
+              <ApiErrorAlert Errors="UpdateApiKeySecretViewModel.Errors" />
+              <FormValidationErrorAlert Errors="@_editContextSecret.GetValidationMessages()" />
+              @if (Id != null)
+              {
+                <div class="mb-3 row">
+                  <label class="col-3 col-form-label">ID</label>
+                  <div class="col">
+                    <div class="col form-control-plaintext">@Id</div>
+                  </div>
+                </div>
+              }
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label" for="Key-Secret">Secret</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">
+                    @if (UpdateApiKeySecretViewModel.Secret == null)
+                    {
+                      <button type="button" class="page-link link-primary" @onclick="HandleGetSecret">Press here to show secret</button>
+                    }
+                    else
+                    {
+                      <span>@UpdateApiKeySecretViewModel.Secret</span>
+                    }
+                    <small class="form-hint">
+                      By pressing the button, an activity log will be created.
+                    </small>
+                  </div>
+                </div>
+              </div>
+              @if (ApiKeyDetailsViewModel.IsThirdParty)
+              {
+                <div class="mb-3 row">
+                  <label class="col-3 col-form-label required" for="@nameof(UpdateApiKeySecretViewModel.UpdateSecret)">Update Secret</label>
+                  <div class="col">
+                    <InputText id="@nameof(UpdateApiKeySecretViewModel.UpdateSecret)" type="text" class="form-control"  @bind-Value="UpdateApiKeySecretViewModel!.UpdateSecret" />
+                    <ValidationMessage class="invalid-feedback" For="@(() => UpdateApiKeySecretViewModel.UpdateSecret)" />
+                  </div>
+                </div>
+              }
+            </div>
+            <AuthorizeView Policy=@Permissions.Administration.ApiKeys.Write Context="WriteSecret">
+              @if (ApiKeyDetailsViewModel.IsThirdParty)
+              {
+                <div class="card-footer d-flex">
+                  <button type="submit" class="btn btn-primary ms-auto">Update</button>
+                </div>
+              }
+            </AuthorizeView>
+          </EditForm>
+        </div>
+      </div>
+
+      <AuthorizeView Policy=@Permissions.Administration.ActivityLogs.Read Context="ActivityLogs">
+        <div class="col-12">
+          <ActivityLogsTable DefaultEntityName="@nameof(ApiKey)" DefaultEntityId="@(Id.ToString())"
+            ReturnUrl="@(AppRoutes.Administration.ApiKeys.Index + $"/{Id}")"/>
+        </div>
+      </AuthorizeView>
+    }
+  </div>
+</PageBody>
+
+<AuthorizeView Policy=@Permissions.Administration.ApiKeys.Delete Context="DeleteModal">
+  @if (Id != null)
+  {
+    <DeleteEntryModal EntryName="API Key" OnDelete="HandleDelete">
+      Do you want to delete this API Key? This action cannot be undone and may disrupt ongoing tasks.
+    </DeleteEntryModal>
+  }
+</AuthorizeView>

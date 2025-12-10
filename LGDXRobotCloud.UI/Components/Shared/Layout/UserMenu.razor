@@ -8,14 +8,14 @@
       <div class="mt-2 dropdown-menu dropdown-menu-end dropdown-menu-arrow">
         <a href="#" class="dropdown-item disabled">
           @context.User.Identity!.Name<br />
-          @@@RealmName
+          @RealmName
         </a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changeRealm">
-          Change Realm
+        <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#SwitchRealmModal">
+          Switch Realm
         </a>
         <a class="dropdown-item" href="@(AppRoutes.Identity.User + $"?ReturnUrl=" + NavigationManager.ToBaseRelativePath(NavigationManager.Uri))">
-          Profile
+          Settings
         </a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#logoutModal">

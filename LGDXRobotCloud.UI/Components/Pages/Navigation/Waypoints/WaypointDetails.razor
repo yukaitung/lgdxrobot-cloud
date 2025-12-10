@@ -1,0 +1,131 @@
+@attribute [Route(AppRoutes.Navigation.Waypoints.Create)]
+@attribute [Route(AppRoutes.Navigation.Waypoints.Detail)]
+@attribute [Authorize (Policy = Permissions.Navigation.Waypoints.Read)]
+@using LGDXRobotCloud.Data.Entities
+@using LGDXRobotCloud.UI.Components.Pages.Administration.ActivityLogs.Components;
+
+<PageHeader Title="@(Id != null ? "Edit Waypoint" : "Create Waypoint")">
+  <div class="row align-items-center">
+    <div class="col">
+      <ReturnLink HREF="@AppRoutes.Navigation.Waypoints.Index" ReturnUrl="@ReturnUrl" />
+      <h2 class="page-title">
+        @(Id != null ? "Edit Waypoint" : "Create Waypoint")
+      </h2>
+    </div>
+  </div>
+</PageHeader>
+
+<PageBody>
+  <div class="row row-cards">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Waypoint Details</h3>
+        </div>
+        <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
+          <DataAnnotationsValidator />
+          <div class="card-body">
+            <ApiErrorAlert Errors="WaypointDetailsViewModel.Errors" />
+            <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
+            @if (Id != null)
+            {
+              <div class="mb-3 row">
+                <label class="col-3 col-form-label">ID</label>
+                <div class="col">
+                  <div class="col form-control-plaintext">@WaypointDetailsViewModel.Id</div>
+                </div>
+              </div>
+            }
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label">Realm</label>
+              <div class="col">
+                <div class="col form-control-plaintext">@WaypointDetailsViewModel.RealmName</div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailsViewModel.Name)">Name</label>
+              <div class="col">
+                <InputText id="@nameof(WaypointDetailsViewModel.Name)" type="text" class="form-control" @bind-Value="WaypointDetailsViewModel.Name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailsViewModel.Name)" />
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailsViewModel.X)">X (m)</label>
+              <div class="col">
+                <InputNumber id="@nameof(WaypointDetailsViewModel.X)" type="number" step="any" class="form-control" @bind-Value="WaypointDetailsViewModel.X" />
+                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailsViewModel.X)" />
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailsViewModel.Y)">Y (m)</label>
+              <div class="col">
+                <InputNumber id="@nameof(WaypointDetailsViewModel.Y)" type="number" step="any" class="form-control"  @bind-Value="WaypointDetailsViewModel.Y" />
+                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailsViewModel.Y)" />
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailsViewModel.Rotation)">Rotation (rad)</label>
+              <div class="col">
+                <InputNumber id="@nameof(WaypointDetailsViewModel.Rotation)" type="number" step="any" class="form-control" @bind-Value="WaypointDetailsViewModel.Rotation" />
+                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailsViewModel.Rotation)" />
+              </div>
+            </div>
+            <div class="mb-3 row align-items-center">
+              <label class="col-3 col-form-label">Facilities</label>
+              <div class="col">
+                <label class="form-check form-check-inline mb-0">
+                  <InputCheckbox id="@nameof(WaypointDetailsViewModel.IsParking)" class="form-check-input" @bind-Value=WaypointDetailsViewModel.IsParking />
+                  <span class="form-check-label">Parking Space</span>
+                </label>
+                <label class="form-check form-check-inline mb-0">
+                  <InputCheckbox id="@nameof(WaypointDetailsViewModel.HasCharger)" class="form-check-input" @bind-Value=WaypointDetailsViewModel.HasCharger />
+                  <span class="form-check-label">Charger</span>
+                </label>
+                <label class="form-check form-check-inline mb-0">
+                  <InputCheckbox id="@nameof(WaypointDetailsViewModel.IsReserved)" class="form-check-input" @bind-Value=WaypointDetailsViewModel.IsReserved />
+                  <span class="form-check-label">Reserved</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer d-flex">
+            <AuthorizeView Policy="@Permissions.Navigation.Waypoints.Delete" Context="DeleteButton">
+              @if (Id != null)
+              {
+                <a class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" @onclick="HandleTestDelete">
+                  Delete
+                </a>
+              }
+            </AuthorizeView>
+            <AuthorizeView Policy="@Permissions.Navigation.Waypoints.Write" Context="Write">
+              <button type="submit" class="btn btn-primary ms-auto">@(Id != null ? "Update" : "Create")</button>
+            </AuthorizeView>
+          </div>
+        </EditForm>
+      </div>
+    </div>
+    @if (Id != null)
+    {
+      <AuthorizeView Policy=@Permissions.Administration.ActivityLogs.Read Context="ActivityLogs">
+        <div class="col-12">
+          <ActivityLogsTable DefaultEntityName="@nameof(Waypoint)" DefaultEntityId="@(Id.ToString())"
+            ReturnUrl="@(AppRoutes.Navigation.Waypoints.Index + $"/{Id}")"/>
+        </div>
+      </AuthorizeView>
+    }
+  </div>
+</PageBody>
+
+<AuthorizeView Policy="@Permissions.Navigation.Waypoints.Delete" Context="DeleteModal">
+  @if (Id != null)
+  {
+    <DeleteEntryModal EntryName="Waypoint" Errors="DeleteEntryModalViewModel.Errors"
+      IsReady="DeleteEntryModalViewModel.IsReady" OnDelete="HandleDelete">
+      Do you want to delete this Waypoint? This action cannot be undone. You must first remove the following entities that reference this Waypoint:
+      <ul>
+        <li>Traffic</li>
+        <li>Tasks (Running/Waiting/Template)</li>
+      </ul>
+    </DeleteEntryModal>
+  }
+</AuthorizeView>

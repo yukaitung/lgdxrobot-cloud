@@ -3,7 +3,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Identity;
 
-public class TwoFactorViewModel : FormViewModel, IValidatableObject
+public class TwoFactorViewModel : FormViewModelBase, IValidatableObject
 {
   private const int _twoFactorCodeLength = 6;
 
