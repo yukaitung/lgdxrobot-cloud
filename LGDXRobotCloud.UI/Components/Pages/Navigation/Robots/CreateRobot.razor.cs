@@ -17,7 +17,7 @@ public partial class CreateRobot
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
 
-  private RobotDetailViewModel Robot { get; set; } = new();
+  private RobotDetailsViewModel Robot { get; set; } = new();
   private RobotChassisInfoViewModel RobotChassisInfo { get; set; } = new();
   private RobotCertificateIssueDto? RobotCertificates { get; set; }
   private EditContext _editContext = null!;

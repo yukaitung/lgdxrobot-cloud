@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Robots;
-public partial class RobotDetail : ComponentBase, IAsyncDisposable
+public partial class RobotDetails : ComponentBase, IAsyncDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
@@ -45,7 +45,7 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
 
   private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private IDictionary<string,string>? DeleteEntryErrors = null;
-  private RobotDetailViewModel RobotDetailViewModel { get; set; } = new();
+  private RobotDetailsViewModel RobotDetailsViewModel { get; set; } = new();
   private RobotCertificateDto? RobotCertificate { get; set; } = null!;
   private RobotSystemInfoDto? RobotSystemInfoDto { get; set; } = null!;
   private RobotChassisInfoViewModel RobotChassisInfoViewModel { get; set; } = new();
@@ -53,8 +53,8 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
   private RobotData? RobotData { get; set; }
 
   private Timer? Timer = null;
-  private DetailRobotDataCard? RobotDataCard;
-  private DetailHeader? Header;
+  private DetailsRobotDataCard? RobotDataCard;
+  private DetailsHeader? Header;
 
   private Guid IdGuid { get; set; }
   private int RealmId { get; set; }
@@ -72,7 +72,7 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
     DeleteEntryModalViewModel.Errors = null;
     try
     {
-      await LgdxApiClient.Navigation.Robots[RobotDetailViewModel!.Id].TestDelete.PostAsync();
+      await LgdxApiClient.Navigation.Robots[RobotDetailsViewModel!.Id].TestDelete.PostAsync();
       DeleteEntryModalViewModel.IsReady = true;
     }
     catch (ApiException ex)
@@ -86,7 +86,7 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
     DeleteEntryErrors = null;
     try
     {
-      await LgdxApiClient.Navigation.Robots[RobotDetailViewModel!.Id].DeleteAsync();
+      await LgdxApiClient.Navigation.Robots[RobotDetailsViewModel!.Id].DeleteAsync();
       NavigationManager.NavigateTo(AppRoutes.Navigation.Robots.Index);
     }
     catch (ApiException ex)
@@ -98,7 +98,7 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
   public async Task HandlePauseTaskAssignment()
   {
     bool enabled = RobotData!.RobotStatus != RobotStatus.Paused;
-    await LgdxApiClient.Navigation.Robots[RobotDetailViewModel!.Id].PauseTaskAssignment.PatchAsync(new() {
+    await LgdxApiClient.Navigation.Robots[RobotDetailsViewModel!.Id].PauseTaskAssignment.PatchAsync(new() {
       Enable = enabled
     });
   }
@@ -106,7 +106,7 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
   public async Task HandleEmergencyStop()
   {
     bool enabled = !RobotData!.CriticalStatus.SoftwareEmergencyStop;
-    await LgdxApiClient.Navigation.Robots[RobotDetailViewModel!.Id].EmergencyStop.PatchAsync(new() {
+    await LgdxApiClient.Navigation.Robots[RobotDetailsViewModel!.Id].EmergencyStop.PatchAsync(new() {
       Enable = enabled
     });
   }
@@ -185,7 +185,7 @@ public partial class RobotDetail : ComponentBase, IAsyncDisposable
     if (Guid.TryParse(Id, out Guid _id))
     {
       var robot = await LgdxApiClient.Navigation.Robots[_id].GetAsync();
-      RobotDetailViewModel.FromDto(robot!);
+      RobotDetailsViewModel.FromDto(robot!);
       RobotCertificate = robot!.RobotCertificate;
       RobotSystemInfoDto = robot!.RobotSystemInfo;
       RobotChassisInfoViewModel.FromDto(robot!.RobotChassisInfo!);

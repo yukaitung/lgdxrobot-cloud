@@ -6,39 +6,36 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components;
 
-public partial class DetailChassisInfoCard
+public partial class DetailsRobotInfoCard
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
 
   [Parameter]
-  public RobotDetailViewModel? Robot { get; set; }
-
-  [Parameter]
-  public RobotChassisInfoViewModel? RobotChassisInfo { get; set; }
+  public RobotDetailsViewModel? Robot { get; set; }
 
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
   public async Task HandleValidSubmit()
   {
-    await LgdxApiClient.Navigation.Robots[Robot!.Id].Chassis.PutAsync(RobotChassisInfo!.ToUpdateDto());
+    await LgdxApiClient.Navigation.Robots[Robot!.Id].PutAsync(Robot!.ToUpdateDto());
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
   {
     parameters.SetParameterProperties(this);
-    if (parameters.TryGetValue<RobotChassisInfoViewModel?>(nameof(RobotChassisInfo), out var _RobotChassisInfo))
+    if (parameters.TryGetValue<RobotDetailsViewModel?>(nameof(Robot), out var _Robot))
     {
-      if (_RobotChassisInfo != null)
+      if (_Robot != null)
       {
-        _editContext = new EditContext(_RobotChassisInfo);
+        _editContext = new EditContext(_Robot);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
       else
       {
-        RobotChassisInfo = new RobotChassisInfoViewModel();
-        _editContext = new EditContext(RobotChassisInfo);
+        Robot = new RobotDetailsViewModel();
+        _editContext = new EditContext(Robot);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }

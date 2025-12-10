@@ -5,10 +5,10 @@
   <div class="row align-items-center">
     <div class="col">
       <ReturnLink HREF="@AppRoutes.Navigation.Robots.Index" ReturnUrl="@ReturnUrl" />
-      @if (RobotDetailViewModel != null)
+      @if (RobotDetailsViewModel != null)
       {
         <h2 class="page-title">
-          @RobotDetailViewModel.Name
+          @RobotDetailsViewModel.Name
           &nbsp;
           <RobotStatusBadge RobotStatus="@(RobotData != null ? RobotData.RobotStatus : RobotStatus.Offline)" />
         </h2>
@@ -46,7 +46,7 @@
   public required string ReturnUrl { get; set; }
 
   [Parameter]
-  public required RobotDetailViewModel RobotDetailViewModel { get; set; }
+  public required RobotDetailsViewModel RobotDetailsViewModel { get; set; }
 
   // Assign the RobotData from Refresh to prevent full re-rendering 
   private RobotData? RobotData { get; set; }

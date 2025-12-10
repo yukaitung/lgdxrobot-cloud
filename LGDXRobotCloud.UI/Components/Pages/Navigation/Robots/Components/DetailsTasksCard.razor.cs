@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components;
 
-public partial class DetailTasksCard
+public partial class DetailsTasksCard
 {
   [Parameter]
   public IEnumerable<AutoTaskListDto>? AutoTasks { get; set; }

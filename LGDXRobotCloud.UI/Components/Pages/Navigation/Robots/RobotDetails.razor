@@ -5,15 +5,15 @@
 @using LGDXRobotCloud.UI.Components.Pages.Navigation.Robots.Components
 @using LGDXRobotCloud.Utilities.Enums
 
-<DetailHeader ReturnUrl="@ReturnUrl" RobotDetailViewModel="@RobotDetailViewModel" @ref="Header" />
+<DetailsHeader ReturnUrl="@ReturnUrl" RobotDetailsViewModel="@RobotDetailsViewModel" @ref="Header" />
 
 <PageBody>
   <div class="row row-cards">
     <div class="col-12">
-      <DetailTasksCard AutoTasks="AutoTasks" />
+      <DetailsTasksCard AutoTasks="AutoTasks" />
     </div>
     <div class="col-12">
-      <DetailRobotDataCard @ref="RobotDataCard" />
+      <DetailsRobotDataCard @ref="RobotDataCard" />
     </div>
     <div class="col-12">
       <ul class="nav nav-bordered mb-4">
@@ -34,19 +34,19 @@
       </ul>
       @if (CurrentTab == 0)
       {
-        <DetailRobotInfoCard Robot="RobotDetailViewModel" />
+        <DetailsRobotInfoCard Robot="RobotDetailsViewModel" />
       }
       else if (CurrentTab == 1)
       {
-        <DetailSystemInfoCard RobotSystemInfo="RobotSystemInfoDto" />
+        <DetailsSystemInfoCard RobotSystemInfo="RobotSystemInfoDto" />
       }
       else if (CurrentTab == 2)
       {
-        <DetailChassisInfoCard Robot="RobotDetailViewModel" RobotChassisInfo="RobotChassisInfoViewModel" />
+        <DetailsChassisInfoCard Robot="RobotDetailsViewModel" RobotChassisInfo="RobotChassisInfoViewModel" />
       }
       else if (CurrentTab == 3)
       {
-        <DetailRobotCertificateCard RobotCertificate="RobotCertificate" />
+        <DetailsRobotCertificateCard RobotCertificate="RobotCertificate" />
       }
       else if (CurrentTab == 4)
       {
