@@ -12,7 +12,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.Users;
 
-public partial class UserDetail : ComponentBase, IDisposable
+public partial class UserDetails : ComponentBase, IDisposable
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
@@ -32,8 +32,8 @@ public partial class UserDetail : ComponentBase, IDisposable
   [Parameter]
   public string? Id { get; set; } = null;
 
-  private DotNetObjectReference<UserDetail> ObjectReference = null!;
-  private UserDetailViewModel UserDetailViewModel { get; set; } = new UserDetailViewModel();
+  private DotNetObjectReference<UserDetails> ObjectReference = null!;
+  private UserDetailsViewModel UserDetailsViewModel { get; set; } = new UserDetailsViewModel();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
@@ -73,22 +73,22 @@ public partial class UserDetail : ComponentBase, IDisposable
     int order = int.Parse(elementId[(index + 1)..]);
     if (element == AdvanceSelectElements[0])
     {
-      UserDetailViewModel.Roles[order] = name;
+      UserDetailsViewModel.Roles[order] = name;
     }
   }
 
   public void ListAddRole()
   {
-    UserDetailViewModel.Roles.Add(string.Empty);
+    UserDetailsViewModel.Roles.Add(string.Empty);
   }
 
   public async Task ListRemoveRole(int i)
   {
-    if (UserDetailViewModel.Roles.Count <= 1)
+    if (UserDetailsViewModel.Roles.Count <= 1)
       return;
-    if (i < UserDetailViewModel.Roles.Count - 1)
+    if (i < UserDetailsViewModel.Roles.Count - 1)
       await JSRuntime.InvokeVoidAsync("AdvanceControlExchange", AdvanceSelectElements, i, i + 1, true);
-    UserDetailViewModel.Roles.RemoveAt(i);
+    UserDetailsViewModel.Roles.RemoveAt(i);
     InitaisedAdvanceSelect--;
   }
 
@@ -96,12 +96,12 @@ public partial class UserDetail : ComponentBase, IDisposable
   {
     try
     {
-      await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].Unlock.PatchAsync();
-      UserDetailViewModel.LockoutEnd = null;
+      await LgdxApiClient.Administration.Users[UserDetailsViewModel.Id].Unlock.PatchAsync();
+      UserDetailsViewModel.LockoutEnd = null;
     }
     catch (ApiException ex)
     {
-      UserDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      UserDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -112,18 +112,18 @@ public partial class UserDetail : ComponentBase, IDisposable
       if (Id != null)
       {
         // Update
-        await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].PutAsync(UserDetailViewModel.ToUpdateDto());
+        await LgdxApiClient.Administration.Users[UserDetailsViewModel.Id].PutAsync(UserDetailsViewModel.ToUpdateDto());
       }
       else
       {
         // Create
-        await LgdxApiClient.Administration.Users.PostAsync(UserDetailViewModel.ToCreateDto());
+        await LgdxApiClient.Administration.Users.PostAsync(UserDetailsViewModel.ToCreateDto());
       }
       NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
     }
     catch (ApiException ex)
     {
-      UserDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      UserDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -131,12 +131,12 @@ public partial class UserDetail : ComponentBase, IDisposable
   {
     try
     {
-      await LgdxApiClient.Administration.Users[UserDetailViewModel.Id].DeleteAsync();
+      await LgdxApiClient.Administration.Users[UserDetailsViewModel.Id].DeleteAsync();
       NavigationManager.NavigateTo(AppRoutes.Administration.Users.Index);
     }
     catch (ApiException ex)
     {
-      UserDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      UserDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -156,14 +156,14 @@ public partial class UserDetail : ComponentBase, IDisposable
       if (Guid.TryParse(_id, out Guid _guid))
       {
         var user = await LgdxApiClient.Administration.Users[_guid].GetAsync();
-        UserDetailViewModel.FromDto(user!);
-        _editContext = new EditContext(UserDetailViewModel);
+        UserDetailsViewModel.FromDto(user!);
+        _editContext = new EditContext(UserDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
       else
       {
-        UserDetailViewModel.Roles.Add(string.Empty);
-        _editContext = new EditContext(UserDetailViewModel);
+        UserDetailsViewModel.Roles.Add(string.Empty);
+        _editContext = new EditContext(UserDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
@@ -178,13 +178,13 @@ public partial class UserDetail : ComponentBase, IDisposable
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitDotNet", ObjectReference);
     }
-    if (InitaisedAdvanceSelect < UserDetailViewModel.Roles.Count)
+    if (InitaisedAdvanceSelect < UserDetailsViewModel.Roles.Count)
     {
       await JSRuntime.InvokeVoidAsync("InitAdvancedSelectList", 
         AdvanceSelectElements,
         InitaisedAdvanceSelect,
-        UserDetailViewModel.Roles.Count - InitaisedAdvanceSelect);
-      InitaisedAdvanceSelect = UserDetailViewModel.Roles.Count;
+        UserDetailsViewModel.Roles.Count - InitaisedAdvanceSelect);
+      InitaisedAdvanceSelect = UserDetailsViewModel.Roles.Count;
     }
   }
 

@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Administration;
 
-public class UserDetailViewModel : FormViewModel, IValidatableObject
+public class UserDetailsViewModel : FormViewModel, IValidatableObject
 {
   public Guid Id { get; set; }
 
@@ -46,38 +46,38 @@ public class UserDetailViewModel : FormViewModel, IValidatableObject
   }
 }
 
-public static class UserDetailViewModelExtensions
+public static class UserDetailsViewModelExtensions
 {
-  public static void FromDto(this UserDetailViewModel userDetailViewModel, LgdxUserDto lgdxUserDto)
+  public static void FromDto(this UserDetailsViewModel UserDetailsViewModel, LgdxUserDto lgdxUserDto)
   {
-    userDetailViewModel.Id = (Guid)lgdxUserDto.Id!;
-    userDetailViewModel.Name = lgdxUserDto.Name!;
-    userDetailViewModel.UserName = lgdxUserDto.UserName!;
-    userDetailViewModel.Email = lgdxUserDto.Email!;
-    userDetailViewModel.Roles = lgdxUserDto.Roles!;
-    userDetailViewModel.TwoFactorEnabled = (bool)lgdxUserDto.TwoFactorEnabled!;
-    userDetailViewModel.AccessFailedCount = (int)lgdxUserDto.AccessFailedCount!;
-    userDetailViewModel.LockoutEnd = lgdxUserDto.LockoutEnd;
+    UserDetailsViewModel.Id = (Guid)lgdxUserDto.Id!;
+    UserDetailsViewModel.Name = lgdxUserDto.Name!;
+    UserDetailsViewModel.UserName = lgdxUserDto.UserName!;
+    UserDetailsViewModel.Email = lgdxUserDto.Email!;
+    UserDetailsViewModel.Roles = lgdxUserDto.Roles!;
+    UserDetailsViewModel.TwoFactorEnabled = (bool)lgdxUserDto.TwoFactorEnabled!;
+    UserDetailsViewModel.AccessFailedCount = (int)lgdxUserDto.AccessFailedCount!;
+    UserDetailsViewModel.LockoutEnd = lgdxUserDto.LockoutEnd;
   }
 
-  public static LgdxUserUpdateAdminDto ToUpdateDto(this UserDetailViewModel userDetailViewModel)
+  public static LgdxUserUpdateAdminDto ToUpdateDto(this UserDetailsViewModel UserDetailsViewModel)
   {
     return new LgdxUserUpdateAdminDto {
-      Name = userDetailViewModel.Name,
-      UserName = userDetailViewModel.UserName,
-      Email = userDetailViewModel.Email,
-      Roles = userDetailViewModel.Roles
+      Name = UserDetailsViewModel.Name,
+      UserName = UserDetailsViewModel.UserName,
+      Email = UserDetailsViewModel.Email,
+      Roles = UserDetailsViewModel.Roles
     };
   }
 
-  public static LgdxUserCreateAdminDto ToCreateDto(this UserDetailViewModel userDetailViewModel)
+  public static LgdxUserCreateAdminDto ToCreateDto(this UserDetailsViewModel UserDetailsViewModel)
   {
     return new LgdxUserCreateAdminDto {
-      Name = userDetailViewModel.Name,
-      UserName = userDetailViewModel.UserName,
-      Email = userDetailViewModel.Email,
-      Roles = userDetailViewModel.Roles,
-      Password = userDetailViewModel.Password
+      Name = UserDetailsViewModel.Name,
+      UserName = UserDetailsViewModel.UserName,
+      Email = UserDetailsViewModel.Email,
+      Roles = UserDetailsViewModel.Roles,
+      Password = UserDetailsViewModel.Password
     };
   }
 }
