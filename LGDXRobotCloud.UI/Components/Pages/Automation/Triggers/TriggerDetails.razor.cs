@@ -11,7 +11,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.Triggers;
 
-public partial class TriggerDetail : ComponentBase, IDisposable
+public partial class TriggerDetails : ComponentBase, IDisposable
 {
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
@@ -25,24 +25,24 @@ public partial class TriggerDetail : ComponentBase, IDisposable
   [Parameter]
   public int? Id { get; set; }
 
-  private DotNetObjectReference<TriggerDetail> ObjectReference = null!;
-  private TriggerDetailViewModel TriggerDetailViewModel { get; set; } = new();
+  private DotNetObjectReference<TriggerDetails> ObjectReference = null!;
+  private TriggerDetailsViewModel TriggerDetailsViewModel { get; set; } = new();
   private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
 
-  private readonly string SelectId = $"{nameof(TriggerDetailViewModel.ApiKeyId)}";
+  private readonly string SelectId = $"{nameof(TriggerDetailsViewModel.ApiKeyId)}";
 
  
   // Form
   public void HandleHttpMethod(object args)
   {
-    TriggerDetailViewModel.HttpMethodId = int.Parse(args.ToString() ?? string.Empty);
+    TriggerDetailsViewModel.HttpMethodId = int.Parse(args.ToString() ?? string.Empty);
   }
 
   public void HandleApiKeyInsertAt(object args)
   {
-    TriggerDetailViewModel.ApiKeyInsertLocationId = int.Parse(args.ToString() ?? string.Empty);
+    TriggerDetailsViewModel.ApiKeyInsertLocationId = int.Parse(args.ToString() ?? string.Empty);
   }
 
   [JSInvokable("HandlSelectSearch")]
@@ -65,8 +65,8 @@ public partial class TriggerDetail : ComponentBase, IDisposable
   {
     if (elementId == SelectId)
     {
-      TriggerDetailViewModel.ApiKeyId = id != null ? int.Parse(id) : null;
-      TriggerDetailViewModel.ApiKeyName = name;
+      TriggerDetailsViewModel.ApiKeyId = id != null ? int.Parse(id) : null;
+      TriggerDetailsViewModel.ApiKeyName = name;
     }
   }
 
@@ -77,18 +77,18 @@ public partial class TriggerDetail : ComponentBase, IDisposable
       if (Id != null)
       {
         // Update
-        await LgdxApiClient.Automation.Triggers[(int)Id].PutAsync(TriggerDetailViewModel.ToUpdateDto());
+        await LgdxApiClient.Automation.Triggers[(int)Id].PutAsync(TriggerDetailsViewModel.ToUpdateDto());
       }
       else
       {
         // Create
-        await LgdxApiClient.Automation.Triggers.PostAsync(TriggerDetailViewModel.ToCreateDto());
+        await LgdxApiClient.Automation.Triggers.PostAsync(TriggerDetailsViewModel.ToCreateDto());
       }
       NavigationManager.NavigateTo(AppRoutes.Automation.Triggers.Index);
     }
     catch (ApiException ex)
     {
-      TriggerDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      TriggerDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -115,26 +115,26 @@ public partial class TriggerDetail : ComponentBase, IDisposable
     }
     catch (ApiException ex)
     {
-      TriggerDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      TriggerDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
   public void BodyAddStep()
   {
-    TriggerDetailViewModel.BodyDataList.Add(new BodyData());
+    TriggerDetailsViewModel.BodyDataList.Add(new BodyData());
   }
 
   public void BodyRemoveStep(int i)
   {
-    if (TriggerDetailViewModel.BodyDataList.Count <= 1)
+    if (TriggerDetailsViewModel.BodyDataList.Count <= 1)
       return;
-    TriggerDetailViewModel.BodyDataList.RemoveAt(i);
+    TriggerDetailsViewModel.BodyDataList.RemoveAt(i);
   }
 
   public void HandleBodyPresetChange(int i, object? args)
   {
     if (args != null)
-      TriggerDetailViewModel.BodyDataList[i].Value = int.Parse(args.ToString()!);
+      TriggerDetailsViewModel.BodyDataList[i].Value = int.Parse(args.ToString()!);
   }
 
   public override async Task SetParametersAsync(ParameterView parameters)
@@ -145,13 +145,13 @@ public partial class TriggerDetail : ComponentBase, IDisposable
       if (_id != null)
       {
         var trigger = await LgdxApiClient.Automation.Triggers[(int)_id].GetAsync();
-        TriggerDetailViewModel.FromDto(trigger!);
-        _editContext = new EditContext(TriggerDetailViewModel);
+        TriggerDetailsViewModel.FromDto(trigger!);
+        _editContext = new EditContext(TriggerDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
       else
       {
-        _editContext = new EditContext(TriggerDetailViewModel);
+        _editContext = new EditContext(TriggerDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
@@ -166,7 +166,7 @@ public partial class TriggerDetail : ComponentBase, IDisposable
       ObjectReference = DotNetObjectReference.Create(this);
       await JSRuntime.InvokeVoidAsync("InitDotNet", ObjectReference);
     }
-    if (TriggerDetailViewModel.ApiKeyRequired)
+    if (TriggerDetailsViewModel.ApiKeyRequired)
     {
       await JSRuntime.InvokeVoidAsync("InitAdvancedSelect", SelectId);
     }

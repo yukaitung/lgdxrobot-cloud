@@ -13,7 +13,7 @@ public record BodyData
   public string CustomValue { get; set; } = string.Empty;
 }
 
-public class TriggerDetailViewModel : FormViewModel, IValidatableObject
+public class TriggerDetailsViewModel : FormViewModel, IValidatableObject
 {
   public int Id { get; set; }
 
@@ -120,45 +120,45 @@ public class TriggerDetailViewModel : FormViewModel, IValidatableObject
   }
 }
 
-public static class TriggerDetailViewModelExtensions
+public static class TriggerDetailsViewModelExtensions
 {
-  public static void FromDto(this TriggerDetailViewModel triggerDetailViewModel, TriggerDto triggerDto)
+  public static void FromDto(this TriggerDetailsViewModel TriggerDetailsViewModel, TriggerDto triggerDto)
   {
-    triggerDetailViewModel.Id = (int)triggerDto.Id!;
-    triggerDetailViewModel.Name = triggerDto.Name!;
-    triggerDetailViewModel.Url = triggerDto.Url!;
-    triggerDetailViewModel.HttpMethodId = (int)triggerDto.HttpMethodId!;
-    triggerDetailViewModel.BodyDataList = TriggerDetailViewModel.GenerateBodyDataList(triggerDto.Body?.ToString() ?? string.Empty);
-    triggerDetailViewModel.ApiKeyRequired = triggerDto.ApiKey != null;
-    triggerDetailViewModel.ApiKeyInsertLocationId = triggerDto.ApiKeyInsertLocationId;
-    triggerDetailViewModel.ApiKeyFieldName = triggerDto.ApiKeyFieldName;
-    triggerDetailViewModel.ApiKeyId = triggerDto.ApiKey?.Id;
-    triggerDetailViewModel.ApiKeyName = triggerDto.ApiKey?.Name;
+    TriggerDetailsViewModel.Id = (int)triggerDto.Id!;
+    TriggerDetailsViewModel.Name = triggerDto.Name!;
+    TriggerDetailsViewModel.Url = triggerDto.Url!;
+    TriggerDetailsViewModel.HttpMethodId = (int)triggerDto.HttpMethodId!;
+    TriggerDetailsViewModel.BodyDataList = TriggerDetailsViewModel.GenerateBodyDataList(triggerDto.Body?.ToString() ?? string.Empty);
+    TriggerDetailsViewModel.ApiKeyRequired = triggerDto.ApiKey != null;
+    TriggerDetailsViewModel.ApiKeyInsertLocationId = triggerDto.ApiKeyInsertLocationId;
+    TriggerDetailsViewModel.ApiKeyFieldName = triggerDto.ApiKeyFieldName;
+    TriggerDetailsViewModel.ApiKeyId = triggerDto.ApiKey?.Id;
+    TriggerDetailsViewModel.ApiKeyName = triggerDto.ApiKey?.Name;
   }
 
-  public static TriggerUpdateDto ToUpdateDto(this TriggerDetailViewModel triggerDetailViewModel)
+  public static TriggerUpdateDto ToUpdateDto(this TriggerDetailsViewModel TriggerDetailsViewModel)
   {
     return new TriggerUpdateDto {
-      Name = triggerDetailViewModel.Name,
-      Url = triggerDetailViewModel.Url,
-      HttpMethodId = triggerDetailViewModel.HttpMethodId,
-      Body = TriggerDetailViewModel.GenerateBodyJson(triggerDetailViewModel.BodyDataList),
-      ApiKeyInsertLocationId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyInsertLocationId : null,
-      ApiKeyFieldName = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyFieldName : null,
-      ApiKeyId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyId : null
+      Name = TriggerDetailsViewModel.Name,
+      Url = TriggerDetailsViewModel.Url,
+      HttpMethodId = TriggerDetailsViewModel.HttpMethodId,
+      Body = TriggerDetailsViewModel.GenerateBodyJson(TriggerDetailsViewModel.BodyDataList),
+      ApiKeyInsertLocationId = TriggerDetailsViewModel.ApiKeyRequired ? TriggerDetailsViewModel.ApiKeyInsertLocationId : null,
+      ApiKeyFieldName = TriggerDetailsViewModel.ApiKeyRequired ? TriggerDetailsViewModel.ApiKeyFieldName : null,
+      ApiKeyId = TriggerDetailsViewModel.ApiKeyRequired ? TriggerDetailsViewModel.ApiKeyId : null
     };
   }
 
-  public static TriggerCreateDto ToCreateDto(this TriggerDetailViewModel triggerDetailViewModel)
+  public static TriggerCreateDto ToCreateDto(this TriggerDetailsViewModel TriggerDetailsViewModel)
   {
     return new TriggerCreateDto {
-      Name = triggerDetailViewModel.Name,
-      Url = triggerDetailViewModel.Url,
-      HttpMethodId = triggerDetailViewModel.HttpMethodId,
-      Body = TriggerDetailViewModel.GenerateBodyJson(triggerDetailViewModel.BodyDataList),
-      ApiKeyInsertLocationId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyInsertLocationId : null,
-      ApiKeyFieldName = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyFieldName : null,
-      ApiKeyId = triggerDetailViewModel.ApiKeyRequired ? triggerDetailViewModel.ApiKeyId : null
+      Name = TriggerDetailsViewModel.Name,
+      Url = TriggerDetailsViewModel.Url,
+      HttpMethodId = TriggerDetailsViewModel.HttpMethodId,
+      Body = TriggerDetailsViewModel.GenerateBodyJson(TriggerDetailsViewModel.BodyDataList),
+      ApiKeyInsertLocationId = TriggerDetailsViewModel.ApiKeyRequired ? TriggerDetailsViewModel.ApiKeyInsertLocationId : null,
+      ApiKeyFieldName = TriggerDetailsViewModel.ApiKeyRequired ? TriggerDetailsViewModel.ApiKeyFieldName : null,
+      ApiKeyId = TriggerDetailsViewModel.ApiKeyRequired ? TriggerDetailsViewModel.ApiKeyId : null
     };
   }
 }

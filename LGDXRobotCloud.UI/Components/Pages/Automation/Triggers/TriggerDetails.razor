@@ -21,40 +21,40 @@
     <div class="col-12">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Trigger Detail</h3>
+          <h3 class="card-title">Trigger Details</h3>
         </div>
         <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
           <DataAnnotationsValidator />
           <div class="card-body">
-            <ApiErrorAlert Errors="TriggerDetailViewModel.Errors" />
+            <ApiErrorAlert Errors="TriggerDetailsViewModel.Errors" />
             <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
             @if (Id != null)
             {
               <div class="mb-3 row">
                 <label class="col-3 col-form-label">ID</label>
                 <div class="col">
-                  <div class="col form-control-plaintext">@TriggerDetailViewModel.Id</div>
+                  <div class="col form-control-plaintext">@TriggerDetailsViewModel.Id</div>
                 </div>
               </div>
             }
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(TriggerDetailViewModel.Name)">Name</label>
+              <label class="col-3 col-form-label required" for="@nameof(TriggerDetailsViewModel.Name)">Name</label>
               <div class="col">
-                <InputText id="@nameof(TriggerDetailViewModel.Name)" type="text" class="form-control" @bind-Value="TriggerDetailViewModel.Name" />
-                <ValidationMessage class="invalid-feedback" For="@(() => TriggerDetailViewModel.Name)" />
+                <InputText id="@nameof(TriggerDetailsViewModel.Name)" type="text" class="form-control" @bind-Value="TriggerDetailsViewModel.Name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => TriggerDetailsViewModel.Name)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(TriggerDetailViewModel.Url)">URL</label>
+              <label class="col-3 col-form-label required" for="@nameof(TriggerDetailsViewModel.Url)">URL</label>
               <div class="col">
-                <InputText id="@nameof(TriggerDetailViewModel.Url)" type="text" class="form-control" @bind-Value="TriggerDetailViewModel.Url" />
-                <ValidationMessage class="invalid-feedback" For="@(() => TriggerDetailViewModel.Url)" />
+                <InputText id="@nameof(TriggerDetailsViewModel.Url)" type="text" class="form-control" @bind-Value="TriggerDetailsViewModel.Url" />
+                <ValidationMessage class="invalid-feedback" For="@(() => TriggerDetailsViewModel.Url)" />
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-3 col-form-label required">Method</label>
               <div class="col">
-                <select class="form-select" value="@TriggerDetailViewModel.HttpMethodId" @onchange="@((e) => HandleHttpMethod(e.Value ?? string.Empty))">
+                <select class="form-select" value="@TriggerDetailsViewModel.HttpMethodId" @onchange="@((e) => HandleHttpMethod(e.Value ?? string.Empty))">
                   @foreach (TriggerHttpMethod method in Enum.GetValues(typeof(TriggerHttpMethod)))
                   {
                     <option value="@((int) method)">@(method.ToEnumMember())</option>
@@ -79,7 +79,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (int i = 0; i < TriggerDetailViewModel.BodyDataList.Count; i++)
+                    @for (int i = 0; i < TriggerDetailsViewModel.BodyDataList.Count; i++)
                     {
                       var index = i;
                       <tr>
@@ -87,10 +87,10 @@
                           <div class="col col-form-label col-form-label-sm">@(index + 1)</div>
                         </td>
                         <td>
-                          <input type="text" class="form-control form-control" @bind="TriggerDetailViewModel.BodyDataList[index].Key">
+                          <input type="text" class="form-control form-control" @bind="TriggerDetailsViewModel.BodyDataList[index].Key">
                         </td>
                         <td>
-                          <select class="form-select" value="@TriggerDetailViewModel.BodyDataList[index].Value" @onchange="@((e) => HandleBodyPresetChange(index, e.Value ?? string.Empty))">
+                          <select class="form-select" value="@TriggerDetailsViewModel.BodyDataList[index].Value" @onchange="@((e) => HandleBodyPresetChange(index, e.Value ?? string.Empty))">
                             <option value="0">Custom Value</option>
                             @foreach (TriggerPresetValue preset in Enum.GetValues(typeof(TriggerPresetValue)))
                             {
@@ -99,7 +99,7 @@
                           </select>
                         </td>
                         <td>
-                          <input type="text" class="form-control" @bind="TriggerDetailViewModel.BodyDataList[index].CustomValue" disabled="@(TriggerDetailViewModel.BodyDataList[index].Value != 0)">
+                          <input type="text" class="form-control" @bind="TriggerDetailsViewModel.BodyDataList[index].CustomValue" disabled="@(TriggerDetailsViewModel.BodyDataList[index].Value != 0)">
                         </td>
                         <td>
                           <button type="button"
@@ -120,17 +120,17 @@
               <label class="col-3 col-form-label pt-0"></label>
               <div class="col">
                 <label class="form-check">
-                  <input class="form-check-input" type="checkbox" @bind="TriggerDetailViewModel.ApiKeyRequired">
+                  <input class="form-check-input" type="checkbox" @bind="TriggerDetailsViewModel.ApiKeyRequired">
                   <span class="form-check-label">The API endpoint requires an API Key</span>
                 </label>
               </div>
             </div>
-            @if (TriggerDetailViewModel.ApiKeyRequired)
+            @if (TriggerDetailsViewModel.ApiKeyRequired)
             {
               <div class="mb-3 row">
-                <label class="col-3 col-form-label required" for="@nameof(TriggerDetailViewModel.ApiKeyInsertLocationId)">Insert Loaction</label>
+                <label class="col-3 col-form-label required" for="@nameof(TriggerDetailsViewModel.ApiKeyInsertLocationId)">Insert Loaction</label>
                 <div class="col">
-                  <select class="form-select" value="@TriggerDetailViewModel.ApiKeyInsertLocationId" @onchange="@((e) => HandleApiKeyInsertAt(e.Value ?? string.Empty))">
+                  <select class="form-select" value="@TriggerDetailsViewModel.ApiKeyInsertLocationId" @onchange="@((e) => HandleApiKeyInsertAt(e.Value ?? string.Empty))">
                     @foreach (ApiKeyInsertLocation location in Enum.GetValues(typeof(ApiKeyInsertLocation)))
                     {
                       <option value="@((int) location)">@(location.ToEnumMember())</option>
@@ -142,14 +142,14 @@
                 </div>
               </div>
               <div class="mb-3 row">
-                <label class="col-3 col-form-label required" for="@nameof(TriggerDetailViewModel.ApiKeyFieldName)">
-                  @(TriggerDetailViewModel.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Header ? "Header Field Name" : "JSON Key Name")
+                <label class="col-3 col-form-label required" for="@nameof(TriggerDetailsViewModel.ApiKeyFieldName)">
+                  @(TriggerDetailsViewModel.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Header ? "Header Field Name" : "JSON Key Name")
                 </label>
                 <div class="col">
-                  <InputText id="FieldName" @bind-Value="TriggerDetailViewModel.ApiKeyFieldName" type="text" class="form-control"
-                    placeholder="@(TriggerDetailViewModel.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Header ? "e.g. X-API-Key" : "e.g. key")" />
-                  <ValidationMessage class="invalid-feedback" For="@(() => TriggerDetailViewModel.ApiKeyFieldName)" />
-                  @if (TriggerDetailViewModel.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Body)
+                  <InputText id="FieldName" @bind-Value="TriggerDetailsViewModel.ApiKeyFieldName" type="text" class="form-control"
+                    placeholder="@(TriggerDetailsViewModel.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Header ? "e.g. X-API-Key" : "e.g. key")" />
+                  <ValidationMessage class="invalid-feedback" For="@(() => TriggerDetailsViewModel.ApiKeyFieldName)" />
+                  @if (TriggerDetailsViewModel.ApiKeyInsertLocationId == (int)ApiKeyInsertLocation.Body)
                   {
                     <small class="form-hint">
                       This will be ignored if the request body is not in JSON format.
@@ -158,15 +158,15 @@
                 </div>
                 </div>
                 <div class="mb-3 row">
-                <label class="col-3 col-form-label required" for="@nameof(TriggerDetailViewModel.ApiKeyId)">API Key</label>
+                <label class="col-3 col-form-label required" for="@nameof(TriggerDetailsViewModel.ApiKeyId)">API Key</label>
                 <div class="col">
-                  <InputSelect id="@nameof(TriggerDetailViewModel.ApiKeyId)" class="form-control" @bind-Value="TriggerDetailViewModel.ApiKeyId">
-                    @if (TriggerDetailViewModel.ApiKeyName != null)
+                  <InputSelect id="@nameof(TriggerDetailsViewModel.ApiKeyId)" class="form-control" @bind-Value="TriggerDetailsViewModel.ApiKeyId">
+                    @if (TriggerDetailsViewModel.ApiKeyName != null)
                     {
-                      <option value="@TriggerDetailViewModel.ApiKeyId">@TriggerDetailViewModel.ApiKeyName</option>
+                      <option value="@TriggerDetailsViewModel.ApiKeyId">@TriggerDetailsViewModel.ApiKeyName</option>
                     }
                   </InputSelect>
-                  <ValidationMessage class="invalid-feedback" For="@(() => TriggerDetailViewModel.ApiKeyId)" />
+                  <ValidationMessage class="invalid-feedback" For="@(() => TriggerDetailsViewModel.ApiKeyId)" />
                 </div>
               </div>
             }
