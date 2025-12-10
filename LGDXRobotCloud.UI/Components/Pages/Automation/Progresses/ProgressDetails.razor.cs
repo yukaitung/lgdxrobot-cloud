@@ -9,7 +9,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Automation.Progresses;
 
-public partial class ProgressDetail : ComponentBase
+public partial class ProgressDetails : ComponentBase
 {
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
@@ -20,7 +20,7 @@ public partial class ProgressDetail : ComponentBase
   [Parameter]
   public int? Id { get; set; }
 
-  private ProgressDetailViewModel ProgressDetailViewModel { get; set; } = new();
+  private ProgressDetailsViewModel ProgressDetailsViewModel { get; set; } = new();
   private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
@@ -32,18 +32,18 @@ public partial class ProgressDetail : ComponentBase
       if (Id != null)
       {
         // Update
-        await LgdxApiClient.Automation.Progresses[ProgressDetailViewModel.Id].PutAsync(ProgressDetailViewModel.ToUpdateDto());
+        await LgdxApiClient.Automation.Progresses[ProgressDetailsViewModel.Id].PutAsync(ProgressDetailsViewModel.ToUpdateDto());
       }
       else
       {
         // Create
-        await LgdxApiClient.Automation.Progresses.PostAsync(ProgressDetailViewModel.ToCreateDto());
+        await LgdxApiClient.Automation.Progresses.PostAsync(ProgressDetailsViewModel.ToCreateDto());
       }
       NavigationManager.NavigateTo(AppRoutes.Automation.Progresses.Index);
     }
     catch (ApiException ex)
     {
-      ProgressDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      ProgressDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -52,7 +52,7 @@ public partial class ProgressDetail : ComponentBase
     DeleteEntryModalViewModel.Errors = null;
     try
     {
-      await LgdxApiClient.Automation.Progresses[ProgressDetailViewModel.Id].TestDelete.PostAsync();
+      await LgdxApiClient.Automation.Progresses[ProgressDetailsViewModel.Id].TestDelete.PostAsync();
       DeleteEntryModalViewModel.IsReady = true;
     }
     catch (ApiException ex)
@@ -65,12 +65,12 @@ public partial class ProgressDetail : ComponentBase
   {
     try
     {
-      await LgdxApiClient.Automation.Progresses[ProgressDetailViewModel.Id].DeleteAsync();
+      await LgdxApiClient.Automation.Progresses[ProgressDetailsViewModel.Id].DeleteAsync();
       NavigationManager.NavigateTo(AppRoutes.Automation.Progresses.Index);
     }
     catch (ApiException ex)
     {
-      ProgressDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      ProgressDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -82,13 +82,13 @@ public partial class ProgressDetail : ComponentBase
       if (_id != null)
       {
         var progress = await LgdxApiClient.Automation.Progresses[(int)_id].GetAsync();
-        ProgressDetailViewModel.FromDto(progress!);
-        _editContext = new EditContext(ProgressDetailViewModel);
+        ProgressDetailsViewModel.FromDto(progress!);
+        _editContext = new EditContext(ProgressDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
       else
       {
-        _editContext = new EditContext(ProgressDetailViewModel);
+        _editContext = new EditContext(ProgressDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
