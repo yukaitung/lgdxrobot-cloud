@@ -20,69 +20,69 @@
     <div class="col-12">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Waypoint Detail</h3>
+          <h3 class="card-title">Waypoint Details</h3>
         </div>
         <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
           <DataAnnotationsValidator />
           <div class="card-body">
-            <ApiErrorAlert Errors="WaypointDetailViewModel.Errors" />
+            <ApiErrorAlert Errors="WaypointDetailsViewModel.Errors" />
             <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
             @if (Id != null)
             {
               <div class="mb-3 row">
                 <label class="col-3 col-form-label">ID</label>
                 <div class="col">
-                  <div class="col form-control-plaintext">@WaypointDetailViewModel.Id</div>
+                  <div class="col form-control-plaintext">@WaypointDetailsViewModel.Id</div>
                 </div>
               </div>
             }
             <div class="mb-3 row">
               <label class="col-3 col-form-label">Realm</label>
               <div class="col">
-                <div class="col form-control-plaintext">@WaypointDetailViewModel.RealmName</div>
+                <div class="col form-control-plaintext">@WaypointDetailsViewModel.RealmName</div>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailViewModel.Name)">Name</label>
+              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailsViewModel.Name)">Name</label>
               <div class="col">
-                <InputText id="@nameof(WaypointDetailViewModel.Name)" type="text" class="form-control" @bind-Value="WaypointDetailViewModel.Name" />
-                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailViewModel.Name)" />
+                <InputText id="@nameof(WaypointDetailsViewModel.Name)" type="text" class="form-control" @bind-Value="WaypointDetailsViewModel.Name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailsViewModel.Name)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailViewModel.X)">X (m)</label>
+              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailsViewModel.X)">X (m)</label>
               <div class="col">
-                <InputNumber id="@nameof(WaypointDetailViewModel.X)" type="number" step="any" class="form-control" @bind-Value="WaypointDetailViewModel.X" />
-                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailViewModel.X)" />
+                <InputNumber id="@nameof(WaypointDetailsViewModel.X)" type="number" step="any" class="form-control" @bind-Value="WaypointDetailsViewModel.X" />
+                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailsViewModel.X)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailViewModel.Y)">Y (m)</label>
+              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailsViewModel.Y)">Y (m)</label>
               <div class="col">
-                <InputNumber id="@nameof(WaypointDetailViewModel.Y)" type="number" step="any" class="form-control"  @bind-Value="WaypointDetailViewModel.Y" />
-                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailViewModel.Y)" />
+                <InputNumber id="@nameof(WaypointDetailsViewModel.Y)" type="number" step="any" class="form-control"  @bind-Value="WaypointDetailsViewModel.Y" />
+                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailsViewModel.Y)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailViewModel.Rotation)">Rotation (rad)</label>
+              <label class="col-3 col-form-label required" for="@nameof(WaypointDetailsViewModel.Rotation)">Rotation (rad)</label>
               <div class="col">
-                <InputNumber id="@nameof(WaypointDetailViewModel.Rotation)" type="number" step="any" class="form-control" @bind-Value="WaypointDetailViewModel.Rotation" />
-                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailViewModel.Rotation)" />
+                <InputNumber id="@nameof(WaypointDetailsViewModel.Rotation)" type="number" step="any" class="form-control" @bind-Value="WaypointDetailsViewModel.Rotation" />
+                <ValidationMessage class="invalid-feedback" For="@(() => WaypointDetailsViewModel.Rotation)" />
               </div>
             </div>
             <div class="mb-3 row align-items-center">
               <label class="col-3 col-form-label">Facilities</label>
               <div class="col">
                 <label class="form-check form-check-inline mb-0">
-                  <InputCheckbox id="@nameof(WaypointDetailViewModel.IsParking)" class="form-check-input" @bind-Value=WaypointDetailViewModel.IsParking />
+                  <InputCheckbox id="@nameof(WaypointDetailsViewModel.IsParking)" class="form-check-input" @bind-Value=WaypointDetailsViewModel.IsParking />
                   <span class="form-check-label">Parking Space</span>
                 </label>
                 <label class="form-check form-check-inline mb-0">
-                  <InputCheckbox id="@nameof(WaypointDetailViewModel.HasCharger)" class="form-check-input" @bind-Value=WaypointDetailViewModel.HasCharger />
+                  <InputCheckbox id="@nameof(WaypointDetailsViewModel.HasCharger)" class="form-check-input" @bind-Value=WaypointDetailsViewModel.HasCharger />
                   <span class="form-check-label">Charger</span>
                 </label>
                 <label class="form-check form-check-inline mb-0">
-                  <InputCheckbox id="@nameof(WaypointDetailViewModel.IsReserved)" class="form-check-input" @bind-Value=WaypointDetailViewModel.IsReserved />
+                  <InputCheckbox id="@nameof(WaypointDetailsViewModel.IsReserved)" class="form-check-input" @bind-Value=WaypointDetailsViewModel.IsReserved />
                   <span class="form-check-label">Reserved</span>
                 </label>
               </div>

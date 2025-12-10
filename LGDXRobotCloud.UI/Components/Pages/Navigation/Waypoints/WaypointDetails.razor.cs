@@ -11,7 +11,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Navigation.Waypoints;
 
-public partial class WaypointDetail : ComponentBase
+public partial class WaypointDetails : ComponentBase
 {
   [Inject]
   public required LgdxApiClient LgdxApiClient { get; set; }
@@ -34,15 +34,10 @@ public partial class WaypointDetail : ComponentBase
   [SupplyParameterFromQuery]
   private string? ReturnUrl { get; set; }
 
-  private WaypointDetailViewModel WaypointDetailViewModel { get; set; } = new();
+  private WaypointDetailsViewModel WaypointDetailsViewModel { get; set; } = new();
   private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
-
-  private void Redirect(int id)
-  {
-    
-  }
 
   public async Task HandleValidSubmit()
   {
@@ -52,13 +47,13 @@ public partial class WaypointDetail : ComponentBase
       if (Id != null)
       {
         // Update
-        await LgdxApiClient.Navigation.Waypoints[(int)Id].PutAsync(WaypointDetailViewModel.ToUpdateDto());
+        await LgdxApiClient.Navigation.Waypoints[(int)Id].PutAsync(WaypointDetailsViewModel.ToUpdateDto());
         id = (int)Id;
       }
       else
       {
         // Create
-        var response = await LgdxApiClient.Navigation.Waypoints.PostAsync(WaypointDetailViewModel.ToCreateDto());
+        var response = await LgdxApiClient.Navigation.Waypoints.PostAsync(WaypointDetailsViewModel.ToCreateDto());
         id = response?.Id ?? 0;
       }
 
@@ -75,7 +70,7 @@ public partial class WaypointDetail : ComponentBase
     }
     catch (ApiException ex)
     {
-      WaypointDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      WaypointDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -111,7 +106,7 @@ public partial class WaypointDetail : ComponentBase
     }
     catch (ApiException ex)
     {
-      WaypointDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      WaypointDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -119,8 +114,8 @@ public partial class WaypointDetail : ComponentBase
   {
     var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
     var settings = TokenService.GetSessionSettings(user);
-    WaypointDetailViewModel.RealmId = settings.CurrentRealmId;
-    WaypointDetailViewModel.RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
+    WaypointDetailsViewModel.RealmId = settings.CurrentRealmId;
+    WaypointDetailsViewModel.RealmName = await CachedRealmService.GetRealmName(settings.CurrentRealmId);
     await base.OnInitializedAsync();
   }
 
@@ -132,13 +127,13 @@ public partial class WaypointDetail : ComponentBase
       if (_id != null)
       {
         var waypoint = await LgdxApiClient.Navigation.Waypoints[(int)_id].GetAsync();
-        WaypointDetailViewModel.FromDto(waypoint!);
-        _editContext = new EditContext(WaypointDetailViewModel);
+        WaypointDetailsViewModel.FromDto(waypoint!);
+        _editContext = new EditContext(WaypointDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
       else
       {
-        _editContext = new EditContext(WaypointDetailViewModel);
+        _editContext = new EditContext(WaypointDetailsViewModel);
         _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
       }
     }
