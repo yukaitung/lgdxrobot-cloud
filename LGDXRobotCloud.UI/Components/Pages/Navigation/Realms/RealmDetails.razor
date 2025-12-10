@@ -32,7 +32,7 @@
     <div class="col-12">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Realm Detail</h3>
+          <h3 class="card-title">Realm Details</h3>
         </div>
         <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
           <DataAnnotationsValidator />
@@ -69,7 +69,7 @@
                 <label class="form-check mb-0">
                   <input id="@nameof(RealmDetailViewModel.HasWaypointsTrafficControl)" class="form-check-input" type="checkbox" @bind="RealmDetailViewModel.HasWaypointsTrafficControl">
                   <span class="form-check-label">Enable Waypoints Traffic Control</span>
-                  <span class="form-check-description">Traffic must be defined in Map Edit after enabling Waypoint Traffic Control.</span>
+                  <span class="form-check-description">Traffic rules must be defined in Map Editor after enabling Waypoint Traffic Control.</span>
                 </label>
               </div>
             </div>
@@ -84,7 +84,7 @@
                   accept=".png" />
                 <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.SelectedImage)" />
                 <span class="form-check-description">The maximum file size is @((int)(LgdxApiConstants.ImageMaxSize / 1048576)) MB, and only .png images are
-                  accepted.@if (Id == null){<text>Also, the image can be created in SLAM mode after creating the realm.</text>}</span>
+                  accepted.</span>
               </div>
             </div>
             <div class="mb-3 row">
@@ -133,7 +133,7 @@
               else if (Id != null)
               {
                 <p class="m-0 text-secondary">
-                  Change the realm to delete
+                  Switch to another realm to delete it.
                 </p>
               }
             </AuthorizeView>
