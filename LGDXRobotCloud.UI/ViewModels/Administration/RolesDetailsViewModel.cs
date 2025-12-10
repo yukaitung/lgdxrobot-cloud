@@ -24,7 +24,7 @@ public record ScopeOption
   public int? Permission { get; set; } = null;
 }
 
-public class RolesDetailsViewModel : FormViewModel, IValidatableObject
+public class RolesDetailsViewModel : FormViewModelBase, IValidatableObject
 {
   public Guid Id { get; set; }
   

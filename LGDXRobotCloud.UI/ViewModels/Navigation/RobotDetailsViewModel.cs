@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Navigation;
 
-public class RobotDetailsViewModel : FormViewModel
+public class RobotDetailsViewModel : FormViewModelBase
 {
   public Guid Id { get; set; }
 

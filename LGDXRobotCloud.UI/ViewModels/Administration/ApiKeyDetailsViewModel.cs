@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Administration;
 
-public class ApiKeyDetailsViewModel : FormViewModel, IValidatableObject
+public class ApiKeyDetailsViewModel : FormViewModelBase, IValidatableObject
 {
   public int Id { get; set; }
 

@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Navigation;
 
-public class WaypointDetailsViewModel : FormViewModel
+public class WaypointDetailsViewModel : FormViewModelBase
 {
   public int Id { get; set; }
 

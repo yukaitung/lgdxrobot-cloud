@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Administration;
 
-public class UserDetailsViewModel : FormViewModel, IValidatableObject
+public class UserDetailsViewModel : FormViewModelBase, IValidatableObject
 {
   public Guid Id { get; set; }
 

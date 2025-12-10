@@ -41,7 +41,7 @@ public record AutoTaskJourney
   public DateTimeOffset? CreatedAt { get; set; }
 }
 
-public class AutoTaskDetailsViewModel : FormViewModel, IValidatableObject
+public class AutoTaskDetailsViewModel : FormViewModelBase, IValidatableObject
 {
   public int Id { get; set; }
 

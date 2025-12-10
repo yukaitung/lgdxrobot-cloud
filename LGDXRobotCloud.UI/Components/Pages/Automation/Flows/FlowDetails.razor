@@ -48,10 +48,10 @@
               <label class="col-2 col-form-label required">Flow Detail</label>
               <div class="col d-flex flex-column">
                 <div class="invalid-feedback" style="display: block;">@_editContext.GetValidationMessages(() => FlowDetailsViewModel.FlowDetails).FirstOrDefault()</div>
-                <InformationModal>
+                <InformationAlert>
                   1. The 'Moving' progress should be included in the flow for the robot to navigate.<br />
                   2. An external API call is required when using 'API' as the proceed condition.
-                </InformationModal>
+                </InformationAlert>
                 <table class="table table-vcenter text-nowrap datatable">
                   <thead>
                     <tr>

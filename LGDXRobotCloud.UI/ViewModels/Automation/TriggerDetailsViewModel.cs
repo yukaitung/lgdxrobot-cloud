@@ -13,7 +13,7 @@ public record BodyData
   public string CustomValue { get; set; } = string.Empty;
 }
 
-public class TriggerDetailsViewModel : FormViewModel, IValidatableObject
+public class TriggerDetailsViewModel : FormViewModelBase, IValidatableObject
 {
   public int Id { get; set; }
 

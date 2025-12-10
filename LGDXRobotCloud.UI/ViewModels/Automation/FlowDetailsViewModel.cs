@@ -22,7 +22,7 @@ public record FlowDetailBody
   public string? TriggerName { get; set; } = null;
 }
 
-public class FlowDetailsViewModel : FormViewModel, IValidatableObject
+public class FlowDetailsViewModel : FormViewModelBase, IValidatableObject
 {
   public int Id { get; set; }
 

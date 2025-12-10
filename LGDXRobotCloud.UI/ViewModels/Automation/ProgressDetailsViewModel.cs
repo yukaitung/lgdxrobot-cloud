@@ -4,7 +4,7 @@ using LGDXRobotCloud.UI.ViewModels.Shared;
 
 namespace LGDXRobotCloud.UI.ViewModels.Automation;
 
-public class ProgressDetailsViewModel : FormViewModel
+public class ProgressDetailsViewModel : FormViewModelBase
 {
   public int Id { get; set; }
 
