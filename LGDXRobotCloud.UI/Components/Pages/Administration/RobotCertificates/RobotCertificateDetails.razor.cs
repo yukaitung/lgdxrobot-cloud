@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace LGDXRobotCloud.UI.Components.Pages.Administration.RobotCertificates;
 
-public partial class RobotCertificateDetail
+public partial class RobotCertificateDetails
 {
   [Inject]
   public required NavigationManager NavigationManager { get; set; } = default!;
