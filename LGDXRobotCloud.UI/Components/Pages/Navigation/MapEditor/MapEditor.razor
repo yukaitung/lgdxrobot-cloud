@@ -32,7 +32,7 @@
   @if (!HasWaypointTrafficControl)
   {
     <InformationModal>
-      Waypoint Traffic Control is disabled. Traffic can be created, but the system does not plan a path according to the traffic.
+      Waypoint Traffic Control is disabled. Traffic rules can be created, but the system does not plan a path according to the rules.
     </InformationModal>
   }
   <div class="col-12">
@@ -42,11 +42,11 @@
           <div class="col">
             <div id="map-editor-tools" class="btn-group">
               <a class="btn" href="@($"{AppRoutes.Navigation.Waypoints.Create}?ReturnUrl={AppRoutes.Navigation.MapEditor.Index}")">Add Waypoint</a>
-              <a class="btn dropdown-toggle rounded-0" data-bs-toggle="dropdown">Traffic</a>
+              <a class="btn dropdown-toggle rounded-0" data-bs-toggle="dropdown">Traffic rules</a>
               <div class="dropdown-menu">
-                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.SingleWayTrafficFrom)">Single Way</button>
-                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.BothWaysTrafficFrom)">Both Ways</button>
-                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.DeleteTraffic)">Delete Traffic</button>
+                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.SingleWayTrafficFrom)">Single-way traffic</button>
+                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.BothWaysTrafficFrom)">Two-way traffic</button>
+                <button class="dropdown-item" @onclick="() => HandleMapEditorModeChange(MapEditorMode.DeleteTraffic)">Delete Traffic rule</button>
               </div>
               <button class="btn" disabled="@(MapEditorMode == MapEditorMode.Normal)" @onclick="() => HandleMapEditorModeChange(MapEditorMode.Normal)">Cancel</button>
             </div>
@@ -59,19 +59,19 @@
                 <text></text>
                 break;
               case MapEditorMode.SingleWayTrafficFrom:
-                <text>Single way: Select a starting waypoint.</text>
+                <text>Single-way traffic: Select a starting waypoint.</text>
                 break;
               case MapEditorMode.SingleWayTrafficTo:
-                <text>Single way: Select an ending waypoint.</text>
+                <text>Single-way traffic: Select an ending waypoint.</text>
                 break;
               case MapEditorMode.BothWaysTrafficFrom:
-                <text>Both ways: Select a starting waypoint.</text>
+                <text>Two-way traffic: Select a starting waypoint.</text>
                 break;
               case MapEditorMode.BothWaysTrafficTo:
-                <text>Both ways: Select an ending waypoint.</text>
+                <text>Two-way traffic: Select an ending waypoint.</text>
                 break;
               case MapEditorMode.DeleteTraffic:
-                <text>Select a traffic to delete.</text>
+                <text>Select a traffic rule to delete.</text>
                 break;
             }
             @switch (MapEditorError) {
@@ -83,7 +83,7 @@
                 <text>Error: Cannot select same waypoint.</text>
                 break;
               case MapEditorError.HasTraffic:
-                <text>Error: The waypoints have defined traffic.</text>
+                <text>Error: The waypoints have traffic rules defined.</text>
                 break;
             }
           </p>
@@ -120,7 +120,7 @@
       @if (SelectedWaypoint != null)
       {
         <div class="modal-header">
-          <h5 class="modal-title">Waypoint Detail</h5>
+          <h5 class="modal-title">Waypoint Details</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
