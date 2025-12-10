@@ -37,88 +37,88 @@
         <EditForm EditContext="@_editContext" OnValidSubmit="HandleValidSubmit">
           <DataAnnotationsValidator />
           <div class="card-body">
-            <ApiErrorAlert Errors="RealmDetailViewModel.Errors" />
+            <ApiErrorAlert Errors="RealmDetailsViewModel.Errors" />
             <FormValidationErrorAlert Errors="@_editContext.GetValidationMessages()" />
             @if (Id != null)
             {
               <div class="mb-3 row">
                 <label class="col-3 col-form-label">ID</label>
                 <div class="col">
-                  <div class="col form-control-plaintext">@RealmDetailViewModel.Id</div>
+                  <div class="col form-control-plaintext">@RealmDetailsViewModel.Id</div>
                 </div>
               </div>
             }
             <div class="mb-3 row">
-              <label class="col-3 col-form-label required" for="@nameof(RealmDetailViewModel.Name)">Name</label>
+              <label class="col-3 col-form-label required" for="@nameof(RealmDetailsViewModel.Name)">Name</label>
               <div class="col">
-                <InputText id="@nameof(RealmDetailViewModel.Name)" type="text" class="form-control"
-                  @bind-Value="RealmDetailViewModel.Name" />
-                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.Name)" />
+                <InputText id="@nameof(RealmDetailsViewModel.Name)" type="text" class="form-control"
+                  @bind-Value="RealmDetailsViewModel.Name" />
+                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailsViewModel.Name)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.Description)">Description</label>
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailsViewModel.Description)">Description</label>
               <div class="col">
-                <InputTextArea id="@nameof(RealmDetailViewModel.Description)" class="form-control" rows="3"
-                  @bind-Value="RealmDetailViewModel.Description" />
+                <InputTextArea id="@nameof(RealmDetailsViewModel.Description)" class="form-control" rows="3"
+                  @bind-Value="RealmDetailsViewModel.Description" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.HasWaypointsTrafficControl)">Waypoints Traffic Control</label>
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailsViewModel.HasWaypointsTrafficControl)">Waypoints Traffic Control</label>
               <div class="col">
                 <label class="form-check mb-0">
-                  <input id="@nameof(RealmDetailViewModel.HasWaypointsTrafficControl)" class="form-check-input" type="checkbox" @bind="RealmDetailViewModel.HasWaypointsTrafficControl">
+                  <input id="@nameof(RealmDetailsViewModel.HasWaypointsTrafficControl)" class="form-check-input" type="checkbox" @bind="RealmDetailsViewModel.HasWaypointsTrafficControl">
                   <span class="form-check-label">Enable Waypoints Traffic Control</span>
                   <span class="form-check-description">Traffic rules must be defined in Map Editor after enabling Waypoint Traffic Control.</span>
                 </label>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.SelectedImage)">Image</label>
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailsViewModel.SelectedImage)">Image</label>
               <div class="col">
-                @if (RealmDetailViewModel.Image != null)
+                @if (RealmDetailsViewModel.Image != null)
                 {
-                  <img class="mx-auto d-block mb-2" src="data:image/png;base64, @RealmDetailViewModel.Image" />
+                  <img class="mx-auto d-block mb-2" src="data:image/png;base64, @RealmDetailsViewModel.Image" />
                 }
-                <InputFile id="@nameof(RealmDetailViewModel.SelectedImage)" class="form-control" OnChange="LoadImage"
+                <InputFile id="@nameof(RealmDetailsViewModel.SelectedImage)" class="form-control" OnChange="LoadImage"
                   accept=".png" />
-                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.SelectedImage)" />
+                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailsViewModel.SelectedImage)" />
                 <span class="form-check-description">The maximum file size is @((int)(LgdxApiConstants.ImageMaxSize / 1048576)) MB, and only .png images are
                   accepted.</span>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.Resolution)">Resolution
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailsViewModel.Resolution)">Resolution
                 (m)</label>
               <div class="col">
-                <InputNumber id="@nameof(RealmDetailViewModel.Resolution)" type="number" step="any" class="form-control"
-                  @bind-Value="RealmDetailViewModel.Resolution" />
-                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.Resolution)" />
+                <InputNumber id="@nameof(RealmDetailsViewModel.Resolution)" type="number" step="any" class="form-control"
+                  @bind-Value="RealmDetailsViewModel.Resolution" />
+                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailsViewModel.Resolution)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.OriginX)">Origin X (m)</label>
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailsViewModel.OriginX)">Origin X (m)</label>
               <div class="col">
-                <InputNumber id="@nameof(RealmDetailViewModel.OriginX)" type="number" step="any" class="form-control"
-                  @bind-Value="RealmDetailViewModel.OriginX" />
-                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.OriginX)" />
+                <InputNumber id="@nameof(RealmDetailsViewModel.OriginX)" type="number" step="any" class="form-control"
+                  @bind-Value="RealmDetailsViewModel.OriginX" />
+                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailsViewModel.OriginX)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.OriginY)">Origin Y (m)</label>
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailsViewModel.OriginY)">Origin Y (m)</label>
               <div class="col">
-                <InputNumber id="@nameof(RealmDetailViewModel.OriginY)" type="number" step="any" class="form-control"
-                  @bind-Value="RealmDetailViewModel.OriginY" />
-                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.OriginY)" />
+                <InputNumber id="@nameof(RealmDetailsViewModel.OriginY)" type="number" step="any" class="form-control"
+                  @bind-Value="RealmDetailsViewModel.OriginY" />
+                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailsViewModel.OriginY)" />
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-3 col-form-label" for="@nameof(RealmDetailViewModel.OriginRotation)">Origin
+              <label class="col-3 col-form-label" for="@nameof(RealmDetailsViewModel.OriginRotation)">Origin
                 Rotation (rad)</label>
               <div class="col">
-                <InputNumber id="@nameof(RealmDetailViewModel.OriginRotation)" type="number" step="any" class="form-control"
-                  @bind-Value="RealmDetailViewModel.OriginRotation" />
-                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailViewModel.OriginRotation)" />
+                <InputNumber id="@nameof(RealmDetailsViewModel.OriginRotation)" type="number" step="any" class="form-control"
+                  @bind-Value="RealmDetailsViewModel.OriginRotation" />
+                <ValidationMessage class="invalid-feedback" For="@(() => RealmDetailsViewModel.OriginRotation)" />
               </div>
             </div>
           </div>

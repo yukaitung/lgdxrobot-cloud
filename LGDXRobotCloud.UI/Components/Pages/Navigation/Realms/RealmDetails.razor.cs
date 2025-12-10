@@ -32,7 +32,7 @@ public partial class RealmDetails : ComponentBase
   public int? Id { get; set; }
 
   private int CurrentRealmId { get; set; } = 0;
-  private RealmDetailViewModel RealmDetailViewModel { get; set; } = new();
+  private RealmDetailsViewModel RealmDetailsViewModel { get; set; } = new();
   private DeleteEntryModalViewModel DeleteEntryModalViewModel { get; set; } = new();
   private EditContext _editContext = null!;
   private readonly CustomFieldClassProvider _customFieldClassProvider = new();
@@ -41,7 +41,7 @@ public partial class RealmDetails : ComponentBase
   {
     if (e.File != null)
     {
-      RealmDetailViewModel.SelectedImage = e.File;
+      RealmDetailsViewModel.SelectedImage = e.File;
     }
   }
 
@@ -49,7 +49,7 @@ public partial class RealmDetails : ComponentBase
   {
     try
     {
-      var file = RealmDetailViewModel.SelectedImage;
+      var file = RealmDetailsViewModel.SelectedImage;
       if (file != null)
       {
         string path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.png");
@@ -57,14 +57,14 @@ public partial class RealmDetails : ComponentBase
         await file.OpenReadStream(LgdxApiConstants.ImageMaxSize).CopyToAsync(fs);
         fs.Close();
         var bytes = File.ReadAllBytes(path);
-        RealmDetailViewModel.Image = Convert.ToBase64String(bytes);
+        RealmDetailsViewModel.Image = Convert.ToBase64String(bytes);
         File.Delete(path);
       }
     }
     catch (Exception ex)
     {
-      RealmDetailViewModel.Errors = [];
-      RealmDetailViewModel.Errors.Add(nameof(RealmDetailViewModel.SelectedImage), ex.Message);
+      RealmDetailsViewModel.Errors = [];
+      RealmDetailsViewModel.Errors.Add(nameof(RealmDetailsViewModel.SelectedImage), ex.Message);
     }
 
     try
@@ -72,19 +72,19 @@ public partial class RealmDetails : ComponentBase
       if (Id != null)
       {
         // Update
-        await LgdxApiClient.Navigation.Realms[(int)Id].PutAsync(RealmDetailViewModel.ToUpdateDto());
+        await LgdxApiClient.Navigation.Realms[(int)Id].PutAsync(RealmDetailsViewModel.ToUpdateDto());
         CachedRealmService.ClearCache((int)Id);
       }
       else
       {
         // Create
-        await LgdxApiClient.Navigation.Realms.PostAsync(RealmDetailViewModel.ToCreateDto());
+        await LgdxApiClient.Navigation.Realms.PostAsync(RealmDetailsViewModel.ToCreateDto());
       }
       NavigationManager.NavigateTo(AppRoutes.Navigation.Realms.Index);
     }
     catch (ApiException ex)
     {
-      RealmDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      RealmDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -111,7 +111,7 @@ public partial class RealmDetails : ComponentBase
     }
     catch (ApiException ex)
     {
-      RealmDetailViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
+      RealmDetailsViewModel.Errors = ApiHelper.GenerateErrorDictionary(ex);
     }
   }
 
@@ -129,13 +129,13 @@ public partial class RealmDetails : ComponentBase
     if (parameters.TryGetValue<int?>(nameof(Id), out var _id) && _id != null)
     {
       var response = await LgdxApiClient.Navigation.Realms[(int)_id].GetAsync();
-      RealmDetailViewModel.FromDto(response!);
-      _editContext = new EditContext(RealmDetailViewModel);
+      RealmDetailsViewModel.FromDto(response!);
+      _editContext = new EditContext(RealmDetailsViewModel);
       _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
     }
     else
     {
-      _editContext = new EditContext(RealmDetailViewModel);
+      _editContext = new EditContext(RealmDetailsViewModel);
       _editContext.SetFieldCssClassProvider(_customFieldClassProvider);
     }
     await base.SetParametersAsync(ParameterView.Empty);
