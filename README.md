@@ -2,7 +2,9 @@
 
 ![IMG](img/img1.png)
 
-> Please note that development is primarily done on GitLab: https://gitlab.com/lgdxrobotics/lgdxrobot-cloud
+ [![pipeline status](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/badges/main/pipeline.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/-/commits/main) [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/-/releases)
+
+ [Demo Video](https://drive.google.com/file/d/1Z3UxccWAUE5JONlDExDTq4RY2RHEnSls/view?usp=drive_link)
 
 ## Overview
 
@@ -10,6 +12,8 @@ LGDXRobot Cloud is a robot management system for Automated Guided Vehicles (AGVs
 
 - [Homepage](https://lgdxrobot.bristolgram.uk/cloud/)
 - [Documentation](https://docs.lgdxrobot.bristolgram.uk/cloud/)
+- [GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud)
+- [GitHub](https://github.com/yukaitung/lgdxrobot-cloud)
 
 ## Features
 
