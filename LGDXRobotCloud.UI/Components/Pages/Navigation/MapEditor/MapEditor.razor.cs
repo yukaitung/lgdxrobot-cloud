@@ -76,7 +76,6 @@ public partial class MapEditor : ComponentBase, IDisposable
     }
     MapEditorMode = mode;
     await JSRuntime.InvokeVoidAsync("MapEditorSetMode", (int)mode);
-    StateHasChanged();
   }
 
   private void SaveMapEditorViewModel()
@@ -192,6 +191,7 @@ public partial class MapEditor : ComponentBase, IDisposable
         await CheckAndAddTraffic(true);
         break;
     }
+    StateHasChanged();
   }
 
   [JSInvokable("HandleDeleteTraffic")]
@@ -210,6 +210,7 @@ public partial class MapEditor : ComponentBase, IDisposable
 
     await HandleMapEditorModeChange(MapEditorMode.Normal);
     SaveMapEditorViewModel();
+    StateHasChanged();
   }
 
   [JSInvokable("HandleWaypointSelect")]
