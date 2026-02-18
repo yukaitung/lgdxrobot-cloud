@@ -65,9 +65,7 @@ public class OnlineRobotsService(
       CriticalStatus = new RobotCriticalStatus
       {
         SoftwareEmergencyStop = data.CriticalStatus.SoftwareEmergencyStop,
-        HardwareEmergencyStop = data.CriticalStatus.HardwareEmergencyStop,
-        BatteryLow = [.. data.CriticalStatus.BatteryLow],
-        MotorDamaged = [.. data.CriticalStatus.MotorDamaged]
+        HardwareEmergencyStop = data.CriticalStatus.HardwareEmergencyStop
       },
       Batteries = [.. data.Batteries],
       Position = new RobotDof

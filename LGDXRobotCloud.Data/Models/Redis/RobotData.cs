@@ -28,8 +28,6 @@ public record RobotCriticalStatus
 {
   public bool HardwareEmergencyStop { get; set; }
   public bool SoftwareEmergencyStop { get; set; }
-  public List<int> BatteryLow { get; set; } = [];
-  public List<int> MotorDamaged { get; set; } = [];
 }
 
 public record RobotData

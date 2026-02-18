@@ -38,8 +38,6 @@ enum RobotClientsRobotStatus {
 message RobotClientsRobotCriticalStatus {
   bool HardwareEmergencyStop = 1;
   bool SoftwareEmergencyStop = 2;
-  repeated int32 BatteryLow = 3;
-  repeated int32 MotorDamaged = 4;
 }
 
 message RobotClientsAutoTaskNavProgress {
