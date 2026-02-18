@@ -21,7 +21,6 @@
       "destination": "wwwroot/libs/tabler-icons",
       "files": [
         "dist/tabler-icons.min.css",
-        "dist/tabler-icons.min.css.map",
         "dist/fonts/*"
       ]
     },
