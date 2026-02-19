@@ -2,20 +2,23 @@
 
 ![IMG](img/img1.png)
 
- [![pipeline status](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/badges/main/pipeline.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/-/commits/main) [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/-/releases)
+[![pipeline status](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/badges/main/pipeline.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/-/commits/main) [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud/-/releases)
 
- [Demo Video](https://drive.google.com/file/d/1Z3UxccWAUE5JONlDExDTq4RY2RHEnSls/view?usp=drive_link)
+[Demo Video](https://drive.google.com/file/d/1Z3UxccWAUE5JONlDExDTq4RY2RHEnSls/view?usp=drive_link)
 
-> Update 2026-02-18: I am currently working on an universal ROS 2 integration for LGDXRobot Cloud: [LGDXRobot Cloud Adapter](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud-adapter)
 
 ## Overview
 
-LGDXRobot Cloud is a robot management system for Automated Guided Vehicles (AGVs), designed with a focus on flexibility and security. It can monitor the status of robots in real-time and manage automated tasks for transportation and logistics. The system is also designed to support easy integration with third-party services and workflows. It integrates seamlessly with the [LGDXRobot2](https://lgdxrobot.bristolgram.uk/lgdxrobot2/) robot, providing a solid foundation for a robotics solution.
+LGDXRobot Cloud is a robot management system for Automated Guided Vehicles (AGVs), designed with a focus on flexibility and security. It can monitor the status of robots in real-time and manage automated tasks for transportation and logistics. The system is also designed to support easy integration with third-party services and workflows. It integrates seamlessly with the [LGDXRobot2](https://lgdxrobot.bristolgram.uk/lgdxrobot2/) robot, as well as open integrations with any ROS 2-compatible robot with `LGDXRobot Cloud Adapter`.
+
+- LGDXRobot Cloud: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud) | [GitHub](https://github.com/yukaitung/lgdxrobot-cloud))
+- LGDXRobot Cloud Adapter: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud-adapter) | [GitHub](https://github.com/yukaitung/lgdxrobot-cloud-adapter))
+
+### Getting Help
 
 - [Homepage](https://lgdxrobot.bristolgram.uk/cloud/)
 - [Documentation](https://docs.lgdxrobot.bristolgram.uk/cloud/)
-- [GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot-cloud)
-- [GitHub](https://github.com/yukaitung/lgdxrobot-cloud)
+- Issue boards on both GitLab and GitHub
 
 ## Features
 
