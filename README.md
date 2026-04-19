@@ -16,8 +16,8 @@ LGDXRobot Cloud is a robot management system for Automated Guided Vehicles (AGVs
 
 ### Getting Help
 
-- [Homepage](https://lgdxrobot.bristolgram.uk/cloud/)
-- [Documentation](https://docs.lgdxrobot.bristolgram.uk/cloud/)
+- [Homepage](https://bristolgram.uk/cloud/)
+- [Documentation](https://bristolgram.uk/cloud/docs/)
 - Issue boards on both GitLab and GitHub
 
 ## Features
