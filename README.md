@@ -54,7 +54,7 @@ The system is built using the .NET, with ASP.NET Web API for the backend and Bla
 
 It also utilises RabbitMQ for reliable message queuing to the worker service, Redis for robot data aggregation, and PostgreSQL for database management.
 
-Communication between the system and the robot is handled using gRPC. An example client can be found in [LGDXRobot2-ROS2](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2).
+Communication between the system and the robot is handled using gRPC. 
 
 The solution consists of the following projects:
 
@@ -82,7 +82,7 @@ To get started:
 cd Docker/docker-compose/certs
 # Option 1: Run the script to generate the certificates
 # Option 2: Run the commands manually in the script
-chmod -x ./generate-certs.sh
+chmod +x ./generate-certs.sh
 ./generate-certs.sh
 ```
 
